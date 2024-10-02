@@ -1,0 +1,58 @@
+package uz.ildam.technologies.yalla.android.design.font
+
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import uz.ildam.technologies.yalla.android.R.font.inter_regular as regular
+import uz.ildam.technologies.yalla.android.R.font.inter_semi_bold as semi_bold
+
+
+val fontScheme = FontScheme(
+    headline = createTextStyle(
+        fontResId = semi_bold,
+        weight = FontWeight.W600,
+        size = 32
+    ),
+    title = createTextStyle(
+        fontResId = semi_bold,
+        weight = FontWeight.W600,
+        size = 22
+    ),
+    body = createTextStyle(
+        fontResId = regular,
+        weight = FontWeight.W400,
+        size = 12
+    ),
+    label = createTextStyle(
+        fontResId = regular,
+        weight = FontWeight.W400,
+        size = 14
+    ),
+    labelLarge = createTextStyle(
+        fontResId = semi_bold,
+        weight = FontWeight.W600,
+        size = 16
+    ),
+    labelSemiBold = createTextStyle(
+        fontResId = semi_bold,
+        weight = FontWeight.W600,
+        size = 16
+    )
+)
+
+val LocalCustomTypography = staticCompositionLocalOf { fontScheme }
+
+private fun createTextStyle(
+    fontResId: Int,
+    weight: FontWeight,
+    size: Int
+): TextStyle {
+    return TextStyle(
+        fontFamily = FontFamily(Font(fontResId)),
+        fontWeight = weight,
+        fontSize = size.sp
+    )
+}

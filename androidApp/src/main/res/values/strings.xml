@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="enter_phone_number">Введите номер телефона</string>
+    <string name="we_send_code">Мы отправим вам код подтверждения</string>
+    <string name="next">Далее</string>
+</resources>
