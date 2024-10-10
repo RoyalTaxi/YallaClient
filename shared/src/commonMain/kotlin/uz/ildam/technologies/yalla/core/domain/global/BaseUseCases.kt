@@ -67,6 +67,39 @@ abstract class UseCaseWithFourParams<in P, R, T, S, I>(private val coroutineDisp
     ): I
 }
 
+abstract class UseCaseWithSixParams<in P, R, T, S, L, K, I>(private val coroutineDispatcher: CoroutineDispatcher) {
+    suspend operator fun invoke(
+        parameter1: P,
+        parameter2: R,
+        parameter3: T,
+        parameter4: S,
+        parameter5: L,
+        parameter6: K
+    ): Result<I> =
+        withContext(coroutineDispatcher) {
+            runCatching {
+                execute(
+                    parameter1,
+                    parameter2,
+                    parameter3,
+                    parameter4,
+                    parameter5,
+                    parameter6
+                )
+            }
+        }
+
+    @Throws(RuntimeException::class)
+    protected abstract suspend fun execute(
+        parameter1: P,
+        parameter2: R,
+        parameter3: T,
+        parameter4: S,
+        parameter5: L,
+        parameter6: K
+    ): I
+}
+
 abstract class FlowUseCase<R>(private val coroutineDispatcher: CoroutineDispatcher) {
     suspend operator fun invoke(): Flow<Result<R>> =
         execute()

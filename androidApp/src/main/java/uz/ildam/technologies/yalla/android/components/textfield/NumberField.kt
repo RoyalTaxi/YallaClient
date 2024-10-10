@@ -34,7 +34,7 @@ fun PhoneNumberTextField(
     onUpdateNumber: (String) -> Unit
 ) {
     val focusedColor = YallaTheme.color.black
-    val unfocusedColor = YallaTheme.color.grey2
+    val unfocusedColor = YallaTheme.color.gray2
     var borderColor by remember { mutableStateOf(unfocusedColor) }
 
     BasicTextField(
@@ -74,7 +74,7 @@ fun PhoneNumberTextField(
                     Text(
                         text = "91 123 45 67",
                         style = YallaTheme.font.label,
-                        color = YallaTheme.color.grey
+                        color = YallaTheme.color.gray
                     )
                 },
                 enabled = true,
@@ -85,8 +85,8 @@ fun PhoneNumberTextField(
                 colors = TextFieldDefaults.colors(
                     focusedTextColor = YallaTheme.color.black,
                     unfocusedTextColor = YallaTheme.color.black,
-                    focusedContainerColor = YallaTheme.color.grey2,
-                    unfocusedContainerColor = YallaTheme.color.grey2,
+                    focusedContainerColor = YallaTheme.color.gray2,
+                    unfocusedContainerColor = YallaTheme.color.gray2,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
                     cursorColor = YallaTheme.color.black

@@ -23,6 +23,7 @@ actual fun provideHttpClient() = HttpClient(Android) {
             "${Constants.MAJOR}.${Constants.MINOR}.${Constants.INC}"
         )
         header("Device", "client")
+        header("secret-key", "227da29a-b4b0-4682-a74f-492466836b6e")
     }
 
     install(ContentNegotiation) {
@@ -30,6 +31,7 @@ actual fun provideHttpClient() = HttpClient(Android) {
             prettyPrint = true
             isLenient = true
             ignoreUnknownKeys = true
+            explicitNulls = false
         })
     }
 }

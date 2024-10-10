@@ -36,9 +36,9 @@ fun YallaButton(
         contentPadding = PaddingValues(vertical = 16.dp, horizontal = 32.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = containerColor,
-            disabledContainerColor = YallaTheme.color.grey2,
+            disabledContainerColor = YallaTheme.color.gray2,
             contentColor = contentColor,
-            disabledContentColor = YallaTheme.color.grey
+            disabledContentColor = YallaTheme.color.gray
         ),
     ) {
         Row(
@@ -55,7 +55,7 @@ fun YallaButton(
 
             Text(
                 text = text,
-                color = if (enabled) contentColor else YallaTheme.color.grey,
+                color = if (enabled) contentColor else YallaTheme.color.gray,
                 style = YallaTheme.font.labelLarge
             )
 

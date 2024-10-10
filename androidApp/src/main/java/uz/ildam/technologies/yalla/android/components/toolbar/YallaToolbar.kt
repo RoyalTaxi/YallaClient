@@ -16,9 +16,9 @@ import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 
 @Composable
 fun YallaToolbar(
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
     text: String = "",
-    onClick: () -> Unit
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),

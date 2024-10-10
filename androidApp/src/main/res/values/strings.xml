@@ -1,6 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="russian" translatable="false">Русский</string>
+    <string name="uzbek" translatable="false">O\'zbekcha</string>
     <string name="enter_phone_number">Введите номер телефона</string>
     <string name="we_send_code">Мы отправим вам код подтверждения</string>
     <string name="next">Далее</string>
+
+    <string name="enter_otp">Введите код безопасности</string>
+    <string name="enter_otp_definition">Введите 4-значный код, который мы отправили на номер +998%s</string>
+    <string name="resend_in">Оптравить код ещё раз через %s</string>
+    <string name="resend">Оптравить код ещё раз</string>
+    <string name="choose_date">Выберите дату</string>
+    <string name="choose">Выбрать</string>
+    <string name="lets_meet">Давайте\nпознакомимся</string>
+    <string name="lets_meet_desc">Сообщите нам, как правильно к вам\nобращаться</string>
+    <string name="name">Имя</string>
+    <string name="surname">Фамилия</string>
+    <string name="date_of_birth">Дата рождения</string>
+    <string name="gender_m">Мужчина</string>
+    <string name="gender_f">Женщина</string>
+    <string name="onboarding_1">Вызывайте такси одним кликом</string>
+    <string name="onboarding_1_desc">Больше не нужно звонить оператору - просто укажите место подачи автомобиля и конечную остановку</string>
+    <string name="onboarding_2">Отслеживайте поездку</string>
+    <string name="onboarding_2_desc">Вся информация о поездке - время в пути, маршрут, стоимость и др. всегда на экране вашего смартфона</string>
+    <string name="onboarding_3">Экономьте время</string>
+    <string name="onboarding_3_desc">Можно сохранять адрес дома, работы и любимых мест в разделе "Мои адреса"</string>
+    <string name="onboarding_4">Включить геолокацию</string>
+    <string name="onboarding_4_desc">Чтобы продолжить, разрешите устройству определять ваше местоположение.</string>
+    <string name="choose_language">Выберите язык интерфейса</string>
+    <string name="choose_language_desc">Пожалуйста, выберите язык, который вам удобен для использования приложения.</string>
 </resources>

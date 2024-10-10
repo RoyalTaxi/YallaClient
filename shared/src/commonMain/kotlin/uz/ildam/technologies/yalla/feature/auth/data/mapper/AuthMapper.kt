@@ -3,8 +3,8 @@ package uz.ildam.technologies.yalla.feature.auth.data.mapper
 import uz.ildam.technologies.yalla.core.data.mapper.Mapper
 import uz.ildam.technologies.yalla.core.data.mapper.or0
 import uz.ildam.technologies.yalla.core.data.mapper.orFalse
-import uz.ildam.technologies.yalla.feature.auth.data.response.SendAuthCodeResponse
-import uz.ildam.technologies.yalla.feature.auth.data.response.ValidateAuthCodeResponse
+import uz.ildam.technologies.yalla.feature.auth.data.response.auth.SendAuthCodeResponse
+import uz.ildam.technologies.yalla.feature.auth.data.response.auth.ValidateAuthCodeResponse
 import uz.ildam.technologies.yalla.feature.auth.domain.model.SendAuthCodeModel
 import uz.ildam.technologies.yalla.feature.auth.domain.model.ValidateAuthCodeModel
 
@@ -55,7 +55,8 @@ object AuthMapper {
                 tokenType = remote?.token_type.orEmpty(),
                 accessToken = remote?.access_token.orEmpty(),
                 expiresIn = remote?.expires_in.or0(),
-                client = remote?.client.let(clientMapper)
+                client = remote?.client.let(clientMapper),
+                key = remote?.key.orEmpty()
             )
         }
 }

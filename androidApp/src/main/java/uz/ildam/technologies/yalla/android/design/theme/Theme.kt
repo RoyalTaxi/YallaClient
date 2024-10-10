@@ -8,30 +8,30 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import uz.ildam.technologies.yalla.android.design.color.Black
-import uz.ildam.technologies.yalla.android.design.color.Grey
-import uz.ildam.technologies.yalla.android.design.color.Grey2
+import uz.ildam.technologies.yalla.android.design.color.YallaBlack
+import uz.ildam.technologies.yalla.android.design.color.YallaGray
+import uz.ildam.technologies.yalla.android.design.color.YallaGray2
 import uz.ildam.technologies.yalla.android.design.color.yallaLight
 import uz.ildam.technologies.yalla.android.design.font.fontScheme
 
 
 private val colorPaletteL = lightColorScheme(
-    primary = Black,
+    primary = YallaBlack,
     secondary = Color.White,
-    tertiary = Grey,
+    tertiary = YallaGray,
     background = Color.White,
-    surface = Grey2,
-    onPrimary = Black,
+    surface = YallaGray2,
+    onPrimary = YallaBlack,
     onError = Color.Red
 )
 
 private val darkColorPaletteL = darkColorScheme(
-    primary = Black,
+    primary = YallaBlack,
     secondary = Color.White,
-    tertiary = Grey,
+    tertiary = YallaGray,
     background = Color.White,
-    surface = Grey2,
-    onPrimary = Black,
+    surface = YallaGray2,
+    onPrimary = YallaBlack,
     onError = Color.Red
 )
 

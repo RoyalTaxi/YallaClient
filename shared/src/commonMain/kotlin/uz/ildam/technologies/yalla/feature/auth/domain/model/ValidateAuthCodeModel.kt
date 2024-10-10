@@ -5,7 +5,8 @@ data class ValidateAuthCodeModel(
     val tokenType: String,
     val accessToken: String,
     val expiresIn: Int,
-    val client: Client
+    val client: Client,
+    val key: String
 ) {
     data class Client(
         val id: Int,

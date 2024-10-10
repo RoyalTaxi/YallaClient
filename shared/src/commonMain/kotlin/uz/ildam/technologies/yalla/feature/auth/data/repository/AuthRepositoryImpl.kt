@@ -1,8 +1,8 @@
 package uz.ildam.technologies.yalla.feature.auth.data.repository
 
 import uz.ildam.technologies.yalla.feature.auth.data.mapper.AuthMapper
-import uz.ildam.technologies.yalla.feature.auth.data.request.SendAuthCodeRequest
-import uz.ildam.technologies.yalla.feature.auth.data.request.ValidateAuthCodeRequest
+import uz.ildam.technologies.yalla.feature.auth.data.request.auth.SendAuthCodeRequest
+import uz.ildam.technologies.yalla.feature.auth.data.request.auth.ValidateAuthCodeRequest
 import uz.ildam.technologies.yalla.feature.auth.data.service.AuthApiService
 import uz.ildam.technologies.yalla.feature.auth.domain.model.SendAuthCodeModel
 import uz.ildam.technologies.yalla.feature.auth.domain.model.ValidateAuthCodeModel

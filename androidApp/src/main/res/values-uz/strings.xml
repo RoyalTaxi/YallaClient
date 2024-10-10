@@ -3,4 +3,30 @@
     <string name="enter_phone_number">Telefon raqamingizni kiriting</string>
     <string name="we_send_code">Sizga tasdiqlash kodini yuboramiz</string>
     <string name="next">Keyingisi</string>
+
+    <string name="enter_otp">Havfsizlik kodini kiriting</string>
+    <string name="enter_otp_definition">+998%sga yuborilgan tasdiqlash kodini kiriting</string>
+    <string name="resend_in">%s dan so\'ng qayta yuboring</string>
+    <string name="resend">Kodni qayta yuborish</string>
+    <string name="choose_date">Sana tanlang</string>
+    <string name="choose">Tanlash</string>
+    <string name="lets_meet">Keling\ntanishamiz</string>
+    <string name="lets_meet_desc">Siz bilan qanday qilib to\'g\'ri bog\'lanishni\nbizga xabar bering</string>
+    <string name="name">Ism</string>
+    <string name="surname">Familiya</string>
+    <string name="date_of_birth">Tug\'ilgan sana</string>
+    <string name="gender_m">Erkak</string>
+    <string name="gender_f">Ayol</string>
+
+    <string name="onboarding_1">Вызывайте такси одним кликом</string>
+    <string name="onboarding_1_desc">Больше не нужно звонить оператору - просто укажите место подачи автомобиля и конечную остановку</string>
+    <string name="onboarding_2">Отслеживайте поездку</string>
+    <string name="onboarding_2_desc">Вся информация о поездке - время в пути, маршрут, стоимость и др. всегда на экране вашего смартфона</string>
+    <string name="onboarding_3">Экономьте время</string>
+    <string name="onboarding_3_desc">Можно сохранять адрес дома, работы и любимых мест в разделе "Мои адреса"</string>
+    <string name="onboarding_4">Включить геолокацию</string>
+    <string name="onboarding_4_desc">Чтобы продолжить, разрешите устройству определять ваше местоположение.</string>
+    <string name="choose_language">Interfeys tilini\ntanlang</string>
+    <string name="choose_language_desc">Iltimos, ilovadan foydalanish uchun o\'zingizga qulay bo\'lgan tilni tanlang.</string>
+
 </resources>

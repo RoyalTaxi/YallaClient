@@ -13,9 +13,15 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
+        resourceConfigurations.plus(listOf("uz", "ru"))
     }
     buildFeatures {
         compose = true
+    }
+    bundle {
+        language {
+            enableSplit = false
+        }
     }
     packaging {
         resources {
@@ -45,14 +51,27 @@ dependencies {
     debugImplementation(libs.compose.ui.tooling)
 
     // Koin
-    implementation(libs.koin.android) // Koin Android
-    implementation(libs.insert.koin.koin.androidx.compose) // Koin-Compose
+    implementation(libs.koin.android)
+    implementation(libs.insert.koin.koin.androidx.compose)
 
     // Voyager
-    implementation(libs.voyager.navigator) // Navigator
-    implementation(libs.voyager.screenmodel) // Screen Model
-    implementation(libs.voyager.bottom.sheet.navigator) // BottomSheetNavigator
-    implementation(libs.voyager.tab.navigator) // TabNavigator
-    implementation(libs.voyager.transitions) // Transitions
-    implementation(libs.voyager.koin) // Koin
+    implementation(libs.voyager.navigator)
+    implementation(libs.voyager.screenmodel)
+    implementation(libs.voyager.bottom.sheet.navigator)
+    implementation(libs.voyager.tab.navigator)
+    implementation(libs.voyager.transitions)
+    implementation(libs.voyager.koin)
+
+    // DatePicker
+    implementation(libs.snapper)
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
+
+    // Splash Screen
+    implementation(libs.androidx.core.splashscreen)
+
+    // LocalDate
+    implementation(libs.threetenabp)
+
+    // Location
+    implementation(libs.play.services.location)
 }

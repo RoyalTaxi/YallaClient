@@ -5,10 +5,10 @@ import io.ktor.client.call.body
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import uz.ildam.technologies.yalla.core.data.response.ApiResponseWrapper
-import uz.ildam.technologies.yalla.feature.auth.data.request.SendAuthCodeRequest
-import uz.ildam.technologies.yalla.feature.auth.data.request.ValidateAuthCodeRequest
-import uz.ildam.technologies.yalla.feature.auth.data.response.SendAuthCodeResponse
-import uz.ildam.technologies.yalla.feature.auth.data.response.ValidateAuthCodeResponse
+import uz.ildam.technologies.yalla.feature.auth.data.request.auth.SendAuthCodeRequest
+import uz.ildam.technologies.yalla.feature.auth.data.request.auth.ValidateAuthCodeRequest
+import uz.ildam.technologies.yalla.feature.auth.data.response.auth.SendAuthCodeResponse
+import uz.ildam.technologies.yalla.feature.auth.data.response.auth.ValidateAuthCodeResponse
 import uz.ildam.technologies.yalla.feature.auth.data.url.AuthUrl
 
 class AuthApiService(

@@ -10,37 +10,49 @@ import androidx.compose.ui.graphics.Color
 class ColorScheme(
     black: Color,
     white: Color,
-    grey: Color,
-    grey2: Color
+    gray: Color,
+    gray2: Color,
+    grayBackground: Color,
+    primary: Color,
 ) {
     var black by mutableStateOf(black, structuralEqualityPolicy())
     var white by mutableStateOf(white, structuralEqualityPolicy())
-    var grey by mutableStateOf(grey, structuralEqualityPolicy())
-    var grey2 by mutableStateOf(grey2, structuralEqualityPolicy())
+    var gray by mutableStateOf(gray, structuralEqualityPolicy())
+    var gray2 by mutableStateOf(gray2, structuralEqualityPolicy())
+    var grayBackground by mutableStateOf(grayBackground, structuralEqualityPolicy())
+    var primary by mutableStateOf(primary, structuralEqualityPolicy())
 }
 
 fun yallaLight(
-    black: Color = Black,
-    white: Color = White,
-    grey: Color = Grey,
-    grey2: Color = Grey2
+    black: Color = YallaBlack,
+    white: Color = YallaWhite,
+    gray: Color = YallaGray,
+    gray2: Color = YallaGray2,
+    grayBackground: Color = YallaGrayBackground,
+    primary: Color = YallaPrimary
 ) = ColorScheme(
     black = black,
     white = white,
-    grey = grey,
-    grey2 = grey2
+    gray = gray,
+    gray2 = gray2,
+    grayBackground = grayBackground,
+    primary = primary
 )
 
 fun yallaDark(
-    black: Color = Black,
-    white: Color = White,
-    grey: Color = Grey,
-    grey2: Color = Grey2
+    black: Color = YallaBlack,
+    white: Color = YallaWhite,
+    gray: Color = YallaGray,
+    gray2: Color = YallaGray2,
+    grayBackground: Color = YallaGrayBackground,
+    primary: Color = YallaPrimary
 ) = ColorScheme(
     black = black,
     white = white,
-    grey = grey,
-    grey2 = grey2
+    gray = gray,
+    gray2 = gray2,
+    grayBackground = grayBackground,
+    primary = primary
 )
 
 val LocalCustomColorScheme = staticCompositionLocalOf { yallaLight() }
