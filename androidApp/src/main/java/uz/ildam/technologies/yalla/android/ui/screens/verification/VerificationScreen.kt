@@ -15,9 +15,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
@@ -34,29 +36,45 @@ import uz.ildam.technologies.yalla.android.components.otp.OtpView
 import uz.ildam.technologies.yalla.android.components.toolbar.YallaToolbar
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 import uz.ildam.technologies.yalla.android.ui.screens.credentials.CredentialsScreen
+import java.util.Locale
 
 data class VerificationScreen(
     private val number: String,
-    private val time: Int
+    private val expiresIn: Int
 ) : Screen {
 
     @Composable
     override fun Content() {
+        var code by remember { mutableStateOf("") }
+        var remainingMinutes by remember { mutableIntStateOf(0) }
+        var remainingSeconds by remember { mutableIntStateOf(0) }
+        var hasRemainingTime by remember { mutableStateOf(false) }
+        var buttonState by remember { mutableStateOf(false) }
         val screenModel = koinScreenModel<VerificationModel>()
-        val uiState by screenModel.uiState.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
         val focusManager = LocalFocusManager.current
 
         LaunchedEffect(Unit) {
-            screenModel.startTimer(time)
-            screenModel.updateNumber(number)
+            launch {
+                screenModel.countDownTimer(expiresIn).collect { seconds ->
+                    buttonState = seconds != 0 && code.length == 5
+                    remainingMinutes = seconds / 60
+                    remainingSeconds = seconds % 60
+                    hasRemainingTime = (remainingMinutes + remainingSeconds) > 0
+                }
+            }
 
             launch {
-                screenModel.successFlow.collect { isClient ->
-                    if (!isClient) navigator replace CredentialsScreen(
-                        number = uiState.getFormattedNumber(),
-                        secretKey = uiState.secretKey
-                    )
+                screenModel.events.collect {
+                    when (it) {
+                        is VerificationEvent.Error -> buttonState = false
+                        is VerificationEvent.Loading -> buttonState = false
+                        is VerificationEvent.SendSMSSuccess -> screenModel.countDownTimer(it.data.time)
+                        is VerificationEvent.VerifySuccess -> {
+                            if (it.data.isClient.not())
+                                navigator push CredentialsScreen(number, it.data.key)
+                        }
+                    }
                 }
             }
         }
@@ -65,14 +83,14 @@ data class VerificationScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(YallaTheme.color.white)
+                .systemBarsPadding()
+                .imePadding()
                 .clickable(
                     onClick = { focusManager.clearFocus(true) },
                     role = Role.Image,
                     interactionSource = remember { MutableInteractionSource() },
-                    indication = ripple(color = YallaTheme.color.white)
-                )
-                .systemBarsPadding()
-                .imePadding(),
+                    indication = null
+                ),
         ) {
             YallaToolbar(onClick = navigator::pop)
 
@@ -100,37 +118,46 @@ data class VerificationScreen(
                 Spacer(modifier = Modifier.height(20.dp))
 
                 OtpView(
-                    otpText = uiState.otp,
+                    otpText = code,
                     onOtpTextChange = {
-                        screenModel.updateOtp(it)
-                        if (it.length == 5) focusManager.clearFocus(true)
+                        if (it.all { char -> char.isDigit() }) code = it
+                        buttonState = hasRemainingTime && code.length == 5
+                        if (code.length == 5) focusManager.clearFocus(true)
                     }
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
 
                 Text(
-                    text = if (uiState.timerActiveState) stringResource(
-                        id = R.string.resend_in,
-                        uiState.resendInSecondsText
-                    ) else stringResource(id = R.string.resend),
                     color = YallaTheme.color.gray,
                     style = YallaTheme.font.body,
-                    modifier = if (uiState.timerActiveState.not()) Modifier.clickable(
-                        onClick = screenModel::resendAuthCode,
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = ripple(color = YallaTheme.color.white)
-                    ) else Modifier
+                    text = if (hasRemainingTime) {
+                        stringResource(
+                            id = R.string.resend_in,
+                            String.format(Locale.US, "%d:%02d", remainingMinutes, remainingSeconds)
+                        )
+                    } else {
+                        stringResource(id = R.string.resend)
+                    },
+                    modifier = Modifier
+                        .then(
+                            if (!hasRemainingTime) {
+                                Modifier.clickable(
+                                    onClick = { screenModel.resendAuthCode(number) },
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = ripple(color = YallaTheme.color.white)
+                                )
+                            } else Modifier
+                        )
                 )
-
 
                 Spacer(modifier = Modifier.weight(1f))
 
                 YallaButton(
                     modifier = Modifier.fillMaxWidth(),
                     text = stringResource(id = R.string.next),
-                    enabled = uiState.buttonEnabled && uiState.otp.length == 5,
-                    onClick = screenModel::validateAuthCode
+                    enabled = buttonState,
+                    onClick = { screenModel.verifyAuthCode("998$number", code.toInt()) }
                 )
             }
         }

@@ -1,6 +1,6 @@
 package uz.ildam.technologies.yalla.feature.auth.domain.model
 
-data class ValidateAuthCodeModel(
+data class VerifyAuthCodeModel(
     val isClient: Boolean,
     val tokenType: String,
     val accessToken: String,

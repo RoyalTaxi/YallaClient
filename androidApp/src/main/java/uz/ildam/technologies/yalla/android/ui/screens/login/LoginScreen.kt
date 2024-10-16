@@ -12,12 +12,13 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Text
-import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
@@ -40,17 +41,22 @@ class LoginScreen : Screen {
     @Composable
     override fun Content() {
         val screenModel = koinScreenModel<LoginModel>()
-        val uiState by screenModel.uiState.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
         val focusManager = LocalFocusManager.current
 
+        var number by rememberSaveable { mutableStateOf("") }
+        var buttonState by rememberSaveable { mutableStateOf(false) }
+
         LaunchedEffect(Unit) {
             launch {
-                screenModel.validationFlow.collect {
-                    navigator push VerificationScreen(
-                        number = uiState.number,
-                        time = uiState.time
-                    )
+                screenModel.events.collect { event ->
+                    when (event) {
+                        is LoginEvent.Error -> buttonState = false
+                        is LoginEvent.Loading -> buttonState = false
+                        is LoginEvent.Success -> {
+                            navigator push VerificationScreen(number, event.data.time)
+                        }
+                    }
                 }
             }
         }
@@ -63,7 +69,7 @@ class LoginScreen : Screen {
                     onClick = { focusManager.clearFocus(true) },
                     role = Role.Image,
                     interactionSource = remember { MutableInteractionSource() },
-                    indication = ripple(color = YallaTheme.color.white)
+                    indication = null
                 )
                 .systemBarsPadding()
                 .imePadding(),
@@ -95,17 +101,21 @@ class LoginScreen : Screen {
                 Spacer(modifier = Modifier.height(20.dp))
 
                 PhoneNumberTextField(
-                    number = uiState.number,
-                    onUpdateNumber = screenModel::updateNumber
+                    number = number,
+                    onUpdateNumber = {
+                        number = it
+                        buttonState = it.length == 9
+                    }
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.height(32.dp))
 
                 YallaButton(
                     modifier = Modifier.fillMaxWidth(),
                     text = stringResource(id = R.string.next),
-                    enabled = uiState.buttonEnabled,
-                    onClick = screenModel::sendAuthCode
+                    enabled = buttonState,
+                    onClick = { screenModel.sendAuthCode("998$number") }
                 )
             }
         }

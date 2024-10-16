@@ -9,11 +9,16 @@ import io.ktor.client.request.header
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import sp.bvantur.inspektify.ktor.InspektifyKtor
+import sp.bvantur.inspektify.ktor.PresentationType
+import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 
 actual fun provideHttpClient() = HttpClient(Android) {
-    install(InspektifyKtor)
+    install(InspektifyKtor){
+        presentationType = PresentationType.Custom
+    }
     defaultRequest {
         url(Constants.BASE_URL)
+        header("lang", AppPreferences.locale)
         header("brand-id", "2")
         header("User-Agent-OS", "${Build.MODEL} ${Build.VERSION.SDK_INT}")
         header("Content-Type", "application/json")

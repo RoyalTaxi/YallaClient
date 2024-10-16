@@ -6,7 +6,7 @@ import uz.ildam.technologies.yalla.core.data.mapper.orFalse
 import uz.ildam.technologies.yalla.feature.auth.data.response.auth.SendAuthCodeResponse
 import uz.ildam.technologies.yalla.feature.auth.data.response.auth.ValidateAuthCodeResponse
 import uz.ildam.technologies.yalla.feature.auth.domain.model.SendAuthCodeModel
-import uz.ildam.technologies.yalla.feature.auth.domain.model.ValidateAuthCodeModel
+import uz.ildam.technologies.yalla.feature.auth.domain.model.VerifyAuthCodeModel
 
 object AuthMapper {
     val sendAuthCodeMapper: Mapper<SendAuthCodeResponse?, SendAuthCodeModel> = { remote ->
@@ -16,19 +16,19 @@ object AuthMapper {
         )
     }
 
-    val validateAuthCodeMapper: Mapper<ValidateAuthCodeResponse?, ValidateAuthCodeModel> =
+    val validateAuthCodeMapper: Mapper<ValidateAuthCodeResponse?, VerifyAuthCodeModel> =
         { remote ->
-            val brandMapper: Mapper<ValidateAuthCodeResponse.Client.Brand?, ValidateAuthCodeModel.Client.Brand> =
+            val brandMapper: Mapper<ValidateAuthCodeResponse.Client.Brand?, VerifyAuthCodeModel.Client.Brand> =
                 { brand ->
-                    ValidateAuthCodeModel.Client.Brand(
+                    VerifyAuthCodeModel.Client.Brand(
                         id = brand?.id.or0(),
                         name = brand?.name.orEmpty()
                     )
                 }
 
-            val clientMapper: Mapper<ValidateAuthCodeResponse.Client?, ValidateAuthCodeModel.Client> =
+            val clientMapper: Mapper<ValidateAuthCodeResponse.Client?, VerifyAuthCodeModel.Client> =
                 { client ->
-                    ValidateAuthCodeModel.Client(
+                    VerifyAuthCodeModel.Client(
                         id = client?.id.or0(),
                         phone = client?.phone.orEmpty(),
                         givenNames = client?.given_names.orEmpty(),
@@ -50,7 +50,7 @@ object AuthMapper {
                     )
                 }
 
-            ValidateAuthCodeModel(
+            VerifyAuthCodeModel(
                 isClient = remote?.is_client.orFalse(),
                 tokenType = remote?.token_type.orEmpty(),
                 accessToken = remote?.access_token.orEmpty(),

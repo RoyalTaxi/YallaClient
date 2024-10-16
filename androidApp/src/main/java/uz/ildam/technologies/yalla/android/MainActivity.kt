@@ -1,7 +1,6 @@
 package uz.ildam.technologies.yalla.android
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -11,7 +10,6 @@ import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.transitions.SlideTransition
 import uz.ildam.technologies.yalla.android.design.color.YallaBlack
 import uz.ildam.technologies.yalla.android.design.color.YallaWhite
-import uz.ildam.technologies.yalla.android.ui.screens.language.LanguageScreen
 import uz.ildam.technologies.yalla.android.ui.screens.login.LoginScreen
 import uz.ildam.technologies.yalla.android.ui.screens.onboarding.OnboardingScreen
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences

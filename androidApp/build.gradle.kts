@@ -74,4 +74,13 @@ dependencies {
 
     // Location
     implementation(libs.play.services.location)
+
+    // Inspektify
+    implementation(libs.inspektify.ktor3)
+
+    // Ktor
+    implementation(libs.ktor.client.android)
+
+    // Maps
+    implementation(libs.maps.compose)
 }

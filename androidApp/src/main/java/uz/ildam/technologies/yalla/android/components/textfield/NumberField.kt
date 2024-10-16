@@ -51,6 +51,7 @@ fun PhoneNumberTextField(
                 shape = RoundedCornerShape(16.dp)
             ),
         onValueChange = onUpdateNumber,
+        singleLine = true,
         textStyle = YallaTheme.font.label.copy(color = YallaTheme.color.black),
         visualTransformation = PhoneVisualTransformation("(00) 000-00-00", '0'),
         keyboardOptions = KeyboardOptions(

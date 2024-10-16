@@ -29,7 +29,7 @@ fun OtpView(
     charBackground: Color = YallaTheme.color.gray2,
     charSize: TextUnit = 14.sp,
     containerSize: Dp = charSize.value.dp * 2,
-    containerRadius: Dp = 16.dp,
+    containerRadius: Dp = 12.dp,
     containerSpacing: Dp = 12.dp,
     otpCount: Int = 5,
     type: Int = OTP_VIEW_TYPE_BORDER,

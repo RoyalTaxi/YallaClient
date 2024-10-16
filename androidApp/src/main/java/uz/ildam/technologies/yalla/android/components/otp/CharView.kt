@@ -46,7 +46,7 @@ fun CharView(
 
     val modifier = if (type == OTP_VIEW_TYPE_BORDER) {
         Modifier
-            .size(60.dp, 60.dp)
+            .size(40.dp, 40.dp)
             .border(
                 width = 1.dp,
                 color = borderColor,

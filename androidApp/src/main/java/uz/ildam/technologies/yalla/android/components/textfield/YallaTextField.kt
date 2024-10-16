@@ -86,6 +86,7 @@ fun YallaTextField(
                     cursorBrush = SolidColor(YallaTheme.color.black),
                     textStyle = YallaTheme.font.labelSemiBold.copy(color = YallaTheme.color.black),
                     enabled = trailingIcon == null,
+                    singleLine = true,
                     modifier = Modifier
                         .fillMaxWidth()
                         .onFocusChanged {

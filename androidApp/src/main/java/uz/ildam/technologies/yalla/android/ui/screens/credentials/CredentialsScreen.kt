@@ -28,10 +28,12 @@ import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -51,6 +53,7 @@ import uz.ildam.technologies.yalla.android.components.button.GenderButton
 import uz.ildam.technologies.yalla.android.components.button.YallaButton
 import uz.ildam.technologies.yalla.android.components.textfield.YallaTextField
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
+import uz.ildam.technologies.yalla.android.ui.screens.login.LoginEvent
 import uz.ildam.technologies.yalla.android.utils.Utils.formatWithDashesDMY
 
 data class CredentialsScreen(
@@ -60,9 +63,14 @@ data class CredentialsScreen(
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
+        var firstName by rememberSaveable { mutableStateOf("") }
+        var lastName by rememberSaveable { mutableStateOf("") }
+        var dateOfBirth by rememberSaveable { mutableStateOf<LocalDate?>(null) }
+        var gender by rememberSaveable { mutableStateOf("NOT_SELECTED") }
+        val buttonState by remember { mutableStateOf(false) }
+
         val navigator = LocalNavigator.currentOrThrow
         val screenModel = koinScreenModel<CredentialsModel>()
-        val uiState by screenModel.uiState.collectAsState()
         val focusManager = LocalFocusManager.current
         val context = LocalContext.current as Activity
         val scope = rememberCoroutineScope()
@@ -70,12 +78,19 @@ data class CredentialsScreen(
             bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         )
 
-        BackHandler(onBack = context::finish)
-
         LaunchedEffect(Unit) {
-            screenModel.updateNumber(number)
-            screenModel.updateSecretKey(secretKey)
+            launch {
+                screenModel.events.collect {
+                    when (it) {
+                        is CredentialsEvent.Error -> {}
+                        is CredentialsEvent.Loading -> {}
+                        is CredentialsEvent.Success -> {}
+                    }
+                }
+            }
         }
+
+        BackHandler(onBack = context::finish)
 
         BottomSheetScaffold(
             sheetDragHandle = null,
@@ -86,8 +101,8 @@ data class CredentialsScreen(
             sheetShape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
             sheetContent = {
                 DatePickerBottomSheet(
-                    startDate = uiState.dateOfBirth ?: LocalDate.now(),
-                    onSelectDate = screenModel::updateDateOfBirth,
+                    startDate = dateOfBirth ?: LocalDate.now(),
+                    onSelectDate = { dateOfBirth = it },
                     onDismissRequest = { scope.launch { state.bottomSheetState.hide() } }
                 )
             },
@@ -124,8 +139,8 @@ data class CredentialsScreen(
 
                         item {
                             YallaTextField(
-                                text = uiState.name,
-                                onChangeText = screenModel::updateName,
+                                text = firstName,
+                                onChangeText = { firstName = it },
                                 placeHolderText = stringResource(id = R.string.name),
                                 modifier = Modifier.fillMaxWidth()
                             )
@@ -135,8 +150,8 @@ data class CredentialsScreen(
 
                         item {
                             YallaTextField(
-                                text = uiState.surname,
-                                onChangeText = screenModel::updateSurname,
+                                text = lastName,
+                                onChangeText = { lastName = it },
                                 placeHolderText = stringResource(id = R.string.surname)
                             )
                         }
@@ -145,7 +160,7 @@ data class CredentialsScreen(
 
                         item {
                             YallaTextField(
-                                text = uiState.dateOfBirth?.formatWithDashesDMY() ?: "",
+                                text = dateOfBirth?.formatWithDashesDMY() ?: "",
                                 placeHolderText = stringResource(id = R.string.date_of_birth),
                                 onChangeText = {},
                                 trailingIcon = painterResource(id = R.drawable.ic_calendar),
@@ -167,15 +182,15 @@ data class CredentialsScreen(
                                 GenderButton(
                                     modifier = Modifier.weight(1f),
                                     text = stringResource(id = R.string.gender_m),
-                                    isSelected = uiState.gender == "MALE",
-                                    onSelect = { screenModel.updateGender("MALE") }
+                                    isSelected = gender == "MALE",
+                                    onSelect = { gender = "MALE" }
                                 )
 
                                 GenderButton(
                                     modifier = Modifier.weight(1f),
                                     text = stringResource(id = R.string.gender_f),
-                                    isSelected = uiState.gender == "FEMALE",
-                                    onSelect = { screenModel.updateGender("FEMALE") }
+                                    isSelected = gender == "FEMALE",
+                                    onSelect = { gender = "FEMALE" }
                                 )
                             }
                         }
@@ -186,8 +201,19 @@ data class CredentialsScreen(
                     YallaButton(
                         modifier = Modifier.fillMaxWidth(),
                         text = stringResource(id = R.string.next),
-                        onClick = screenModel::register,
-                        enabled = uiState.buttonEnabled
+                        enabled = firstName.isNotBlank() && lastName.isNotBlank() && gender != "NOT_SELECTED" && dateOfBirth != null,
+                        onClick = {
+                            dateOfBirth?.let { dateOfBirth ->
+                                screenModel.register(
+                                    number = "998$number",
+                                    firstName = firstName,
+                                    lastName = lastName,
+                                    gender = gender,
+                                    dateOfBirth = dateOfBirth,
+                                    key = secretKey
+                                )
+                            }
+                        }
                     )
                 }
 

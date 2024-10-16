@@ -13,7 +13,7 @@ object AppPreferences {
     }
 
     var locale: String
-        get() = preferences.getString(AppPreferences::locale.name, "") ?: "uz"
+        get() = preferences.getString(AppPreferences::locale.name, "uz") ?: "uz"
         set(value) {
             preferences.edit()?.putString(AppPreferences::locale.name, value)?.apply()
         }
@@ -60,6 +60,4 @@ object AppPreferences {
         set(value) {
             preferences.edit()?.putString(AppPreferences::dateOfBirth.name, value)?.apply()
         }
-
-
 }
