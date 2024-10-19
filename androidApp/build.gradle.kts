@@ -50,17 +50,13 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     debugImplementation(libs.compose.ui.tooling)
 
+    // Navigation
+    implementation(libs.androidx.navigation.compose)
+
     // Koin
     implementation(libs.koin.android)
     implementation(libs.insert.koin.koin.androidx.compose)
-
-    // Voyager
-    implementation(libs.voyager.navigator)
-    implementation(libs.voyager.screenmodel)
-    implementation(libs.voyager.bottom.sheet.navigator)
-    implementation(libs.voyager.tab.navigator)
-    implementation(libs.voyager.transitions)
-    implementation(libs.voyager.koin)
+    testImplementation(libs.koin.test.junit4)
 
     // DatePicker
     implementation(libs.snapper)
@@ -83,4 +79,10 @@ dependencies {
 
     // Maps
     implementation(libs.maps.compose)
+
+    // Advanced BottomSheet
+    implementation(libs.advanced.bottomsheet.material3)
+
+    // ConstraintLayout
+    implementation(libs.androidx.constraintlayout.compose)
 }

@@ -29,4 +29,5 @@
     <string name="onboarding_4_desc">Чтобы продолжить, разрешите устройству определять ваше местоположение.</string>
     <string name="choose_language">Выберите язык интерфейса</string>
     <string name="choose_language_desc">Пожалуйста, выберите язык, который вам удобен для использования приложения.</string>
+    <string name="min">мин</string>
 </resources>

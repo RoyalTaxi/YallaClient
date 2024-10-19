@@ -13,111 +13,84 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.koin.koinScreenModel
-import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.currentOrThrow
-import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.android.R
-import uz.ildam.technologies.yalla.android.components.button.YallaButton
-import uz.ildam.technologies.yalla.android.components.textfield.PhoneNumberTextField
-import uz.ildam.technologies.yalla.android.components.toolbar.YallaToolbar
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
-import uz.ildam.technologies.yalla.android.ui.screens.verification.VerificationScreen
+import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
+import uz.ildam.technologies.yalla.android.ui.components.textfield.PhoneNumberTextField
+import uz.ildam.technologies.yalla.android.ui.components.toolbar.YallaToolbar
 
-class LoginScreen : Screen {
 
-    @Composable
-    override fun Content() {
-        val screenModel = koinScreenModel<LoginModel>()
-        val navigator = LocalNavigator.currentOrThrow
-        val focusManager = LocalFocusManager.current
+@Composable
+fun LoginScreen(
+    number: String,
+    buttonState: Boolean,
+    focusManager: FocusManager,
+    onBack: () -> Unit,
+    onSend: () -> Unit,
+    onUpdateNumber: (String) -> Unit,
+) {
 
-        var number by rememberSaveable { mutableStateOf("") }
-        var buttonState by rememberSaveable { mutableStateOf(false) }
 
-        LaunchedEffect(Unit) {
-            launch {
-                screenModel.events.collect { event ->
-                    when (event) {
-                        is LoginEvent.Error -> buttonState = false
-                        is LoginEvent.Loading -> buttonState = false
-                        is LoginEvent.Success -> {
-                            navigator push VerificationScreen(number, event.data.time)
-                        }
-                    }
-                }
-            }
-        }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(YallaTheme.color.white)
+            .clickable(
+                onClick = { focusManager.clearFocus(true) },
+                role = Role.Image,
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            )
+            .systemBarsPadding()
+            .imePadding(),
+    ) {
+        YallaToolbar(onClick = onBack)
 
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .background(YallaTheme.color.white)
-                .clickable(
-                    onClick = { focusManager.clearFocus(true) },
-                    role = Role.Image,
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                )
-                .systemBarsPadding()
-                .imePadding(),
+                .weight(1f)
+                .padding(20.dp)
+
         ) {
-            YallaToolbar(onClick = navigator::pop)
+            Spacer(modifier = Modifier.height(40.dp))
 
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(20.dp)
+            Text(
+                text = stringResource(id = R.string.enter_phone_number),
+                color = YallaTheme.color.black,
+                style = YallaTheme.font.headline
+            )
 
-            ) {
-                Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-                Text(
-                    text = stringResource(id = R.string.enter_phone_number),
-                    color = YallaTheme.color.black,
-                    style = YallaTheme.font.headline
-                )
+            Text(
+                text = stringResource(id = R.string.we_send_code),
+                color = YallaTheme.color.gray,
+                style = YallaTheme.font.body
+            )
 
-                Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-                Text(
-                    text = stringResource(id = R.string.we_send_code),
-                    color = YallaTheme.color.gray,
-                    style = YallaTheme.font.body
-                )
+            PhoneNumberTextField(
+                number = number,
+                onUpdateNumber = onUpdateNumber
+            )
 
-                Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.weight(1f))
 
-                PhoneNumberTextField(
-                    number = number,
-                    onUpdateNumber = {
-                        number = it
-                        buttonState = it.length == 9
-                    }
-                )
+            Spacer(modifier = Modifier.height(32.dp))
 
-                Spacer(modifier = Modifier.weight(1f))
-                Spacer(modifier = Modifier.height(32.dp))
-
-                YallaButton(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(id = R.string.next),
-                    enabled = buttonState,
-                    onClick = { screenModel.sendAuthCode("998$number") }
-                )
-            }
+            YallaButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(id = R.string.next),
+                enabled = buttonState,
+                onClick = onSend
+            )
         }
     }
 }

@@ -1,17 +1,20 @@
 package uz.ildam.technologies.yalla.android.di
 
+import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
-import uz.ildam.technologies.yalla.android.ui.screens.credentials.CredentialsModel
-import uz.ildam.technologies.yalla.android.ui.screens.login.LoginModel
-import uz.ildam.technologies.yalla.android.ui.screens.verification.VerificationModel
+import uz.ildam.technologies.yalla.android.ui.screens.credentials.CredentialsViewModel
+import uz.ildam.technologies.yalla.android.ui.screens.login.LoginViewModel
+import uz.ildam.technologies.yalla.android.ui.screens.map.MapViewModel
+import uz.ildam.technologies.yalla.android.ui.screens.verification.VerificationViewModel
 
 object Navigation {
 
-    private val screenModule = module {
-        factory { LoginModel(get()) }
-        factory { VerificationModel(get(), get()) }
-        factory { CredentialsModel(get()) }
+    private val viewModelModule = module {
+        viewModel { LoginViewModel(get()) }
+        viewModel { VerificationViewModel(get(), get()) }
+        viewModel { CredentialsViewModel(get()) }
+        viewModel { MapViewModel(get()) }
     }
 
-    val modules = listOf(screenModule)
+    val modules = listOf(viewModelModule)
 }

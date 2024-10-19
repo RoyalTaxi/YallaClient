@@ -1,7 +1,9 @@
 package uz.ildam.technologies.yalla.feature.auth.domain.usecase.register
 
-import uz.ildam.technologies.yalla.core.domain.model.DataError
-import uz.ildam.technologies.yalla.core.domain.model.Result
+import uz.ildam.technologies.yalla.core.domain.error.DataError
+import uz.ildam.technologies.yalla.core.domain.error.Result
+import uz.ildam.technologies.yalla.feature.auth.data.mapper.RegisterMapper
+import uz.ildam.technologies.yalla.feature.auth.domain.model.register.RegisterModel
 import uz.ildam.technologies.yalla.feature.auth.domain.repository.RegisterRepository
 
 class RegisterUseCase(
@@ -14,7 +16,7 @@ class RegisterUseCase(
         gender: String,
         dateOfBirth: String,
         key: String
-    ): Result<Unit, DataError.Network> {
+    ): Result<RegisterModel, DataError.Network> {
         return repository.register(
             phone = phone,
             firstName = firstName,

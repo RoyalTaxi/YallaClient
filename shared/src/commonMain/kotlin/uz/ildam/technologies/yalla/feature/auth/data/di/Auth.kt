@@ -1,6 +1,8 @@
 package uz.ildam.technologies.yalla.feature.auth.data.di
 
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
+import uz.ildam.technologies.yalla.core.data.global.Constants
 import uz.ildam.technologies.yalla.feature.auth.data.repository.AuthRepositoryImpl
 import uz.ildam.technologies.yalla.feature.auth.data.repository.RegisterRepositoryImpl
 import uz.ildam.technologies.yalla.feature.auth.data.service.AuthApiService
@@ -14,8 +16,8 @@ import uz.ildam.technologies.yalla.feature.auth.domain.usecase.register.Register
 object Auth {
 
     private val serviceModule = module {
-        single { AuthApiService(get()) }
-        single { RegisterApiService(get()) }
+        single { AuthApiService(get(named(Constants.API_1))) }
+        single { RegisterApiService(get(named(Constants.API_1))) }
     }
 
     private val repositoryModule = module {

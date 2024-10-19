@@ -1,8 +1,8 @@
 package uz.ildam.technologies.yalla.feature.auth.domain.usecase.auth
 
-import uz.ildam.technologies.yalla.core.domain.model.DataError
-import uz.ildam.technologies.yalla.core.domain.model.Result
-import uz.ildam.technologies.yalla.feature.auth.domain.model.SendAuthCodeModel
+import uz.ildam.technologies.yalla.core.domain.error.DataError
+import uz.ildam.technologies.yalla.core.domain.error.Result
+import uz.ildam.technologies.yalla.feature.auth.domain.model.auth.SendAuthCodeModel
 import uz.ildam.technologies.yalla.feature.auth.domain.repository.AuthRepository
 
 

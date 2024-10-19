@@ -43,7 +43,6 @@ kotlin {
         }
         androidMain.dependencies {
             implementation(libs.ktor.client.android)
-            implementation(libs.voyager.koin)
             implementation(libs.kotlinx.serialization.json)
         }
         iosMain.dependencies {

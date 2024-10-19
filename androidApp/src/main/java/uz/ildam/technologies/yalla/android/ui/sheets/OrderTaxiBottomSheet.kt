@@ -2,12 +2,13 @@ package uz.ildam.technologies.yalla.android.ui.sheets
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
-import uz.ildam.technologies.yalla.android.components.button.SelectLocationButton
+import uz.ildam.technologies.yalla.android.ui.components.button.SelectLocationButton
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 
 @Composable
@@ -40,8 +41,14 @@ fun OrderTaxiBottomSheet(
                         location = locationTo,
                         onClick = onLocationToClick
                     )
+
+                    LazyColumn {
+
+                    }
                 }
             }
         }
     }
 }
+
+enum class SheetValue { Collapsed, PartiallyExpanded, Expanded }

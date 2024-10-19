@@ -42,6 +42,14 @@ object AppPreferences {
             preferences.edit()?.putString(AppPreferences::accessToken.name, value)?.apply()
         }
 
+    var tokenType: String
+        get() = preferences.getString(AppPreferences::tokenType.name, "") ?: ""
+        set(value) {
+            preferences.edit()?.putString(AppPreferences::tokenType.name, value)?.apply()
+        }
+
+
+
     var number: String
         get() = preferences.getString(AppPreferences::number.name, "") ?: ""
         set(value) {

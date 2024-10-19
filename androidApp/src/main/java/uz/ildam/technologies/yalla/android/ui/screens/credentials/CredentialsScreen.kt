@@ -1,7 +1,6 @@
 package uz.ildam.technologies.yalla.android.ui.screens.credentials
 
 import DatePickerBottomSheet
-import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -22,218 +21,173 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberBottomSheetScaffoldState
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.koin.koinScreenModel
-import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.currentOrThrow
-import kotlinx.coroutines.launch
 import org.threeten.bp.LocalDate
 import uz.ildam.technologies.yalla.android.R
-import uz.ildam.technologies.yalla.android.components.button.GenderButton
-import uz.ildam.technologies.yalla.android.components.button.YallaButton
-import uz.ildam.technologies.yalla.android.components.textfield.YallaTextField
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
-import uz.ildam.technologies.yalla.android.ui.screens.login.LoginEvent
+import uz.ildam.technologies.yalla.android.ui.components.button.GenderButton
+import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
+import uz.ildam.technologies.yalla.android.ui.components.textfield.YallaTextField
 import uz.ildam.technologies.yalla.android.utils.Utils.formatWithDashesDMY
 
-data class CredentialsScreen(
-    val number: String,
-    val secretKey: String
-) : Screen {
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    override fun Content() {
-        var firstName by rememberSaveable { mutableStateOf("") }
-        var lastName by rememberSaveable { mutableStateOf("") }
-        var dateOfBirth by rememberSaveable { mutableStateOf<LocalDate?>(null) }
-        var gender by rememberSaveable { mutableStateOf("NOT_SELECTED") }
-        val buttonState by remember { mutableStateOf(false) }
 
-        val navigator = LocalNavigator.currentOrThrow
-        val screenModel = koinScreenModel<CredentialsModel>()
-        val focusManager = LocalFocusManager.current
-        val context = LocalContext.current as Activity
-        val scope = rememberCoroutineScope()
-        val state = rememberBottomSheetScaffoldState(
-            bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-        )
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun CredentialsScreen(
+    firstName: String,
+    lastName: String,
+    dateOfBirth: LocalDate?,
+    gender: String,
+    state: BottomSheetScaffoldState,
+    onClickDate: () -> Unit,
+    onUpdateFirstName: (String) -> Unit,
+    onUpdateLastName: (String) -> Unit,
+    onSelectDate: (LocalDate) -> Unit,
+    onUpdateGender: (String) -> Unit,
+    onDismissRequestBottomSheet: () -> Unit,
+    onBack: () -> Unit,
+    onRegister: () -> Unit,
+) {
 
-        LaunchedEffect(Unit) {
-            launch {
-                screenModel.events.collect {
-                    when (it) {
-                        is CredentialsEvent.Error -> {}
-                        is CredentialsEvent.Loading -> {}
-                        is CredentialsEvent.Success -> {}
+    BackHandler(onBack = onBack)
+
+    BottomSheetScaffold(
+        sheetDragHandle = null,
+        sheetSwipeEnabled = false,
+        scaffoldState = state,
+        containerColor = YallaTheme.color.white,
+        sheetContainerColor = YallaTheme.color.gray2,
+        sheetShape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
+        sheetContent = {
+            DatePickerBottomSheet(
+                startDate = dateOfBirth ?: LocalDate.now(),
+                onSelectDate = onSelectDate,
+                onDismissRequest = onDismissRequestBottomSheet
+            )
+        },
+        content = {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(YallaTheme.color.white)
+                    .padding(20.dp)
+                    .systemBarsPadding()
+            ) {
+                LazyColumn(modifier = Modifier.weight(1f)) {
+                    item { Spacer(modifier = Modifier.height(80.dp)) }
+
+                    item {
+                        Text(
+                            text = stringResource(id = R.string.lets_meet),
+                            color = YallaTheme.color.black,
+                            style = YallaTheme.font.headline
+                        )
+                    }
+
+                    item { Spacer(modifier = Modifier.height(20.dp)) }
+
+                    item {
+                        Text(
+                            text = stringResource(id = R.string.lets_meet_desc),
+                            color = YallaTheme.color.gray,
+                            style = YallaTheme.font.body
+                        )
+                    }
+
+                    item { Spacer(modifier = Modifier.height(20.dp)) }
+
+                    item {
+                        YallaTextField(
+                            text = firstName,
+                            onChangeText = onUpdateFirstName,
+                            placeHolderText = stringResource(id = R.string.name),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
+                    item { Spacer(modifier = Modifier.height(10.dp)) }
+
+                    item {
+                        YallaTextField(
+                            text = lastName,
+                            onChangeText = onUpdateLastName,
+                            placeHolderText = stringResource(id = R.string.surname)
+                        )
+                    }
+
+                    item { Spacer(modifier = Modifier.height(10.dp)) }
+
+                    item {
+                        YallaTextField(
+                            text = dateOfBirth?.formatWithDashesDMY() ?: "",
+                            placeHolderText = stringResource(id = R.string.date_of_birth),
+                            onChangeText = {},
+                            trailingIcon = painterResource(id = R.drawable.ic_calendar),
+                            onClick = onClickDate
+                        )
+                    }
+
+                    item { Spacer(modifier = Modifier.height(10.dp)) }
+
+                    item {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            GenderButton(
+                                modifier = Modifier.weight(1f),
+                                text = stringResource(id = R.string.gender_m),
+                                isSelected = gender == "MALE",
+                                onSelect = { onUpdateGender("MALE") }
+                            )
+
+                            GenderButton(
+                                modifier = Modifier.weight(1f),
+                                text = stringResource(id = R.string.gender_f),
+                                isSelected = gender == "FEMALE",
+                                onSelect = { onUpdateGender("FEMALE") }
+                            )
+                        }
                     }
                 }
-            }
-        }
 
-        BackHandler(onBack = context::finish)
+                Spacer(modifier = Modifier.height(20.dp))
 
-        BottomSheetScaffold(
-            sheetDragHandle = null,
-            sheetSwipeEnabled = false,
-            scaffoldState = state,
-            containerColor = YallaTheme.color.white,
-            sheetContainerColor = YallaTheme.color.gray2,
-            sheetShape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
-            sheetContent = {
-                DatePickerBottomSheet(
-                    startDate = dateOfBirth ?: LocalDate.now(),
-                    onSelectDate = { dateOfBirth = it },
-                    onDismissRequest = { scope.launch { state.bottomSheetState.hide() } }
+                YallaButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = stringResource(id = R.string.next),
+                    enabled = firstName.isNotBlank() && lastName.isNotBlank() && gender != "NOT_SELECTED" && dateOfBirth != null,
+                    onClick = onRegister
                 )
-            },
-            content = {
-                Column(
+            }
+
+            AnimatedVisibility(
+                visible = state.bottomSheetState.isVisible,
+                enter = fadeIn(initialAlpha = 0.3f),
+                exit = fadeOut(targetAlpha = 1f)
+            ) {
+                Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(YallaTheme.color.white)
-                        .padding(20.dp)
-                        .systemBarsPadding()
-                ) {
-                    LazyColumn(modifier = Modifier.weight(1f)) {
-                        item { Spacer(modifier = Modifier.height(80.dp)) }
-
-                        item {
-                            Text(
-                                text = stringResource(id = R.string.lets_meet),
-                                color = YallaTheme.color.black,
-                                style = YallaTheme.font.headline
-                            )
-                        }
-
-                        item { Spacer(modifier = Modifier.height(20.dp)) }
-
-                        item {
-                            Text(
-                                text = stringResource(id = R.string.lets_meet_desc),
-                                color = YallaTheme.color.gray,
-                                style = YallaTheme.font.body
-                            )
-                        }
-
-                        item { Spacer(modifier = Modifier.height(20.dp)) }
-
-                        item {
-                            YallaTextField(
-                                text = firstName,
-                                onChangeText = { firstName = it },
-                                placeHolderText = stringResource(id = R.string.name),
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
-
-                        item { Spacer(modifier = Modifier.height(10.dp)) }
-
-                        item {
-                            YallaTextField(
-                                text = lastName,
-                                onChangeText = { lastName = it },
-                                placeHolderText = stringResource(id = R.string.surname)
-                            )
-                        }
-
-                        item { Spacer(modifier = Modifier.height(10.dp)) }
-
-                        item {
-                            YallaTextField(
-                                text = dateOfBirth?.formatWithDashesDMY() ?: "",
-                                placeHolderText = stringResource(id = R.string.date_of_birth),
-                                onChangeText = {},
-                                trailingIcon = painterResource(id = R.drawable.ic_calendar),
-                                onClick = {
-                                    scope.launch { state.bottomSheetState.show() }
-                                    focusManager.clearFocus(true)
-                                }
-                            )
-                        }
-
-                        item { Spacer(modifier = Modifier.height(10.dp)) }
-
-                        item {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                GenderButton(
-                                    modifier = Modifier.weight(1f),
-                                    text = stringResource(id = R.string.gender_m),
-                                    isSelected = gender == "MALE",
-                                    onSelect = { gender = "MALE" }
-                                )
-
-                                GenderButton(
-                                    modifier = Modifier.weight(1f),
-                                    text = stringResource(id = R.string.gender_f),
-                                    isSelected = gender == "FEMALE",
-                                    onSelect = { gender = "FEMALE" }
-                                )
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    YallaButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(id = R.string.next),
-                        enabled = firstName.isNotBlank() && lastName.isNotBlank() && gender != "NOT_SELECTED" && dateOfBirth != null,
-                        onClick = {
-                            dateOfBirth?.let { dateOfBirth ->
-                                screenModel.register(
-                                    number = "998$number",
-                                    firstName = firstName,
-                                    lastName = lastName,
-                                    gender = gender,
-                                    dateOfBirth = dateOfBirth,
-                                    key = secretKey
-                                )
-                            }
-                        }
-                    )
-                }
-
-                AnimatedVisibility(
-                    visible = state.bottomSheetState.isVisible,
-                    enter = fadeIn(initialAlpha = 0.3f),
-                    exit = fadeOut(targetAlpha = 1f)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color.Black.copy(alpha = 0.3f))
-                            .clickable(
-                                onClick = { scope.launch { state.bottomSheetState.hide() } },
-                                indication = null,
-                                interactionSource = remember { MutableInteractionSource() }
-                            )
-                    )
-                }
+                        .background(Color.Black.copy(alpha = 0.3f))
+                        .clickable(
+                            onClick = onDismissRequestBottomSheet,
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }
+                        )
+                )
             }
-        )
-    }
+        }
+    )
 }

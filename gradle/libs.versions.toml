@@ -1,5 +1,7 @@
 [versions]
+advancedBottomsheetMaterial3 = "0.1.0"
 agp = "8.5.2"
+constraintlayoutCompose = "1.0.1"
 coreSplashscreen = "1.0.1"
 desugar_jdk_libs = "2.1.2"
 inspektifyKtor2 = "1.0.0-beta01"
@@ -15,11 +17,13 @@ mapsCompose = "6.1.0"
 playServicesLocation = "21.3.0"
 snapper = "0.3.0"
 threetenabp = "1.4.4"
-voyagerNavigator = "1.1.0-beta02"
+navigationCompose = "2.7.7"
 
 
 [libraries]
 
+advanced-bottomsheet-material3 = { module = "io.morfly.compose:advanced-bottomsheet-material3", version.ref = "advancedBottomsheetMaterial3" }
+androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayoutCompose" }
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin-bom" }
@@ -27,6 +31,7 @@ insert-koin-koin-androidx-compose = { module = "io.insert-koin:koin-androidx-com
 koin-android = { module = "io.insert-koin:koin-android" }
 koin-core = { module = "io.insert-koin:koin-core" }
 
+koin-test-junit4 = { module = "io.insert-koin:koin-test-junit4" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
@@ -49,12 +54,7 @@ maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = 
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
 snapper = { module = "dev.chrisbanes.snapper:snapper", version.ref = "snapper" }
 threetenabp = { module = "com.jakewharton.threetenabp:threetenabp", version.ref = "threetenabp" }
-voyager-bottom-sheet-navigator = { module = "cafe.adriel.voyager:voyager-bottom-sheet-navigator", version.ref = "voyagerNavigator" }
-voyager-koin = { module = "cafe.adriel.voyager:voyager-koin", version.ref = "voyagerNavigator" }
-voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.ref = "voyagerNavigator" }
-voyager-screenmodel = { module = "cafe.adriel.voyager:voyager-screenmodel", version.ref = "voyagerNavigator" }
-voyager-tab-navigator = { module = "cafe.adriel.voyager:voyager-tab-navigator", version.ref = "voyagerNavigator" }
-voyager-transitions = { module = "cafe.adriel.voyager:voyager-transitions", version.ref = "voyagerNavigator" }
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 
 inspektify-ktor3 = { module = "io.github.bvantur:inspektify-ktor2", version.ref = "inspektifyKtor2" }
 

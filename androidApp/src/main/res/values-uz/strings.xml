@@ -28,5 +28,6 @@
     <string name="onboarding_4_desc">Чтобы продолжить, разрешите устройству определять ваше местоположение.</string>
     <string name="choose_language">Interfeys tilini\ntanlang</string>
     <string name="choose_language_desc">Iltimos, ilovadan foydalanish uchun o\'zingizga qulay bo\'lgan tilni tanlang.</string>
+    <string name="min">min</string>
 
 </resources>
