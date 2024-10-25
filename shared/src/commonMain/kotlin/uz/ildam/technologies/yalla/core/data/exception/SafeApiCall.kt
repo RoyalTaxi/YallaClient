@@ -1,0 +1,40 @@
+package uz.ildam.technologies.yalla.core.data.exception
+
+import io.ktor.client.call.body
+import io.ktor.client.network.sockets.SocketTimeoutException
+import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.plugins.RedirectResponseException
+import io.ktor.client.plugins.ResponseException
+import io.ktor.client.plugins.ServerResponseException
+import io.ktor.client.statement.HttpResponse
+import io.ktor.utils.io.errors.IOException
+import kotlinx.serialization.SerializationException
+import uz.ildam.technologies.yalla.core.domain.error.DataError
+import uz.ildam.technologies.yalla.core.domain.error.Result
+
+suspend inline fun <reified T> safeApiCall(call: () -> HttpResponse): Result<T, DataError.Network> {
+    return try {
+        val response = call()
+        when (response.status.value) {
+            in 200..299 -> Result.Success(response.body<T>())
+            in 400..499 -> Result.Error(DataError.Network.CLIENT_REQUEST_ERROR)
+            in 300..399 -> Result.Error(DataError.Network.REDIRECT_RESPONSE_EXCEPTION)
+            in 500..599 -> Result.Error(DataError.Network.SERVER_RESPONSE_ERROR)
+            else ->Result.Error(DataError.Network.UNKNOWN)
+        }
+    } catch (e: ServerResponseException) {
+        Result.Error(DataError.Network.SERVER_RESPONSE_ERROR)
+    } catch (e: ClientRequestException) {
+        Result.Error(DataError.Network.CLIENT_REQUEST_ERROR)
+    } catch (e: RedirectResponseException) {
+        Result.Error(DataError.Network.REDIRECT_RESPONSE_EXCEPTION)
+    } catch (e: IOException) {
+        Result.Error(DataError.Network.NO_INTERNET_ERROR)
+    } catch (e: SocketTimeoutException) {
+        Result.Error(DataError.Network.SOCKET_TIME_OUT_ERROR)
+    } catch (e: SerializationException) {
+        Result.Error(DataError.Network.SERIALIZATION_ERROR)
+    } catch (e: ResponseException) {
+        Result.Error(DataError.Network.UNKNOWN)
+    }
+}

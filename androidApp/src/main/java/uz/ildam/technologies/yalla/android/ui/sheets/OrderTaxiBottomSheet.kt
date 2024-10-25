@@ -20,7 +20,7 @@ fun OrderTaxiBottomSheet(
 ) {
     Card(
         colors = CardDefaults.cardColors(YallaTheme.color.gray2),
-        shape = RoundedCornerShape(topStart = 30.dp)
+        shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(10.dp)

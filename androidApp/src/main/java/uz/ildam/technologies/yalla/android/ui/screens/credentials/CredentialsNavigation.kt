@@ -13,7 +13,7 @@ import androidx.navigation.navArgument
 
 const val NUMBER = "number"
 const val SECRET_KEY = "expires_in"
-const val CREDENTIALS_ROUTE_BASE = "route_route"
+const val CREDENTIALS_ROUTE_BASE = "credentials_route"
 const val CREDENTIALS_ROUTE =
     "$CREDENTIALS_ROUTE_BASE?$NUMBER={$NUMBER}&$SECRET_KEY={$SECRET_KEY}"
 

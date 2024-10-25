@@ -38,41 +38,31 @@ import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 import uz.ildam.technologies.yalla.android.ui.components.button.GenderButton
 import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
 import uz.ildam.technologies.yalla.android.ui.components.textfield.YallaTextField
-import uz.ildam.technologies.yalla.android.utils.Utils.formatWithDashesDMY
+import uz.ildam.technologies.yalla.android.utils.Utils.formatWithDotsDMY
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun CredentialsScreen(
-    firstName: String,
-    lastName: String,
-    dateOfBirth: LocalDate?,
-    gender: String,
-    state: BottomSheetScaffoldState,
-    onClickDate: () -> Unit,
-    onUpdateFirstName: (String) -> Unit,
-    onUpdateLastName: (String) -> Unit,
-    onSelectDate: (LocalDate) -> Unit,
-    onUpdateGender: (String) -> Unit,
-    onDismissRequestBottomSheet: () -> Unit,
-    onBack: () -> Unit,
-    onRegister: () -> Unit,
+    sheetState: BottomSheetScaffoldState,
+    uiState: CredentialsUIState,
+    onIntent: (CredentialsIntent) -> Unit
 ) {
 
-    BackHandler(onBack = onBack)
+    BackHandler(onBack = { onIntent(CredentialsIntent.NavigateBack) })
 
     BottomSheetScaffold(
         sheetDragHandle = null,
         sheetSwipeEnabled = false,
-        scaffoldState = state,
+        scaffoldState = sheetState,
         containerColor = YallaTheme.color.white,
         sheetContainerColor = YallaTheme.color.gray2,
         sheetShape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
         sheetContent = {
             DatePickerBottomSheet(
-                startDate = dateOfBirth ?: LocalDate.now(),
-                onSelectDate = onSelectDate,
-                onDismissRequest = onDismissRequestBottomSheet
+                startDate = uiState.dateOfBirth ?: LocalDate.now(),
+                onSelectDate = { onIntent(CredentialsIntent.SetDateOfBirth(it)) },
+                onDismissRequest = { onIntent(CredentialsIntent.CloseDateBottomSheet) }
             )
         },
         content = {
@@ -108,8 +98,8 @@ internal fun CredentialsScreen(
 
                     item {
                         YallaTextField(
-                            text = firstName,
-                            onChangeText = onUpdateFirstName,
+                            text = uiState.firstName,
+                            onChangeText = { onIntent(CredentialsIntent.SetFirstName(it)) },
                             placeHolderText = stringResource(id = R.string.name),
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -119,8 +109,8 @@ internal fun CredentialsScreen(
 
                     item {
                         YallaTextField(
-                            text = lastName,
-                            onChangeText = onUpdateLastName,
+                            text = uiState.lastName,
+                            onChangeText = { onIntent(CredentialsIntent.SetLastName(it)) },
                             placeHolderText = stringResource(id = R.string.surname)
                         )
                     }
@@ -129,11 +119,11 @@ internal fun CredentialsScreen(
 
                     item {
                         YallaTextField(
-                            text = dateOfBirth?.formatWithDashesDMY() ?: "",
+                            text = uiState.dateOfBirth?.formatWithDotsDMY() ?: "",
                             placeHolderText = stringResource(id = R.string.date_of_birth),
                             onChangeText = {},
                             trailingIcon = painterResource(id = R.drawable.ic_calendar),
-                            onClick = onClickDate
+                            onClick = { onIntent(CredentialsIntent.OpenDateBottomSheet) }
                         )
                     }
 
@@ -148,15 +138,15 @@ internal fun CredentialsScreen(
                             GenderButton(
                                 modifier = Modifier.weight(1f),
                                 text = stringResource(id = R.string.gender_m),
-                                isSelected = gender == "MALE",
-                                onSelect = { onUpdateGender("MALE") }
+                                isSelected = uiState.gender == Gender.MALE,
+                                onSelect = { onIntent(CredentialsIntent.SetGender(Gender.MALE)) }
                             )
 
                             GenderButton(
                                 modifier = Modifier.weight(1f),
                                 text = stringResource(id = R.string.gender_f),
-                                isSelected = gender == "FEMALE",
-                                onSelect = { onUpdateGender("FEMALE") }
+                                isSelected = uiState.gender == Gender.FEMALE,
+                                onSelect = { onIntent(CredentialsIntent.SetGender(Gender.FEMALE)) }
                             )
                         }
                     }
@@ -167,13 +157,13 @@ internal fun CredentialsScreen(
                 YallaButton(
                     modifier = Modifier.fillMaxWidth(),
                     text = stringResource(id = R.string.next),
-                    enabled = firstName.isNotBlank() && lastName.isNotBlank() && gender != "NOT_SELECTED" && dateOfBirth != null,
-                    onClick = onRegister
+                    enabled = uiState.firstName.isNotBlank() && uiState.lastName.isNotBlank() && uiState.gender != Gender.NOT_SELECTED && uiState.dateOfBirth != null,
+                    onClick = { onIntent(CredentialsIntent.Register) }
                 )
             }
 
             AnimatedVisibility(
-                visible = state.bottomSheetState.isVisible,
+                visible = sheetState.bottomSheetState.isVisible,
                 enter = fadeIn(initialAlpha = 0.3f),
                 exit = fadeOut(targetAlpha = 1f)
             ) {
@@ -182,7 +172,7 @@ internal fun CredentialsScreen(
                         .fillMaxSize()
                         .background(Color.Black.copy(alpha = 0.3f))
                         .clickable(
-                            onClick = onDismissRequestBottomSheet,
+                            onClick = { onIntent(CredentialsIntent.CloseDateBottomSheet) },
                             indication = null,
                             interactionSource = remember { MutableInteractionSource() }
                         )

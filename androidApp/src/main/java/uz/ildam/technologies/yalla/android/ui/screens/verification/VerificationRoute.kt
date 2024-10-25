@@ -2,12 +2,10 @@ package uz.ildam.technologies.yalla.android.ui.screens.verification
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalFocusManager
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -20,41 +18,55 @@ internal fun VerificationRoute(
     onClientNotFound: (String, String) -> Unit,
     vm: VerificationViewModel = koinViewModel()
 ) {
-    var code by remember { mutableStateOf("") }
-    var remainingMinutes by remember { mutableIntStateOf(0) }
-    var remainingSeconds by remember { mutableIntStateOf(0) }
-    var hasRemainingTime by remember { mutableStateOf(false) }
-    var buttonState by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
+    val uiState by vm.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
         launch {
-            vm.countDownTimer(expiresIn).collect { seconds ->
-                buttonState = seconds != 0 && code.length == 5
-                remainingMinutes = seconds / 60
-                remainingSeconds = seconds % 60
-                hasRemainingTime = (remainingMinutes + remainingSeconds) > 0
+            vm.updateUiState(
+                number = number,
+                hasRemainingTime = expiresIn > 0,
+                remainingMinutes = expiresIn / 60,
+                remainingSeconds = expiresIn % 60
+            )
+
+            vm.countDownTimer(expiresIn).collectLatest { seconds ->
+                vm.updateUiState(
+                    buttonState = seconds != 0 && uiState.code.length == 5,
+                    remainingMinutes = seconds / 60,
+                    remainingSeconds = seconds % 60,
+                    hasRemainingTime = seconds > 0
+                )
             }
         }
 
         launch {
-            vm.events.collect {
+            vm.eventFlow.collectLatest {
                 when (it) {
-                    is VerificationEvent.Error -> buttonState = false
-                    is VerificationEvent.Loading -> buttonState = false
-                    is VerificationEvent.SendSMSSuccess -> {
+                    is VerificationActionState.Error -> vm.updateUiState(buttonState = false)
+                    is VerificationActionState.Loading -> vm.updateUiState(buttonState = false)
+                    is VerificationActionState.SendSMSSuccess -> {
                         launch {
-                            vm.countDownTimer(it.data.time).collect { seconds ->
-                                buttonState = seconds != 0 && code.length == 5
-                                remainingMinutes = seconds / 60
-                                remainingSeconds = seconds % 60
-                                hasRemainingTime = (remainingMinutes + remainingSeconds) > 0
+                            vm.updateUiState(
+                                code = "",
+                                hasRemainingTime = expiresIn > 0,
+                                remainingMinutes = expiresIn / 60,
+                                remainingSeconds = expiresIn % 60
+                            )
+
+                            vm.countDownTimer(it.data.time).collectLatest { seconds ->
+                                vm.updateUiState(
+                                    buttonState = seconds != 0 && uiState.code.length == 5,
+                                    remainingMinutes = seconds / 60,
+                                    remainingSeconds = seconds % 60,
+                                    hasRemainingTime = seconds > 0
+                                )
                             }
                         }
                     }
 
-                    is VerificationEvent.VerifySuccess -> {
-                        if (it.data.client != null) onClientFound()
+                    is VerificationActionState.VerifySuccess -> {
+                        if (it.data.isClient) onClientFound()
                         else onClientNotFound(number, it.data.key)
                     }
                 }
@@ -63,23 +75,19 @@ internal fun VerificationRoute(
     }
 
     VerificationScreen(
-        number = number,
-        code = code,
-        focusManager = focusManager,
-        hasRemainingTime = hasRemainingTime,
-        remainingMinutes = remainingMinutes,
-        remainingSeconds = remainingSeconds,
-        buttonState = buttonState,
-        onUpdateCode = {
-            if (it.all { char -> char.isDigit() }) code = it
-            buttonState = hasRemainingTime && code.length == 5
-            if (code.length == 5) focusManager.clearFocus(true)
-        },
-        onResend = {
-            vm.resendAuthCode("998$number")
-            code = ""
-        },
-        onVerify = { vm.verifyAuthCode("998$number", code.toInt()) },
-        onBack = onBack
+        uiState = uiState,
+        onIntent = { intent ->
+            when (intent) {
+                VerificationIntent.ClearFocus -> focusManager.clearFocus(true)
+                VerificationIntent.NavigateBack -> onBack()
+                is VerificationIntent.ResendCode -> vm.resendAuthCode()
+                is VerificationIntent.VerifyCode -> vm.verifyAuthCode()
+                is VerificationIntent.SetCode -> {
+                    if (intent.code.all { char -> char.isDigit() }) vm.updateUiState(code = intent.code)
+                    vm.updateUiState(buttonState = uiState.hasRemainingTime && intent.code.length == 5)
+                    if (intent.code.length == 5) focusManager.clearFocus(true)
+                }
+            }
+        }
     )
 }

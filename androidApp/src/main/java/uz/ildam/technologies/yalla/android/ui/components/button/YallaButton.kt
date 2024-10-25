@@ -39,7 +39,7 @@ fun YallaButton(
             disabledContainerColor = YallaTheme.color.gray2,
             contentColor = contentColor,
             disabledContentColor = YallaTheme.color.gray
-        ),
+        )
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,

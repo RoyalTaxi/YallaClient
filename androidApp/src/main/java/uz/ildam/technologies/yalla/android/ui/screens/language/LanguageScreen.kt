@@ -23,11 +23,8 @@ import uz.ildam.technologies.yalla.android.ui.components.toolbar.YallaToolbar
 
 @Composable
 internal fun LanguageScreen(
-    selectedLanguage: String,
-    languages: List<Language>,
-    onSelectLanguage: (Language) -> Unit,
-    onBack: () -> Unit,
-    onNext: () -> Unit
+    uiState: LanguageUIState,
+    onIntent: (LanguageIntent) -> Unit
 ) {
 
     Column(
@@ -37,7 +34,7 @@ internal fun LanguageScreen(
             .systemBarsPadding()
             .verticalScroll(rememberScrollState())
     ) {
-        YallaToolbar(onClick = onBack)
+        YallaToolbar(onClick = { onIntent(LanguageIntent.NavigateBack) })
 
         Spacer(modifier = Modifier.height(40.dp))
 
@@ -59,11 +56,11 @@ internal fun LanguageScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        languages.forEach { lang ->
+        uiState.languages.forEach { lang ->
             LanguageItem(
                 text = stringResource(id = lang.stringResId),
-                isSelected = selectedLanguage == lang.languageTag,
-                onSelect = { onSelectLanguage(lang) }
+                isSelected = uiState.selectedLanguage?.languageTag == lang.languageTag,
+                onSelect = { onIntent(LanguageIntent.SetLanguage(lang)) }
             )
         }
 
@@ -71,8 +68,8 @@ internal fun LanguageScreen(
 
         YallaButton(
             text = stringResource(id = R.string.next),
-            enabled = selectedLanguage.isNotBlank(),
-            onClick = onNext,
+            enabled = uiState.selectedLanguage?.languageTag.isNullOrBlank().not(),
+            onClick = { onIntent(LanguageIntent.NavigateNext) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(20.dp),

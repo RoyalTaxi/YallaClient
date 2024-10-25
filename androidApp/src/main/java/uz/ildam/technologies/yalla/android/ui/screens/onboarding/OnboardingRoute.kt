@@ -68,11 +68,11 @@ internal fun OnboardingRoute(
         scrollState = scrollState,
         pagerState = pagerState,
         screenContents = screenContents,
-        onSwipe = {
-            scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
-        },
-        onNext = {
-            locationPermissionRequest.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        onIntent = { intent ->
+            when (intent) {
+                OnboardingIntent.NavigateNext -> locationPermissionRequest.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                OnboardingIntent.Swipe -> scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
+            }
         }
     )
 }

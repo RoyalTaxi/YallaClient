@@ -35,8 +35,7 @@ internal fun OnboardingScreen(
     scrollState: ScrollState,
     pagerState: PagerState,
     screenContents: List<Page>,
-    onSwipe: () -> Unit,
-    onNext: () -> Unit
+    onIntent: (OnboardingIntent) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -94,11 +93,11 @@ internal fun OnboardingScreen(
 
             NextButton(
                 modifier = Modifier.padding(horizontal = 20.dp),
-                onClick = onSwipe
+                onClick = { onIntent(OnboardingIntent.Swipe) }
             )
         } else YallaButton(
             text = stringResource(id = R.string.next),
-            onClick = onNext,
+            onClick = { onIntent(OnboardingIntent.NavigateNext) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 20.dp)

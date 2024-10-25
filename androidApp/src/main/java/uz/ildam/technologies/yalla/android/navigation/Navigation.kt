@@ -13,12 +13,14 @@ import uz.ildam.technologies.yalla.android.ui.screens.language.languageScreen
 import uz.ildam.technologies.yalla.android.ui.screens.language.navigateToLanguageScreen
 import uz.ildam.technologies.yalla.android.ui.screens.login.loginScreen
 import uz.ildam.technologies.yalla.android.ui.screens.login.navigateToLoginScreen
+import uz.ildam.technologies.yalla.android.ui.screens.map.MAP_ROUTE
 import uz.ildam.technologies.yalla.android.ui.screens.map.mapScreen
 import uz.ildam.technologies.yalla.android.ui.screens.map.navigateToMapScreen
 import uz.ildam.technologies.yalla.android.ui.screens.onboarding.ONBOARDING_ROUTE
 import uz.ildam.technologies.yalla.android.ui.screens.onboarding.onboardingScreen
 import uz.ildam.technologies.yalla.android.ui.screens.verification.navigateToVerificationScreen
 import uz.ildam.technologies.yalla.android.ui.screens.verification.verificationScreen
+import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 
 @Composable
 fun Navigation() {
@@ -29,7 +31,7 @@ fun Navigation() {
     ) {
         NavHost(
             navController = navController,
-            startDestination = ONBOARDING_ROUTE
+            startDestination = if (AppPreferences.isDeviceRegistered) MAP_ROUTE else ONBOARDING_ROUTE
         ) {
             onboardingScreen(
                 onNext = navController::navigateToLanguageScreen

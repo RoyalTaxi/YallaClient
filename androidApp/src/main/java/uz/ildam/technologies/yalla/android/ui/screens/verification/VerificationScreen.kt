@@ -18,7 +18,6 @@ import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
@@ -31,17 +30,8 @@ import java.util.Locale
 
 @Composable
 internal fun VerificationScreen(
-    number: String,
-    code: String,
-    buttonState: Boolean,
-    hasRemainingTime: Boolean,
-    remainingMinutes: Int,
-    remainingSeconds: Int,
-    focusManager: FocusManager,
-    onUpdateCode: (String) -> Unit,
-    onBack: () -> Unit,
-    onResend: () -> Unit,
-    onVerify: () -> Unit
+    uiState: VerificationUIState,
+    onIntent: (VerificationIntent) -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -51,13 +41,13 @@ internal fun VerificationScreen(
             .imePadding()
             .verticalScroll(rememberScrollState())
             .clickable(
-                onClick = { focusManager.clearFocus(true) },
+                onClick = { onIntent(VerificationIntent.ClearFocus) },
                 role = Role.Image,
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
             ),
     ) {
-        YallaToolbar(onClick = onBack)
+        YallaToolbar(onClick = { onIntent(VerificationIntent.NavigateBack) })
 
         Column(
             modifier = Modifier
@@ -75,7 +65,7 @@ internal fun VerificationScreen(
             Spacer(modifier = Modifier.height(20.dp))
 
             Text(
-                text = stringResource(id = R.string.enter_otp_definition, number),
+                text = stringResource(id = R.string.enter_otp_definition, uiState.number),
                 color = YallaTheme.color.gray,
                 style = YallaTheme.font.body
             )
@@ -83,8 +73,8 @@ internal fun VerificationScreen(
             Spacer(modifier = Modifier.height(20.dp))
 
             OtpView(
-                otpText = code,
-                onOtpTextChange = onUpdateCode
+                otpText = uiState.code,
+                onOtpTextChange = { onIntent(VerificationIntent.SetCode(it)) }
             )
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -92,19 +82,24 @@ internal fun VerificationScreen(
             Text(
                 color = YallaTheme.color.gray,
                 style = YallaTheme.font.body,
-                text = if (hasRemainingTime) {
+                text = if (uiState.hasRemainingTime) {
                     stringResource(
                         id = R.string.resend_in,
-                        String.format(Locale.US, "%d:%02d", remainingMinutes, remainingSeconds)
+                        String.format(
+                            Locale.US,
+                            "%d:%02d",
+                            uiState.remainingMinutes,
+                            uiState.remainingSeconds
+                        )
                     )
                 } else {
                     stringResource(id = R.string.resend)
                 },
                 modifier = Modifier
                     .then(
-                        if (!hasRemainingTime) {
+                        if (!uiState.hasRemainingTime) {
                             Modifier.clickable(
-                                onClick = onResend,
+                                onClick = { onIntent(VerificationIntent.ResendCode(uiState.number)) },
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = ripple(color = YallaTheme.color.white)
                             )
@@ -117,8 +112,8 @@ internal fun VerificationScreen(
             YallaButton(
                 modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = R.string.next),
-                enabled = buttonState,
-                onClick = onVerify
+                enabled = uiState.buttonState,
+                onClick = { onIntent(VerificationIntent.VerifyCode(uiState.number, uiState.code)) }
             )
         }
     }

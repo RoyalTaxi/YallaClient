@@ -2,11 +2,14 @@ package uz.ildam.technologies.yalla.android.ui.screens.verification
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
@@ -15,39 +18,68 @@ import uz.ildam.technologies.yalla.feature.auth.domain.usecase.auth.SendAuthCode
 import uz.ildam.technologies.yalla.feature.auth.domain.usecase.auth.VerifyAuthCodeUseCase
 import kotlin.time.Duration.Companion.seconds
 
-internal class VerificationViewModel(
+class VerificationViewModel(
     private val verifyAuthCodeUseCase: VerifyAuthCodeUseCase,
     private val sendAuthCodeUseCase: SendAuthCodeUseCase
 ) : ViewModel() {
 
-    private val eventChannel = Channel<VerificationEvent>()
-    val events = eventChannel.receiveAsFlow()
+    private val _eventFlow = MutableSharedFlow<VerificationActionState>()
+    val eventFlow = _eventFlow.asSharedFlow()
 
-    fun verifyAuthCode(number: String, code: Int) = viewModelScope.launch {
-        eventChannel.send(VerificationEvent.Loading)
-        when (val result = verifyAuthCodeUseCase(number, code)) {
-            is Result.Error -> eventChannel.send(VerificationEvent.Error("Server error"))
-            is Result.Success -> {
-                eventChannel.send(VerificationEvent.VerifySuccess(result.data))
-                result.data.client?.let { client ->
-                    AppPreferences.accessToken = result.data.accessToken
-                    AppPreferences.tokenType = result.data.tokenType
-                    AppPreferences.isDeviceRegistered = true
-                    AppPreferences.number = number
-                    AppPreferences.gender = client.gender
-                    AppPreferences.dateOfBirth = client.birthday
-                    AppPreferences.firstName = client.givenNames
-                    AppPreferences.lastName = client.surname
+    private val _uiState = MutableStateFlow(VerificationUIState())
+    val uiState = _uiState.asStateFlow()
+
+    fun updateUiState(
+        number: String? = null,
+        code: String? = null,
+        buttonState: Boolean? = null,
+        hasRemainingTime: Boolean? = null,
+        remainingMinutes: Int? = null,
+        remainingSeconds: Int? = null
+    ) = viewModelScope.launch {
+
+
+        _uiState.update { currentState ->
+            currentState.copy(
+                number = number ?: currentState.number,
+                code = code ?: currentState.code,
+                buttonState = buttonState ?: currentState.buttonState,
+                hasRemainingTime = hasRemainingTime ?: currentState.hasRemainingTime,
+                remainingMinutes = remainingMinutes ?: currentState.remainingMinutes,
+                remainingSeconds = remainingSeconds ?: currentState.remainingSeconds
+            )
+        }
+    }
+
+    fun verifyAuthCode() = viewModelScope.launch {
+        _uiState.value.apply {
+            _eventFlow.emit(VerificationActionState.Loading)
+            when (val result = verifyAuthCodeUseCase(getFormattedNumber(), code.toInt())) {
+                is Result.Error -> _eventFlow.emit(VerificationActionState.Error("Server error"))
+                is Result.Success -> {
+                    _eventFlow.emit(VerificationActionState.VerifySuccess(result.data))
+                    result.data.client?.let { client ->
+                        AppPreferences.accessToken = result.data.accessToken
+                        AppPreferences.tokenType = result.data.tokenType
+                        AppPreferences.isDeviceRegistered = true
+                        AppPreferences.number = number
+                        AppPreferences.gender = client.gender
+                        AppPreferences.dateOfBirth = client.birthday
+                        AppPreferences.firstName = client.givenNames
+                        AppPreferences.lastName = client.surname
+                    }
                 }
             }
         }
     }
 
-    fun resendAuthCode(number: String) = viewModelScope.launch {
-        eventChannel.send(VerificationEvent.Loading)
-        when (val result = sendAuthCodeUseCase(number)) {
-            is Result.Error -> eventChannel.send(VerificationEvent.Error("server error"))
-            is Result.Success -> eventChannel.send(VerificationEvent.SendSMSSuccess(result.data))
+    fun resendAuthCode() = viewModelScope.launch {
+        _uiState.value.apply {
+            _eventFlow.emit(VerificationActionState.Loading)
+            when (val result = sendAuthCodeUseCase(getFormattedNumber())) {
+                is Result.Error -> _eventFlow.emit(VerificationActionState.Error("server error"))
+                is Result.Success -> _eventFlow.emit(VerificationActionState.SendSMSSuccess(result.data))
+            }
         }
     }
 

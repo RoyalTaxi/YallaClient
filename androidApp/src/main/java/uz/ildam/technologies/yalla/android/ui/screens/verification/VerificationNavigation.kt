@@ -13,7 +13,7 @@ import androidx.navigation.navArgument
 
 const val NUMBER = "number"
 const val EXPIRES_IN = "expires_in"
-const val VERIFICATION_ROUTE_BASE = "route_route"
+const val VERIFICATION_ROUTE_BASE = "verification_route"
 const val VERIFICATION_ROUTE =
     "$VERIFICATION_ROUTE_BASE?$NUMBER={$NUMBER}&$EXPIRES_IN={$EXPIRES_IN}"
 

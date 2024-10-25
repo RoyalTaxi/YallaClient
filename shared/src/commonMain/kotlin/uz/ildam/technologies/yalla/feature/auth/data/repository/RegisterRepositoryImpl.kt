@@ -1,6 +1,5 @@
 package uz.ildam.technologies.yalla.feature.auth.data.repository
 
-import io.ktor.client.plugins.ResponseException
 import uz.ildam.technologies.yalla.core.domain.error.DataError
 import uz.ildam.technologies.yalla.core.domain.error.Result
 import uz.ildam.technologies.yalla.feature.auth.data.mapper.RegisterMapper
@@ -20,24 +19,18 @@ class RegisterRepositoryImpl(
         dateOfBirth: String,
         key: String
     ): Result<RegisterModel, DataError.Network> {
-        return try {
-            Result.Success(
-                service
-                    .register(
-                        RegisterRequest(
-                            phone = phone,
-                            given_names = firstName,
-                            sur_name = lastName,
-                            gender = gender,
-                            birthday = dateOfBirth,
-                            key = key
-                        )
-                    )
-                    .result
-                    .let(RegisterMapper.mapper)
+        return when (val result = service.register(
+            RegisterRequest(
+                phone = phone,
+                given_names = firstName,
+                sur_name = lastName,
+                gender = gender,
+                birthday = dateOfBirth,
+                key = key
             )
-        } catch (e: ResponseException) {
-            Result.Error(DataError.Network.SERVER_ERROR)
+        )) {
+            is Result.Error -> Result.Error(result.error)
+            is Result.Success -> Result.Success(result.data.result.let(RegisterMapper.mapper))
         }
     }
 }

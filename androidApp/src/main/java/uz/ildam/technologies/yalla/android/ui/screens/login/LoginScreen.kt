@@ -15,7 +15,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
@@ -28,21 +27,15 @@ import uz.ildam.technologies.yalla.android.ui.components.toolbar.YallaToolbar
 
 @Composable
 fun LoginScreen(
-    number: String,
-    buttonState: Boolean,
-    focusManager: FocusManager,
-    onBack: () -> Unit,
-    onSend: () -> Unit,
-    onUpdateNumber: (String) -> Unit,
+    uiState: LoginUIState,
+    onIntent: (LoginIntent) -> Unit
 ) {
-
-
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(YallaTheme.color.white)
             .clickable(
-                onClick = { focusManager.clearFocus(true) },
+                onClick = { onIntent(LoginIntent.ClearFocus) },
                 role = Role.Image,
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
@@ -50,13 +43,12 @@ fun LoginScreen(
             .systemBarsPadding()
             .imePadding(),
     ) {
-        YallaToolbar(onClick = onBack)
+        YallaToolbar(onClick = { onIntent(LoginIntent.NavigateBack) })
 
         Column(
             modifier = Modifier
                 .weight(1f)
                 .padding(20.dp)
-
         ) {
             Spacer(modifier = Modifier.height(40.dp))
 
@@ -77,8 +69,8 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(20.dp))
 
             PhoneNumberTextField(
-                number = number,
-                onUpdateNumber = onUpdateNumber
+                number = uiState.number,
+                onUpdateNumber = { number -> onIntent(LoginIntent.SetNumber(number)) }
             )
 
             Spacer(modifier = Modifier.weight(1f))
@@ -88,8 +80,8 @@ fun LoginScreen(
             YallaButton(
                 modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = R.string.next),
-                enabled = buttonState,
-                onClick = onSend
+                enabled = uiState.buttonState,
+                onClick = { onIntent(LoginIntent.SendCode) }
             )
         }
     }
