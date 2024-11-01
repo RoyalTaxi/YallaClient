@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.BottomSheetScaffoldState
@@ -73,83 +72,75 @@ internal fun CredentialsScreen(
                     .padding(20.dp)
                     .systemBarsPadding()
             ) {
-                LazyColumn(modifier = Modifier.weight(1f)) {
-                    item { Spacer(modifier = Modifier.height(80.dp)) }
+                Spacer(modifier = Modifier.height(80.dp))
 
-                    item {
-                        Text(
-                            text = stringResource(id = R.string.lets_meet),
-                            color = YallaTheme.color.black,
-                            style = YallaTheme.font.headline
-                        )
-                    }
+                Text(
+                    text = stringResource(id = R.string.lets_meet),
+                    color = YallaTheme.color.black,
+                    style = YallaTheme.font.headline
+                )
 
-                    item { Spacer(modifier = Modifier.height(20.dp)) }
+                Spacer(modifier = Modifier.height(20.dp))
 
-                    item {
-                        Text(
-                            text = stringResource(id = R.string.lets_meet_desc),
-                            color = YallaTheme.color.gray,
-                            style = YallaTheme.font.body
-                        )
-                    }
+                Text(
+                    text = stringResource(id = R.string.lets_meet_desc),
+                    color = YallaTheme.color.gray,
+                    style = YallaTheme.font.body
+                )
 
-                    item { Spacer(modifier = Modifier.height(20.dp)) }
+                Spacer(modifier = Modifier.height(20.dp))
 
-                    item {
-                        YallaTextField(
-                            text = uiState.firstName,
-                            onChangeText = { onIntent(CredentialsIntent.SetFirstName(it)) },
-                            placeHolderText = stringResource(id = R.string.name),
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
+                YallaTextField(
+                    text = uiState.firstName,
+                    onChangeText = { onIntent(CredentialsIntent.SetFirstName(it)) },
+                    placeHolderText = stringResource(id = R.string.name),
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-                    item { Spacer(modifier = Modifier.height(10.dp)) }
 
-                    item {
-                        YallaTextField(
-                            text = uiState.lastName,
-                            onChangeText = { onIntent(CredentialsIntent.SetLastName(it)) },
-                            placeHolderText = stringResource(id = R.string.surname)
-                        )
-                    }
+                Spacer(modifier = Modifier.height(10.dp))
 
-                    item { Spacer(modifier = Modifier.height(10.dp)) }
 
-                    item {
-                        YallaTextField(
-                            text = uiState.dateOfBirth?.formatWithDotsDMY() ?: "",
-                            placeHolderText = stringResource(id = R.string.date_of_birth),
-                            onChangeText = {},
-                            trailingIcon = painterResource(id = R.drawable.ic_calendar),
-                            onClick = { onIntent(CredentialsIntent.OpenDateBottomSheet) }
-                        )
-                    }
+                YallaTextField(
+                    text = uiState.lastName,
+                    onChangeText = { onIntent(CredentialsIntent.SetLastName(it)) },
+                    placeHolderText = stringResource(id = R.string.surname)
+                )
 
-                    item { Spacer(modifier = Modifier.height(10.dp)) }
 
-                    item {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            GenderButton(
-                                modifier = Modifier.weight(1f),
-                                text = stringResource(id = R.string.gender_m),
-                                isSelected = uiState.gender == Gender.MALE,
-                                onSelect = { onIntent(CredentialsIntent.SetGender(Gender.MALE)) }
-                            )
+                Spacer(modifier = Modifier.height(10.dp))
 
-                            GenderButton(
-                                modifier = Modifier.weight(1f),
-                                text = stringResource(id = R.string.gender_f),
-                                isSelected = uiState.gender == Gender.FEMALE,
-                                onSelect = { onIntent(CredentialsIntent.SetGender(Gender.FEMALE)) }
-                            )
-                        }
-                    }
+
+                YallaTextField(
+                    text = uiState.dateOfBirth?.formatWithDotsDMY() ?: "",
+                    placeHolderText = stringResource(id = R.string.date_of_birth),
+                    onChangeText = {},
+                    trailingIcon = painterResource(id = R.drawable.ic_calendar),
+                    onClick = { onIntent(CredentialsIntent.OpenDateBottomSheet) }
+                )
+
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    GenderButton(
+                        modifier = Modifier.weight(1f),
+                        text = stringResource(id = R.string.gender_m),
+                        isSelected = uiState.gender == Gender.MALE,
+                        onSelect = { onIntent(CredentialsIntent.SetGender(Gender.MALE)) }
+                    )
+
+                    GenderButton(
+                        modifier = Modifier.weight(1f),
+                        text = stringResource(id = R.string.gender_f),
+                        isSelected = uiState.gender == Gender.FEMALE,
+                        onSelect = { onIntent(CredentialsIntent.SetGender(Gender.FEMALE)) }
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(20.dp))
