@@ -26,6 +26,7 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
 import io.morfly.compose.bottomsheet.material3.rememberBottomSheetScaffoldState
 import io.morfly.compose.bottomsheet.material3.rememberBottomSheetState
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import uz.ildam.technologies.yalla.android.ui.sheets.SheetValue
@@ -38,9 +39,11 @@ fun MapRoute(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var currentLatLng by remember { mutableStateOf(LatLng(0.0, 0.0)) }
-    val mapState by vm.mapState.collectAsState()
+
+    val uiState by vm.uiState.collectAsState()
     val sheetState = rememberBottomSheetState(
-        initialValue = SheetValue.PartiallyExpanded,
+        confirmValueChange = { false },
+        initialValue = SheetValue.Expanded,
         defineValues = {
             SheetValue.Collapsed at height(100.dp)
             SheetValue.PartiallyExpanded at offset(percent = 60)
@@ -68,38 +71,67 @@ fun MapRoute(
         }
     )
 
-    LaunchedEffect(cameraPositionState.isMoving) {
-        launch { markerState.position = cameraPositionState.position.target }
-        markerState.position.apply { currentLatLng = LatLng(latitude, longitude) }
-    }
-
     LaunchedEffect(Unit) {
         launch { vm.getPolygon() }
+
+        launch {
+            vm.actionState.collectLatest { action ->
+                when (action) {
+                    is MapActionState.AddressIdLoaded -> {
+                        vm.setSelectedAddressId(action.id)
+                        vm.getTariffs(action.id, currentLatLng)
+                    }
+
+                    is MapActionState.AddressNameLoaded -> {}
+                    is MapActionState.LoadingAddressId -> {}
+                    is MapActionState.LoadingAddressName -> {}
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(cameraPositionState.isMoving) {
+        launch {
+            if (cameraPositionState.isMoving) {
+                vm.setSelectedAddressId(id = null)
+                vm.setSelectedAddressName(name = null)
+            } else {
+                cameraPositionState.position.target.apply {
+                    markerState.position = this
+                    currentLatLng = this
+                }
+                vm.getAddressId(currentLatLng)
+                vm.getAddressName(currentLatLng)
+            }
+        }
     }
 
     LaunchedEffect(permissionsGranted) {
-        getCurrentLocation(context) { location ->
-            scope.launch {
-                cameraPositionState.animate(
-                    update = CameraUpdateFactory.newCameraPosition(
-                        CameraPosition(location, 15f, 0f, 0f)
-                    ),
-                    durationMs = 1000
-                )
+        launch {
+            getCurrentLocation(context) { location ->
+                scope.launch {
+                    cameraPositionState.animate(
+                        update = CameraUpdateFactory.newCameraPosition(
+                            CameraPosition(location, 15f, 0f, 0f)
+                        ),
+                        durationMs = 1000
+                    )
+                    vm.getAddressId(location)
+                    vm.getAddressName(location)
+                }
             }
         }
     }
 
     if (permissionsGranted) {
         MapScreen(
+            uiState = uiState,
             scaffoldState = scaffoldState,
             sheetState = sheetState,
-            mapState = mapState,
             markerState = markerState,
-            cameraPositionState = cameraPositionState
+            cameraPositionState = cameraPositionState,
         )
-    }
-    else LaunchedEffect(Unit) {
+    } else LaunchedEffect(Unit) {
         locationPermissionLauncher.launch(locationPermissions)
     }
 }

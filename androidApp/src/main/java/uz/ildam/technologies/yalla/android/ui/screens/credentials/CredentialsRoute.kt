@@ -38,7 +38,7 @@ internal fun CredentialsRoute(
         }
 
         launch {
-            vm.eventFlow.collectLatest {
+            vm.actionFlow.collectLatest {
                 when (it) {
                     is CredentialsActionState.Error -> {}
                     is CredentialsActionState.Loading -> {}

@@ -23,8 +23,8 @@ class VerificationViewModel(
     private val sendAuthCodeUseCase: SendAuthCodeUseCase
 ) : ViewModel() {
 
-    private val _eventFlow = MutableSharedFlow<VerificationActionState>()
-    val eventFlow = _eventFlow.asSharedFlow()
+    private val _actionFlow = MutableSharedFlow<VerificationActionState>()
+    val actionFlow = _actionFlow.asSharedFlow()
 
     private val _uiState = MutableStateFlow(VerificationUIState())
     val uiState = _uiState.asStateFlow()
@@ -53,11 +53,11 @@ class VerificationViewModel(
 
     fun verifyAuthCode() = viewModelScope.launch {
         _uiState.value.apply {
-            _eventFlow.emit(VerificationActionState.Loading)
+            _actionFlow.emit(VerificationActionState.Loading)
             when (val result = verifyAuthCodeUseCase(getFormattedNumber(), code.toInt())) {
-                is Result.Error -> _eventFlow.emit(VerificationActionState.Error("Server error"))
+                is Result.Error -> _actionFlow.emit(VerificationActionState.Error(result.error.name))
                 is Result.Success -> {
-                    _eventFlow.emit(VerificationActionState.VerifySuccess(result.data))
+                    _actionFlow.emit(VerificationActionState.VerifySuccess(result.data))
                     result.data.client?.let { client ->
                         AppPreferences.accessToken = result.data.accessToken
                         AppPreferences.tokenType = result.data.tokenType
@@ -75,10 +75,10 @@ class VerificationViewModel(
 
     fun resendAuthCode() = viewModelScope.launch {
         _uiState.value.apply {
-            _eventFlow.emit(VerificationActionState.Loading)
+            _actionFlow.emit(VerificationActionState.Loading)
             when (val result = sendAuthCodeUseCase(getFormattedNumber())) {
-                is Result.Error -> _eventFlow.emit(VerificationActionState.Error("server error"))
-                is Result.Success -> _eventFlow.emit(VerificationActionState.SendSMSSuccess(result.data))
+                is Result.Error -> _actionFlow.emit(VerificationActionState.Error(result.error.name))
+                is Result.Success -> _actionFlow.emit(VerificationActionState.SendSMSSuccess(result.data))
             }
         }
     }

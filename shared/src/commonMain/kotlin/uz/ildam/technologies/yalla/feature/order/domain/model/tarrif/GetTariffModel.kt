@@ -1,0 +1,39 @@
+package uz.ildam.technologies.yalla.feature.order.domain.model.tarrif
+
+data class GetTariffsModel(
+    val map: String,
+    val tariff: List<Tariff>
+) {
+    data class Tariff(
+        val category: Category,
+        val cityKmCost: Int,
+        val cost: Int,
+        val description: String,
+        val fixedPrice: Int,
+        val fixedType: Boolean,
+        val icon: String,
+        val id: Int,
+        val inCityLocation: Boolean,
+        val includedKm: Double,
+        val index: Int,
+        val minOutCityCost: Int,
+        val modification: String,
+        val name: String,
+        val outCityKmCost: Int,
+        val photo: String,
+        val secondAddress: Boolean,
+        val services: List<Service>
+    ) {
+        data class Category(
+            val id: Int,
+            val name: String
+        )
+
+        data class Service(
+            val cost: Int,
+            val costType: String,
+            val id: Int,
+            val name: String,
+        )
+    }
+}

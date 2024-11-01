@@ -1,13 +1,20 @@
 package uz.ildam.technologies.yalla.android.ui.screens.verification
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import uz.ildam.technologies.yalla.android.ui.dialogs.LoadingDialog
 
 @Composable
 internal fun VerificationRoute(
@@ -20,7 +27,8 @@ internal fun VerificationRoute(
 ) {
     val focusManager = LocalFocusManager.current
     val uiState by vm.uiState.collectAsState()
-
+    var loading by remember { mutableStateOf(false) }
+    val context = LocalContext.current
     LaunchedEffect(Unit) {
         launch {
             vm.updateUiState(
@@ -29,7 +37,9 @@ internal fun VerificationRoute(
                 remainingMinutes = expiresIn / 60,
                 remainingSeconds = expiresIn % 60
             )
+        }
 
+        launch {
             vm.countDownTimer(expiresIn).collectLatest { seconds ->
                 vm.updateUiState(
                     buttonState = seconds != 0 && uiState.code.length == 5,
@@ -41,27 +51,34 @@ internal fun VerificationRoute(
         }
 
         launch {
-            vm.eventFlow.collectLatest {
+            vm.actionFlow.collectLatest {
                 when (it) {
-                    is VerificationActionState.Error -> vm.updateUiState(buttonState = false)
-                    is VerificationActionState.Loading -> vm.updateUiState(buttonState = false)
-                    is VerificationActionState.SendSMSSuccess -> {
-                        launch {
-                            vm.updateUiState(
-                                code = "",
-                                hasRemainingTime = expiresIn > 0,
-                                remainingMinutes = expiresIn / 60,
-                                remainingSeconds = expiresIn % 60
-                            )
+                    is VerificationActionState.Error -> {
+                        vm.updateUiState(buttonState = false)
+                        loading = false
+                    }
 
-                            vm.countDownTimer(it.data.time).collectLatest { seconds ->
-                                vm.updateUiState(
-                                    buttonState = seconds != 0 && uiState.code.length == 5,
-                                    remainingMinutes = seconds / 60,
-                                    remainingSeconds = seconds % 60,
-                                    hasRemainingTime = seconds > 0
-                                )
-                            }
+                    is VerificationActionState.Loading -> {
+                        vm.updateUiState(buttonState = false)
+                        loading = true
+                    }
+
+                    is VerificationActionState.SendSMSSuccess -> {
+                        loading = false
+                        vm.updateUiState(
+                            code = "",
+                            hasRemainingTime = expiresIn > 0,
+                            remainingMinutes = expiresIn / 60,
+                            remainingSeconds = expiresIn % 60
+                        )
+
+                        vm.countDownTimer(it.data.time).collectLatest { seconds ->
+                            vm.updateUiState(
+                                buttonState = seconds != 0 && uiState.code.length == 5,
+                                remainingMinutes = seconds / 60,
+                                remainingSeconds = seconds % 60,
+                                hasRemainingTime = seconds > 0
+                            )
                         }
                     }
 
@@ -90,4 +107,6 @@ internal fun VerificationRoute(
             }
         }
     )
+
+    if (loading) LoadingDialog()
 }

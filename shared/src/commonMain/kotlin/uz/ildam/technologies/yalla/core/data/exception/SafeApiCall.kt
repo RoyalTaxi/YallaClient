@@ -18,16 +18,16 @@ suspend inline fun <reified T> safeApiCall(call: () -> HttpResponse): Result<T, 
         when (response.status.value) {
             in 200..299 -> Result.Success(response.body<T>())
             in 400..499 -> Result.Error(DataError.Network.CLIENT_REQUEST_ERROR)
-            in 300..399 -> Result.Error(DataError.Network.REDIRECT_RESPONSE_EXCEPTION)
+            in 300..399 -> Result.Error(DataError.Network.REDIRECT_RESPONSE_ERROR)
             in 500..599 -> Result.Error(DataError.Network.SERVER_RESPONSE_ERROR)
-            else ->Result.Error(DataError.Network.UNKNOWN)
+            else ->Result.Error(DataError.Network.UNKNOWN_ERROR)
         }
     } catch (e: ServerResponseException) {
         Result.Error(DataError.Network.SERVER_RESPONSE_ERROR)
     } catch (e: ClientRequestException) {
         Result.Error(DataError.Network.CLIENT_REQUEST_ERROR)
     } catch (e: RedirectResponseException) {
-        Result.Error(DataError.Network.REDIRECT_RESPONSE_EXCEPTION)
+        Result.Error(DataError.Network.REDIRECT_RESPONSE_ERROR)
     } catch (e: IOException) {
         Result.Error(DataError.Network.NO_INTERNET_ERROR)
     } catch (e: SocketTimeoutException) {
@@ -35,6 +35,6 @@ suspend inline fun <reified T> safeApiCall(call: () -> HttpResponse): Result<T, 
     } catch (e: SerializationException) {
         Result.Error(DataError.Network.SERIALIZATION_ERROR)
     } catch (e: ResponseException) {
-        Result.Error(DataError.Network.UNKNOWN)
+        Result.Error(DataError.Network.UNKNOWN_ERROR)
     }
 }

@@ -18,8 +18,8 @@ class CredentialsViewModel(
     private val registerUseCase: RegisterUseCase,
 ) : ViewModel() {
 
-    private val _eventFlow = MutableSharedFlow<CredentialsActionState>()
-    val eventFlow = _eventFlow.asSharedFlow()
+    private val _actionFlow = MutableSharedFlow<CredentialsActionState>()
+    val actionFlow = _actionFlow.asSharedFlow()
 
     private val _uiState = MutableStateFlow(CredentialsUIState())
     val uiState = _uiState.asStateFlow()
@@ -57,7 +57,7 @@ class CredentialsViewModel(
                     secretKey
                 )
             ) {
-                is Result.Error -> _eventFlow.emit(CredentialsActionState.Error("server error"))
+                is Result.Error -> _actionFlow.emit(CredentialsActionState.Error(result.error.name))
 
                 is Result.Success -> {
                     AppPreferences.accessToken = result.data.accessToken
@@ -68,7 +68,7 @@ class CredentialsViewModel(
                     AppPreferences.lastName = lastName
                     AppPreferences.gender = gender.name
                     AppPreferences.dateOfBirth = dateOfBirth.formatWithDotsDMY()
-                    _eventFlow.emit(CredentialsActionState.Success(result.data))
+                    _actionFlow.emit(CredentialsActionState.Success(result.data))
                 }
             }
         }

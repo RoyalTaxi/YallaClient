@@ -21,20 +21,15 @@ class LoginViewModel(
     private val _uiState = MutableStateFlow(LoginUIState())
     val uiState = _uiState.asStateFlow()
 
-    fun updateUiState(
-        number: String? = null,
-        buttonState: Boolean? = null
-    ) = viewModelScope.launch {
-        _uiState.update { currentState ->
-            currentState.copy(
-                number = number ?: currentState.number,
-                buttonState = buttonState ?: currentState.buttonState
-            )
-        }
-        number?.let { number ->
-            _uiState.update { it.copy(buttonState = number.length == 9) }
-        }
+    fun setNumber(number: String) = viewModelScope.launch {
+        if (number.length <= 9) _uiState.update { it.copy(number = number) }
+        if (number.length == 9) _uiState.update { it.copy(buttonState = true) }
     }
+
+    fun setButtonState(buttonState: Boolean) = viewModelScope.launch {
+        _uiState.update { it.copy(buttonState = buttonState) }
+    }
+
 
     fun sendAuthCode() = viewModelScope.launch {
         _eventFlow.emit(LoginActionState.Loading)

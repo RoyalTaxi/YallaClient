@@ -3,7 +3,6 @@ package uz.ildam.technologies.yalla.android.ui.screens.map
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,13 +30,16 @@ import uz.ildam.technologies.yalla.android.ui.sheets.SheetValue
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun MapScreen(
+    uiState: MapUIState,
     scaffoldState: BottomSheetScaffoldState<SheetValue>,
     sheetState: BottomSheetState<SheetValue>,
-    mapState: MapState,
     markerState: MarkerState,
     cameraPositionState: CameraPositionState
 ) {
     BottomSheetScaffold(
+        modifier = Modifier
+            .fillMaxSize()
+            .systemBarsPadding(),
         scaffoldState = scaffoldState,
         sheetDragHandle = null,
         sheetContainerColor = Color.Black,
@@ -46,12 +48,7 @@ fun MapScreen(
             topEnd = 30.dp
         ),
         sheetContent = {
-            OrderTaxiBottomSheet(
-                "Сайлгох 123",
-                "Домой",
-                {},
-                {}
-            )
+            uiState.tariffs?.let { OrderTaxiBottomSheet(it) }
         },
         content = {
             val bottomPadding by remember {
@@ -63,14 +60,16 @@ fun MapScreen(
                     .padding(bottom = remember(bottomPadding) { bottomPadding })
             ) {
                 GoogleMap(
-                    properties = mapState.properties,
-                    uiSettings = mapState.mapUiSettings,
+                    properties = uiState.properties,
+                    uiSettings = uiState.mapUiSettings,
                     cameraPositionState = cameraPositionState,
                     modifier = Modifier.fillMaxSize()
                 ) { Marker(state = markerState, alpha = .0f) }
 
                 YallaMarker(
                     time = "5",
+                    isLoading = uiState.selectedAddressId == null,
+                    selectedAddressName = uiState.selectedAddressName,
                     modifier = Modifier.align(Alignment.Center)
                 )
             }

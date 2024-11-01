@@ -4,10 +4,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalFocusManager
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import uz.ildam.technologies.yalla.android.ui.dialogs.LoadingDialog
 
 @Composable
 fun LoginRoute(
@@ -17,14 +21,27 @@ fun LoginRoute(
 ) {
     val focusManager = LocalFocusManager.current
     val uiState by vm.uiState.collectAsState()
+    var loading by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         launch {
             vm.eventFlow.collectLatest { actionState ->
                 when (actionState) {
-                    is LoginActionState.Error -> vm.updateUiState(buttonState = false)
-                    is LoginActionState.Loading -> vm.updateUiState(buttonState = false)
-                    is LoginActionState.Success -> onNext(uiState.number, actionState.data.time)
+                    is LoginActionState.Error -> {
+                        loading = false
+                        vm.setButtonState(true)
+                    }
+
+                    is LoginActionState.Loading -> {
+                        loading = true
+                        vm.setButtonState(false)
+                    }
+
+                    is LoginActionState.Success -> {
+                        loading = false
+                        vm.setButtonState(true)
+                        onNext(uiState.number, actionState.data.time)
+                    }
                 }
             }
         }
@@ -37,8 +54,10 @@ fun LoginRoute(
                 is LoginIntent.ClearFocus -> focusManager.clearFocus(true)
                 is LoginIntent.NavigateBack -> onBack()
                 is LoginIntent.SendCode -> vm.sendAuthCode()
-                is LoginIntent.SetNumber -> vm.updateUiState(number = intent.number)
+                is LoginIntent.SetNumber -> vm.setNumber(number = intent.number)
             }
         }
     )
+
+    if (loading) LoadingDialog()
 }

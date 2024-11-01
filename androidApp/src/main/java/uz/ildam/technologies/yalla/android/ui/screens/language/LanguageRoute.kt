@@ -25,22 +25,20 @@ internal fun LanguageRoute(
     val uiState by vm.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
-        launch {
-            vm.setSelectedLanguageType(
-                when (
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                        context
-                            .getSystemService(LocaleManager::class.java)
-                            .applicationLocales[0]
-                            ?.toLanguageTag()
-                            .orEmpty()
-                    else AppCompatDelegate.getApplicationLocales()[0]?.toLanguageTag().orEmpty()) {
-                    "uz" -> LanguageType.UZBEK
-                    "ru" -> LanguageType.RUSSIAN
-                    else -> null
-                }
-            )
-        }
+        vm.setSelectedLanguageType(
+            when (
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                    context
+                        .getSystemService(LocaleManager::class.java)
+                        .applicationLocales[0]
+                        ?.toLanguageTag()
+                        .orEmpty()
+                else AppCompatDelegate.getApplicationLocales()[0]?.toLanguageTag().orEmpty()) {
+                "uz" -> LanguageType.UZBEK
+                "ru" -> LanguageType.RUSSIAN
+                else -> null
+            }
+        )
     }
 
     LanguageScreen(

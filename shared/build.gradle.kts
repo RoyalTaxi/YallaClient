@@ -37,6 +37,7 @@ kotlin {
             implementation(libs.koin.core)
 
             implementation(libs.inspektify.ktor3)
+
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

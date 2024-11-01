@@ -30,4 +30,7 @@
     <string name="choose_language">Выберите язык интерфейса</string>
     <string name="choose_language_desc">Пожалуйста, выберите язык, который вам удобен для использования приложения.</string>
     <string name="min">мин</string>
+    <string name="loading">Загружается</string>
+    <string name="starting_cost">от %s сум</string>
+    <string name="fixed_cost">%s сум</string>
 </resources>

@@ -18,6 +18,7 @@ playServicesLocation = "21.3.0"
 snapper = "0.3.0"
 threetenabp = "1.4.4"
 navigationCompose = "2.7.7"
+coilComposeCore = "3.0.0-rc02"
 
 
 [libraries]
@@ -48,7 +49,6 @@ ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negoti
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
-kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 
 maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "mapsCompose" }
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
@@ -59,6 +59,9 @@ androidx-navigation-compose = { module = "androidx.navigation:navigation-compose
 inspektify-ktor3 = { module = "io.github.bvantur:inspektify-ktor2", version.ref = "inspektifyKtor2" }
 
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilComposeCore" }
+coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coilComposeCore" }
 
 
 [plugins]
