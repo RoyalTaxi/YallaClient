@@ -1,12 +1,9 @@
 package uz.ildam.technologies.yalla.android.ui.components.item
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -30,9 +27,9 @@ fun TariffItem(
     val textColor = if (selectedState) YallaTheme.color.white else YallaTheme.color.black
     val containerColor = if (selectedState) YallaTheme.color.primary else YallaTheme.color.gray2
 
-    Surface(
+    Card (
         shape = RoundedCornerShape(16.dp),
-        color = containerColor,
+        colors = CardDefaults.cardColors(containerColor),
         onClick = { onSelect(selectedState) }
     ) {
         Column(
@@ -52,10 +49,10 @@ fun TariffItem(
                 text = if (fixedState) stringResource(R.string.fixed_cost, fixedCost)
                 else stringResource(R.string.starting_cost, startingCost),
                 color = textColor,
+                style = YallaTheme.font.bodySmall
             )
 
             Spacer(modifier = Modifier.height(8.dp))
-
 
             AsyncImage(
                 model = tariffImageUrl,

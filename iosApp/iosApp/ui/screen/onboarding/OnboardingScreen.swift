@@ -9,26 +9,26 @@
 import SwiftUI
 
 struct OnboardingScreen: View {
-    
+
     private struct Page {
         let image: String // Name of the image asset
         let title: String
         let description: String
     }
-    
+
     private let pages = [
         Page(image: "img_onboarding_1", title: "Welcome", description: "Welcome to our app."),
         Page(image: "img_onboarding_2", title: "Explore", description: "Explore new features."),
         Page(image: "img_onboarding_3", title: "Connect", description: "Connect with others."),
         Page(image: "img_onboarding_4", title: "Get Started", description: "Let's get started!")
     ]
-    
+
     @State private var currentPage = 0
-    
+
     var body: some View {
         VStack {
             Spacer().frame(height: 43)
-            
+
             TabView(selection: $currentPage) {
                 ForEach(0..<pages.count, id: \.self) { index in
                     VStack {
@@ -37,16 +37,16 @@ struct OnboardingScreen: View {
                             .scaledToFit()
                             .frame(width: .infinity)
                             .padding(.top, 20)
-                        
+
                         Spacer().frame(height: 54)
-                        
+
                         Text(pages[index].title)
                             .font(.title)
                             .foregroundColor(.black)
                             .padding(.horizontal, 20)
-                        
+
                         Spacer().frame(height: 32)
-                        
+
                         Text(pages[index].description)
                             .font(.body)
                             .foregroundColor(.gray)
@@ -57,9 +57,9 @@ struct OnboardingScreen: View {
             }
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            
+
             Spacer().frame(height: 54)
-            
+
             // Custom page indicator and button
             HStack {
                 if currentPage < pages.count - 1 {
@@ -70,9 +70,9 @@ struct OnboardingScreen: View {
                                 .foregroundColor(index == currentPage ? .blue : .gray)
                         }
                     }
-                    
+
                     Spacer()
-                    
+
                     Button(action: {
                         withAnimation {
                             if currentPage < pages.count - 1 {
@@ -101,7 +101,7 @@ struct OnboardingScreen: View {
                 }
             }
             .padding(.horizontal, 20)
-            
+
             Spacer().frame(height: 30)
         }
         .background(Color.white.ignoresSafeArea())

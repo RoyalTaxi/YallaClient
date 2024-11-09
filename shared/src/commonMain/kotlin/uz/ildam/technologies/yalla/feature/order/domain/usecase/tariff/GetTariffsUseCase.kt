@@ -15,7 +15,7 @@ class GetTariffsUseCase(
     ): Result<GetTariffsModel, DataError.Network> {
         return repository.getTariffs(
             optionIds = optionIds,
-            coords = coords,
+            cords = coords,
             addressId = addressId
         )
     }

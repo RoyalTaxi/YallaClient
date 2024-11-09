@@ -1,5 +1,11 @@
 package uz.ildam.technologies.yalla.android.ui.screens.map
 
-sealed interface MapIntent {
+import uz.ildam.technologies.yalla.feature.order.domain.model.tarrif.GetTariffsModel
 
+sealed interface MapIntent {
+    data object MoveToMyLocation : MapIntent
+    data class SelectTariff(
+        val tariff: GetTariffsModel.Tariff,
+        val wasSelected: Boolean
+    ) : MapIntent
 }

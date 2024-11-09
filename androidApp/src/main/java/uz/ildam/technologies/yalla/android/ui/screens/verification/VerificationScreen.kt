@@ -45,7 +45,7 @@ internal fun VerificationScreen(
                 role = Role.Image,
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
-            ),
+            )
     ) {
         YallaToolbar(onClick = { onIntent(VerificationIntent.NavigateBack) })
 
@@ -95,16 +95,15 @@ internal fun VerificationScreen(
                 } else {
                     stringResource(id = R.string.resend)
                 },
-                modifier = Modifier
-                    .then(
-                        if (!uiState.hasRemainingTime) {
-                            Modifier.clickable(
-                                onClick = { onIntent(VerificationIntent.ResendCode(uiState.number)) },
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = ripple(color = YallaTheme.color.white)
-                            )
-                        } else Modifier
-                    )
+                modifier = Modifier.then(
+                    if (!uiState.hasRemainingTime) {
+                        Modifier.clickable(
+                            onClick = { onIntent(VerificationIntent.ResendCode(uiState.number)) },
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = ripple(color = YallaTheme.color.white)
+                        )
+                    } else Modifier
+                )
             )
 
             Spacer(modifier = Modifier.weight(1f))

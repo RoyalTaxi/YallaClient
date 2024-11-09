@@ -1,4 +1,4 @@
-package uz.ildam.technologies.yalla.android.ui.screens.map
+package uz.ildam.technologies.yalla.android.ui.screens.permission
 
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -9,23 +9,21 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 
-const val MAP_ROUTE = "map_route"
+const val PERMISSION_ROUTE = "permission_route"
 
-fun NavGraphBuilder.mapScreen(
-    onPermissionDenied: () -> Unit
+fun NavGraphBuilder.permissionScreen(
+    onPermissionGranted: () -> Unit
 ) {
     composable(
-        route = MAP_ROUTE,
+        route = PERMISSION_ROUTE,
         enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
         popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) + fadeIn() },
         exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) + fadeOut() },
         popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() }
     ) {
-        MapRoute(
-            onPermissionDenied = onPermissionDenied
-        )
+        PermissionRoute(onPermissionGranted = onPermissionGranted)
     }
 }
 
-fun NavController.navigateToMapScreen(navOptions: NavOptions? = null) =
-    navigate(MAP_ROUTE, navOptions)
+fun NavController.navigateToPermissionScreen(navOptions: NavOptions? = null) =
+    navigate(PERMISSION_ROUTE, navOptions)

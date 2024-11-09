@@ -32,6 +32,7 @@
     <string name="loading">Yuklanmoqda</string>
     <string name="starting_cost">%sdan boshlab</string>
     <string name="fixed_cost">%s so\'m</string>
+    <string name="lets_go">Qani ketdik</string>
 
 
 </resources>

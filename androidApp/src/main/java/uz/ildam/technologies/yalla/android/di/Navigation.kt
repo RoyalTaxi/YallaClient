@@ -15,7 +15,7 @@ object Navigation {
         viewModel { LoginViewModel(get()) }
         viewModel { VerificationViewModel(get(), get()) }
         viewModel { CredentialsViewModel(get()) }
-        viewModel { MapViewModel(get(), get(), get()) }
+        viewModel { MapViewModel(get(), get(), get(), get()) }
     }
 
     val modules = listOf(viewModelModule)

@@ -7,6 +7,7 @@ import uz.ildam.technologies.yalla.feature.order.data.repository.OrderRepository
 import uz.ildam.technologies.yalla.feature.order.data.service.TariffService
 import uz.ildam.technologies.yalla.feature.order.domain.repository.OrderRepository
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.tariff.GetTariffsUseCase
+import uz.ildam.technologies.yalla.feature.order.domain.usecase.tariff.GetTimeOutUseCase
 
 object Order {
 
@@ -20,6 +21,7 @@ object Order {
 
     private val useCaseModule = module {
         single { GetTariffsUseCase(get()) }
+        single { GetTimeOutUseCase(get()) }
     }
 
     val modules = listOf(serviceModule, repositoryModule, useCaseModule)

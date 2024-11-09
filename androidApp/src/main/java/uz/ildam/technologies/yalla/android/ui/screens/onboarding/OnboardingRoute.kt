@@ -1,8 +1,5 @@
 package uz.ildam.technologies.yalla.android.ui.screens.onboarding
 
-import android.Manifest
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.pager.rememberPagerState
@@ -26,13 +23,6 @@ internal data class Page(
 internal fun OnboardingRoute(
     onNext: () -> Unit
 ) {
-    val pagerState = rememberPagerState { 4 }
-    val scope = rememberCoroutineScope()
-    val scrollState = rememberScrollState()
-    val locationPermissionRequest = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted -> if (isGranted) onNext() }
-
     val screenContents by remember {
         mutableStateOf(
             listOf(
@@ -50,15 +40,13 @@ internal fun OnboardingRoute(
                     R.drawable.img_onboarding_3,
                     R.string.onboarding_3,
                     R.string.onboarding_3_desc
-                ),
-                Page(
-                    R.drawable.img_onboarding_4,
-                    R.string.onboarding_4,
-                    R.string.onboarding_4_desc
                 )
             )
         )
     }
+    val pagerState = rememberPagerState { screenContents.size }
+    val scope = rememberCoroutineScope()
+    val scrollState = rememberScrollState()
 
     LaunchedEffect(Unit) {
         scope.launch { scrollState.animateScrollTo(scrollState.maxValue) }
@@ -70,8 +58,10 @@ internal fun OnboardingRoute(
         screenContents = screenContents,
         onIntent = { intent ->
             when (intent) {
-                OnboardingIntent.NavigateNext -> locationPermissionRequest.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-                OnboardingIntent.Swipe -> scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
+                OnboardingIntent.Swipe -> scope.launch {
+                    if (pagerState.currentPage == 2) onNext()
+                    else pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                }
             }
         }
     )

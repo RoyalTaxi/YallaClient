@@ -55,7 +55,7 @@ fun DotIndicator(
 
         LazyRow(
             state = indicatorScrollState,
-            modifier = Modifier.width(((6 + 16) * 2 + 3 * (10 + 16)).dp), // I'm hard computing it to simplify
+            modifier = Modifier.width(((6 + 16) * 2 + 3 * (10 + 16)).dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -64,10 +64,11 @@ fun DotIndicator(
                 item(key = "item$iteration") {
                     val currentPage = pagerState.currentPage
                     val size by animateDpAsState(
+                        label = "dotSize",
                         targetValue = when (iteration) {
                             currentPage -> 16.dp
                             else -> 12.dp
-                        }
+                        },
                     )
                     Box(
                         modifier = Modifier

@@ -25,7 +25,7 @@ fun LoginRoute(
 
     LaunchedEffect(Unit) {
         launch {
-            vm.eventFlow.collectLatest { actionState ->
+            vm.actionFlow.collectLatest { actionState ->
                 when (actionState) {
                     is LoginActionState.Error -> {
                         loading = false

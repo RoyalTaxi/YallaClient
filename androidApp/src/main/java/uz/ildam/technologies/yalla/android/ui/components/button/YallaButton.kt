@@ -21,6 +21,7 @@ fun YallaButton(
     text: String,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    contentPadding: PaddingValues = PaddingValues(vertical = 16.dp, horizontal = 32.dp),
     containerColor: Color = YallaTheme.color.black,
     contentColor: Color = YallaTheme.color.white,
     leadingIcon: Painter? = null,
@@ -33,7 +34,7 @@ fun YallaButton(
         shape = RoundedCornerShape(16.dp),
         modifier = modifier,
         enabled = enabled,
-        contentPadding = PaddingValues(vertical = 16.dp, horizontal = 32.dp),
+        contentPadding = contentPadding,
         colors = ButtonDefaults.buttonColors(
             containerColor = containerColor,
             disabledContainerColor = YallaTheme.color.gray2,

@@ -23,10 +23,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 import uz.ildam.technologies.yalla.android.ui.components.button.NextButton
-import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
 import uz.ildam.technologies.yalla.android.ui.components.indicator.DotIndicator
 
 
@@ -79,15 +77,16 @@ internal fun OnboardingScreen(
         }
 
         Spacer(modifier = Modifier.weight(1f))
+
         Spacer(modifier = Modifier.height(56.dp))
 
-        if (pagerState.currentPage != 3) Row(
+        Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             DotIndicator(
-                pageCount = pagerState.pageCount - 1,
+                pageCount = pagerState.pageCount,
                 pagerState = pagerState
             )
 
@@ -95,13 +94,7 @@ internal fun OnboardingScreen(
                 modifier = Modifier.padding(horizontal = 20.dp),
                 onClick = { onIntent(OnboardingIntent.Swipe) }
             )
-        } else YallaButton(
-            text = stringResource(id = R.string.next),
-            onClick = { onIntent(OnboardingIntent.NavigateNext) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp)
-        )
+        }
 
         Spacer(modifier = Modifier.height(30.dp))
     }

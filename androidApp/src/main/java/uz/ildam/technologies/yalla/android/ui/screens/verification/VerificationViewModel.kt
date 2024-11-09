@@ -37,8 +37,6 @@ class VerificationViewModel(
         remainingMinutes: Int? = null,
         remainingSeconds: Int? = null
     ) = viewModelScope.launch {
-
-
         _uiState.update { currentState ->
             currentState.copy(
                 number = number ?: currentState.number,

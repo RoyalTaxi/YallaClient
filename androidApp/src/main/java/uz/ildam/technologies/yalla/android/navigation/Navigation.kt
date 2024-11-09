@@ -18,6 +18,8 @@ import uz.ildam.technologies.yalla.android.ui.screens.map.mapScreen
 import uz.ildam.technologies.yalla.android.ui.screens.map.navigateToMapScreen
 import uz.ildam.technologies.yalla.android.ui.screens.onboarding.ONBOARDING_ROUTE
 import uz.ildam.technologies.yalla.android.ui.screens.onboarding.onboardingScreen
+import uz.ildam.technologies.yalla.android.ui.screens.permission.navigateToPermissionScreen
+import uz.ildam.technologies.yalla.android.ui.screens.permission.permissionScreen
 import uz.ildam.technologies.yalla.android.ui.screens.verification.navigateToVerificationScreen
 import uz.ildam.technologies.yalla.android.ui.screens.verification.verificationScreen
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
@@ -34,7 +36,14 @@ fun Navigation() {
             startDestination = if (AppPreferences.isDeviceRegistered) MAP_ROUTE else ONBOARDING_ROUTE
         ) {
             onboardingScreen(
-                onNext = navController::navigateToLanguageScreen
+                onNext = navController::navigateToPermissionScreen
+            )
+
+            permissionScreen(
+                onPermissionGranted = {
+                    if (AppPreferences.isDeviceRegistered) navController.navigateToMapScreen()
+                    else navController.navigateToLanguageScreen()
+                }
             )
 
             languageScreen(
@@ -66,7 +75,9 @@ fun Navigation() {
                 onClientNotFound = navController::navigateToCredentialsScreen
             )
 
-            mapScreen()
+            mapScreen(
+                onPermissionDenied = navController::navigateToPermissionScreen
+            )
         }
     }
 }

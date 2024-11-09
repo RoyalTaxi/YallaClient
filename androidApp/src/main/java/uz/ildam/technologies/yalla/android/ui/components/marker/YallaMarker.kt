@@ -9,11 +9,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,6 +25,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -36,9 +42,18 @@ fun YallaMarker(
     selectedAddressName: String?,
     modifier: Modifier = Modifier
 ) {
-    val infiniteTransition = rememberInfiniteTransition("infiniteTransition")
+    val loadingTransition = rememberInfiniteTransition("loading")
 
-    val animatedMargin by infiniteTransition.animateFloat(
+    val loadingImageRotationDegree by loadingTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1000),
+            repeatMode = RepeatMode.Restart,
+        ), label = "loading"
+    )
+
+    val animatedJumpingMargin by loadingTransition.animateFloat(
         label = "infiniteTransition",
         initialValue = 9f,
         targetValue = 15f,
@@ -72,38 +87,62 @@ fun YallaMarker(
                 .clip(RoundedCornerShape(bottomStart = 10.dp, bottomEnd = 10.dp))
                 .background(YallaTheme.color.black)
                 .constrainAs(stick) {
+                    linkTo(start = indicator.start, end = indicator.end)
                     bottom.linkTo(
                         indicator.bottom,
-                        margin = if (isLoading) animatedMargin.dp else 3.dp
+                        margin = if (isLoading) animatedJumpingMargin.dp else 3.dp
                     )
-                    linkTo(start = indicator.start, end = indicator.end)
                 }
         )
 
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
+        Box(
             modifier = Modifier
                 .clip(CircleShape)
                 .background(YallaTheme.color.primary)
                 .squareSize(.5f)
                 .padding(6.dp)
+                .height(IntrinsicSize.Min)
+                .width(IntrinsicSize.Min)
                 .constrainAs(circle) {
                     bottom.linkTo(stick.top)
                     linkTo(start = indicator.start, end = indicator.end)
                 }
         ) {
-            Text(
-                text = time,
-                color = YallaTheme.color.white,
-                style = YallaTheme.font.title
-            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = time,
+                    color = YallaTheme.color.white,
+                    style = YallaTheme.font.title
+                )
 
-            Text(
-                text = stringResource(R.string.min),
-                color = YallaTheme.color.white,
-                style = YallaTheme.font.body
-            )
+                Text(
+                    text = stringResource(R.string.min),
+                    color = YallaTheme.color.white,
+                    style = YallaTheme.font.body
+                )
+            }
+
+            if (isLoading) Box(
+                contentAlignment = Alignment.Center,
+                modifier = modifier
+                    .fillMaxSize()
+                    .background(YallaTheme.color.primary)
+                    .graphicsLayer { clip = true }
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_loading),
+                    contentDescription = null,
+                    tint = YallaTheme.color.white,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .graphicsLayer {
+                            rotationZ = loadingImageRotationDegree
+                        }
+                )
+            }
         }
 
         Surface(

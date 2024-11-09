@@ -33,4 +33,5 @@
     <string name="loading">Загружается</string>
     <string name="starting_cost">от %s сум</string>
     <string name="fixed_cost">%s сум</string>
+    <string name="lets_go">Поехали</string>
 </resources>

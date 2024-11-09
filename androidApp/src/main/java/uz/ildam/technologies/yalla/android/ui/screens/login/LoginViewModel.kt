@@ -15,8 +15,8 @@ class LoginViewModel(
     private val sendAuthCodeUseCase: SendAuthCodeUseCase
 ) : ViewModel() {
 
-    private val _eventFlow = MutableSharedFlow<LoginActionState>()
-    val eventFlow = _eventFlow.asSharedFlow()
+    private val _actionFlow = MutableSharedFlow<LoginActionState>()
+    val actionFlow = _actionFlow.asSharedFlow()
 
     private val _uiState = MutableStateFlow(LoginUIState())
     val uiState = _uiState.asStateFlow()
@@ -32,10 +32,10 @@ class LoginViewModel(
 
 
     fun sendAuthCode() = viewModelScope.launch {
-        _eventFlow.emit(LoginActionState.Loading)
+        _actionFlow.emit(LoginActionState.Loading)
         when (val result = sendAuthCodeUseCase(_uiState.value.getFormattedNumber())) {
-            is Result.Error -> _eventFlow.emit(LoginActionState.Error("Server Error"))
-            is Result.Success -> _eventFlow.emit(LoginActionState.Success(result.data))
+            is Result.Error -> _actionFlow.emit(LoginActionState.Error(result.error.name))
+            is Result.Success -> _actionFlow.emit(LoginActionState.Success(result.data))
         }
     }
 }

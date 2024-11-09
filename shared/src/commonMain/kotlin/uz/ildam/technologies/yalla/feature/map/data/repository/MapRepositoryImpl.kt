@@ -29,7 +29,10 @@ class MapRepositoryImpl(
                 Result.Error(DataError.Network.UNKNOWN_ERROR)
             }
 
-            is Result.Success -> Result.Success(result.data.result.let(MapMapper.addressMapper))
+            is Result.Success -> {
+                if (result.data.result?.name.isNullOrBlank()) Result.Error(DataError.Network.UNKNOWN_ERROR)
+                else Result.Success(result.data.result.let(MapMapper.addressMapper))
+            }
         }
     }
 }

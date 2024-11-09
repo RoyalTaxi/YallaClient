@@ -6,7 +6,7 @@ import uz.ildam.technologies.yalla.core.data.mapper.orFalse
 import uz.ildam.technologies.yalla.feature.order.data.response.tariff.GetTariffsResponse
 import uz.ildam.technologies.yalla.feature.order.domain.model.tarrif.GetTariffsModel
 
-object TariffMapper {
+object GetTariffMapper {
     val mapper: Mapper<GetTariffsResponse?, GetTariffsModel> = { remote ->
         GetTariffsModel(
             map = remote?.map.orEmpty(),

@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import sp.bvantur.inspektify.ktor.InspektifyKtor
 import uz.ildam.technologies.yalla.android.navigation.Navigation
 
 class MainActivity : AppCompatActivity() {

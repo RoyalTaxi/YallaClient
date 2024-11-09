@@ -13,12 +13,15 @@ import uz.ildam.technologies.yalla.core.domain.error.Result
 import uz.ildam.technologies.yalla.feature.map.domain.model.map.PolygonRemoteItem
 import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.GetAddressNameUseCase
 import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.GetPolygonUseCase
+import uz.ildam.technologies.yalla.feature.order.domain.model.tarrif.GetTariffsModel
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.tariff.GetTariffsUseCase
+import uz.ildam.technologies.yalla.feature.order.domain.usecase.tariff.GetTimeOutUseCase
 
 class MapViewModel(
     private val getPolygonUseCase: GetPolygonUseCase,
     private val getAddressNameUseCase: GetAddressNameUseCase,
-    private val getTariffsUseCase: GetTariffsUseCase
+    private val getTariffsUseCase: GetTariffsUseCase,
+    private val getTimeOutUseCase: GetTimeOutUseCase,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(MapUIState())
     val uiState = _uiState.asStateFlow()
@@ -28,69 +31,129 @@ class MapViewModel(
 
     private var addresses = listOf<PolygonRemoteItem>()
 
-    fun getPolygon() = viewModelScope.launch {
-        when (val result = getPolygonUseCase()) {
-            is Result.Error -> {}
+    init {
+        fetchPolygons()
+    }
 
+    private fun fetchPolygons() = viewModelScope.launch {
+        _actionState.emit(MapActionState.LoadingPolygon)
+        when (val result = getPolygonUseCase()) {
             is Result.Success -> {
                 addresses = result.data
+                _actionState.emit(MapActionState.PolygonLoaded)
             }
+
+            is Result.Error -> updateStateToNotFound()
         }
     }
 
-    fun getAddressId(point: LatLng) = viewModelScope.launch {
+    fun getAddressDetails(point: LatLng) = viewModelScope.launch {
         _actionState.emit(MapActionState.LoadingAddressId)
-        for (address in addresses) {
-            val polygonVertices = address.polygons
-            var isInsidePolygon = false
-
-            for (currentVertexIndex in polygonVertices.indices) {
-                val previousVertexIndex =
-                    if (currentVertexIndex == 0) polygonVertices.size - 1 else currentVertexIndex - 1
-                val (currentLat, currentLng) = polygonVertices[currentVertexIndex]
-                val (prevLat, prevLng) = polygonVertices[previousVertexIndex]
-
-                val isIntersecting =
-                    (currentLng > point.longitude) != (prevLng > point.longitude) &&
-                            (point.latitude < (prevLat - currentLat) * (point.longitude - currentLng) / (prevLng - currentLng) + currentLat)
-                if (isIntersecting) isInsidePolygon = !isInsidePolygon
-            }
-
-            if (isInsidePolygon) {
-                _uiState.update { it.copy(selectedAddressId = address.addressId) }
-                _actionState.emit(MapActionState.AddressIdLoaded(address.addressId))
-            }
+        if (addresses.isEmpty()) fetchPolygons()
+        else addresses.firstOrNull {
+            isPointInsidePolygon(
+                point = point,
+                vertices = it.polygons.map { polygon ->
+                    Pair(polygon.lat, polygon.lng)
+                }
+            )
+        }?.let { address ->
+            _uiState.update { it.copy(selectedAddressId = address.addressId) }
+            _actionState.emit(MapActionState.AddressIdLoaded(address.addressId))
+        } ?: run {
+            _uiState.update { it.copy(selectedAddressId = null) }
         }
+        fetchAddressName(point)
     }
 
-    fun getAddressName(point: LatLng) = viewModelScope.launch {
+    private suspend fun fetchAddressName(point: LatLng) {
         _actionState.emit(MapActionState.LoadingAddressName)
         when (val result = getAddressNameUseCase(point.latitude, point.longitude)) {
-            is Result.Error -> {}
-            is Result.Success -> {
-                _actionState.emit(MapActionState.AddressNameLoaded(result.data.name))
-                _uiState.update { it.copy(selectedAddressName = result.data.name) }
+            is Result.Success -> _actionState.emit(MapActionState.AddressNameLoaded(result.data.name))
+            is Result.Error -> updateStateToNotFound()
+        }
+    }
+
+    fun getTimeout(point: LatLng) = viewModelScope.launch {
+        val selectedTariff = _uiState.value.selectedTariff
+            ?: _uiState.value.tariffs?.tariff?.firstOrNull()
+
+        selectedTariff?.let { tariff ->
+            _actionState.emit(MapActionState.LoadingTariffs)
+            when (val result = getTimeOutUseCase(
+                lat = point.latitude,
+                lng = point.longitude,
+                tariffId = tariff.id
+            )) {
+                is Result.Error -> updateStateToNotFound()
+                is Result.Success -> _uiState.update { it.copy(timeout = result.data.timeout) }
             }
         }
     }
 
-    fun getTariffs(addressId: Int, from: LatLng, to: LatLng? = null) = viewModelScope.launch {
-        val coords = mutableListOf<Pair<Double, Double>>()
-        coords.add(Pair(from.latitude, from.longitude))
-        to?.let { coords.add(Pair(it.latitude, it.longitude)) }
+    fun fetchTariffs(addressId: Int, from: LatLng, to: LatLng? = null) = viewModelScope.launch {
+        _actionState.emit(MapActionState.LoadingTariffs)
+        val coordinates = listOfNotNull(from.toPair(), to?.toPair())
+        when (val result = getTariffsUseCase(listOf(), coordinates, addressId)) {
+            is Result.Success -> {
+                _actionState.emit(MapActionState.TariffsLoaded)
+                updateTariffs(result.data)
+            }
 
-        when (val result = getTariffsUseCase(listOf(), coords = coords, addressId)) {
-            is Result.Error -> {}
-            is Result.Success -> _uiState.update { it.copy(tariffs = result.data) }
+            is Result.Error -> updateStateToNotFound()
         }
     }
 
-    fun setSelectedAddressName(name: String?) {
-        _uiState.update { it.copy(selectedAddressName = name) }
+    private fun updateTariffs(data: GetTariffsModel) {
+        _uiState.update { it.copy(tariffs = data) }
+        val selectedTariff = _uiState.value.selectedTariff
+        if (selectedTariff?.id !in data.tariff.map { it.id }) updateUIState(selectedTariff = data.tariff.firstOrNull())
     }
 
-    fun setSelectedAddressId(id: Int?) {
-        _uiState.update { it.copy(selectedAddressId = id) }
+    private fun isPointInsidePolygon(point: LatLng, vertices: List<Pair<Double, Double>>): Boolean {
+        var isInside = false
+        for (i in vertices.indices) {
+            val j = if (i == 0) vertices.size - 1 else i - 1
+            val (lat1, lng1) = vertices[i]
+            val (lat2, lng2) = vertices[j]
+            val intersects = (lng1 > point.longitude) != (lng2 > point.longitude) &&
+                    (point.latitude < (lat2 - lat1) * (point.longitude - lng1) / (lng2 - lng1) + lat1)
+            if (intersects) isInside = !isInside
+        }
+        return isInside
     }
 
+    private fun updateStateToNotFound() {
+        updateUIState(selectedAddressName = null)
+        updateUIState(selectedAddressId = null)
+        _uiState.update { it.copy(tariffs = null) }
+    }
+
+    private fun LatLng.toPair() = Pair(latitude, longitude)
+
+    fun changeStateToNotFound() {
+        updateUIState(
+            selectedAddressName = null,
+            selectedAddressId = null,
+            tariffs = null
+        )
+    }
+
+    fun updateUIState(
+        timeout: Int? = _uiState.value.timeout,
+        selectedAddressName: String? = _uiState.value.selectedAddressName,
+        selectedAddressId: Int? = _uiState.value.selectedAddressId,
+        selectedTariff: GetTariffsModel.Tariff? = _uiState.value.selectedTariff,
+        tariffs: GetTariffsModel? = _uiState.value.tariffs
+    ) {
+        _uiState.update {
+            it.copy(
+                timeout = timeout,
+                selectedAddressName = selectedAddressName,
+                selectedAddressId = selectedAddressId,
+                selectedTariff = selectedTariff,
+                tariffs = tariffs
+            )
+        }
+    }
 }

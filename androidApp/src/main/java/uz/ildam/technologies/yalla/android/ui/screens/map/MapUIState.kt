@@ -9,6 +9,8 @@ data class MapUIState(
     val selectedAddressName: String? = null,
     val selectedAddressId: Int? = null,
     val tariffs: GetTariffsModel? = null,
+    val selectedTariff: GetTariffsModel.Tariff? = null,
+    val timeout: Int? = 0,
     val mapUiSettings: MapUiSettings = MapUiSettings(
         compassEnabled = false,
         mapToolbarEnabled = false,
