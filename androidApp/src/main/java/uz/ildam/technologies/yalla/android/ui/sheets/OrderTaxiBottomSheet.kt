@@ -22,17 +22,21 @@ import androidx.compose.ui.unit.dp
 import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 import uz.ildam.technologies.yalla.android.ui.components.button.OptionsButton
+import uz.ildam.technologies.yalla.android.ui.components.button.SelectCurrentLocationButton
+import uz.ildam.technologies.yalla.android.ui.components.button.SelectDestinationButton
 import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
 import uz.ildam.technologies.yalla.android.ui.components.item.TariffItem
 import uz.ildam.technologies.yalla.android.ui.components.item.TariffItemShimmer
+import uz.ildam.technologies.yalla.android.ui.screens.map.MapUIState
 import uz.ildam.technologies.yalla.feature.order.domain.model.tarrif.GetTariffsModel
 
 @Composable
 fun OrderTaxiBottomSheet(
     isLoading: Boolean,
-    selectedTariff: GetTariffsModel.Tariff?,
-    tariffs: List<GetTariffsModel.Tariff>,
-    onSelectTariff: (GetTariffsModel.Tariff, Boolean) -> Unit
+    uiState: MapUIState,
+    onSelectTariff: (GetTariffsModel.Tariff, Boolean) -> Unit,
+    onSearchForCurrentLocation: () -> Unit,
+    onSearchForDestinationLocation: () -> Unit
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -50,18 +54,32 @@ fun OrderTaxiBottomSheet(
                 )
                 .padding(vertical = 20.dp)
         ) {
+            SelectCurrentLocationButton(
+                currentLocation = uiState.selectedLocation?.name,
+                isLoading = isLoading,
+                modifier = Modifier.padding(horizontal = 20.dp),
+                onClick = onSearchForCurrentLocation
+            )
+
+            SelectDestinationButton(
+                destinations = uiState.destinations,
+                modifier = Modifier.padding(horizontal = 20.dp),
+                onClick = onSearchForDestinationLocation,
+                onAddNewClick = {}
+            )
+
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 20.dp),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                if (tariffs.isNotEmpty()) items(tariffs) { tariff ->
+                if (uiState.tariffs?.tariff?.isNotEmpty() == true && isLoading.not()) items(uiState.tariffs.tariff) { tariff ->
                     TariffItem(
                         tariff = tariff.name,
                         tariffImageUrl = tariff.photo,
                         startingCost = tariff.cost,
                         fixedCost = tariff.fixedPrice,
                         fixedState = tariff.fixedType,
-                        selectedState = selectedTariff == tariff,
+                        selectedState = uiState.selectedTariff == tariff,
                         onSelect = { wasSelected -> onSelectTariff(tariff, wasSelected) }
                     )
                 }
@@ -88,7 +106,7 @@ fun OrderTaxiBottomSheet(
 
             YallaButton(
                 text = stringResource(R.string.lets_go),
-                enabled = isLoading.not() && selectedTariff != null,
+                enabled = isLoading.not() && uiState.selectedTariff != null,
                 contentPadding = PaddingValues(vertical = 20.dp),
                 modifier = Modifier
                     .weight(1f)

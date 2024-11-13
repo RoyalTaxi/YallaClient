@@ -1,16 +1,19 @@
 package uz.ildam.technologies.yalla.android.ui.screens.map
 
+import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
+import uz.ildam.technologies.yalla.feature.map.domain.model.map.SearchForAddressItemModel
 import uz.ildam.technologies.yalla.feature.order.domain.model.tarrif.GetTariffsModel
 
 data class MapUIState(
-    val selectedAddressName: String? = null,
-    val selectedAddressId: Int? = null,
+    val selectedLocation: SelectedLocation? = null,
+    val destinations: List<Destination> = emptyList(),
     val tariffs: GetTariffsModel? = null,
     val selectedTariff: GetTariffsModel.Tariff? = null,
     val timeout: Int? = 0,
+    val foundAddresses: List<SearchForAddressItemModel> = emptyList(),
     val mapUiSettings: MapUiSettings = MapUiSettings(
         compassEnabled = false,
         mapToolbarEnabled = false,
@@ -24,4 +27,15 @@ data class MapUIState(
         isMyLocationEnabled = true,
         isTrafficEnabled = true
     )
-)
+) {
+    data class SelectedLocation(
+        val name: String?,
+        val point: LatLng?,
+        val addressId: Int?
+    )
+
+    data class Destination(
+        val name: String?,
+        val point: LatLng?
+    )
+}

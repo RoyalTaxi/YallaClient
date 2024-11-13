@@ -21,7 +21,6 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import io.morfly.compose.bottomsheet.material3.BottomSheetScaffold
 import io.morfly.compose.bottomsheet.material3.BottomSheetScaffoldState
-import io.morfly.compose.bottomsheet.material3.BottomSheetState
 import io.morfly.compose.bottomsheet.material3.requireSheetVisibleHeightDp
 import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.ui.components.button.MapButton
@@ -35,7 +34,6 @@ fun MapScreen(
     uiState: MapUIState,
     isLoading: Boolean,
     scaffoldState: BottomSheetScaffoldState<SheetValue>,
-    sheetState: BottomSheetState<SheetValue>,
     markerState: MarkerState,
     cameraPositionState: CameraPositionState,
     onIntent: (MapIntent) -> Unit
@@ -48,16 +46,17 @@ fun MapScreen(
         sheetContent = {
             OrderTaxiBottomSheet(
                 isLoading = isLoading,
-                selectedTariff = uiState.selectedTariff,
-                tariffs = uiState.tariffs?.tariff.orEmpty(),
+                uiState = uiState,
                 onSelectTariff = { selectedTariff, wasSelected ->
                     onIntent(MapIntent.SelectTariff(selectedTariff, wasSelected))
-                }
+                },
+                onSearchForCurrentLocation = { onIntent(MapIntent.OpenCurrentLocationSearchSheet) },
+                onSearchForDestinationLocation = { onIntent(MapIntent.OpenDestinationLocationSearchSheet) },
             )
         },
         content = {
             val bottomPadding by remember {
-                derivedStateOf { sheetState.requireSheetVisibleHeightDp() }
+                derivedStateOf { scaffoldState.sheetState.requireSheetVisibleHeightDp() }
             }
             Box(
                 modifier = Modifier
@@ -81,7 +80,7 @@ fun MapScreen(
                     YallaMarker(
                         time = uiState.timeout.toString(),
                         isLoading = isLoading,
-                        selectedAddressName = uiState.selectedAddressName,
+                        selectedAddressName = uiState.selectedLocation?.name,
                         modifier = Modifier.align(Alignment.Center)
                     )
 

@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
-import uz.ildam.technologies.yalla.android.ui.components.textfield.PhoneNumberTextField
+import uz.ildam.technologies.yalla.android.ui.components.text_field.PhoneNumberTextField
 import uz.ildam.technologies.yalla.android.ui.components.toolbar.YallaToolbar
 
 

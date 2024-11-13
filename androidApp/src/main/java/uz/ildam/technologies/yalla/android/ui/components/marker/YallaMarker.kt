@@ -154,7 +154,9 @@ fun YallaMarker(
             }
         ) {
             Text(
-                text = selectedAddressName ?: stringResource(R.string.loading),
+                text =
+                if (isLoading.not() && selectedAddressName != null) selectedAddressName
+                else stringResource(R.string.loading),
                 color = YallaTheme.color.white,
                 style = YallaTheme.font.labelSemiBold,
                 textAlign = TextAlign.Center,

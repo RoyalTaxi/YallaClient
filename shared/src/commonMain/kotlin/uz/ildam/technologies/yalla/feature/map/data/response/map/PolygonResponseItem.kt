@@ -1,4 +1,4 @@
-package uz.ildam.technologies.yalla.feature.map.data.response.address
+package uz.ildam.technologies.yalla.feature.map.data.response.map
 
 import kotlinx.serialization.Serializable
 

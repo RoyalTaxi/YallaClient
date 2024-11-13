@@ -48,9 +48,7 @@ internal fun OnboardingRoute(
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
 
-    LaunchedEffect(Unit) {
-        scope.launch { scrollState.animateScrollTo(scrollState.maxValue) }
-    }
+    LaunchedEffect(Unit) { scope.launch { scrollState.animateScrollTo(scrollState.maxValue) } }
 
     OnboardingScreen(
         scrollState = scrollState,

@@ -1,4 +1,4 @@
-package uz.ildam.technologies.yalla.android.ui.components.textfield
+package uz.ildam.technologies.yalla.android.ui.components.text_field
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource

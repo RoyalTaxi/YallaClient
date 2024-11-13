@@ -11,8 +11,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.core.domain.error.Result
 import uz.ildam.technologies.yalla.feature.map.domain.model.map.PolygonRemoteItem
+import uz.ildam.technologies.yalla.feature.map.domain.model.map.SearchForAddressItemModel
 import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.GetAddressNameUseCase
 import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.GetPolygonUseCase
+import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.SearchForAddressUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.model.tarrif.GetTariffsModel
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.tariff.GetTariffsUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.tariff.GetTimeOutUseCase
@@ -22,6 +24,7 @@ class MapViewModel(
     private val getAddressNameUseCase: GetAddressNameUseCase,
     private val getTariffsUseCase: GetTariffsUseCase,
     private val getTimeOutUseCase: GetTimeOutUseCase,
+    private val searchForAddressUseCase: SearchForAddressUseCase
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(MapUIState())
     val uiState = _uiState.asStateFlow()
@@ -43,7 +46,7 @@ class MapViewModel(
                 _actionState.emit(MapActionState.PolygonLoaded)
             }
 
-            is Result.Error -> updateStateToNotFound()
+            is Result.Error -> changeStateToNotFound()
         }
     }
 
@@ -58,10 +61,10 @@ class MapViewModel(
                 }
             )
         }?.let { address ->
-            _uiState.update { it.copy(selectedAddressId = address.addressId) }
+            updateSelectedLocation(addressId = address.addressId, point = point)
             _actionState.emit(MapActionState.AddressIdLoaded(address.addressId))
         } ?: run {
-            _uiState.update { it.copy(selectedAddressId = null) }
+            updateSelectedLocation(addressId = null)
         }
         fetchAddressName(point)
     }
@@ -70,7 +73,7 @@ class MapViewModel(
         _actionState.emit(MapActionState.LoadingAddressName)
         when (val result = getAddressNameUseCase(point.latitude, point.longitude)) {
             is Result.Success -> _actionState.emit(MapActionState.AddressNameLoaded(result.data.name))
-            is Result.Error -> updateStateToNotFound()
+            is Result.Error -> changeStateToNotFound()
         }
     }
 
@@ -85,7 +88,7 @@ class MapViewModel(
                 lng = point.longitude,
                 tariffId = tariff.id
             )) {
-                is Result.Error -> updateStateToNotFound()
+                is Result.Error -> changeStateToNotFound()
                 is Result.Success -> _uiState.update { it.copy(timeout = result.data.timeout) }
             }
         }
@@ -100,14 +103,25 @@ class MapViewModel(
                 updateTariffs(result.data)
             }
 
-            is Result.Error -> updateStateToNotFound()
+            is Result.Error -> changeStateToNotFound()
         }
     }
 
     private fun updateTariffs(data: GetTariffsModel) {
         _uiState.update { it.copy(tariffs = data) }
         val selectedTariff = _uiState.value.selectedTariff
-        if (selectedTariff?.id !in data.tariff.map { it.id }) updateUIState(selectedTariff = data.tariff.firstOrNull())
+        if (selectedTariff == null) updateUIState(selectedTariff = data.tariff.first())
+        else if (selectedTariff.id !in data.tariff.map { it.id }) updateUIState(selectedTariff = data.tariff.firstOrNull())
+    }
+
+    fun searchForAddress(query: String, point: LatLng) = viewModelScope.launch {
+        when (val result = searchForAddressUseCase(
+            query = query,
+            lat = point.latitude, lng = point.longitude
+        )) {
+            is Result.Error -> {}
+            is Result.Success -> _uiState.update { it.copy(foundAddresses = result.data) }
+        }
     }
 
     private fun isPointInsidePolygon(point: LatLng, vertices: List<Pair<Double, Double>>): Boolean {
@@ -123,36 +137,49 @@ class MapViewModel(
         return isInside
     }
 
-    private fun updateStateToNotFound() {
-        updateUIState(selectedAddressName = null)
-        updateUIState(selectedAddressId = null)
-        _uiState.update { it.copy(tariffs = null) }
-    }
-
     private fun LatLng.toPair() = Pair(latitude, longitude)
 
     fun changeStateToNotFound() {
         updateUIState(
-            selectedAddressName = null,
-            selectedAddressId = null,
-            tariffs = null
+            selectedLocation = null,
+            tariffs = null,
+            timeout = 0,
+            selectedTariff = null
         )
     }
 
     fun updateUIState(
         timeout: Int? = _uiState.value.timeout,
-        selectedAddressName: String? = _uiState.value.selectedAddressName,
-        selectedAddressId: Int? = _uiState.value.selectedAddressId,
+        foundAddresses: List<SearchForAddressItemModel> = _uiState.value.foundAddresses,
+        selectedLocation: MapUIState.SelectedLocation? = _uiState.value.selectedLocation,
+        destinations: List<MapUIState.Destination> = _uiState.value.destinations,
         selectedTariff: GetTariffsModel.Tariff? = _uiState.value.selectedTariff,
-        tariffs: GetTariffsModel? = _uiState.value.tariffs
+        tariffs: GetTariffsModel? = _uiState.value.tariffs,
     ) {
         _uiState.update {
             it.copy(
                 timeout = timeout,
-                selectedAddressName = selectedAddressName,
-                selectedAddressId = selectedAddressId,
+                selectedLocation = selectedLocation,
+                destinations = destinations,
                 selectedTariff = selectedTariff,
-                tariffs = tariffs
+                tariffs = tariffs,
+                foundAddresses = foundAddresses
+            )
+        }
+    }
+
+    fun updateSelectedLocation(
+        name: String? = _uiState.value.selectedLocation?.name,
+        point: LatLng? = _uiState.value.selectedLocation?.point,
+        addressId: Int? = _uiState.value.selectedLocation?.addressId
+    ) {
+        _uiState.update {
+            it.copy(
+                selectedLocation = MapUIState.SelectedLocation(
+                    name = name,
+                    point = point,
+                    addressId = addressId
+                )
             )
         }
     }

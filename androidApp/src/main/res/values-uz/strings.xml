@@ -33,6 +33,6 @@
     <string name="starting_cost">%sdan boshlab</string>
     <string name="fixed_cost">%s so\'m</string>
     <string name="lets_go">Qani ketdik</string>
-
+    <string name="where_to_go">Куда едем?</string>
 
 </resources>

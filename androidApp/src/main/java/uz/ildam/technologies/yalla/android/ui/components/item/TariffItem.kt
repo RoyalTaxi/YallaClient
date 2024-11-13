@@ -8,6 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
@@ -27,7 +28,7 @@ fun TariffItem(
     val textColor = if (selectedState) YallaTheme.color.white else YallaTheme.color.black
     val containerColor = if (selectedState) YallaTheme.color.primary else YallaTheme.color.gray2
 
-    Card (
+    Card(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor),
         onClick = { onSelect(selectedState) }
@@ -57,6 +58,7 @@ fun TariffItem(
             AsyncImage(
                 model = tariffImageUrl,
                 contentDescription = null,
+                error = painterResource(R.drawable.ic_default_car),
                 modifier = Modifier.height(30.dp),
                 contentScale = ContentScale.FillHeight
             )

@@ -4,13 +4,17 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
 import io.ktor.client.request.url
 import uz.ildam.technologies.yalla.core.data.exception.safeApiCall
 import uz.ildam.technologies.yalla.core.domain.error.Result
 import uz.ildam.technologies.yalla.core.data.response.ApiResponseWrapper
 import uz.ildam.technologies.yalla.core.domain.error.DataError
-import uz.ildam.technologies.yalla.feature.map.data.response.address.AddressResponse
-import uz.ildam.technologies.yalla.feature.map.data.response.address.PolygonResponseItem
+import uz.ildam.technologies.yalla.feature.map.data.request.map.SearchForAddressRequest
+import uz.ildam.technologies.yalla.feature.map.data.response.map.AddressNameResponse
+import uz.ildam.technologies.yalla.feature.map.data.response.map.PolygonResponseItem
+import uz.ildam.technologies.yalla.feature.map.data.response.map.SearchForAddressResponseItem
 import uz.ildam.technologies.yalla.feature.map.data.url.MapUrl
 
 class MapService(
@@ -24,11 +28,17 @@ class MapService(
 
     suspend fun getAddress(
         lat: Double, lng: Double,
-    ): Result<ApiResponseWrapper<AddressResponse>, DataError.Network> = safeApiCall {
+    ): Result<ApiResponseWrapper<AddressNameResponse>, DataError.Network> = safeApiCall {
         ktorWithApi1.get {
             url(MapUrl.ADDRESS)
             parameter("lat", lat)
             parameter("lng", lng)
         }.body()
+    }
+
+    suspend fun searchForAddress(
+        body: SearchForAddressRequest
+    ): Result<ApiResponseWrapper<List<SearchForAddressResponseItem>>, DataError.Network> = safeApiCall {
+        ktorWithApi2.post(MapUrl.SEARCH) { setBody(body) }.body()
     }
 }
