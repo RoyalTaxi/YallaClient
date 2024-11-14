@@ -36,4 +36,6 @@
     <string name="lets_go">Поехали</string>
     <string name="where_to_go">Куда едем?</string>
     <string name="add">Добавить</string>
+    <string name="select_tariff">Выбрать</string>
+    <string name="tariff_title">Подробно о тарифе</string>
 </resources>
