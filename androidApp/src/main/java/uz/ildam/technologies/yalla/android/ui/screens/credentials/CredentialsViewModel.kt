@@ -46,10 +46,11 @@ class CredentialsViewModel(
 
 
     fun register() = viewModelScope.launch {
+        _actionFlow.emit(CredentialsActionState.Loading)
         _uiState.value.apply {
             when (
                 val result = registerUseCase(
-                    number,
+                    formattedNumber(),
                     firstName,
                     lastName,
                     gender.name,

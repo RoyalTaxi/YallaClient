@@ -14,6 +14,7 @@ class ColorScheme(
     gray2: Color,
     grayBackground: Color,
     primary: Color,
+    red: Color,
 ) {
     var black by mutableStateOf(black, structuralEqualityPolicy())
     var white by mutableStateOf(white, structuralEqualityPolicy())
@@ -21,6 +22,7 @@ class ColorScheme(
     var gray2 by mutableStateOf(gray2, structuralEqualityPolicy())
     var grayBackground by mutableStateOf(grayBackground, structuralEqualityPolicy())
     var primary by mutableStateOf(primary, structuralEqualityPolicy())
+    var red by mutableStateOf(red, structuralEqualityPolicy())
 }
 
 fun yallaLight(
@@ -29,14 +31,16 @@ fun yallaLight(
     gray: Color = YallaGray,
     gray2: Color = YallaGray2,
     grayBackground: Color = YallaGrayBackground,
-    primary: Color = YallaPrimary
+    primary: Color = YallaPrimary,
+    red: Color = YallaRed
 ) = ColorScheme(
     black = black,
     white = white,
     gray = gray,
     gray2 = gray2,
     grayBackground = grayBackground,
-    primary = primary
+    primary = primary,
+    red = red
 )
 
 fun yallaDark(
@@ -45,14 +49,16 @@ fun yallaDark(
     gray: Color = YallaGray,
     gray2: Color = YallaGray2,
     grayBackground: Color = YallaGrayBackground,
-    primary: Color = YallaPrimary
+    primary: Color = YallaPrimary,
+    red: Color = YallaRed
 ) = ColorScheme(
     black = black,
     white = white,
     gray = gray,
     gray2 = gray2,
     grayBackground = grayBackground,
-    primary = primary
+    primary = primary,
+    red = red
 )
 
 val LocalCustomColorScheme = staticCompositionLocalOf { yallaLight() }

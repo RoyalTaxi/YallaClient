@@ -3,9 +3,13 @@ package uz.ildam.technologies.yalla.android.ui.screens.map
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -18,6 +22,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
@@ -33,6 +38,7 @@ import io.morfly.compose.bottomsheet.material3.rememberBottomSheetState
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import uz.ildam.technologies.yalla.android.ui.sheets.ArrangeDestinationsBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.SearchByNameBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.SheetValue
 
@@ -45,10 +51,10 @@ fun MapRoute(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val uiState by vm.uiState.collectAsState()
-    val searchForLocationSheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
-    )
     var searchForLocationSheetVisibility by remember { mutableStateOf(false) }
+    val searchForLocationSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var arrangeDestinationsSheetVisibility by remember { mutableStateOf(false) }
+    val arrangeDestinationsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scaffoldState = rememberBottomSheetScaffoldState(
         sheetState = rememberBottomSheetState(
             confirmValueChange = { false },
@@ -124,16 +130,6 @@ fun MapRoute(
             onIntent = { intent ->
                 when (intent) {
                     is MapIntent.SelectTariff -> vm.updateUIState(selectedTariff = intent.tariff)
-                    is MapIntent.OpenDestinationLocationSearchSheet -> {
-                        searchForLocationSheetVisibility = true
-                        scope.launch { searchForLocationSheetState.show() }
-                    }
-
-                    is MapIntent.CloseDestinationLocationSearchSheet -> {
-                        searchForLocationSheetVisibility = false
-                        scope.launch { searchForLocationSheetState.hide() }
-                    }
-
                     is MapIntent.MoveToMyLocation -> getCurrentLocation(context) { location ->
                         scope.launch {
                             cameraPositionState.animate(
@@ -146,27 +142,69 @@ fun MapRoute(
                         }
                     }
 
-                    else -> {}
+                    is MapIntent.OpenDestinationLocationSheet -> {
+                        scope.launch {
+                            if (uiState.destinations.isEmpty()) {
+                                searchForLocationSheetVisibility = true
+                                searchForLocationSheetState.show()
+                            } else {
+                                arrangeDestinationsSheetVisibility = true
+                                arrangeDestinationsSheetState.show()
+                            }
+                        }
+                    }
                 }
             }
         )
     } else onPermissionDenied()
 
-    if (searchForLocationSheetVisibility) SearchByNameBottomSheet(
-        sheetState = searchForLocationSheetState,
-        foundAddresses = uiState.foundAddresses,
-        onAddressSelected = { dest ->
-            val destinations = uiState.destinations.toMutableList()
-            destinations.add(MapUIState.Destination(dest.name, LatLng(dest.lat, dest.lng)))
-            vm.updateUIState(destinations = destinations)
-        },
-        onSearchForAddress = { vm.searchForAddress(it, currentLatLng.value) },
-        onDismissRequest = {
-            vm.updateUIState(foundAddresses = emptyList())
-            scope.launch { searchForLocationSheetState.hide() }
-            searchForLocationSheetVisibility = false
-        }
-    )
+    AnimatedVisibility(
+        searchForLocationSheetVisibility,
+        enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
+        exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
+    ) {
+        if (searchForLocationSheetVisibility) SearchByNameBottomSheet(
+            sheetState = searchForLocationSheetState,
+            foundAddresses = uiState.foundAddresses,
+            onAddressSelected = { dest ->
+                val destinations = uiState.destinations.toMutableList()
+                destinations.add(MapUIState.Destination(dest.name, LatLng(dest.lat, dest.lng)))
+                vm.updateUIState(destinations = destinations)
+            },
+            onSearchForAddress = { vm.searchForAddress(it, currentLatLng.value) },
+            onDismissRequest = {
+                scope.launch {
+                    searchForLocationSheetVisibility = false
+                    searchForLocationSheetState.hide()
+                    vm.updateUIState(foundAddresses = emptyList())
+                }
+            }
+        )
+    }
+
+    AnimatedVisibility(
+        arrangeDestinationsSheetVisibility,
+        enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
+        exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
+    ) {
+        if (arrangeDestinationsSheetVisibility) ArrangeDestinationsBottomSheet(
+            destinations = uiState.destinations,
+            sheetState = arrangeDestinationsSheetState,
+            onAddNewDestinationClick = {
+                scope.launch {
+                    searchForLocationSheetVisibility = true
+                    searchForLocationSheetState.show()
+                }
+            },
+            onDismissRequest = { orderedDestinations ->
+                scope.launch {
+                    arrangeDestinationsSheetVisibility = false
+                    arrangeDestinationsSheetState.hide()
+                    vm.updateUIState(destinations = orderedDestinations)
+                }
+            }
+        )
+    }
 }
 
 @Composable

@@ -18,7 +18,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -34,8 +33,7 @@ import uz.ildam.technologies.yalla.android.ui.screens.map.MapUIState
 fun SelectDestinationButton(
     destinations: List<MapUIState.Destination>,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit,
-    onAddNewClick: () -> Unit
+    onClick: () -> Unit
 ) {
     Button(
         modifier = modifier.fillMaxWidth(),
@@ -57,9 +55,9 @@ fun SelectDestinationButton(
                     )
             )
 
-            Spacer(modifier = Modifier.width(10.dp))
+            Spacer(modifier = Modifier.width(8.dp))
 
-            FlowRow {
+            FlowRow(modifier = Modifier.weight(1f)) {
                 Text(
                     text = destinations.firstOrNull()?.name ?: stringResource(R.string.where_to_go),
                     color = if (destinations.isEmpty()) YallaTheme.color.gray else YallaTheme.color.black,
@@ -83,18 +81,11 @@ fun SelectDestinationButton(
 
             Spacer(modifier = Modifier.width(10.dp))
 
-            Spacer(modifier = Modifier.weight(1f))
-
-            IconButton(
-                onClick = onAddNewClick,
-                modifier = Modifier.size(24.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = null,
-                    tint = YallaTheme.color.gray
-                )
-            }
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = null,
+                tint = YallaTheme.color.gray
+            )
         }
     }
 }

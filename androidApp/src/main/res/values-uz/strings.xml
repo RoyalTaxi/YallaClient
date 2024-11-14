@@ -34,5 +34,6 @@
     <string name="fixed_cost">%s so\'m</string>
     <string name="lets_go">Qani ketdik</string>
     <string name="where_to_go">Куда едем?</string>
+    <string name="add">Добавить</string>
 
 </resources>

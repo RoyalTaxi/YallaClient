@@ -54,7 +54,7 @@ fun SearchLocationField(
                     )
             )
 
-            Spacer(modifier = Modifier.width(10.dp))
+            Spacer(modifier = Modifier.width(8.dp))
 
             BasicTextField(
                 value = value.orEmpty(),

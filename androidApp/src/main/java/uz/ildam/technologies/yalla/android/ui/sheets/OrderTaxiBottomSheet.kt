@@ -35,8 +35,7 @@ fun OrderTaxiBottomSheet(
     isLoading: Boolean,
     uiState: MapUIState,
     onSelectTariff: (GetTariffsModel.Tariff, Boolean) -> Unit,
-    onSearchForCurrentLocation: () -> Unit,
-    onSearchForDestinationLocation: () -> Unit
+    onDestinationClick: () -> Unit
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -58,14 +57,13 @@ fun OrderTaxiBottomSheet(
                 currentLocation = uiState.selectedLocation?.name,
                 isLoading = isLoading,
                 modifier = Modifier.padding(horizontal = 20.dp),
-                onClick = onSearchForCurrentLocation
+                onClick = {}
             )
 
             SelectDestinationButton(
                 destinations = uiState.destinations,
                 modifier = Modifier.padding(horizontal = 20.dp),
-                onClick = onSearchForDestinationLocation,
-                onAddNewClick = {}
+                onClick = onDestinationClick
             )
 
             LazyRow(

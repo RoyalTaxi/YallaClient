@@ -47,11 +47,10 @@ fun MapScreen(
             OrderTaxiBottomSheet(
                 isLoading = isLoading,
                 uiState = uiState,
+                onDestinationClick = { onIntent(MapIntent.OpenDestinationLocationSheet) },
                 onSelectTariff = { selectedTariff, wasSelected ->
                     onIntent(MapIntent.SelectTariff(selectedTariff, wasSelected))
-                },
-                onSearchForCurrentLocation = { onIntent(MapIntent.OpenCurrentLocationSearchSheet) },
-                onSearchForDestinationLocation = { onIntent(MapIntent.OpenDestinationLocationSearchSheet) },
+                }
             )
         },
         content = {

@@ -9,4 +9,6 @@ data class CredentialsUIState(
     val lastName: String = "",
     val dateOfBirth: LocalDate? = null,
     val gender: Gender = Gender.NOT_SELECTED
-)
+) {
+    fun formattedNumber() = "998$number"
+}
