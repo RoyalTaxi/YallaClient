@@ -41,6 +41,8 @@ import org.koin.androidx.compose.koinViewModel
 import uz.ildam.technologies.yalla.android.ui.sheets.ArrangeDestinationsBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.SearchByNameBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.SheetValue
+import uz.ildam.technologies.yalla.android.ui.sheets.TariffInfoBottomSheet
+import uz.ildam.technologies.yalla.core.data.mapper.or0
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -51,10 +53,14 @@ fun MapRoute(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val uiState by vm.uiState.collectAsState()
+
     var searchForLocationSheetVisibility by remember { mutableStateOf(false) }
     val searchForLocationSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var arrangeDestinationsSheetVisibility by remember { mutableStateOf(false) }
     val arrangeDestinationsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var tariffBottomSheetVisibility by remember { mutableStateOf(false) }
+    val tariffBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
     val scaffoldState = rememberBottomSheetScaffoldState(
         sheetState = rememberBottomSheetState(
             confirmValueChange = { false },
@@ -129,7 +135,13 @@ fun MapRoute(
             cameraPositionState = cameraPositionState,
             onIntent = { intent ->
                 when (intent) {
-                    is MapIntent.SelectTariff -> vm.updateUIState(selectedTariff = intent.tariff)
+                    is MapIntent.SelectTariff -> {
+                        if (intent.wasSelected) scope.launch {
+                            tariffBottomSheetVisibility = true
+                            tariffBottomSheetState.show()
+                        } else vm.updateUIState(selectedTariff = intent.tariff)
+                    }
+
                     is MapIntent.MoveToMyLocation -> getCurrentLocation(context) { location ->
                         scope.launch {
                             cameraPositionState.animate(
@@ -204,6 +216,26 @@ fun MapRoute(
                 }
             }
         )
+    }
+
+    AnimatedVisibility(
+        tariffBottomSheetVisibility,
+        enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
+        exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
+    ) {
+        uiState.selectedTariff?.let { selectedTariff ->
+            if (tariffBottomSheetVisibility) TariffInfoBottomSheet(
+                sheetState = tariffBottomSheetState,
+                tariff = selectedTariff,
+                arrivingTime = uiState.timeout.or0(),
+                onDismissRequest = {
+                    scope.launch {
+                        tariffBottomSheetVisibility = false
+                        tariffBottomSheetState.hide()
+                    }
+                }
+            )
+        }
     }
 }
 

@@ -37,7 +37,6 @@
     <string name="add">Добавить</string>
     <string name="select_tariff">Tanlash</string>
     <string name="tariff_title">Подробно о тарифе</string>
-
-
+    <string name="minute">%s минут</string>
 
 </resources>

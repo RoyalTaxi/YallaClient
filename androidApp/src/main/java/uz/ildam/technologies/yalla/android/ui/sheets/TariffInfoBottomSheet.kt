@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -36,7 +37,6 @@ import uz.ildam.technologies.yalla.feature.order.domain.model.tarrif.GetTariffsM
 fun TariffInfoBottomSheet(
     sheetState: SheetState,
     onDismissRequest: () -> Unit,
-    onSelect: (GetTariffsModel.Tariff) -> Unit,
     tariff: GetTariffsModel.Tariff,
     arrivingTime: Int
 ) {
@@ -61,20 +61,16 @@ fun TariffInfoBottomSheet(
                         color = YallaTheme.color.white,
                         shape = RoundedCornerShape(30.dp)
                     )
-                    .padding(
-                        horizontal = 20.dp,
-                        vertical = 30.dp
-                    )
+                    .padding(20.dp)
             ) {
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
-
                 ) {
                     AsyncImage(
                         model = tariff.photo,
                         contentDescription = null,
-                        modifier = Modifier.size(width = 200.dp, height = 100.dp),
+                        modifier = Modifier.width(200.dp),
                         placeholder = painterResource(R.drawable.ic_default_car),
                         error = painterResource(R.drawable.ic_default_car)
                     )
@@ -86,6 +82,8 @@ fun TariffInfoBottomSheet(
                     )
                 }
 
+                Spacer(modifier = Modifier.padding(4.dp))
+
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.Bottom,
@@ -93,6 +91,7 @@ fun TariffInfoBottomSheet(
                 ) {
                     Column(
                         horizontalAlignment = Alignment.Start,
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Text(
                             text = tariff.name,
@@ -108,7 +107,7 @@ fun TariffInfoBottomSheet(
                     }
 
                     Text(
-                        text = arrivingTime.toString(),
+                        text = stringResource(R.string.minute, arrivingTime.toString()),
                         style = YallaTheme.font.label,
                         color = YallaTheme.color.gray,
                         textAlign = TextAlign.End
@@ -116,7 +115,7 @@ fun TariffInfoBottomSheet(
                 }
             }
 
-            Column(
+            if (tariff.description.isNotEmpty()) Column(
                 horizontalAlignment = Alignment.Start,
                 verticalArrangement = Arrangement.Top,
                 modifier = Modifier
@@ -125,10 +124,7 @@ fun TariffInfoBottomSheet(
                         color = YallaTheme.color.white,
                         shape = RoundedCornerShape(30.dp)
                     )
-                    .padding(
-                        horizontal = 20.dp,
-                        vertical = 30.dp
-                    )
+                    .padding(20.dp)
             ) {
                 Text(
                     text = stringResource(id = R.string.tariff_title),
@@ -152,7 +148,7 @@ fun TariffInfoBottomSheet(
             ) {
                 YallaButton(
                     text = stringResource(R.string.select_tariff),
-                    onClick = { onSelect(tariff) },
+                    onClick = onDismissRequest,
                     modifier = Modifier
                         .padding(20.dp)
                         .fillMaxWidth()
@@ -161,4 +157,3 @@ fun TariffInfoBottomSheet(
         }
     }
 }
-
