@@ -1,4 +1,4 @@
-package uz.ildam.technologies.yalla.android.ui.screens.map
+package uz.ildam.technologies.yalla.android.ui.screens.history
 
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -9,25 +9,25 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 
-const val MAP_ROUTE = "map_route"
+const val HISTORY_ROUTE = "history_route"
 
-fun NavGraphBuilder.mapScreen(
-    onOrderHistoryClick: () -> Unit,
-    onPermissionDenied: () -> Unit
+fun NavGraphBuilder.historyScreen(
+    onBack: () -> Unit,
+    onClickItem: (Int) -> Unit,
 ) {
     composable(
-        route = MAP_ROUTE,
+        route = HISTORY_ROUTE,
         enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
         popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) + fadeIn() },
         exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) + fadeOut() },
         popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() }
     ) {
-        MapRoute(
-            onPermissionDenied = onPermissionDenied,
-            onOrderHistoryClick = onOrderHistoryClick
+        HistoryRoute(
+            onBack = onBack,
+            onClickItem = onClickItem
         )
     }
 }
 
-fun NavController.navigateToMapScreen(navOptions: NavOptions? = null) =
-    navigate(MAP_ROUTE, navOptions)
+fun NavController.navigateToHistoryScreen(navOptions: NavOptions? = null) =
+    navigate(HISTORY_ROUTE, navOptions)

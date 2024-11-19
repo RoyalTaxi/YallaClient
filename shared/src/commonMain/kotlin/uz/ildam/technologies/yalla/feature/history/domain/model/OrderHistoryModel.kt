@@ -17,7 +17,7 @@ data class OrderHistoryModel(
         val startPrice: Int,
         val tariff: String,
         val tariffCategoryId: Int,
-        val totalPrice: Int,
+        val totalPrice: String,
         val useTheBonus: Boolean
     ) {
         data class Route(

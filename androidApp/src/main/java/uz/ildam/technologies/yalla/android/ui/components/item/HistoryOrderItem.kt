@@ -4,10 +4,12 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -20,23 +22,28 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
-import uz.ildam.technologies.yalla.feature.history.domain.model.OrderHistoryItem
+import uz.ildam.technologies.yalla.feature.history.domain.model.OrderHistory
 
 @Composable
 fun HistoryOrderItem(
-    order: OrderHistoryItem,
+    order: OrderHistory.Item,
     modifier: Modifier = Modifier
 ) {
     Card(
-        colors = CardDefaults.cardColors(YallaTheme.color.gray),
+        colors = CardDefaults.cardColors(YallaTheme.color.gray2),
         shape = RoundedCornerShape(16.dp),
         modifier = modifier.fillMaxWidth()
     ) {
-        Row(modifier = Modifier.padding(10.dp)) {
+        Row(
+            modifier = Modifier
+                .padding(10.dp)
+                .height(IntrinsicSize.Min)
+        ) {
             Column(modifier = Modifier.weight(1f)) {
                 order.taxi.routes.firstOrNull()?.let {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -91,15 +98,26 @@ fun HistoryOrderItem(
                 )
             }
 
-            Column(horizontalAlignment = Alignment.End) {
+            Column(
+                horizontalAlignment = Alignment.End,
+                modifier = Modifier.heightIn(min = 80.dp)
+            ) {
                 Text(
-                    text = order.taxi.totalPrice.toString(),
+                    text = stringResource(R.string.fixed_cost, order.taxi.totalPrice),
                     color = YallaTheme.color.black,
                     style = YallaTheme.font.labelSemiBold,
                     textAlign = TextAlign.End
                 )
 
-                Spacer(modifier = Modifier.height(28.dp))
+                Text(
+                    text = order.status,
+                    color = YallaTheme.color.red,
+                    style = YallaTheme.font.bodySmall
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Spacer(modifier = Modifier.height(8.dp))
 
                 Image(
                     painter = painterResource(R.drawable.img_default_car),

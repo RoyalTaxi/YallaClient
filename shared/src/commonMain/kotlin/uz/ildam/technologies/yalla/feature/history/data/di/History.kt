@@ -1,30 +1,27 @@
 package uz.ildam.technologies.yalla.feature.history.data.di
 
+import uz.ildam.technologies.yalla.feature.history.domain.usecase.GetOrderHistoryUseCase
+import org.koin.core.module.dsl.bind
+import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import uz.ildam.technologies.yalla.core.data.global.Constants
-import uz.ildam.technologies.yalla.feature.history.data.paging.OrdersHistoryPagingSource
 import uz.ildam.technologies.yalla.feature.history.data.repository.OrderHistoryRepositoryImpl
 import uz.ildam.technologies.yalla.feature.history.data.service.OrdersHistoryService
 import uz.ildam.technologies.yalla.feature.history.domain.repository.OrderHistoryRepository
-import uz.ildam.technologies.yalla.feature.history.domain.usecase.GetOrderHistoryUseCase
 
 object History {
     private val serviceModule = module {
         single { OrdersHistoryService(get(named(Constants.API_2))) }
     }
 
-    private val pagingSource = module {
-        single { OrdersHistoryPagingSource(get()) }
-    }
-
     private val repositoryModule = module {
-        single<OrderHistoryRepository> { OrderHistoryRepositoryImpl(get()) }
+        singleOf(::OrderHistoryRepositoryImpl) { bind<OrderHistoryRepository>() }
     }
 
     private val useCaseModule = module {
-        single { GetOrderHistoryUseCase(get()) }
+        singleOf(::GetOrderHistoryUseCase)
     }
 
-    val modules = listOf(serviceModule, pagingSource, repositoryModule, useCaseModule)
+    val modules = listOf(serviceModule, repositoryModule, useCaseModule)
 }

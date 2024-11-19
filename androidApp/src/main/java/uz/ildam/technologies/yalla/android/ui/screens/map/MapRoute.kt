@@ -53,6 +53,7 @@ import uz.ildam.technologies.yalla.core.data.mapper.or0
 @Composable
 fun MapRoute(
     onPermissionDenied: () -> Unit,
+    onOrderHistoryClick: () -> Unit,
     vm: MapViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
@@ -143,7 +144,14 @@ fun MapRoute(
     if (permissionsGranted) MapDrawer(
         drawerState = drawerState,
         uiState = uiState,
-        onIntent = { },
+        onIntent = { intent ->
+            when (intent) {
+                MapDrawerIntent.OrdersHistory -> onOrderHistoryClick()
+                else -> {
+
+                }
+            }
+        },
         content = {
             MapScreen(
                 uiState = uiState,

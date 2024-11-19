@@ -28,7 +28,7 @@ object OrderHistoryMapper {
                 startPrice = remote?.start_price.or0(),
                 tariff = remote?.tariff.orEmpty(),
                 tariffCategoryId = remote?.tariff_category_id.or0(),
-                totalPrice = remote?.total_price.or0(),
+                totalPrice = remote?.total_price.or0().toString(),
                 useTheBonus = remote?.use_the_bonus.orFalse()
             )
         }

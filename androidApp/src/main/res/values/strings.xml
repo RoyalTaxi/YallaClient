@@ -51,4 +51,6 @@
     <string name="contuct_us">Связаться с нами</string>
     <string name="settings">Настройки</string>
     <string name="about_app">О приложении</string>
+    <string name="today">Сегодня</string>
+    <string name="yesterday">Вчера</string>
 </resources>

@@ -9,6 +9,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import uz.ildam.technologies.yalla.android.ui.screens.credentials.credentialsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.credentials.navigateToCredentialsScreen
+import uz.ildam.technologies.yalla.android.ui.screens.history.historyScreen
+import uz.ildam.technologies.yalla.android.ui.screens.history.navigateToHistoryScreen
 import uz.ildam.technologies.yalla.android.ui.screens.language.languageScreen
 import uz.ildam.technologies.yalla.android.ui.screens.language.navigateToLanguageScreen
 import uz.ildam.technologies.yalla.android.ui.screens.login.loginScreen
@@ -76,7 +78,13 @@ fun Navigation() {
             )
 
             mapScreen(
+                onOrderHistoryClick = navController::navigateToHistoryScreen,
                 onPermissionDenied = navController::navigateToPermissionScreen
+            )
+
+            historyScreen(
+                onBack = navController::safePopBackStack,
+                onClickItem = {}
             )
         }
     }

@@ -21,6 +21,11 @@ val fontScheme = FontScheme(
         weight = FontWeight.W600,
         size = 22
     ),
+    title2 = createTextStyle(
+        fontResId = semi_bold,
+        weight = FontWeight.W600,
+        size = 20
+    ),
     body = createTextStyle(
         fontResId = regular,
         weight = FontWeight.W400,
