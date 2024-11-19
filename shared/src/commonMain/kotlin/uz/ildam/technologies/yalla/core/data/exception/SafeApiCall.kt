@@ -50,7 +50,7 @@ suspend inline fun <reified T> safeApiCall(
         if (result is Result.Success || currentRetry >= retryCount) return result
 
         if (result is Result.Error && result.error == DataError.Network.CLIENT_REQUEST_ERROR) {
-            delay(currentDelay) // Exponential backoff
+            delay(currentDelay)
             currentDelay *= 2
             currentRetry++
         } else return result

@@ -58,7 +58,7 @@ fun TariffItem(
             AsyncImage(
                 model = tariffImageUrl,
                 contentDescription = null,
-                error = painterResource(R.drawable.ic_default_car),
+                error = painterResource(R.drawable.img_default_car),
                 modifier = Modifier.height(30.dp),
                 contentScale = ContentScale.FillHeight
             )

@@ -11,7 +11,11 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,6 +31,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import app.cash.paging.compose.collectAsLazyPagingItems
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -61,6 +66,7 @@ fun MapRoute(
     var tariffBottomSheetVisibility by remember { mutableStateOf(false) }
     val tariffBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scaffoldState = rememberBottomSheetScaffoldState(
         sheetState = rememberBottomSheetState(
             confirmValueChange = { false },
@@ -82,6 +88,14 @@ fun MapRoute(
             Manifest.permission.ACCESS_COARSE_LOCATION
         )
     )
+
+    val orders = vm.ordersHistory.collectAsLazyPagingItems()
+
+    LazyColumn {
+        items(orders.itemCount) {
+            Text("shown")
+        }
+    }
 
     LaunchedEffect(Unit) {
         vm.actionState.collectLatest { action ->
@@ -126,49 +140,57 @@ fun MapRoute(
         }
     }
 
-    if (permissionsGranted) {
-        MapScreen(
-            uiState = uiState,
-            isLoading = isMarkerMoving,
-            scaffoldState = scaffoldState,
-            markerState = markerState,
-            cameraPositionState = cameraPositionState,
-            onIntent = { intent ->
-                when (intent) {
-                    is MapIntent.SelectTariff -> {
-                        if (intent.wasSelected) scope.launch {
-                            tariffBottomSheetVisibility = true
-                            tariffBottomSheetState.show()
-                        } else vm.updateUIState(selectedTariff = intent.tariff)
-                    }
-
-                    is MapIntent.MoveToMyLocation -> getCurrentLocation(context) { location ->
-                        scope.launch {
-                            cameraPositionState.animate(
-                                update = CameraUpdateFactory.newCameraPosition(
-                                    CameraPosition(location, 15f, 0f, 0f)
-                                ),
-                                durationMs = 1000
-                            )
-                            currentLatLng.value = location
+    if (permissionsGranted) MapDrawer(
+        drawerState = drawerState,
+        uiState = uiState,
+        onIntent = { },
+        content = {
+            MapScreen(
+                uiState = uiState,
+                isLoading = isMarkerMoving,
+                scaffoldState = scaffoldState,
+                markerState = markerState,
+                cameraPositionState = cameraPositionState,
+                onIntent = { intent ->
+                    when (intent) {
+                        is MapIntent.SelectTariff -> {
+                            if (intent.wasSelected) scope.launch {
+                                tariffBottomSheetVisibility = true
+                                tariffBottomSheetState.show()
+                            } else vm.updateUIState(selectedTariff = intent.tariff)
                         }
-                    }
 
-                    is MapIntent.OpenDestinationLocationSheet -> {
-                        scope.launch {
-                            if (uiState.destinations.isEmpty()) {
-                                searchForLocationSheetVisibility = true
-                                searchForLocationSheetState.show()
-                            } else {
-                                arrangeDestinationsSheetVisibility = true
-                                arrangeDestinationsSheetState.show()
+                        is MapIntent.MoveToMyLocation -> getCurrentLocation(context) { location ->
+                            scope.launch {
+                                cameraPositionState.animate(
+                                    update = CameraUpdateFactory.newCameraPosition(
+                                        CameraPosition(location, 15f, 0f, 0f)
+                                    ),
+                                    durationMs = 1000
+                                )
+                                currentLatLng.value = location
+                            }
+                        }
+
+                        is MapIntent.OpenDrawer -> scope.launch { drawerState.open() }
+
+                        is MapIntent.OpenDestinationLocationSheet -> {
+                            scope.launch {
+                                if (uiState.destinations.isEmpty()) {
+                                    searchForLocationSheetVisibility = true
+                                    searchForLocationSheetState.show()
+                                } else {
+                                    arrangeDestinationsSheetVisibility = true
+                                    arrangeDestinationsSheetState.show()
+                                }
                             }
                         }
                     }
                 }
-            }
-        )
-    } else onPermissionDenied()
+            )
+        }
+    )
+    else onPermissionDenied()
 
     AnimatedVisibility(
         searchForLocationSheetVisibility,

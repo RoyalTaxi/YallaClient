@@ -4,6 +4,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -87,6 +88,14 @@ fun MapScreen(
                         painter = painterResource(R.drawable.ic_location),
                         modifier = Modifier.align(Alignment.BottomEnd),
                         onClick = { onIntent(MapIntent.MoveToMyLocation) }
+                    )
+
+                    MapButton(
+                        painter = painterResource(R.drawable.ic_hamburger),
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .statusBarsPadding(),
+                        onClick = { onIntent(MapIntent.OpenDrawer) }
                     )
                 }
             }

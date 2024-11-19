@@ -2,6 +2,7 @@ package uz.ildam.technologies.yalla.android.ui.screens.map
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,6 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.core.domain.error.Result
+import uz.ildam.technologies.yalla.feature.history.domain.model.OrderHistoryModel
 import uz.ildam.technologies.yalla.feature.map.domain.model.map.PolygonRemoteItem
 import uz.ildam.technologies.yalla.feature.map.domain.model.map.SearchForAddressItemModel
 import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.GetAddressNameUseCase
@@ -33,6 +35,9 @@ class MapViewModel(
     val actionState = _actionState.asSharedFlow()
 
     private var addresses = listOf<PolygonRemoteItem>()
+
+    private val _ordersHistory = MutableSharedFlow<PagingData<OrderHistoryModel>>()
+    val ordersHistory = _ordersHistory.asSharedFlow()
 
     init {
         fetchPolygons()

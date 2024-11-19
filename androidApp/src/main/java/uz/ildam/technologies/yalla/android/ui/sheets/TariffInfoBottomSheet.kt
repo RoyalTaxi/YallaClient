@@ -36,9 +36,9 @@ import uz.ildam.technologies.yalla.feature.order.domain.model.tarrif.GetTariffsM
 @Composable
 fun TariffInfoBottomSheet(
     sheetState: SheetState,
-    onDismissRequest: () -> Unit,
     tariff: GetTariffsModel.Tariff,
-    arrivingTime: Int
+    arrivingTime: Int,
+    onDismissRequest: () -> Unit
 ) {
     ModalBottomSheet(
         shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
@@ -71,13 +71,13 @@ fun TariffInfoBottomSheet(
                         model = tariff.photo,
                         contentDescription = null,
                         modifier = Modifier.width(200.dp),
-                        placeholder = painterResource(R.drawable.ic_default_car),
-                        error = painterResource(R.drawable.ic_default_car)
+                        placeholder = painterResource(R.drawable.img_default_car),
+                        error = painterResource(R.drawable.img_default_car)
                     )
 
                     Image(
                         modifier = Modifier.size(width = 60.dp, height = 60.dp),
-                        painter = painterResource(R.drawable.flash),
+                        painter = painterResource(R.drawable.img_flash),
                         contentDescription = null,
                     )
                 }

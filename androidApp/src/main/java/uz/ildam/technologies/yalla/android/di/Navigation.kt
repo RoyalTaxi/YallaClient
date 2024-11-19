@@ -1,6 +1,6 @@
 package uz.ildam.technologies.yalla.android.di
 
-import org.koin.core.module.dsl.viewModel
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import uz.ildam.technologies.yalla.android.ui.screens.credentials.CredentialsViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.language.LanguageViewModel
@@ -11,11 +11,11 @@ import uz.ildam.technologies.yalla.android.ui.screens.verification.VerificationV
 object Navigation {
 
     private val viewModelModule = module {
-        viewModel { LanguageViewModel() }
-        viewModel { LoginViewModel(get()) }
-        viewModel { VerificationViewModel(get(), get()) }
-        viewModel { CredentialsViewModel(get()) }
-        viewModel { MapViewModel(get(), get(), get(), get(), get()) }
+        viewModelOf(::LanguageViewModel)
+        viewModelOf(::LoginViewModel)
+        viewModelOf(::VerificationViewModel)
+        viewModelOf(::CredentialsViewModel)
+        viewModelOf(::MapViewModel)
     }
 
     val modules = listOf(viewModelModule)

@@ -98,7 +98,8 @@ fun OrderTaxiBottomSheet(
                 .padding(20.dp)
         ) {
             OptionsButton(
-                painter = painterResource(R.drawable.ic_money),
+                modifier = Modifier.fillMaxHeight(),
+                painter = painterResource(R.drawable.img_money),
                 onClick = {}
             )
 
@@ -114,7 +115,8 @@ fun OrderTaxiBottomSheet(
             }
 
             OptionsButton(
-                painter = painterResource(R.drawable.ic_options),
+                modifier = Modifier.fillMaxHeight(),
+                painter = painterResource(R.drawable.img_options),
                 onClick = {}
             )
         }
