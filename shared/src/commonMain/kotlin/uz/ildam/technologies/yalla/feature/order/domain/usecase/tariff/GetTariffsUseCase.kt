@@ -9,7 +9,7 @@ class GetTariffsUseCase(
     private val repository: OrderRepository
 ) {
     suspend operator fun invoke(
-        optionIds: List<Int>,
+        optionIds: List<Int> = emptyList(),
         coords: List<Pair<Double, Double>>,
         addressId: Int
     ): Result<GetTariffsModel, DataError.Network> {

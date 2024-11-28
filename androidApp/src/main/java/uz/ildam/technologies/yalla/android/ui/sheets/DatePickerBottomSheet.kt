@@ -20,11 +20,11 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import org.threeten.bp.LocalDate
 import uz.ildam.technologies.yalla.android.R
+import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
 import uz.ildam.technologies.yalla.android.ui.components.date_picker.WheelDatePicker
 import uz.ildam.technologies.yalla.android.ui.components.date_picker.WheelPickerDefaults
-import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
-import uz.ildam.technologies.yalla.android.utils.Utils.formatWithDashesDMY
+import uz.ildam.technologies.yalla.android.utils.formatWithDashesDMY
 
 @Composable
 fun DatePickerBottomSheet(

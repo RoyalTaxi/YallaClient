@@ -9,6 +9,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import uz.ildam.technologies.yalla.android.ui.screens.credentials.credentialsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.credentials.navigateToCredentialsScreen
+import uz.ildam.technologies.yalla.android.ui.screens.details.detailsScreen
+import uz.ildam.technologies.yalla.android.ui.screens.details.navigateToDetailsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.history.historyScreen
 import uz.ildam.technologies.yalla.android.ui.screens.history.navigateToHistoryScreen
 import uz.ildam.technologies.yalla.android.ui.screens.language.languageScreen
@@ -84,7 +86,11 @@ fun Navigation() {
 
             historyScreen(
                 onBack = navController::safePopBackStack,
-                onClickItem = {}
+                onClickItem = navController::navigateToDetailsScreen
+            )
+
+            detailsScreen(
+                onNavigateBack = navController::safePopBackStack
             )
         }
     }

@@ -1,6 +1,7 @@
 package uz.ildam.technologies.yalla.android.ui.components.item
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -25,6 +26,7 @@ import uz.ildam.technologies.yalla.android.ui.screens.map.MapUIState
 
 @Composable
 fun ArrangeDestinationItem(
+    isFirstElement: Boolean,
     isLastElement: Boolean,
     destination: MapUIState.Destination,
     modifier: Modifier = Modifier,
@@ -37,15 +39,27 @@ fun ArrangeDestinationItem(
                 color = YallaTheme.color.gray2,
                 shape = RoundedCornerShape(16.dp)
             )
-            .padding(16.dp)
+            .padding(horizontal = 16.dp, vertical = 4.dp)
     ) {
         Box(
             modifier = Modifier
                 .background(
-                    color = if (isLastElement) YallaTheme.color.primary else YallaTheme.color.gray,
+                    color = when {
+                        isLastElement -> YallaTheme.color.primary
+                        isFirstElement -> YallaTheme.color.gray2
+                        else -> YallaTheme.color.gray
+                    },
                     shape = CircleShape
                 )
                 .size(8.dp)
+                .then(
+                    if (isFirstElement && !isLastElement) Modifier.border(
+                        width = 1.dp,
+                        color = YallaTheme.color.gray,
+                        shape = CircleShape
+                    )
+                    else Modifier
+                )
         )
 
         Spacer(modifier = Modifier.width(8.dp))
@@ -68,8 +82,6 @@ fun ArrangeDestinationItem(
                 tint = YallaTheme.color.red
             )
         }
-
-        Spacer(modifier = Modifier.width(12.dp))
 
         Icon(
             painter = painterResource(R.drawable.ic_arrange),

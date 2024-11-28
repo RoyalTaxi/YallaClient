@@ -11,10 +11,8 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -28,14 +26,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import app.cash.paging.compose.collectAsLazyPagingItems
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
 import io.morfly.compose.bottomsheet.material3.rememberBottomSheetScaffoldState
@@ -47,6 +44,7 @@ import uz.ildam.technologies.yalla.android.ui.sheets.ArrangeDestinationsBottomSh
 import uz.ildam.technologies.yalla.android.ui.sheets.SearchByNameBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.SheetValue
 import uz.ildam.technologies.yalla.android.ui.sheets.TariffInfoBottomSheet
+import uz.ildam.technologies.yalla.android.ui.sheets.select_from_map.SelectFromMapBottomSheet
 import uz.ildam.technologies.yalla.core.data.mapper.or0
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -60,25 +58,33 @@ fun MapRoute(
     val scope = rememberCoroutineScope()
     val uiState by vm.uiState.collectAsState()
 
-    var searchForLocationSheetVisibility by remember { mutableStateOf(false) }
+    var searchForLocationSheetVisibility by remember {
+        mutableStateOf(SearchForLocationBottomSheetVisibility.INVISIBLE)
+    }
     val searchForLocationSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var selectFromMapSheetVisibility by remember {
+        mutableStateOf(SelectFromMapSheetVisibility.INVISIBLE)
+    }
+    val selectFromMapSheetSheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true,
+        confirmValueChange = { false }
+    )
     var arrangeDestinationsSheetVisibility by remember { mutableStateOf(false) }
     val arrangeDestinationsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var tariffBottomSheetVisibility by remember { mutableStateOf(false) }
     val tariffBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val scaffoldState = rememberBottomSheetScaffoldState(
-        sheetState = rememberBottomSheetState(
-            confirmValueChange = { false },
-            initialValue = SheetValue.Expanded,
-            defineValues = {
-                SheetValue.Collapsed at height(100.dp)
-                SheetValue.PartiallyExpanded at height(200.dp)
-                SheetValue.Expanded at contentHeight
-            }
-        )
+    val sheetState = rememberBottomSheetState(
+        confirmValueChange = { false },
+        initialValue = SheetValue.Expanded,
+        defineValues = {
+            SheetValue.Collapsed at contentHeight
+            SheetValue.PartiallyExpanded at contentHeight
+            SheetValue.Expanded at contentHeight
+        }
     )
+    val scaffoldState = rememberBottomSheetScaffoldState(sheetState = sheetState)
     val cameraPositionState = rememberCameraPositionState()
     val markerState = rememberMarkerState()
     var isMarkerMoving by remember { mutableStateOf(false) }
@@ -90,18 +96,10 @@ fun MapRoute(
         )
     )
 
-    val orders = vm.ordersHistory.collectAsLazyPagingItems()
-
-    LazyColumn {
-        items(orders.itemCount) {
-            Text("shown")
-        }
-    }
-
     LaunchedEffect(Unit) {
         vm.actionState.collectLatest { action ->
             when (action) {
-                is MapActionState.AddressIdLoaded -> vm.fetchTariffs(action.id, currentLatLng.value)
+                is MapActionState.AddressIdLoaded -> vm.fetchTariffs(action.id)
                 is MapActionState.PolygonLoaded -> vm.getAddressDetails(currentLatLng.value)
                 is MapActionState.TariffsLoaded -> vm.getTimeout(currentLatLng.value)
                 is MapActionState.AddressNameLoaded -> vm.updateSelectedLocation(name = action.name)
@@ -111,18 +109,33 @@ fun MapRoute(
         }
     }
 
-    LaunchedEffect(cameraPositionState.isMoving) {
-        if (cameraPositionState.isMoving) {
-            vm.changeStateToNotFound()
-        } else {
-            val position = cameraPositionState.position.target
-            currentLatLng.value = position
-            markerState.position = position
+    LaunchedEffect(uiState.route) {
+        if (uiState.route.isNotEmpty()) {
+            val boundsBuilder = LatLngBounds.Builder()
+            uiState.route.forEach { boundsBuilder.include(it) }
+            val bounds = boundsBuilder.build()
 
-            vm.getAddressDetails(position)
+            cameraPositionState.animate(
+                update = CameraUpdateFactory.newLatLngBounds(bounds, 100),
+                durationMs = 1000
+            )
         }
+    }
 
-        isMarkerMoving = cameraPositionState.isMoving
+    LaunchedEffect(cameraPositionState.isMoving) {
+        if (uiState.route.isEmpty()) {
+            if (cameraPositionState.isMoving) {
+                vm.changeStateToNotFound()
+            } else {
+                val position = cameraPositionState.position.target
+                currentLatLng.value = position
+                markerState.position = position
+
+                vm.getAddressDetails(position)
+            }
+
+            isMarkerMoving = cameraPositionState.isMoving
+        }
     }
 
     LaunchedEffect(permissionsGranted) {
@@ -168,24 +181,66 @@ fun MapRoute(
                             } else vm.updateUIState(selectedTariff = intent.tariff)
                         }
 
-                        is MapIntent.MoveToMyLocation -> getCurrentLocation(context) { location ->
+                        is MapIntent.MoveToMyLocation -> {
+                            getCurrentLocation(context) { location ->
+                                scope.launch {
+                                    cameraPositionState.animate(
+                                        update = CameraUpdateFactory.newCameraPosition(
+                                            CameraPosition(location, 15f, 0f, 0f)
+                                        ),
+                                        durationMs = 1000
+                                    )
+                                    currentLatLng.value = location
+                                }
+                            }
+                        }
+
+                        is MapIntent.MoveToMyRoute -> {
                             scope.launch {
-                                cameraPositionState.animate(
-                                    update = CameraUpdateFactory.newCameraPosition(
-                                        CameraPosition(location, 15f, 0f, 0f)
-                                    ),
-                                    durationMs = 1000
-                                )
-                                currentLatLng.value = location
+                                if (uiState.route.isNotEmpty()) {
+                                    val boundsBuilder = LatLngBounds.Builder()
+                                    uiState.route.forEach { boundsBuilder.include(it) }
+                                    val bounds = boundsBuilder.build()
+
+                                    cameraPositionState.animate(
+                                        update = CameraUpdateFactory.newLatLngBounds(bounds, 100),
+                                        durationMs = 1000
+                                    )
+                                }
                             }
                         }
 
                         is MapIntent.OpenDrawer -> scope.launch { drawerState.open() }
 
-                        is MapIntent.OpenDestinationLocationSheet -> {
+                        is MapIntent.DiscardOrder -> {
+                            vm.updateDestinations(emptyList())
+                            getCurrentLocation(context) { location ->
+                                scope.launch {
+                                    cameraPositionState.animate(
+                                        update = CameraUpdateFactory.newCameraPosition(
+                                            CameraPosition(location, 15f, 0f, 0f)
+                                        ),
+                                        durationMs = 1000
+                                    )
+                                    currentLatLng.value = location
+                                }
+                            }
+                        }
+
+                        MapIntent.SearchStartLocationSheet -> {
+                            scope.launch {
+                                searchForLocationSheetVisibility =
+                                    SearchForLocationBottomSheetVisibility.START
+                                searchForLocationSheetState.show()
+                            }
+                        }
+
+
+                        is MapIntent.SearchEndLocationSheet -> {
                             scope.launch {
                                 if (uiState.destinations.isEmpty()) {
-                                    searchForLocationSheetVisibility = true
+                                    searchForLocationSheetVisibility =
+                                        SearchForLocationBottomSheetVisibility.END
                                     searchForLocationSheetState.show()
                                 } else {
                                     arrangeDestinationsSheetVisibility = true
@@ -201,24 +256,88 @@ fun MapRoute(
     else onPermissionDenied()
 
     AnimatedVisibility(
-        searchForLocationSheetVisibility,
+        visible = searchForLocationSheetVisibility != SearchForLocationBottomSheetVisibility.INVISIBLE,
         enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
         exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
     ) {
-        if (searchForLocationSheetVisibility) SearchByNameBottomSheet(
+        if (searchForLocationSheetVisibility != SearchForLocationBottomSheetVisibility.INVISIBLE) SearchByNameBottomSheet(
             sheetState = searchForLocationSheetState,
             foundAddresses = uiState.foundAddresses,
             onAddressSelected = { dest ->
-                val destinations = uiState.destinations.toMutableList()
-                destinations.add(MapUIState.Destination(dest.name, LatLng(dest.lat, dest.lng)))
-                vm.updateUIState(destinations = destinations)
+                if (searchForLocationSheetVisibility == SearchForLocationBottomSheetVisibility.START) {
+                    if (uiState.moveCameraButtonState == MoveCameraButtonState.MyRouteView) {
+                        vm.getAddressDetails(LatLng(dest.lat, dest.lng))
+                    } else {
+                        scope.launch {
+                            cameraPositionState.animate(
+                                update = CameraUpdateFactory.newCameraPosition(
+                                    CameraPosition(LatLng(dest.lat, dest.lng), 15f, 0f, 0f)
+                                ),
+                                durationMs = 1000
+                            )
+                            currentLatLng.value = LatLng(dest.lat, dest.lng)
+                        }
+                    }
+                } else if (searchForLocationSheetVisibility == SearchForLocationBottomSheetVisibility.END) {
+                    val destinations = uiState.destinations.toMutableList()
+                    destinations.add(MapUIState.Destination(dest.name, LatLng(dest.lat, dest.lng)))
+                    vm.updateDestinations(destinations)
+                }
             },
             onSearchForAddress = { vm.searchForAddress(it, currentLatLng.value) },
+            onClickMap = {
+                scope.launch { searchForLocationSheetState.show() }
+                selectFromMapSheetVisibility =
+                    if (searchForLocationSheetVisibility == SearchForLocationBottomSheetVisibility.START) {
+                        SelectFromMapSheetVisibility.START
+                    } else {
+                        SelectFromMapSheetVisibility.END
+                    }
+            },
             onDismissRequest = {
                 scope.launch {
-                    searchForLocationSheetVisibility = false
+                    searchForLocationSheetVisibility =
+                        SearchForLocationBottomSheetVisibility.INVISIBLE
                     searchForLocationSheetState.hide()
                     vm.updateUIState(foundAddresses = emptyList())
+                }
+            }
+        )
+    }
+
+    AnimatedVisibility(
+        visible = selectFromMapSheetVisibility != SelectFromMapSheetVisibility.INVISIBLE,
+        enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
+        exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
+    ) {
+        if (selectFromMapSheetVisibility != SelectFromMapSheetVisibility.INVISIBLE) SelectFromMapBottomSheet(
+            sheetState = selectFromMapSheetSheetState,
+            isForDestination = selectFromMapSheetVisibility == SelectFromMapSheetVisibility.END,
+            onSelectLocation = { name, location, isForDestination ->
+                if (isForDestination) {
+                    val destinations = uiState.destinations.toMutableList()
+                    destinations.add(MapUIState.Destination(name, location))
+                    vm.updateDestinations(destinations)
+                } else {
+                    if (uiState.moveCameraButtonState == MoveCameraButtonState.MyRouteView) {
+                        vm.getAddressDetails(location)
+                    } else {
+                        scope.launch {
+                            cameraPositionState.animate(
+                                update = CameraUpdateFactory.newCameraPosition(
+                                    CameraPosition(location, 15f, 0f, 0f)
+                                ),
+                                durationMs = 1000
+                            )
+                            currentLatLng.value = location
+                        }
+                    }
+                }
+            },
+            onDismissRequest = {
+                scope.launch {
+                    selectFromMapSheetVisibility = SelectFromMapSheetVisibility.INVISIBLE
+                    searchForLocationSheetState.hide()
                 }
             }
         )
@@ -234,7 +353,7 @@ fun MapRoute(
             sheetState = arrangeDestinationsSheetState,
             onAddNewDestinationClick = {
                 scope.launch {
-                    searchForLocationSheetVisibility = true
+                    searchForLocationSheetVisibility = SearchForLocationBottomSheetVisibility.END
                     searchForLocationSheetState.show()
                 }
             },
@@ -242,7 +361,20 @@ fun MapRoute(
                 scope.launch {
                     arrangeDestinationsSheetVisibility = false
                     arrangeDestinationsSheetState.hide()
-                    vm.updateUIState(destinations = orderedDestinations)
+                    vm.updateDestinations(orderedDestinations)
+                    vm.fetchTariffs()
+
+                    if (orderedDestinations.isEmpty()) getCurrentLocation(context) { location ->
+                        scope.launch {
+                            cameraPositionState.animate(
+                                update = CameraUpdateFactory.newCameraPosition(
+                                    CameraPosition(location, 15f, 0f, 0f)
+                                ),
+                                durationMs = 1000
+                            )
+                            currentLatLng.value = location
+                        }
+                    }
                 }
             }
         )

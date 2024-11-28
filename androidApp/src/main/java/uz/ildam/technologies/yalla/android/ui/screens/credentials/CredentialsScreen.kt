@@ -39,7 +39,7 @@ import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 import uz.ildam.technologies.yalla.android.ui.components.button.GenderButton
 import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
 import uz.ildam.technologies.yalla.android.ui.components.text_field.YallaTextField
-import uz.ildam.technologies.yalla.android.utils.Utils.formatWithDotsDMY
+import uz.ildam.technologies.yalla.android.utils.formatWithDotsDMY
 
 
 @OptIn(ExperimentalMaterial3Api::class)

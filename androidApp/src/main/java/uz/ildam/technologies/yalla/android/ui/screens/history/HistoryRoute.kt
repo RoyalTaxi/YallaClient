@@ -1,6 +1,7 @@
 package uz.ildam.technologies.yalla.android.ui.screens.history
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import app.cash.paging.compose.collectAsLazyPagingItems
 import org.koin.androidx.compose.koinViewModel
 
@@ -13,11 +14,13 @@ fun HistoryRoute(
 
     val orders = vm.orders.collectAsLazyPagingItems()
 
+    LaunchedEffect(Unit) { vm.getOrders() }
+
     HistoryScreen(
         orders = orders,
         onIntent = { intent ->
             when (intent) {
-                is HistoryIntent.OnHistoryItemClick -> {}
+                is HistoryIntent.OnHistoryItemClick -> onClickItem(intent.id)
                 is HistoryIntent.OnNavigateBack -> onBack()
             }
         }

@@ -27,14 +27,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
-import uz.ildam.technologies.yalla.feature.history.domain.model.OrderHistory
+import uz.ildam.technologies.yalla.feature.history.domain.model.OrdersHistory
 
 @Composable
 fun HistoryOrderItem(
-    order: OrderHistory.Item,
+    order: OrdersHistory.Item,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
+        onClick = onClick,
         colors = CardDefaults.cardColors(YallaTheme.color.gray2),
         shape = RoundedCornerShape(16.dp),
         modifier = modifier.fillMaxWidth()

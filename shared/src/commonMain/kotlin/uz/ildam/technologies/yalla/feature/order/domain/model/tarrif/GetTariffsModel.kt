@@ -1,9 +1,19 @@
 package uz.ildam.technologies.yalla.feature.order.domain.model.tarrif
 
 data class GetTariffsModel(
-    val map: String,
+    val map: Map,
     val tariff: List<Tariff>
 ) {
+    data class Map(
+        val distance: Double,
+        val duration: Double,
+        val routing: List<Routing>,
+    ) {
+        data class Routing(
+            val lat: Double,
+            val lng: Double
+        )
+    }
     data class Tariff(
         val category: Category,
         val cityKmCost: Int,

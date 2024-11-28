@@ -3,28 +3,28 @@ package uz.ildam.technologies.yalla.feature.history.data.paging
 import app.cash.paging.PagingSource
 import app.cash.paging.PagingState
 import uz.ildam.technologies.yalla.core.domain.error.Result
-import uz.ildam.technologies.yalla.feature.history.data.mapper.OrderHistoryMapper
+import uz.ildam.technologies.yalla.feature.history.data.mapper.OrdersHistoryMapper
 import uz.ildam.technologies.yalla.feature.history.data.service.OrdersHistoryService
-import uz.ildam.technologies.yalla.feature.history.domain.model.OrderHistoryModel
+import uz.ildam.technologies.yalla.feature.history.domain.model.OrdersHistoryModel
 
 class OrdersHistoryPagingSource(
     private val service: OrdersHistoryService
-) : PagingSource<Int, OrderHistoryModel>() {
+) : PagingSource<Int, OrdersHistoryModel>() {
 
-    override fun getRefreshKey(state: PagingState<Int, OrderHistoryModel>): Int? {
+    override fun getRefreshKey(state: PagingState<Int, OrdersHistoryModel>): Int? {
         return state.anchorPosition?.let { anchorPosition ->
             val anchorPage = state.closestPageToPosition(anchorPosition)
             anchorPage?.prevKey?.plus(1) ?: anchorPage?.nextKey?.minus(1)
         }
     }
 
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, OrderHistoryModel> {
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, OrdersHistoryModel> {
         val currentPage = params.key ?: 1
         return try {
             when (val response = service.getOrders(currentPage, 20)) {
                 is Result.Error -> LoadResult.Error(Exception(response.error.name))
                 is Result.Success -> {
-                    val data = response.data.result?.list?.map(OrderHistoryMapper.mapper).orEmpty()
+                    val data = response.data.result?.list?.map(OrdersHistoryMapper.mapper).orEmpty()
                     val nextKey = if (data.isEmpty()) null else currentPage + 1
 
                     LoadResult.Page(

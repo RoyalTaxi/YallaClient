@@ -76,11 +76,14 @@ fun ArrangeDestinationsBottomSheet(
                 ArrangeDestinationItem(
                     modifier = modifier.fillMaxWidth(),
                     destination = item,
+                    isFirstElement = item == orderedDestinations.first(),
                     isLastElement = item == orderedDestinations.last(),
                     onDelete = {
                         val mutableOrderedDestinations = orderedDestinations.toMutableList()
                         mutableOrderedDestinations.remove(item)
                         orderedDestinations = mutableOrderedDestinations.toMutableList()
+
+                        if (mutableOrderedDestinations.isEmpty()) onDismissRequest(emptyList())
                     }
                 )
             }

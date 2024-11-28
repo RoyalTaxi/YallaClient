@@ -93,6 +93,8 @@ dependencies {
     implementation(libs.paging.common)
     implementation(libs.paging.compose.common)
 
+    // Kotlinx Date time
     implementation(libs.kotlinx.datetime)
 
+    implementation(libs.sdk.map)
 }

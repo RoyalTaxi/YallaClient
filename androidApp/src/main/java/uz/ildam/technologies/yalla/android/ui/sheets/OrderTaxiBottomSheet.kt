@@ -35,6 +35,7 @@ fun OrderTaxiBottomSheet(
     isLoading: Boolean,
     uiState: MapUIState,
     onSelectTariff: (GetTariffsModel.Tariff, Boolean) -> Unit,
+    onCurrentLocationClick: () -> Unit,
     onDestinationClick: () -> Unit
 ) {
     Column(
@@ -57,7 +58,7 @@ fun OrderTaxiBottomSheet(
                 currentLocation = uiState.selectedLocation?.name,
                 isLoading = isLoading,
                 modifier = Modifier.padding(horizontal = 20.dp),
-                onClick = {}
+                onClick = onCurrentLocationClick
             )
 
             SelectDestinationButton(
@@ -77,7 +78,7 @@ fun OrderTaxiBottomSheet(
                         startingCost = tariff.cost,
                         fixedCost = tariff.fixedPrice,
                         fixedState = tariff.fixedType,
-                        selectedState = uiState.selectedTariff == tariff,
+                        selectedState = uiState.selectedTariff?.id == tariff.id,
                         onSelect = { wasSelected -> onSelectTariff(tariff, wasSelected) }
                     )
                 }

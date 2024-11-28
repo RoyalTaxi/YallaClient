@@ -4,9 +4,22 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class GetTariffsResponse(
-    val map: String?,
+    val map: Map?,
     val tariff: List<Tariff>?
 ) {
+    @Serializable
+    data class Map(
+        val distance: Double?,
+        val duration: Double?,
+        val routing: List<Routing>?,
+    ) {
+        @Serializable
+        data class Routing(
+            val lat: Double?,
+            val lng: Double?
+        )
+    }
+
     @Serializable
     data class Tariff(
         val category: Category?,

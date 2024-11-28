@@ -3,10 +3,14 @@ package uz.ildam.technologies.yalla.android.ui.components.text_field
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -28,12 +32,14 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
+import uz.ildam.technologies.yalla.android.ui.components.button.ChooseFromMapButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchLocationField(
     value: String?,
     onValueChange: (String) -> Unit,
+    onClickMap: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -42,8 +48,10 @@ fun SearchLocationField(
         colors = CardDefaults.cardColors(YallaTheme.color.gray2)
     ) {
         Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .padding(start = 16.dp)
+                .height(IntrinsicSize.Min)
         ) {
             Box(
                 modifier = Modifier
@@ -59,7 +67,7 @@ fun SearchLocationField(
             BasicTextField(
                 value = value.orEmpty(),
                 onValueChange = onValueChange,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.weight(1f),
                 singleLine = true,
                 textStyle = YallaTheme.font.labelLarge.copy(color = YallaTheme.color.black),
                 decorationBox = { innerTextField ->
@@ -90,6 +98,16 @@ fun SearchLocationField(
                         )
                     )
                 }
+            )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            ChooseFromMapButton(
+                onClick = onClickMap,
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(4.dp)
+                    .aspectRatio(1f)
             )
         }
     }

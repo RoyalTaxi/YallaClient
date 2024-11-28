@@ -34,7 +34,8 @@ fun SearchByNameBottomSheet(
     foundAddresses: List<SearchForAddressItemModel>,
     onSearchForAddress: (String) -> Unit,
     onAddressSelected: (SearchForAddressItemModel) -> Unit,
-    onDismissRequest: () -> Unit
+    onDismissRequest: () -> Unit,
+    onClickMap: () -> Unit
 ) {
     var addressName by remember { mutableStateOf("") }
 
@@ -58,10 +59,14 @@ fun SearchByNameBottomSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(20.dp),
+                onClickMap = {
+                    onClickMap()
+                    onDismissRequest()
+                },
                 onValueChange = {
                     addressName = it
                     onSearchForAddress(it)
-                },
+                }
             )
         }
 

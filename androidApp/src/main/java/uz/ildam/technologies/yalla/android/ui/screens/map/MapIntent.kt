@@ -4,8 +4,11 @@ import uz.ildam.technologies.yalla.feature.order.domain.model.tarrif.GetTariffsM
 
 sealed interface MapIntent {
     data object MoveToMyLocation : MapIntent
-    data object OpenDestinationLocationSheet : MapIntent
+    data object MoveToMyRoute : MapIntent
+    data object SearchStartLocationSheet : MapIntent
+    data object SearchEndLocationSheet : MapIntent
     data object OpenDrawer : MapIntent
+    data object DiscardOrder : MapIntent
     data class SelectTariff(
         val tariff: GetTariffsModel.Tariff,
         val wasSelected: Boolean

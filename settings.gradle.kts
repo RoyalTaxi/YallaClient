@@ -4,6 +4,10 @@ pluginManagement {
         google()
         gradlePluginPortal()
         mavenCentral()
+        maven {
+            url = uri("http://artifactory.2gis.dev/sdk-maven-release")
+            isAllowInsecureProtocol = true
+        }
     }
 }
 
@@ -11,6 +15,10 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven {
+            url = uri("http://artifactory.2gis.dev/sdk-maven-release")
+            isAllowInsecureProtocol = true
+        }
     }
 }
 

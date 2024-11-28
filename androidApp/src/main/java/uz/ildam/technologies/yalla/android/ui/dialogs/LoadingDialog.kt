@@ -7,10 +7,8 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -23,6 +21,7 @@ import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 
 @Composable
 fun LoadingDialog(
+    isBackgroundEnabled: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val transition = rememberInfiniteTransition("loading")
@@ -39,7 +38,7 @@ fun LoadingDialog(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .fillMaxSize()
-            .background(YallaTheme.color.black.copy(.6f))
+            .then(if (isBackgroundEnabled) Modifier.background(YallaTheme.color.black.copy(.6f)) else Modifier)
             .pointerInput(Unit) { }
     ) {
         Image(

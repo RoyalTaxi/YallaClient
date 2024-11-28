@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.threeten.bp.LocalDate
-import uz.ildam.technologies.yalla.android.utils.Utils.formatWithDotsDMY
+import uz.ildam.technologies.yalla.android.utils.formatWithDotsDMY
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 import uz.ildam.technologies.yalla.core.domain.error.Result
 import uz.ildam.technologies.yalla.feature.auth.domain.usecase.register.RegisterUseCase

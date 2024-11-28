@@ -1,17 +1,17 @@
 package uz.ildam.technologies.yalla.feature.history.domain.model
 
-sealed interface OrderHistory {
+sealed interface OrdersHistory {
     data class Item(
         val id: Int,
         val service: String,
         val status: String,
-        val taxi: OrderHistoryModel.Taxi,
+        val taxi: OrdersHistoryModel.Taxi,
         val date: String,
         val time: String
-    ) : OrderHistory
+    ) : OrdersHistory
 
     data class Date(
         val date: String
-    ) : OrderHistory
+    ) : OrdersHistory
 }
 

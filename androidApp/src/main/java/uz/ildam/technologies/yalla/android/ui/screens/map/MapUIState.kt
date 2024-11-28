@@ -8,12 +8,16 @@ import uz.ildam.technologies.yalla.feature.map.domain.model.map.SearchForAddress
 import uz.ildam.technologies.yalla.feature.order.domain.model.tarrif.GetTariffsModel
 
 data class MapUIState(
+    val markerSelectedLocation: SelectedLocation? = null,
     val selectedLocation: SelectedLocation? = null,
     val destinations: List<Destination> = emptyList(),
     val tariffs: GetTariffsModel? = null,
     val selectedTariff: GetTariffsModel.Tariff? = null,
     val timeout: Int? = 0,
     val foundAddresses: List<SearchForAddressItemModel> = emptyList(),
+    val route: List<LatLng> = emptyList(),
+    val moveCameraButtonState: MoveCameraButtonState = MoveCameraButtonState.MyLocationView,
+    val discardOrderButtonState: DiscardOrderButtonState = DiscardOrderButtonState.OpenDrawer,
     val mapUiSettings: MapUiSettings = MapUiSettings(
         compassEnabled = false,
         mapToolbarEnabled = false,
@@ -23,9 +27,7 @@ data class MapUIState(
     val properties: MapProperties = MapProperties(
         mapType = MapType.NORMAL,
         isBuildingEnabled = true,
-        isIndoorEnabled = true,
         isMyLocationEnabled = true,
-        isTrafficEnabled = true
     )
 ) {
     data class SelectedLocation(

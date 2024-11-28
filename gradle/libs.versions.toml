@@ -18,10 +18,12 @@ mapsCompose = "6.1.0"
 pagingCommon = "3.3.0-alpha02-0.5.1"
 pagingComposeCommon = "3.3.0-alpha02-0.4.0"
 playServicesLocation = "21.3.0"
+sdkMap = "latest.release"
 snapper = "0.3.0"
 threetenabp = "1.4.4"
 navigationCompose = "2.7.7"
 coilComposeCore = "3.0.0-rc02"
+foundationLayoutAndroid = "1.7.0"
 
 
 [libraries]
@@ -58,6 +60,7 @@ maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = 
 paging-common = { module = "app.cash.paging:paging-common", version.ref = "pagingCommon" }
 paging-compose-common = { module = "app.cash.paging:paging-compose-common", version.ref = "pagingComposeCommon" }
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
+sdk-map = { module = "ru.dgis.sdk:sdk-full", version.ref = "sdkMap" }
 snapper = { module = "dev.chrisbanes.snapper:snapper", version.ref = "snapper" }
 threetenabp = { module = "com.jakewharton.threetenabp:threetenabp", version.ref = "threetenabp" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
@@ -68,7 +71,6 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilComposeCore" }
 coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coilComposeCore" }
-
 
 [plugins]
 

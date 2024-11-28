@@ -37,7 +37,7 @@ import uz.ildam.technologies.yalla.android.ui.components.shape.squareSize
 
 @Composable
 fun YallaMarker(
-    time: String,
+    time: Int?,
     isLoading: Boolean,
     selectedAddressName: String?,
     modifier: Modifier = Modifier
@@ -113,13 +113,13 @@ fun YallaMarker(
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = time,
+                    text = time?.toString() ?: "",
                     color = YallaTheme.color.white,
                     style = YallaTheme.font.title
                 )
 
                 Text(
-                    text = stringResource(R.string.min),
+                    text = if (time != null) stringResource(R.string.min) else "",
                     color = YallaTheme.color.white,
                     style = YallaTheme.font.body
                 )

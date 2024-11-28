@@ -2,7 +2,6 @@ package uz.ildam.technologies.yalla.android.ui.screens.map
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.PagingData
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,7 +10,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.core.domain.error.Result
-import uz.ildam.technologies.yalla.feature.history.domain.model.OrderHistoryModel
 import uz.ildam.technologies.yalla.feature.map.domain.model.map.PolygonRemoteItem
 import uz.ildam.technologies.yalla.feature.map.domain.model.map.SearchForAddressItemModel
 import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.GetAddressNameUseCase
@@ -35,9 +33,6 @@ class MapViewModel(
     val actionState = _actionState.asSharedFlow()
 
     private var addresses = listOf<PolygonRemoteItem>()
-
-    private val _ordersHistory = MutableSharedFlow<PagingData<OrderHistoryModel>>()
-    val ordersHistory = _ordersHistory.asSharedFlow()
 
     init {
         fetchPolygons()
@@ -99,16 +94,36 @@ class MapViewModel(
         }
     }
 
-    fun fetchTariffs(addressId: Int, from: LatLng, to: LatLng? = null) = viewModelScope.launch {
+    fun fetchTariffs(
+        addressId: Int? = uiState.value.selectedLocation?.addressId,
+        from: LatLng? = uiState.value.selectedLocation?.point,
+        to: List<LatLng> = uiState.value.destinations.mapNotNull { it.point }
+    ) = viewModelScope.launch {
         _actionState.emit(MapActionState.LoadingTariffs)
-        val coordinates = listOfNotNull(from.toPair(), to?.toPair())
-        when (val result = getTariffsUseCase(listOf(), coordinates, addressId)) {
-            is Result.Success -> {
-                _actionState.emit(MapActionState.TariffsLoaded)
-                updateTariffs(result.data)
-            }
+        if (addressId != null && from != null) {
+            when (
+                val result = getTariffsUseCase(
+                    optionIds = listOf(),
+                    coords = listOf(from.toPair()) + to.map { it.toPair() },
+                    addressId = addressId
+                )
+            ) {
+                is Result.Success -> {
+                    _actionState.emit(MapActionState.TariffsLoaded)
+                    updateUIState(routes = result.data.map.routing.map { LatLng(it.lat, it.lng) })
+                    if (result.data.map.routing.isNotEmpty()) updateUIState(
+                        moveCameraButtonState = MoveCameraButtonState.MyRouteView,
+                        discardOrderButtonState = DiscardOrderButtonState.DiscardOrder
+                    )
+                    else updateUIState(
+                        moveCameraButtonState = MoveCameraButtonState.MyLocationView,
+                        discardOrderButtonState = DiscardOrderButtonState.OpenDrawer
+                    )
+                    updateTariffs(result.data)
+                }
 
-            is Result.Error -> changeStateToNotFound()
+                is Result.Error -> changeStateToNotFound()
+            }
         }
     }
 
@@ -157,18 +172,22 @@ class MapViewModel(
         timeout: Int? = _uiState.value.timeout,
         foundAddresses: List<SearchForAddressItemModel> = _uiState.value.foundAddresses,
         selectedLocation: MapUIState.SelectedLocation? = _uiState.value.selectedLocation,
-        destinations: List<MapUIState.Destination> = _uiState.value.destinations,
+        routes: List<LatLng> = _uiState.value.route,
         selectedTariff: GetTariffsModel.Tariff? = _uiState.value.selectedTariff,
         tariffs: GetTariffsModel? = _uiState.value.tariffs,
+        moveCameraButtonState: MoveCameraButtonState = _uiState.value.moveCameraButtonState,
+        discardOrderButtonState: DiscardOrderButtonState = _uiState.value.discardOrderButtonState
     ) {
         _uiState.update {
             it.copy(
                 timeout = timeout,
                 selectedLocation = selectedLocation,
-                destinations = destinations,
+                route = routes,
                 selectedTariff = selectedTariff,
                 tariffs = tariffs,
-                foundAddresses = foundAddresses
+                foundAddresses = foundAddresses,
+                moveCameraButtonState = moveCameraButtonState,
+                discardOrderButtonState = discardOrderButtonState
             )
         }
     }
@@ -187,5 +206,11 @@ class MapViewModel(
                 )
             )
         }
+    }
+
+    fun updateDestinations(newDestinations: List<MapUIState.Destination>) {
+        _uiState.update { it.copy(destinations = newDestinations) }
+        if (newDestinations.isEmpty()) updateUIState(routes = emptyList())
+        fetchTariffs()
     }
 }

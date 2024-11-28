@@ -9,8 +9,23 @@ import uz.ildam.technologies.yalla.feature.order.domain.model.tarrif.GetTariffsM
 object GetTariffMapper {
     val mapper: Mapper<GetTariffsResponse?, GetTariffsModel> = { remote ->
         GetTariffsModel(
-            map = remote?.map.orEmpty(),
+            map = remote?.map.let(mapMapper),
             tariff = remote?.tariff?.map(tariffMapper).orEmpty()
+        )
+    }
+
+    private val mapMapper: Mapper<GetTariffsResponse.Map?, GetTariffsModel.Map> = { remote ->
+        GetTariffsModel.Map(
+            distance = remote?.distance.or0(),
+            duration = remote?.duration.or0(),
+            routing = remote?.routing?.map(routeMapper).orEmpty()
+        )
+    }
+
+    private val routeMapper: Mapper<GetTariffsResponse.Map.Routing?, GetTariffsModel.Map.Routing> = { remote ->
+        GetTariffsModel.Map.Routing(
+            lat = remote?.lat.or0(),
+            lng = remote?.lng.or0()
         )
     }
 
