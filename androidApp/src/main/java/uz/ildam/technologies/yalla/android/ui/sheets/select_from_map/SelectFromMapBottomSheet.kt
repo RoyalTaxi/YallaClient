@@ -82,6 +82,7 @@ fun SelectFromMapBottomSheet(
 
     LaunchedEffect(Unit) {
         getCurrentLocation(context) { location ->
+            viewModel.getAddressDetails(location)
             scope.launch {
                 currentLatLng.value = location
                 cameraPositionState.animate(
@@ -191,7 +192,7 @@ fun SelectFromMapBottomSheet(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(10.dp),
-                    enabled = !isMarkerMoving && uiState.addressId != null,
+                    enabled = !isMarkerMoving && if (isForDestination) true else uiState.addressId != null,
                     text = stringResource(R.string.choose),
                     onClick = {
                         if (uiState.latLng != null && uiState.name != null) {

@@ -1,5 +1,6 @@
 package uz.ildam.technologies.yalla.android.ui.sheets
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -36,8 +38,10 @@ fun OrderTaxiBottomSheet(
     uiState: MapUIState,
     onSelectTariff: (GetTariffsModel.Tariff, Boolean) -> Unit,
     onCurrentLocationClick: () -> Unit,
-    onDestinationClick: () -> Unit
+    onDestinationClick: () -> Unit,
+    onSetOptionsClick: () -> Unit
 ) {
+    val context = LocalContext.current
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier
@@ -118,7 +122,7 @@ fun OrderTaxiBottomSheet(
             OptionsButton(
                 modifier = Modifier.fillMaxHeight(),
                 painter = painterResource(R.drawable.img_options),
-                onClick = {}
+                onClick = { if (uiState.tariffs?.tariff?.isNotEmpty() == true) onSetOptionsClick() }
             )
         }
     }

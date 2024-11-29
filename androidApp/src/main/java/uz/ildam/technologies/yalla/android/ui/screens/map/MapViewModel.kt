@@ -53,17 +53,13 @@ class MapViewModel(
     fun getAddressDetails(point: LatLng) = viewModelScope.launch {
         _actionState.emit(MapActionState.LoadingAddressId)
         if (addresses.isEmpty()) fetchPolygons()
-        else addresses.firstOrNull {
-            isPointInsidePolygon(
-                point = point,
-                vertices = it.polygons.map { polygon ->
-                    Pair(polygon.lat, polygon.lng)
-                }
-            )
-        }?.let { address ->
-            updateSelectedLocation(addressId = address.addressId, point = point)
-            _actionState.emit(MapActionState.AddressIdLoaded(address.addressId))
-        } ?: run {
+        else addresses
+            .firstOrNull {
+                isPointInsidePolygon(point = point).first
+            }?.let { address ->
+                updateSelectedLocation(addressId = address.addressId, point = point)
+                _actionState.emit(MapActionState.AddressIdLoaded(address.addressId))
+            } ?: run {
             updateSelectedLocation(addressId = null)
         }
         fetchAddressName(point)
@@ -130,31 +126,47 @@ class MapViewModel(
     private fun updateTariffs(data: GetTariffsModel) {
         _uiState.update { it.copy(tariffs = data) }
         val selectedTariff = _uiState.value.selectedTariff
-        if (selectedTariff == null) updateUIState(selectedTariff = data.tariff.first())
-        else if (selectedTariff.id !in data.tariff.map { it.id }) updateUIState(selectedTariff = data.tariff.firstOrNull())
+        if (data.tariff.isNotEmpty())
+            if (selectedTariff == null) updateUIState(
+                selectedTariff = data.tariff.first(),
+                options = data.tariff.first().services
+            )
+            else if (selectedTariff.id !in data.tariff.map { it.id }) updateUIState(
+                selectedTariff = data.tariff.firstOrNull(),
+                options = data.tariff[0].services
+            )
     }
 
-    fun searchForAddress(query: String, point: LatLng) = viewModelScope.launch {
-        when (val result = searchForAddressUseCase(
-            query = query,
-            lat = point.latitude, lng = point.longitude
-        )) {
-            is Result.Error -> {}
-            is Result.Success -> _uiState.update { it.copy(foundAddresses = result.data) }
+    fun searchForAddress(query: String, point: LatLng) =
+        viewModelScope.launch {
+            when (val result = searchForAddressUseCase(
+                query = query,
+                lat = point.latitude, lng = point.longitude
+            )) {
+                is Result.Error -> _uiState.update { it.copy(foundAddresses = emptyList()) }
+                is Result.Success -> _uiState.update { it.copy(foundAddresses = result.data) }
+            }
         }
-    }
 
-    private fun isPointInsidePolygon(point: LatLng, vertices: List<Pair<Double, Double>>): Boolean {
-        var isInside = false
-        for (i in vertices.indices) {
-            val j = if (i == 0) vertices.size - 1 else i - 1
-            val (lat1, lng1) = vertices[i]
-            val (lat2, lng2) = vertices[j]
-            val intersects = (lng1 > point.longitude) != (lng2 > point.longitude) &&
-                    (point.latitude < (lat2 - lat1) * (point.longitude - lng1) / (lng2 - lng1) + lat1)
-            if (intersects) isInside = !isInside
+    fun isPointInsidePolygon(point: LatLng): Pair<Boolean, Int> {
+        addresses.forEach { polygonItem ->
+            val vertices = polygonItem.polygons.map { Pair(it.lat, it.lng) }
+            var isInside = false
+            var addressId = 0
+            for (i in vertices.indices) {
+                val j = if (i == 0) vertices.size - 1 else i - 1
+                val (lat1, lng1) = vertices[i]
+                val (lat2, lng2) = vertices[j]
+                val intersects = (lng1 > point.longitude) != (lng2 > point.longitude) &&
+                        (point.latitude < (lat2 - lat1) * (point.longitude - lng1) / (lng2 - lng1) + lat1)
+                if (intersects) {
+                    isInside = !isInside
+                    addressId = polygonItem.addressId
+                }
+            }
+            if (isInside) return Pair(true, addressId)
         }
-        return isInside
+        return Pair(false, 0)
     }
 
     private fun LatLng.toPair() = Pair(latitude, longitude)
@@ -163,8 +175,7 @@ class MapViewModel(
         updateUIState(
             selectedLocation = null,
             tariffs = null,
-            timeout = 0,
-            selectedTariff = null
+            timeout = 0
         )
     }
 
@@ -176,7 +187,9 @@ class MapViewModel(
         selectedTariff: GetTariffsModel.Tariff? = _uiState.value.selectedTariff,
         tariffs: GetTariffsModel? = _uiState.value.tariffs,
         moveCameraButtonState: MoveCameraButtonState = _uiState.value.moveCameraButtonState,
-        discardOrderButtonState: DiscardOrderButtonState = _uiState.value.discardOrderButtonState
+        discardOrderButtonState: DiscardOrderButtonState = _uiState.value.discardOrderButtonState,
+        options: List<GetTariffsModel.Tariff.Service> = _uiState.value.options,
+        selectedOptions: List<GetTariffsModel.Tariff.Service> = _uiState.value.selectedOptions
     ) {
         _uiState.update {
             it.copy(
@@ -187,9 +200,25 @@ class MapViewModel(
                 tariffs = tariffs,
                 foundAddresses = foundAddresses,
                 moveCameraButtonState = moveCameraButtonState,
-                discardOrderButtonState = discardOrderButtonState
+                discardOrderButtonState = discardOrderButtonState,
+                options = options,
+                selectedOptions = selectedOptions
             )
         }
+    }
+
+    fun updateSelectedTariff(tariff: GetTariffsModel.Tariff) {
+        _uiState.update {
+            it.copy(
+                selectedTariff = tariff,
+                options = tariff.services,
+                selectedOptions = emptyList()
+            )
+        }
+    }
+
+    fun updateSelectedOptions(options: List<GetTariffsModel.Tariff.Service>) {
+        _uiState.update { it.copy(selectedOptions = options) }
     }
 
     fun updateSelectedLocation(

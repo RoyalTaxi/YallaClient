@@ -1,7 +1,19 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.compose.compiler)
+}
+
+
+val localProperties = Properties().apply {
+    load(rootProject.file("local.properties").inputStream())
+}
+
+fun getLocalProperty(name: String): String {
+    return localProperties.getProperty(name)
+        ?: throw RuntimeException("'$name' should be specified in local.properties")
 }
 
 android {
@@ -14,9 +26,12 @@ android {
         versionCode = 1
         versionName = "1.0"
         resourceConfigurations.plus(listOf("uz", "ru"))
+        buildConfigField("String", "MAP_API_KEY", getLocalProperty("dgisMapApiKey"))
+
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     bundle {
         language {
@@ -39,11 +54,13 @@ android {
     }
     kotlinOptions {
         jvmTarget = "11"
+        freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
     }
 }
 
 dependencies {
     implementation(projects.shared)
+    implementation(project(":android2gis"))
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling.preview)
     implementation(libs.compose.material3)
@@ -96,5 +113,4 @@ dependencies {
     // Kotlinx Date time
     implementation(libs.kotlinx.datetime)
 
-    implementation(libs.sdk.map)
 }

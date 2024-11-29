@@ -16,6 +16,8 @@ data class MapUIState(
     val timeout: Int? = 0,
     val foundAddresses: List<SearchForAddressItemModel> = emptyList(),
     val route: List<LatLng> = emptyList(),
+    val options: List<GetTariffsModel.Tariff.Service> = emptyList(),
+    val selectedOptions: List<GetTariffsModel.Tariff.Service> = emptyList(),
     val moveCameraButtonState: MoveCameraButtonState = MoveCameraButtonState.MyLocationView,
     val discardOrderButtonState: DiscardOrderButtonState = DiscardOrderButtonState.OpenDrawer,
     val mapUiSettings: MapUiSettings = MapUiSettings(

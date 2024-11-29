@@ -1,6 +1,7 @@
 package uz.ildam.technologies.yalla.android.ui.components.text_field
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -40,7 +41,8 @@ fun SearchLocationField(
     value: String?,
     onValueChange: (String) -> Unit,
     onClickMap: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isForDestination: Boolean
 ) {
     Card(
         modifier = modifier,
@@ -53,12 +55,20 @@ fun SearchLocationField(
                 .padding(start = 16.dp)
                 .height(IntrinsicSize.Min)
         ) {
-            Box(
+            if (isForDestination) Box(
                 modifier = Modifier
                     .size(8.dp)
                     .background(
                         color = YallaTheme.color.primary,
                         shape = CircleShape
+                    )
+            ) else Box(
+                modifier = Modifier
+                    .size(8.dp)
+                    .border(
+                        shape = CircleShape,
+                        width = 1.dp,
+                        color = YallaTheme.color.gray
                     )
             )
 
@@ -81,7 +91,9 @@ fun SearchLocationField(
                         interactionSource = remember { MutableInteractionSource() },
                         placeholder = {
                             Text(
-                                text = stringResource(R.string.where_to_go),
+                                text =
+                                if (isForDestination) stringResource(R.string.where_to_go)
+                                else stringResource(R.string.enter_the_address),
                                 color = YallaTheme.color.gray,
                                 style = YallaTheme.font.label
                             )

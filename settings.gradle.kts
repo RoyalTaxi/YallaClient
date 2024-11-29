@@ -25,3 +25,4 @@ dependencyResolutionManagement {
 rootProject.name = "YallaKMM"
 include(":androidApp")
 include(":shared")
+include(":android2gis")

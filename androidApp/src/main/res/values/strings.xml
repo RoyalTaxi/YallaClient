@@ -60,4 +60,6 @@
     <string name="car">Автомобиль</string>
     <string name="tariff">Тариф</string>
     <string name="map">Карта</string>
+    <string name="enter_the_address">Введите адрес</string>
+    <string name="save">Сохранить</string>
 </resources>

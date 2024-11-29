@@ -66,6 +66,7 @@ fun MapScreen(
                 uiState = uiState,
                 onCurrentLocationClick = { onIntent(MapIntent.SearchStartLocationSheet) },
                 onDestinationClick = { onIntent(MapIntent.SearchEndLocationSheet) },
+                onSetOptionsClick = { onIntent(MapIntent.OpenOptions) },
                 onSelectTariff = { selectedTariff, wasSelected ->
                     onIntent(MapIntent.SelectTariff(selectedTariff, wasSelected))
                 }

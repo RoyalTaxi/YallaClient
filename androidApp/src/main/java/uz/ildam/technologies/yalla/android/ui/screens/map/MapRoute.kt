@@ -3,6 +3,7 @@ package uz.ildam.technologies.yalla.android.ui.screens.map
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -42,6 +43,7 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import uz.ildam.technologies.yalla.android.ui.sheets.ArrangeDestinationsBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.SearchByNameBottomSheet
+import uz.ildam.technologies.yalla.android.ui.sheets.SetOrderOptionsBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.SheetValue
 import uz.ildam.technologies.yalla.android.ui.sheets.TariffInfoBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.select_from_map.SelectFromMapBottomSheet
@@ -73,6 +75,9 @@ fun MapRoute(
     val arrangeDestinationsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var tariffBottomSheetVisibility by remember { mutableStateOf(false) }
     val tariffBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var setOrderOptionsBottomSheetVisibility by remember { mutableStateOf(false) }
+    val setOrderOptionsBottomSheetState =
+        rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val sheetState = rememberBottomSheetState(
@@ -178,7 +183,7 @@ fun MapRoute(
                             if (intent.wasSelected) scope.launch {
                                 tariffBottomSheetVisibility = true
                                 tariffBottomSheetState.show()
-                            } else vm.updateUIState(selectedTariff = intent.tariff)
+                            } else vm.updateSelectedTariff(intent.tariff)
                         }
 
                         is MapIntent.MoveToMyLocation -> {
@@ -227,7 +232,7 @@ fun MapRoute(
                             }
                         }
 
-                        MapIntent.SearchStartLocationSheet -> {
+                        is MapIntent.SearchStartLocationSheet -> {
                             scope.launch {
                                 searchForLocationSheetVisibility =
                                     SearchForLocationBottomSheetVisibility.START
@@ -248,6 +253,13 @@ fun MapRoute(
                                 }
                             }
                         }
+
+                        MapIntent.OpenOptions -> {
+                            scope.launch {
+                                setOrderOptionsBottomSheetVisibility = true
+                                setOrderOptionsBottomSheetState.show()
+                            }
+                        }
                     }
                 }
             )
@@ -263,10 +275,19 @@ fun MapRoute(
         if (searchForLocationSheetVisibility != SearchForLocationBottomSheetVisibility.INVISIBLE) SearchByNameBottomSheet(
             sheetState = searchForLocationSheetState,
             foundAddresses = uiState.foundAddresses,
+            isForDestination = searchForLocationSheetVisibility == SearchForLocationBottomSheetVisibility.END,
             onAddressSelected = { dest ->
                 if (searchForLocationSheetVisibility == SearchForLocationBottomSheetVisibility.START) {
                     if (uiState.moveCameraButtonState == MoveCameraButtonState.MyRouteView) {
-                        vm.getAddressDetails(LatLng(dest.lat, dest.lng))
+                        if (dest.addressId != 0) vm.getAddressDetails(LatLng(dest.lat, dest.lng))
+                        else {
+                            val result = vm.isPointInsidePolygon(LatLng(dest.lat, dest.lng))
+                            if (result.first) {
+                                vm.getAddressDetails(LatLng(dest.lat, dest.lng))
+                                vm.updateSelectedLocation(addressId = result.second)
+                            } else Toast.makeText(context, "Out of service", Toast.LENGTH_SHORT)
+                                .show()
+                        }
                     } else {
                         scope.launch {
                             cameraPositionState.animate(
@@ -284,7 +305,7 @@ fun MapRoute(
                     vm.updateDestinations(destinations)
                 }
             },
-            onSearchForAddress = { vm.searchForAddress(it, currentLatLng.value) },
+            onSearchForAddress = { vm.searchForAddress(query = it, point = currentLatLng.value) },
             onClickMap = {
                 scope.launch { searchForLocationSheetState.show() }
                 selectFromMapSheetVisibility =
@@ -344,7 +365,7 @@ fun MapRoute(
     }
 
     AnimatedVisibility(
-        arrangeDestinationsSheetVisibility,
+        visible = arrangeDestinationsSheetVisibility,
         enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
         exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
     ) {
@@ -381,7 +402,7 @@ fun MapRoute(
     }
 
     AnimatedVisibility(
-        tariffBottomSheetVisibility,
+        visible = tariffBottomSheetVisibility,
         enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
         exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
     ) {
@@ -394,6 +415,28 @@ fun MapRoute(
                     scope.launch {
                         tariffBottomSheetVisibility = false
                         tariffBottomSheetState.hide()
+                    }
+                }
+            )
+        }
+    }
+
+    AnimatedVisibility(
+        visible = setOrderOptionsBottomSheetVisibility,
+        enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
+        exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
+    ) {
+        uiState.selectedTariff?.let { selectedTariff ->
+            if (setOrderOptionsBottomSheetVisibility) SetOrderOptionsBottomSheet(
+                sheetState = setOrderOptionsBottomSheetState,
+                selectedTariff = selectedTariff,
+                options = uiState.options,
+                selectedOptions = uiState.selectedOptions,
+                onSave = { options -> vm.updateSelectedOptions(options) },
+                onDismissRequest = {
+                    scope.launch {
+                        setOrderOptionsBottomSheetVisibility = false
+                        setOrderOptionsBottomSheetState.hide()
                     }
                 }
             )
