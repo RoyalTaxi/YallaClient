@@ -5,7 +5,7 @@ import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import uz.ildam.technologies.yalla.feature.map.domain.model.map.SearchForAddressItemModel
-import uz.ildam.technologies.yalla.feature.order.domain.model.tarrif.GetTariffsModel
+import uz.ildam.technologies.yalla.feature.order.domain.model.response.tarrif.GetTariffsModel
 
 data class MapUIState(
     val markerSelectedLocation: SelectedLocation? = null,

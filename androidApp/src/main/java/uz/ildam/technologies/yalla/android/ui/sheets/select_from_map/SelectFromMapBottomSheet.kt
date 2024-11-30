@@ -88,8 +88,7 @@ fun SelectFromMapBottomSheet(
                 cameraPositionState.animate(
                     update = CameraUpdateFactory.newCameraPosition(
                         CameraPosition(location, 15f, 0f, 0f)
-                    ),
-                    durationMs = 1000
+                    )
                 )
             }
         }

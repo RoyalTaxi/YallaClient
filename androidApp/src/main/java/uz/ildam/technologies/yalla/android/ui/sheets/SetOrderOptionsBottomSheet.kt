@@ -25,7 +25,7 @@ import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
 import uz.ildam.technologies.yalla.android.ui.components.item.OptionsItem
-import uz.ildam.technologies.yalla.feature.order.domain.model.tarrif.GetTariffsModel
+import uz.ildam.technologies.yalla.feature.order.domain.model.response.tarrif.GetTariffsModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

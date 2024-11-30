@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
-import uz.ildam.technologies.yalla.feature.order.domain.model.tarrif.GetTariffsModel
+import uz.ildam.technologies.yalla.feature.order.domain.model.response.tarrif.GetTariffsModel
 
 @Composable
 fun OptionsItem(

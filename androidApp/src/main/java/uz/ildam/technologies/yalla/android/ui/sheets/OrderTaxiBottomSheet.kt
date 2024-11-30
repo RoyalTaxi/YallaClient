@@ -1,6 +1,5 @@
 package uz.ildam.technologies.yalla.android.ui.sheets
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,7 +16,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -30,7 +28,7 @@ import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
 import uz.ildam.technologies.yalla.android.ui.components.item.TariffItem
 import uz.ildam.technologies.yalla.android.ui.components.item.TariffItemShimmer
 import uz.ildam.technologies.yalla.android.ui.screens.map.MapUIState
-import uz.ildam.technologies.yalla.feature.order.domain.model.tarrif.GetTariffsModel
+import uz.ildam.technologies.yalla.feature.order.domain.model.response.tarrif.GetTariffsModel
 
 @Composable
 fun OrderTaxiBottomSheet(
@@ -39,9 +37,9 @@ fun OrderTaxiBottomSheet(
     onSelectTariff: (GetTariffsModel.Tariff, Boolean) -> Unit,
     onCurrentLocationClick: () -> Unit,
     onDestinationClick: () -> Unit,
-    onSetOptionsClick: () -> Unit
+    onSetOptionsClick: () -> Unit,
+    onCreateOrder: () -> Unit
 ) {
-    val context = LocalContext.current
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier
@@ -111,12 +109,11 @@ fun OrderTaxiBottomSheet(
                 text = stringResource(R.string.lets_go),
                 enabled = isLoading.not() && uiState.selectedTariff != null,
                 contentPadding = PaddingValues(vertical = 20.dp),
+                onClick = onCreateOrder,
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
-            ) {
-
-            }
+            )
 
             OptionsButton(
                 modifier = Modifier.fillMaxHeight(),

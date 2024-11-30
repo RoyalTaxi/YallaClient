@@ -4,7 +4,7 @@ import uz.ildam.technologies.yalla.core.data.mapper.Mapper
 import uz.ildam.technologies.yalla.core.data.mapper.or0
 import uz.ildam.technologies.yalla.core.data.mapper.orFalse
 import uz.ildam.technologies.yalla.feature.order.data.response.tariff.GetTariffsResponse
-import uz.ildam.technologies.yalla.feature.order.domain.model.tarrif.GetTariffsModel
+import uz.ildam.technologies.yalla.feature.order.domain.model.response.tarrif.GetTariffsModel
 
 object GetTariffMapper {
     val mapper: Mapper<GetTariffsResponse?, GetTariffsModel> = { remote ->

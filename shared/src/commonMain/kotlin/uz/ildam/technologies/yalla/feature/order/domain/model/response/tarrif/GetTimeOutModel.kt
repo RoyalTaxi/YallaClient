@@ -1,4 +1,4 @@
-package uz.ildam.technologies.yalla.feature.order.domain.model.tarrif
+package uz.ildam.technologies.yalla.feature.order.domain.model.response.tarrif
 
 data class GetTimeOutModel(
     val executors: List<Executor>,

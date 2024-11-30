@@ -34,7 +34,6 @@ import uz.ildam.technologies.yalla.android.ui.sheets.OrderTaxiBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.SheetValue
 import uz.ildam.technologies.yalla.android.utils.vectorToBitmapDescriptor
 import uz.ildam.technologies.yalla.android2gis.CameraState
-import uz.ildam.technologies.yalla.android2gis.MapView
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -70,6 +69,7 @@ fun MapScreen(
                 onCurrentLocationClick = { onIntent(MapIntent.SearchStartLocationSheet) },
                 onDestinationClick = { onIntent(MapIntent.SearchEndLocationSheet) },
                 onSetOptionsClick = { onIntent(MapIntent.OpenOptions) },
+                onCreateOrder = { onIntent(MapIntent.OrderTaxi) },
                 onSelectTariff = { selectedTariff, wasSelected ->
                     onIntent(MapIntent.SelectTariff(selectedTariff, wasSelected))
                 }

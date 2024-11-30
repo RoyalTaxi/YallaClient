@@ -157,8 +157,7 @@ fun MapRoute(
                     cameraPositionState.animate(
                         update = CameraUpdateFactory.newCameraPosition(
                             CameraPosition(location, 15f, 0f, 0f)
-                        ),
-                        durationMs = 1000
+                        )
                     )
                 }
             }
@@ -261,12 +260,14 @@ fun MapRoute(
                             }
                         }
 
-                        MapIntent.OpenOptions -> {
+                        is MapIntent.OpenOptions -> {
                             scope.launch {
                                 setOrderOptionsBottomSheetVisibility = true
                                 setOrderOptionsBottomSheetState.show()
                             }
                         }
+
+                        is MapIntent.OrderTaxi -> vm.orderTaxi()
                     }
                 }
             )

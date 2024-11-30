@@ -9,13 +9,17 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import uz.ildam.technologies.yalla.core.data.local.AppPreferences
+import uz.ildam.technologies.yalla.core.data.mapper.or0
 import uz.ildam.technologies.yalla.core.domain.error.Result
 import uz.ildam.technologies.yalla.feature.map.domain.model.map.PolygonRemoteItem
 import uz.ildam.technologies.yalla.feature.map.domain.model.map.SearchForAddressItemModel
 import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.GetAddressNameUseCase
 import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.GetPolygonUseCase
 import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.SearchForAddressUseCase
-import uz.ildam.technologies.yalla.feature.order.domain.model.tarrif.GetTariffsModel
+import uz.ildam.technologies.yalla.feature.order.domain.model.request.OrderTaxiDto
+import uz.ildam.technologies.yalla.feature.order.domain.model.response.tarrif.GetTariffsModel
+import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.OrderTaxiUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.tariff.GetTariffsUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.tariff.GetTimeOutUseCase
 
@@ -24,7 +28,8 @@ class MapViewModel(
     private val getAddressNameUseCase: GetAddressNameUseCase,
     private val getTariffsUseCase: GetTariffsUseCase,
     private val getTimeOutUseCase: GetTimeOutUseCase,
-    private val searchForAddressUseCase: SearchForAddressUseCase
+    private val searchForAddressUseCase: SearchForAddressUseCase,
+    private val orderTaxiUseCase: OrderTaxiUseCase
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(MapUIState())
     val uiState = _uiState.asStateFlow()
@@ -137,16 +142,50 @@ class MapViewModel(
             )
     }
 
-    fun searchForAddress(query: String, point: LatLng) =
-        viewModelScope.launch {
-            when (val result = searchForAddressUseCase(
-                query = query,
-                lat = point.latitude, lng = point.longitude
-            )) {
-                is Result.Error -> _uiState.update { it.copy(foundAddresses = emptyList()) }
-                is Result.Success -> _uiState.update { it.copy(foundAddresses = result.data) }
+    fun searchForAddress(query: String, point: LatLng) = viewModelScope.launch {
+        when (val result = searchForAddressUseCase(
+            query = query,
+            lat = point.latitude, lng = point.longitude
+        )) {
+            is Result.Error -> _uiState.update { it.copy(foundAddresses = emptyList()) }
+            is Result.Success -> _uiState.update { it.copy(foundAddresses = result.data) }
+        }
+    }
+
+    fun orderTaxi() = viewModelScope.launch {
+        if (
+            uiState.value.selectedLocation?.addressId != null &&
+            uiState.value.selectedTariff?.id != null
+        ) when (val result = orderTaxiUseCase(
+            OrderTaxiDto(
+                dontCallMe = false,
+                service = "road",
+                addressId = uiState.value.selectedLocation!!.addressId!!,
+                toPhone = AppPreferences.number,
+                comment = "",
+                tariffId = uiState.value.selectedTariff!!.id,
+                tariffOptions = uiState.value.selectedOptions.map { it.id },
+                paymentType = "cash",
+                fixedPrice = uiState.value.selectedTariff!!.fixedType,
+                addresses = uiState.value.destinations.map { destination ->
+                    OrderTaxiDto.Address(
+                        addressId = null,
+                        lat = destination.point?.latitude.or0(),
+                        lng = destination.point?.longitude.or0(),
+                        name = destination.name.orEmpty()
+                    )
+                }
+            )
+        )) {
+            is Result.Error -> {
+
+            }
+
+            is Result.Success -> {
+
             }
         }
+    }
 
     fun isPointInsidePolygon(point: LatLng): Pair<Boolean, Int> {
         addresses.forEach { polygonItem ->

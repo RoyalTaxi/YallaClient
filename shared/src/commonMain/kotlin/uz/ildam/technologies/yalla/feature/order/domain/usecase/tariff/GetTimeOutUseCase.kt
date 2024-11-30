@@ -1,9 +1,9 @@
 package uz.ildam.technologies.yalla.feature.order.domain.usecase.tariff
 
-import uz.ildam.technologies.yalla.feature.order.domain.repository.OrderRepository
+import uz.ildam.technologies.yalla.feature.order.domain.repository.TariffRepository
 
 class GetTimeOutUseCase(
-    private val repository: OrderRepository
+    private val repository: TariffRepository
 ) {
     suspend operator fun invoke(
         lat: Double,
