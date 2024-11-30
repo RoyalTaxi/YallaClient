@@ -36,6 +36,7 @@ fun Navigation() {
         modifier = Modifier.fillMaxSize()
     ) {
         NavHost(
+            modifier = Modifier.fillMaxSize(),
             navController = navController,
             startDestination = if (AppPreferences.isDeviceRegistered) MAP_ROUTE else ONBOARDING_ROUTE
         ) {

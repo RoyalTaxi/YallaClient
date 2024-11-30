@@ -40,13 +40,18 @@ import io.morfly.compose.bottomsheet.material3.rememberBottomSheetScaffoldState
 import io.morfly.compose.bottomsheet.material3.rememberBottomSheetState
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import uz.ildam.technologies.yalla.android2gis.CameraPosition as Map2Gis
 import org.koin.androidx.compose.koinViewModel
+import ru.dgis.sdk.map.Zoom
 import uz.ildam.technologies.yalla.android.ui.sheets.ArrangeDestinationsBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.SearchByNameBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.SetOrderOptionsBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.SheetValue
 import uz.ildam.technologies.yalla.android.ui.sheets.TariffInfoBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.select_from_map.SelectFromMapBottomSheet
+import uz.ildam.technologies.yalla.android2gis.CameraState
+import uz.ildam.technologies.yalla.android2gis.GeoPoint
+import uz.ildam.technologies.yalla.android2gis.rememberCameraState
 import uz.ildam.technologies.yalla.core.data.mapper.or0
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -91,6 +96,7 @@ fun MapRoute(
     )
     val scaffoldState = rememberBottomSheetScaffoldState(sheetState = sheetState)
     val cameraPositionState = rememberCameraPositionState()
+    val cameraState = rememberCameraState(Map2Gis(GeoPoint(49.545, 78.87), Zoom(2.0f)))
     val markerState = rememberMarkerState()
     var isMarkerMoving by remember { mutableStateOf(false) }
     val currentLatLng = remember { mutableStateOf(LatLng(0.0, 0.0)) }
@@ -177,6 +183,7 @@ fun MapRoute(
                 scaffoldState = scaffoldState,
                 markerState = markerState,
                 cameraPositionState = cameraPositionState,
+                cameraState = cameraState,
                 onIntent = { intent ->
                     when (intent) {
                         is MapIntent.SelectTariff -> {

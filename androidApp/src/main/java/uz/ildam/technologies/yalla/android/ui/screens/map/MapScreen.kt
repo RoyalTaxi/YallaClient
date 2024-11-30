@@ -33,6 +33,8 @@ import uz.ildam.technologies.yalla.android.ui.components.marker.YallaMarker
 import uz.ildam.technologies.yalla.android.ui.sheets.OrderTaxiBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.SheetValue
 import uz.ildam.technologies.yalla.android.utils.vectorToBitmapDescriptor
+import uz.ildam.technologies.yalla.android2gis.CameraState
+import uz.ildam.technologies.yalla.android2gis.MapView
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -42,6 +44,7 @@ fun MapScreen(
     scaffoldState: BottomSheetScaffoldState<SheetValue>,
     markerState: MarkerState,
     cameraPositionState: CameraPositionState,
+    cameraState: CameraState,
     onIntent: (MapIntent) -> Unit
 ) {
     val context = LocalContext.current
@@ -81,6 +84,13 @@ fun MapScreen(
                     .fillMaxSize()
                     .padding(bottom = remember(bottomPadding) { bottomPadding })
             ) {
+//                MapView(
+//                    modifier = Modifier.fillMaxSize(),
+//                    cameraState = cameraState
+//                ) {
+//
+//                }
+
                 GoogleMap(
                     properties = uiState.properties,
                     uiSettings = uiState.mapUiSettings,

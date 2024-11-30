@@ -68,4 +68,5 @@ object AppPreferences {
         set(value) {
             preferences.edit()?.putString(AppPreferences::dateOfBirth.name, value)?.apply()
         }
+
 }

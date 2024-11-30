@@ -39,6 +39,7 @@ import uz.ildam.technologies.yalla.android.utils.vectorToBitmapDescriptor
 @Composable
 fun DetailsScreen(
     uiState: DetailsUIState,
+    loading: Boolean,
     cameraPositionState: CameraPositionState,
     onIntent: (DetailsIntent) -> Unit
 ) {
@@ -55,33 +56,6 @@ fun DetailsScreen(
     val bottomPadding by remember {
         derivedStateOf { scaffoldState.sheetState.requireSheetVisibleHeightDp() }
     }
-    val startMarkerIcon = remember {
-        vectorToBitmapDescriptor(context, R.drawable.ic_origin_marker)
-            ?: BitmapDescriptorFactory.defaultMarker()
-    }
-
-    val startMarkerState = remember {
-        MarkerState(
-            position = LatLng(
-                uiState.routes.first().lat,
-                uiState.routes.first().lng
-            )
-        )
-    }
-
-    val endMarkerIcon = remember {
-        vectorToBitmapDescriptor(context, R.drawable.ic_destination_marker)
-            ?: BitmapDescriptorFactory.defaultMarker()
-    }
-
-    val endMarkerState = remember {
-        MarkerState(
-            position = LatLng(
-                uiState.routes.last().lat,
-                uiState.routes.last().lng
-            )
-        )
-    }
 
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
@@ -89,6 +63,7 @@ fun DetailsScreen(
         sheetContainerColor = YallaTheme.color.white,
         sheetDragHandle = null,
         modifier = Modifier.fillMaxSize(),
+        containerColor = YallaTheme.color.white,
         topBar = {
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
@@ -110,7 +85,7 @@ fun DetailsScreen(
             )
         },
         content = { paddingValues ->
-            GoogleMap(
+            if (loading.not()) GoogleMap(
                 properties = uiState.properties,
                 uiSettings = uiState.mapUiSettings,
                 cameraPositionState = cameraPositionState,
@@ -120,15 +95,39 @@ fun DetailsScreen(
                 content = {
                     Polyline(points = uiState.routes.map { LatLng(it.lat, it.lng) })
 
-                    if (uiState.routes.isNotEmpty()) {
+                    if (uiState.orderDetails?.taxi?.routes?.isNotEmpty() == true) {
                         Marker(
-                            state = startMarkerState,
-                            icon = startMarkerIcon
+                            state = remember {
+                                MarkerState(
+                                    position = LatLng(
+                                        uiState.orderDetails.taxi.routes.first().cords.lat,
+                                        uiState.orderDetails.taxi.routes.first().cords.lng,
+                                    )
+                                )
+                            },
+                            icon = remember {
+                                vectorToBitmapDescriptor(context, R.drawable.ic_origin_marker)
+                                    ?: BitmapDescriptorFactory.defaultMarker()
+                            }
                         )
+                    }
 
+                    if ((uiState.orderDetails?.taxi?.routes?.size ?: 0) > 1) {
                         Marker(
-                            state = endMarkerState,
-                            icon = endMarkerIcon
+                            state = remember {
+                                MarkerState(
+                                    position = LatLng(
+                                        uiState.orderDetails?.taxi?.routes?.last()?.cords?.lat
+                                            ?: 0.0,
+                                        uiState.orderDetails?.taxi?.routes?.last()?.cords?.lng
+                                            ?: 0.0,
+                                    )
+                                )
+                            },
+                            icon = remember {
+                                vectorToBitmapDescriptor(context, R.drawable.ic_destination_marker)
+                                    ?: BitmapDescriptorFactory.defaultMarker()
+                            }
                         )
                     }
                 }

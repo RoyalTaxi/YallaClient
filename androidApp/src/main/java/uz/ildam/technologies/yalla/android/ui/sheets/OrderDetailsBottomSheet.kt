@@ -56,7 +56,7 @@ fun OrderDetailsBottomSheet(
                 )
             }
 
-            LocationItem(
+            if (order.taxi.routes.size > 1) LocationItem(
                 location = order.taxi.routes.lastOrNull()?.fullAddress.orEmpty(),
                 isFirst = false,
                 isLast = true,
