@@ -62,4 +62,6 @@
     <string name="map">Карта</string>
     <string name="enter_the_address">Введите адрес</string>
     <string name="save">Сохранить</string>
+    <string name="card_number">Номер карты</string>
+    <string name="mm_yy">ММ/ГГ</string>
 </resources>
