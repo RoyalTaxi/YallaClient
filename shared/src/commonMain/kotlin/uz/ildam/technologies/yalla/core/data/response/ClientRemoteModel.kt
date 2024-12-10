@@ -12,7 +12,7 @@ data class ClientRemoteModel(
     val block: Boolean?,
     val balance: Int?,
     val block_note: String?,
-    val rating: Int?,
+    val rating: Double?,
     val block_date: String?,
     val block_source: String?,
     val image: String?,

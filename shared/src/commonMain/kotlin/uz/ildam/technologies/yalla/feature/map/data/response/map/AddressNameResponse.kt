@@ -4,7 +4,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class AddressNameResponse(
-    val lat: String?,
-    val lng: String?,
-    val name: String?
+    val db: Boolean?,
+    val display_name: String?,
+    val id: Int?,
+    val lat: Double?,
+    val lng: Double?
 )

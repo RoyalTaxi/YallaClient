@@ -2,10 +2,14 @@ package uz.ildam.technologies.yalla.android2gis
 
 import android.content.Context
 import androidx.compose.foundation.layout.Box
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.compose.LocalLifecycleOwner
 
 private class MapNode(
     val camera: CameraNode,
@@ -73,6 +77,7 @@ private fun createDGisMapView(
     return DGisMapView(context, DGisMapOptions().apply {
         position = options.cameraState.position
     }).apply {
+        setTheme("light")
         getMapAsync {
             onMapReady(it, this)
         }

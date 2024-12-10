@@ -1,6 +1,5 @@
 package uz.ildam.technologies.yalla.android.ui.screens.map
 
-import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
@@ -15,7 +14,7 @@ data class MapUIState(
     val selectedTariff: GetTariffsModel.Tariff? = null,
     val timeout: Int? = 0,
     val foundAddresses: List<SearchForAddressItemModel> = emptyList(),
-    val route: List<LatLng> = emptyList(),
+    val route: List<MapPoint> = emptyList(),
     val options: List<GetTariffsModel.Tariff.Service> = emptyList(),
     val selectedOptions: List<GetTariffsModel.Tariff.Service> = emptyList(),
     val moveCameraButtonState: MoveCameraButtonState = MoveCameraButtonState.MyLocationView,
@@ -24,7 +23,11 @@ data class MapUIState(
         compassEnabled = false,
         mapToolbarEnabled = false,
         zoomControlsEnabled = false,
-        myLocationButtonEnabled = false
+        myLocationButtonEnabled = false,
+        rotationGesturesEnabled = true,
+        scrollGesturesEnabled = true,
+        scrollGesturesEnabledDuringRotateOrZoom = false,
+        tiltGesturesEnabled = false
     ),
     val properties: MapProperties = MapProperties(
         mapType = MapType.NORMAL,
@@ -34,12 +37,12 @@ data class MapUIState(
 ) {
     data class SelectedLocation(
         val name: String?,
-        val point: LatLng?,
+        val point: MapPoint?,
         val addressId: Int?
     )
 
     data class Destination(
         val name: String?,
-        val point: LatLng?
+        val point: MapPoint?
     )
 }

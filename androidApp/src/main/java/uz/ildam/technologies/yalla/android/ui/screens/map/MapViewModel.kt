@@ -2,7 +2,6 @@ package uz.ildam.technologies.yalla.android.ui.screens.map
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -55,7 +54,7 @@ class MapViewModel(
         }
     }
 
-    fun getAddressDetails(point: LatLng) = viewModelScope.launch {
+    fun getAddressDetails(point: MapPoint) = viewModelScope.launch {
         _actionState.emit(MapActionState.LoadingAddressId)
         if (addresses.isEmpty()) fetchPolygons()
         else addresses
@@ -70,23 +69,25 @@ class MapViewModel(
         fetchAddressName(point)
     }
 
-    private suspend fun fetchAddressName(point: LatLng) {
+    private suspend fun fetchAddressName(point: MapPoint) {
         _actionState.emit(MapActionState.LoadingAddressName)
-        when (val result = getAddressNameUseCase(point.latitude, point.longitude)) {
-            is Result.Success -> _actionState.emit(MapActionState.AddressNameLoaded(result.data.name))
-            is Result.Error -> changeStateToNotFound()
+        when (val result = getAddressNameUseCase(point.lat, point.lng)) {
+            is Result.Success -> _actionState.emit(MapActionState.AddressNameLoaded(result.data.displayName))
+            is Result.Error -> {
+                changeStateToNotFound()
+            }
         }
     }
 
-    fun getTimeout(point: LatLng) = viewModelScope.launch {
+    fun getTimeout(point: MapPoint) = viewModelScope.launch {
         val selectedTariff = _uiState.value.selectedTariff
             ?: _uiState.value.tariffs?.tariff?.firstOrNull()
 
         selectedTariff?.let { tariff ->
             _actionState.emit(MapActionState.LoadingTariffs)
             when (val result = getTimeOutUseCase(
-                lat = point.latitude,
-                lng = point.longitude,
+                lat = point.lat,
+                lng = point.lng,
                 tariffId = tariff.id
             )) {
                 is Result.Error -> changeStateToNotFound()
@@ -97,8 +98,8 @@ class MapViewModel(
 
     fun fetchTariffs(
         addressId: Int? = uiState.value.selectedLocation?.addressId,
-        from: LatLng? = uiState.value.selectedLocation?.point,
-        to: List<LatLng> = uiState.value.destinations.mapNotNull { it.point }
+        from: MapPoint? = uiState.value.selectedLocation?.point,
+        to: List<MapPoint> = uiState.value.destinations.mapNotNull { it.point }
     ) = viewModelScope.launch {
         _actionState.emit(MapActionState.LoadingTariffs)
         if (addressId != null && from != null) {
@@ -111,7 +112,7 @@ class MapViewModel(
             ) {
                 is Result.Success -> {
                     _actionState.emit(MapActionState.TariffsLoaded)
-                    updateUIState(routes = result.data.map.routing.map { LatLng(it.lat, it.lng) })
+                    updateUIState(routes = result.data.map.routing.map { MapPoint(it.lat, it.lng) })
                     if (result.data.map.routing.isNotEmpty()) updateUIState(
                         moveCameraButtonState = MoveCameraButtonState.MyRouteView,
                         discardOrderButtonState = DiscardOrderButtonState.DiscardOrder
@@ -142,10 +143,11 @@ class MapViewModel(
             )
     }
 
-    fun searchForAddress(query: String, point: LatLng) = viewModelScope.launch {
+    fun searchForAddress(query: String, point: MapPoint) = viewModelScope.launch {
         when (val result = searchForAddressUseCase(
             query = query,
-            lat = point.latitude, lng = point.longitude
+            lat = point.lat,
+            lng = point.lng
         )) {
             is Result.Error -> _uiState.update { it.copy(foundAddresses = emptyList()) }
             is Result.Success -> _uiState.update { it.copy(foundAddresses = result.data) }
@@ -170,8 +172,8 @@ class MapViewModel(
                 addresses = uiState.value.destinations.map { destination ->
                     OrderTaxiDto.Address(
                         addressId = null,
-                        lat = destination.point?.latitude.or0(),
-                        lng = destination.point?.longitude.or0(),
+                        lat = destination.point?.lat.or0(),
+                        lng = destination.point?.lng.or0(),
                         name = destination.name.orEmpty()
                     )
                 }
@@ -187,7 +189,7 @@ class MapViewModel(
         }
     }
 
-    fun isPointInsidePolygon(point: LatLng): Pair<Boolean, Int> {
+    fun isPointInsidePolygon(point: MapPoint): Pair<Boolean, Int> {
         addresses.forEach { polygonItem ->
             val vertices = polygonItem.polygons.map { Pair(it.lat, it.lng) }
             var isInside = false
@@ -196,8 +198,8 @@ class MapViewModel(
                 val j = if (i == 0) vertices.size - 1 else i - 1
                 val (lat1, lng1) = vertices[i]
                 val (lat2, lng2) = vertices[j]
-                val intersects = (lng1 > point.longitude) != (lng2 > point.longitude) &&
-                        (point.latitude < (lat2 - lat1) * (point.longitude - lng1) / (lng2 - lng1) + lat1)
+                val intersects = (lng1 > point.lng) != (lng2 > point.lng) &&
+                        (point.lat < (lat2 - lat1) * (point.lng - lng1) / (lng2 - lng1) + lat1)
                 if (intersects) {
                     isInside = !isInside
                     addressId = polygonItem.addressId
@@ -208,7 +210,7 @@ class MapViewModel(
         return Pair(false, 0)
     }
 
-    private fun LatLng.toPair() = Pair(latitude, longitude)
+    private fun MapPoint.toPair() = Pair(lat, lng)
 
     fun changeStateToNotFound() {
         updateUIState(
@@ -222,7 +224,7 @@ class MapViewModel(
         timeout: Int? = _uiState.value.timeout,
         foundAddresses: List<SearchForAddressItemModel> = _uiState.value.foundAddresses,
         selectedLocation: MapUIState.SelectedLocation? = _uiState.value.selectedLocation,
-        routes: List<LatLng> = _uiState.value.route,
+        routes: List<MapPoint> = _uiState.value.route,
         selectedTariff: GetTariffsModel.Tariff? = _uiState.value.selectedTariff,
         tariffs: GetTariffsModel? = _uiState.value.tariffs,
         moveCameraButtonState: MoveCameraButtonState = _uiState.value.moveCameraButtonState,
@@ -262,7 +264,7 @@ class MapViewModel(
 
     fun updateSelectedLocation(
         name: String? = _uiState.value.selectedLocation?.name,
-        point: LatLng? = _uiState.value.selectedLocation?.point,
+        point: MapPoint? = _uiState.value.selectedLocation?.point,
         addressId: Int? = _uiState.value.selectedLocation?.addressId
     ) {
         _uiState.update {

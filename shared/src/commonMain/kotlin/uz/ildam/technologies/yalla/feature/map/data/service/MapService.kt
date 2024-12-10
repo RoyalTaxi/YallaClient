@@ -3,14 +3,13 @@ package uz.ildam.technologies.yalla.feature.map.data.service
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
-import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.client.request.url
 import uz.ildam.technologies.yalla.core.data.exception.safeApiCall
-import uz.ildam.technologies.yalla.core.domain.error.Result
 import uz.ildam.technologies.yalla.core.data.response.ApiResponseWrapper
 import uz.ildam.technologies.yalla.core.domain.error.DataError
+import uz.ildam.technologies.yalla.core.domain.error.Result
+import uz.ildam.technologies.yalla.feature.map.data.request.map.LocationNameRequest
 import uz.ildam.technologies.yalla.feature.map.data.request.map.SearchForAddressRequest
 import uz.ildam.technologies.yalla.feature.map.data.response.map.AddressNameResponse
 import uz.ildam.technologies.yalla.feature.map.data.response.map.PolygonResponseItem
@@ -18,7 +17,6 @@ import uz.ildam.technologies.yalla.feature.map.data.response.map.SearchForAddres
 import uz.ildam.technologies.yalla.feature.map.data.url.MapUrl
 
 class MapService(
-    private val ktorWithApi1: HttpClient,
     private val ktorWithApi2: HttpClient
 ) {
     suspend fun getPolygons(): Result<ApiResponseWrapper<List<PolygonResponseItem>>, DataError.Network> =
@@ -27,18 +25,15 @@ class MapService(
         }
 
     suspend fun getAddress(
-        lat: Double, lng: Double,
+        body: LocationNameRequest
     ): Result<ApiResponseWrapper<AddressNameResponse>, DataError.Network> = safeApiCall {
-        ktorWithApi1.get {
-            url(MapUrl.ADDRESS)
-            parameter("lat", lat)
-            parameter("lng", lng)
-        }.body()
+        ktorWithApi2.post(MapUrl.ADDRESS) { setBody(body) }.body()
     }
 
     suspend fun searchForAddress(
         body: SearchForAddressRequest
-    ): Result<ApiResponseWrapper<List<SearchForAddressResponseItem>>, DataError.Network> = safeApiCall {
-        ktorWithApi2.post(MapUrl.SEARCH) { setBody(body) }.body()
-    }
+    ): Result<ApiResponseWrapper<List<SearchForAddressResponseItem>>, DataError.Network> =
+        safeApiCall {
+            ktorWithApi2.post(MapUrl.SEARCH) { setBody(body) }.body()
+        }
 }

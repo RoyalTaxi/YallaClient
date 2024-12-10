@@ -9,7 +9,7 @@ import ru.dgis.sdk.Duration
 
 class CameraState(initialPosition: CameraPosition) {
     private val _position = mutableStateOf(initialPosition)
-    private val node = MutableStateFlow<CameraNode?>(null)
+    val node = MutableStateFlow<CameraNode?>(null)
 
     var position: CameraPosition
         get() = _position.value
@@ -44,9 +44,9 @@ fun rememberCameraState(position: CameraPosition): CameraState {
     return remember { CameraState(position) }
 }
 
-internal class CameraNode(
-    private val dgisCamera: DGisCamera,
-    private val state: CameraState
+class CameraNode(
+    val dgisCamera: DGisCamera,
+    val state: CameraState
 ) : AutoCloseable {
     private val projection = dgisCamera.projection
     private val closeables = mutableListOf<AutoCloseable>(dgisCamera, projection)
@@ -60,6 +60,9 @@ internal class CameraNode(
         private set
 
     var visibleRect by mutableStateOf(dgisCamera.visibleRect)
+        private set
+
+    var stateChannel by mutableStateOf(dgisCamera.stateChannel)
         private set
 
     init {

@@ -3,6 +3,7 @@ package uz.ildam.technologies.yalla.feature.map.data.repository
 import uz.ildam.technologies.yalla.core.domain.error.DataError
 import uz.ildam.technologies.yalla.core.domain.error.Result
 import uz.ildam.technologies.yalla.feature.map.data.mapper.MapMapper
+import uz.ildam.technologies.yalla.feature.map.data.request.map.LocationNameRequest
 import uz.ildam.technologies.yalla.feature.map.data.request.map.SearchForAddressRequest
 import uz.ildam.technologies.yalla.feature.map.data.service.MapService
 import uz.ildam.technologies.yalla.feature.map.domain.model.map.AddressModel
@@ -26,13 +27,10 @@ class MapRepositoryImpl(
         lat: Double,
         lng: Double
     ): Result<AddressModel, DataError.Network> {
-        return when (val result = service.getAddress(lat, lng)) {
-            is Result.Error -> {
-                Result.Error(DataError.Network.UNKNOWN_ERROR)
-            }
-
+        return when (val result = service.getAddress(LocationNameRequest(lat, lng))) {
+            is Result.Error -> Result.Error(DataError.Network.UNKNOWN_ERROR)
             is Result.Success -> {
-                if (result.data.result?.name.isNullOrBlank()) Result.Error(DataError.Network.UNKNOWN_ERROR)
+                if (result.data.result?.display_name.isNullOrBlank()) Result.Error(DataError.Network.UNKNOWN_ERROR)
                 else Result.Success(result.data.result.let(MapMapper.addressMapper))
             }
         }

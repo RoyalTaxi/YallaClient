@@ -3,6 +3,7 @@ package uz.ildam.technologies.yalla.core.data.local
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
+import uz.ildam.technologies.yalla.core.data.enums.MapType
 
 object AppPreferences {
     private const val GAME_PORTAL = "game_portal"
@@ -48,7 +49,14 @@ object AppPreferences {
             preferences.edit()?.putString(AppPreferences::tokenType.name, value)?.apply()
         }
 
-
+    var mapType: MapType
+        get() {
+            val typeName = preferences.getString(AppPreferences::mapType.name, MapType.Google.typeName)
+            return MapType.fromTypeName(typeName ?: MapType.Google.typeName)
+        }
+        set(value) {
+            preferences.edit()?.putString(AppPreferences::mapType.name, value.typeName)?.apply()
+        }
 
     var number: String
         get() = preferences.getString(AppPreferences::number.name, "") ?: ""

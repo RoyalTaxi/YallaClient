@@ -9,7 +9,7 @@ data class ClientModel(
     val block: Boolean,
     val balance: Int,
     val blockNote: String,
-    val rating: Int,
+    val rating: Double,
     val blockDate: String,
     val blockSource: String,
     val image: String,

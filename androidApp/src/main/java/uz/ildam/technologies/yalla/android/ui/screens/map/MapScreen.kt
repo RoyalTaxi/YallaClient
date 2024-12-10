@@ -2,9 +2,11 @@ package uz.ildam.technologies.yalla.android.ui.screens.map
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -21,9 +23,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
-import com.google.maps.android.compose.Polyline
+import com.google.maps.android.compose.rememberMarkerState
 import io.morfly.compose.bottomsheet.material3.BottomSheetScaffold
 import io.morfly.compose.bottomsheet.material3.BottomSheetScaffoldState
 import io.morfly.compose.bottomsheet.material3.requireSheetVisibleHeightDp
@@ -34,6 +35,16 @@ import uz.ildam.technologies.yalla.android.ui.sheets.OrderTaxiBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.SheetValue
 import uz.ildam.technologies.yalla.android.utils.vectorToBitmapDescriptor
 import uz.ildam.technologies.yalla.android2gis.CameraState
+import uz.ildam.technologies.yalla.android2gis.GeoPoint
+import uz.ildam.technologies.yalla.android2gis.MapView
+import uz.ildam.technologies.yalla.android2gis.Point
+import uz.ildam.technologies.yalla.android2gis.imageFromResource
+import uz.ildam.technologies.yalla.core.data.enums.MapType
+import uz.ildam.technologies.yalla.core.data.local.AppPreferences
+import com.google.maps.android.compose.Marker as GoogleMarker
+import com.google.maps.android.compose.Polyline as GooglePolyline
+import uz.ildam.technologies.yalla.android2gis.Marker as GisMarker
+import uz.ildam.technologies.yalla.android2gis.Polyline as GisPolyline
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -41,7 +52,6 @@ fun MapScreen(
     uiState: MapUIState,
     isLoading: Boolean,
     scaffoldState: BottomSheetScaffoldState<SheetValue>,
-    markerState: MarkerState,
     cameraPositionState: CameraPositionState,
     cameraState: CameraState,
     onIntent: (MapIntent) -> Unit
@@ -60,8 +70,7 @@ fun MapScreen(
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
         sheetDragHandle = null,
-        sheetContainerColor = Color.Black,
-        sheetShape = RectangleShape,
+        sheetShape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
         sheetContent = {
             OrderTaxiBottomSheet(
                 isLoading = isLoading,
@@ -82,32 +91,69 @@ fun MapScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(bottom = remember(bottomPadding) { bottomPadding })
+                    .padding(bottom = remember(bottomPadding) { bottomPadding - 24.dp })
             ) {
-//                MapView(
-//                    modifier = Modifier.fillMaxSize(),
-//                    cameraState = cameraState
-//                ) {
-//
-//                }
+                if (AppPreferences.mapType == MapType.Gis) MapView(
+                    modifier = Modifier.fillMaxSize(),
+                    cameraState = cameraState
+                ) {
+                    if (uiState.route.isEmpty()) Point(
+                        position = GeoPoint(
+                            latitude = cameraState.position.point.latitude,
+                            longitude = cameraState.position.point.longitude
+                        )
+                    ) else {
+                        GisPolyline(
+                            points = uiState.route.map { GeoPoint(it.lat, it.lng) },
+                            width = 4.dp
+                        )
 
-                GoogleMap(
+                        GisMarker(
+                            icon = imageFromResource(R.drawable.ic_origin_marker),
+                            position = GeoPoint(
+                                latitude = uiState.route.first().lat,
+                                longitude = uiState.route.first().lng
+                            )
+                        )
+
+                        uiState.destinations.dropLast(1).forEach { routePoint ->
+                            if (routePoint.point != null) GisMarker(
+                                icon = imageFromResource(R.drawable.ic_middle_marker),
+                                position = GeoPoint(
+                                    latitude = uiState.route.first().lat,
+                                    longitude = uiState.route.first().lng
+                                )
+                            )
+                        }
+
+                        GisMarker(
+                            icon = imageFromResource(R.drawable.ic_destination_marker),
+                            position = GeoPoint(
+                                latitude = uiState.route.last().lat,
+                                longitude = uiState.route.last().lng
+                            )
+                        )
+                    }
+                } else GoogleMap(
                     properties = uiState.properties,
                     uiSettings = uiState.mapUiSettings,
                     cameraPositionState = cameraPositionState,
                     modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(bottom = 20.dp),
                     content = {
-                        if (uiState.route.isEmpty()) {
-                            Marker(state = markerState, alpha = 0f)
-                        } else {
-                            Polyline(points = uiState.route)
+                        if (uiState.route.isEmpty()) GoogleMarker(
+                            state = rememberMarkerState(position = cameraPositionState.position.target),
+                            alpha = 0f
+                        )
+                        else {
+                            GooglePolyline(points = uiState.route.map { LatLng(it.lat, it.lng) })
 
-                            Marker(
+                            GoogleMarker(
                                 state = remember(uiState.route.first()) {
                                     MarkerState(
                                         position = LatLng(
-                                            uiState.route.first().latitude,
-                                            uiState.route.first().longitude
+                                            uiState.route.first().lat,
+                                            uiState.route.first().lng
                                         )
                                     )
                                 },
@@ -115,26 +161,25 @@ fun MapScreen(
                             )
 
                             uiState.destinations.dropLast(1).forEach { routePoint ->
-                                if (routePoint.point != null)
-                                    Marker(
-                                        state = remember(routePoint) {
-                                            MarkerState(
-                                                position = LatLng(
-                                                    routePoint.point.latitude,
-                                                    routePoint.point.longitude
-                                                )
+                                if (routePoint.point != null) GoogleMarker(
+                                    state = remember(routePoint) {
+                                        MarkerState(
+                                            position = LatLng(
+                                                routePoint.point.lat,
+                                                routePoint.point.lng
                                             )
-                                        },
-                                        icon = middleMarkerIcon
-                                    )
+                                        )
+                                    },
+                                    icon = middleMarkerIcon
+                                )
                             }
 
-                            Marker(
+                            GoogleMarker(
                                 state = remember(uiState.route.last()) {
                                     MarkerState(
                                         position = LatLng(
-                                            uiState.route.last().latitude,
-                                            uiState.route.last().longitude
+                                            uiState.route.last().lat,
+                                            uiState.route.last().lng
                                         )
                                     )
                                 },
@@ -148,6 +193,7 @@ fun MapScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(20.dp)
+                        .padding(bottom = 24.dp)
                 ) {
                     if (uiState.route.isEmpty()) {
                         YallaMarker(

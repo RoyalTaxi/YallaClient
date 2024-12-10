@@ -28,9 +28,11 @@ object MapMapper {
 
     val addressMapper: Mapper<AddressNameResponse?, AddressModel> = { remote ->
         AddressModel(
-            lat = remote?.lat.orEmpty(),
-            lng = remote?.lng.orEmpty(),
-            name = remote?.name
+            db = remote?.db.orFalse(),
+            displayName = remote?.display_name.orEmpty(),
+            id = remote?.id.or0(),
+            lat = remote?.lat.or0(),
+            lng = remote?.lng.or0()
         )
     }
 

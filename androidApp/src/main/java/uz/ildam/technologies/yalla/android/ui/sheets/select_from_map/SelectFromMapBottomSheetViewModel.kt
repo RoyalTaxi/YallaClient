@@ -53,8 +53,8 @@ class SelectFromMapBottomSheetViewModel(
     private fun fetchAddressName(point: LatLng) = viewModelScope.launch {
         when (val result = getAddressNameUseCase(point.latitude, point.longitude)) {
             is Result.Success -> updateSelectedLocation(
-                name = result.data.name,
-                latLng = LatLng(result.data.lat.toDouble(), result.data.lng.toDouble())
+                name = result.data.displayName,
+                latLng = LatLng(result.data.lat, result.data.lng)
             )
 
             is Result.Error -> changeStateToNotFound()

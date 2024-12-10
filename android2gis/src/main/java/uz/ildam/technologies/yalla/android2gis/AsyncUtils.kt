@@ -9,7 +9,7 @@ import java.util.concurrent.Executor
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
-internal object DirectExecutor : Executor {
+object DirectExecutor : Executor {
     override fun execute(r: Runnable) {
         r.run()
     }
@@ -32,7 +32,11 @@ suspend fun <T> Future<T>.await(): T {
     }
 }
 
-fun <T> Flow<T>.toState(initialValue: T, scope: CoroutineScope, dispatcher: CoroutineDispatcher = Dispatchers.Default): State<T> {
+fun <T> Flow<T>.toState(
+    initialValue: T,
+    scope: CoroutineScope,
+    dispatcher: CoroutineDispatcher = Dispatchers.Default
+): State<T> {
     val state = mutableStateOf(initialValue)
     scope.launch(dispatcher) {
         this@toState.collect {

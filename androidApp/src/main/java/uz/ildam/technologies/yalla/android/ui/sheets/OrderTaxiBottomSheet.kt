@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -43,9 +44,11 @@ fun OrderTaxiBottomSheet(
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier
-            .background(YallaTheme.color.white)
+            .background(
+                color = YallaTheme.color.white,
+                shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
+            )
             .navigationBarsPadding()
-            .background(YallaTheme.color.gray2)
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(10.dp),

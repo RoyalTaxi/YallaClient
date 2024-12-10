@@ -13,7 +13,7 @@ import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.SearchForAddre
 object Map {
 
     private val serviceModule = module {
-        single { MapService(get(named(Constants.API_1)), get(named(Constants.API_2))) }
+        single { MapService(get(named(Constants.API_2))) }
     }
 
     private val repositoryModule = module {
