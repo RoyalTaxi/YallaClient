@@ -18,6 +18,7 @@ mapsCompose = "6.1.0"
 pagingCommon = "3.3.0-alpha02-0.5.1"
 pagingComposeCommon = "3.3.0-alpha02-0.4.0"
 playServicesLocation = "21.3.0"
+playServicesWallet = "19.4.0"
 sdkMap = "latest.release"
 sdkMapVersion = "2.4.0"
 snapper = "0.3.0"
@@ -67,6 +68,7 @@ maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = 
 paging-common = { module = "app.cash.paging:paging-common", version.ref = "pagingCommon" }
 paging-compose-common = { module = "app.cash.paging:paging-compose-common", version.ref = "pagingComposeCommon" }
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
+play-services-wallet = { module = "com.google.android.gms:play-services-wallet", version.ref = "playServicesWallet" }
 ru-sdk-map = { module = "ru.dgis.sdk:sdk-map", version.ref = "sdkMapVersion" }
 sdk-map = { module = "ru.dgis.sdk:sdk-full", version.ref = "sdkMap" }
 snapper = { module = "dev.chrisbanes.snapper:snapper", version.ref = "snapper" }

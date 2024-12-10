@@ -7,6 +7,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
+import uz.ildam.technologies.yalla.android.ui.screens.add_card.addCardScreen
+import uz.ildam.technologies.yalla.android.ui.screens.add_card.navigateToAddCardScreen
 import uz.ildam.technologies.yalla.android.ui.screens.credentials.credentialsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.credentials.navigateToCredentialsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.details.detailsScreen
@@ -82,6 +84,7 @@ fun Navigation() {
 
             mapScreen(
                 onOrderHistoryClick = navController::navigateToHistoryScreen,
+                onPaymentTypeClick = navController::navigateToAddCardScreen,
                 onPermissionDenied = navController::navigateToPermissionScreen
             )
 
@@ -92,6 +95,11 @@ fun Navigation() {
 
             detailsScreen(
                 onNavigateBack = navController::safePopBackStack
+            )
+
+            addCardScreen(
+                onNavigateBack = navController::safePopBackStack,
+                onNavigateNext = {}
             )
         }
     }

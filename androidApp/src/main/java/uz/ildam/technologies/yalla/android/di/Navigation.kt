@@ -2,6 +2,7 @@ package uz.ildam.technologies.yalla.android.di
 
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
+import uz.ildam.technologies.yalla.android.ui.screens.add_card.AddCardViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.credentials.CredentialsViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.details.DetailsViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.history.HistoryViewModel
@@ -22,6 +23,7 @@ object Navigation {
         viewModelOf(::HistoryViewModel)
         viewModelOf(::DetailsViewModel)
         viewModelOf(::SelectFromMapBottomSheetViewModel)
+        viewModelOf(::AddCardViewModel)
     }
 
     val modules = listOf(viewModelModule)

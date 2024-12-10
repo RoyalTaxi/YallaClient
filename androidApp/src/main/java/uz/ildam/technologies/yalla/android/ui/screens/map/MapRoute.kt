@@ -41,6 +41,7 @@ import uz.ildam.technologies.yalla.android2gis.CameraPosition as Map2Gis
 fun MapRoute(
     onPermissionDenied: () -> Unit,
     onOrderHistoryClick: () -> Unit,
+    onPaymentTypeClick: () -> Unit,
     vm: MapViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
@@ -144,7 +145,8 @@ fun MapRoute(
         uiState = uiState,
         onIntent = { intent ->
             when (intent) {
-                MapDrawerIntent.OrdersHistory -> onOrderHistoryClick()
+                is MapDrawerIntent.OrdersHistory -> onOrderHistoryClick()
+                is MapDrawerIntent.PaymentType -> onPaymentTypeClick()
                 else -> {
 
                 }

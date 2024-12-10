@@ -115,6 +115,6 @@ dependencies {
     // Kotlinx Date time
     implementation(libs.kotlinx.datetime)
 
-//    implementation(libs.sdk.map)
-
+    // Google pay
+    implementation(libs.play.services.wallet)
 }

@@ -37,9 +37,7 @@ fun CardDateField(
 ) {
     BasicTextField(
         value = date,
-        modifier = modifier
-            .width(IntrinsicSize.Min)
-            .defaultMinSize(minWidth = 64.dp),
+        modifier = modifier.width(75.dp),
         onValueChange = onDateChange,
         singleLine = true,
         textStyle = YallaTheme.font.label.copy(

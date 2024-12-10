@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -53,7 +54,7 @@ fun PhoneNumberTextField(
         onValueChange = onUpdateNumber,
         singleLine = true,
         textStyle = YallaTheme.font.label.copy(color = YallaTheme.color.black),
-        visualTransformation = PhoneVisualTransformation("(00) 000-00-00", '0'),
+        visualTransformation = PhoneVisualTransformation("(xx) xxx-xx-xx", 'x'),
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Phone,
             imeAction = ImeAction.Done

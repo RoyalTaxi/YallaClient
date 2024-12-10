@@ -4,13 +4,14 @@ import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import uz.ildam.technologies.yalla.core.data.enums.MapType
+import uz.ildam.technologies.yalla.core.data.enums.PaymentType
 
 object AppPreferences {
-    private const val GAME_PORTAL = "game_portal"
+    private const val YALLA = "yalla"
     private lateinit var preferences: SharedPreferences
 
     fun init(context: Context) {
-        preferences = context.getSharedPreferences(GAME_PORTAL, MODE_PRIVATE)
+        preferences = context.getSharedPreferences(YALLA, MODE_PRIVATE)
     }
 
     var locale: String
@@ -51,12 +52,14 @@ object AppPreferences {
 
     var mapType: MapType
         get() {
-            val typeName = preferences.getString(AppPreferences::mapType.name, MapType.Google.typeName)
+            val typeName =
+                preferences.getString(AppPreferences::mapType.name, MapType.Google.typeName)
             return MapType.fromTypeName(typeName ?: MapType.Google.typeName)
         }
         set(value) {
             preferences.edit()?.putString(AppPreferences::mapType.name, value.typeName)?.apply()
         }
+
 
     var number: String
         get() = preferences.getString(AppPreferences::number.name, "") ?: ""
@@ -77,4 +80,28 @@ object AppPreferences {
             preferences.edit()?.putString(AppPreferences::dateOfBirth.name, value)?.apply()
         }
 
+    var cardNumber: String
+        get() = preferences.getString(AppPreferences::cardNumber.name, "") ?: ""
+        set(value) {
+            preferences.edit()?.putString(AppPreferences::cardNumber.name, value)?.apply()
+        }
+
+    var paymentType: PaymentType
+        get() {
+            val typeName =
+                preferences.getString(AppPreferences::paymentType.name, PaymentType.CASH.typeName)
+                    ?: PaymentType.CASH.typeName
+            val cardNumber = preferences.getString(AppPreferences::cardNumber.name, "")
+            return PaymentType.fromTypeName(typeName, cardNumber)
+        }
+        set(value) {
+            preferences.edit().apply {
+                putString(AppPreferences::paymentType.name, value.typeName)
+                if (value is PaymentType.CARD) {
+                    putString(AppPreferences::cardNumber.name, value.cardNumber)
+                } else {
+                    remove(AppPreferences::cardNumber.name)
+                }
+            }.apply()
+        }
 }

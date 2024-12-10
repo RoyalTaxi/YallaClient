@@ -21,7 +21,7 @@ import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 
 @Composable
 fun LoadingDialog(
-    isBackgroundEnabled: Boolean = false,
+    isBackgroundEnabled: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     val transition = rememberInfiniteTransition("loading")

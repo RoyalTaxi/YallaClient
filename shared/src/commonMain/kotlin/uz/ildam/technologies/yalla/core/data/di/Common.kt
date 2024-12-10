@@ -4,6 +4,7 @@ import uz.ildam.technologies.yalla.feature.auth.data.di.Auth
 import uz.ildam.technologies.yalla.feature.history.data.di.History
 import uz.ildam.technologies.yalla.feature.map.data.di.Map
 import uz.ildam.technologies.yalla.feature.order.data.di.Order
+import uz.ildam.technologies.yalla.feature.payment.data.di.Payment
 
 object Common {
     val modules = listOf(
@@ -11,6 +12,7 @@ object Common {
         *Auth.modules.toTypedArray(),
         *Map.modules.toTypedArray(),
         *Order.modules.toTypedArray(),
-        *History.modules.toTypedArray()
+        *History.modules.toTypedArray(),
+        *Payment.modules.toTypedArray()
     )
 }

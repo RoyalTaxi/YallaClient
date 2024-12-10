@@ -26,7 +26,8 @@ fun CardViewCard(
 ) {
     Card(
         colors = CardDefaults.cardColors(YallaTheme.color.white),
-        shape = RoundedCornerShape(26.dp)
+        shape = RoundedCornerShape(26.dp),
+        elevation = CardDefaults.cardElevation(8.dp)
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(10.dp),

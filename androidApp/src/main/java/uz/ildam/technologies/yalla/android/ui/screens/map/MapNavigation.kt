@@ -13,6 +13,7 @@ const val MAP_ROUTE = "map_route"
 
 fun NavGraphBuilder.mapScreen(
     onOrderHistoryClick: () -> Unit,
+    onPaymentTypeClick: () -> Unit,
     onPermissionDenied: () -> Unit
 ) {
     composable(
@@ -23,8 +24,9 @@ fun NavGraphBuilder.mapScreen(
         popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() }
     ) {
         MapRoute(
-            onPermissionDenied = onPermissionDenied,
-            onOrderHistoryClick = onOrderHistoryClick
+            onOrderHistoryClick = onOrderHistoryClick,
+            onPaymentTypeClick = onPaymentTypeClick,
+            onPermissionDenied = onPermissionDenied
         )
     }
 }
