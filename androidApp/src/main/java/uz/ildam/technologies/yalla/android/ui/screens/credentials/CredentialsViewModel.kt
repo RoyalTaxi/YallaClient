@@ -62,7 +62,7 @@ class CredentialsViewModel(
 
                 is Result.Success -> {
                     AppPreferences.accessToken = result.data.accessToken
-                    AppPreferences.tokenType = result.data.accessToken
+                    AppPreferences.tokenType = result.data.tokenType
                     AppPreferences.isDeviceRegistered = true
                     AppPreferences.number = number
                     AppPreferences.firstName = firstName

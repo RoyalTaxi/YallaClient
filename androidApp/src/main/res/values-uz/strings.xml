@@ -65,5 +65,7 @@
     <string name="link_card">Привязать карту</string>
     <string name="card_number">Номер карты</string>
     <string name="mm_yy">ММ/ГГ</string>
-
+    <string name="payment_method">Способ оплаты</string>
+    <string name="choose_payment_method">Выберите удобный способ оплаты</string>
+    <string name="add_card">Добавить карту</string>
 </resources>

@@ -9,6 +9,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import uz.ildam.technologies.yalla.android.ui.screens.add_card.addCardScreen
 import uz.ildam.technologies.yalla.android.ui.screens.add_card.navigateToAddCardScreen
+import uz.ildam.technologies.yalla.android.ui.screens.card_list.cardListScreen
+import uz.ildam.technologies.yalla.android.ui.screens.card_list.navigateToCardListScreen
 import uz.ildam.technologies.yalla.android.ui.screens.credentials.credentialsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.credentials.navigateToCredentialsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.details.detailsScreen
@@ -84,7 +86,7 @@ fun Navigation() {
 
             mapScreen(
                 onOrderHistoryClick = navController::navigateToHistoryScreen,
-                onPaymentTypeClick = navController::navigateToAddCardScreen,
+                onPaymentTypeClick = navController::navigateToCardListScreen,
                 onPermissionDenied = navController::navigateToPermissionScreen
             )
 
@@ -95,6 +97,11 @@ fun Navigation() {
 
             detailsScreen(
                 onNavigateBack = navController::safePopBackStack
+            )
+
+            cardListScreen(
+                onNavigateBack = navController::safePopBackStack,
+                onAddNewCard = navController::navigateToAddCardScreen
             )
 
             addCardScreen(
