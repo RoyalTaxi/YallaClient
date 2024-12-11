@@ -1,7 +1,10 @@
 package uz.ildam.technologies.yalla.android.ui.components.otp
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
@@ -28,9 +31,7 @@ fun OtpView(
     selectedContainerColor: Color = YallaTheme.color.black,
     charBackground: Color = YallaTheme.color.gray2,
     charSize: TextUnit = 14.sp,
-    containerSize: Dp = charSize.value.dp * 2,
     containerRadius: Dp = 12.dp,
-    containerSpacing: Dp = 12.dp,
     otpCount: Int = 5,
     type: Int = OTP_VIEW_TYPE_BORDER,
     enabled: Boolean = true,
@@ -54,10 +55,14 @@ fun OtpView(
         enabled = enabled,
         keyboardOptions = keyboardOptions,
         decorationBox = {
-            Row(horizontalArrangement = Arrangement.spacedBy(containerSpacing)) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.width(IntrinsicSize.Min)
+            ) {
                 repeat(otpCount) { index ->
                     CharView(
                         index = index,
+                        modifier = Modifier,
                         otpCount = otpCount,
                         text = otpText,
                         charColor = charColor,
@@ -65,12 +70,13 @@ fun OtpView(
                         highlightColor = selectedContainerColor,
                         charSize = charSize,
                         containerRadius = containerRadius,
-                        containerSize = containerSize,
                         type = type,
                         charBackground = charBackground,
                         password = password,
                         passwordChar = passwordChar,
                     )
+
+                    if (index != otpCount-1) Spacer(modifier = Modifier.width(16.dp))
                 }
             }
         }

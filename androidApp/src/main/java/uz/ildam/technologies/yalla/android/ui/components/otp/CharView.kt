@@ -4,8 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -22,15 +22,15 @@ import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 
 
 @Composable
-fun CharView(
+fun RowScope.CharView(
     index: Int,
     otpCount: Int,
+    modifier: Modifier,
     text: String,
     charColor: Color,
     highlightColor: Color,
     containerColor: Color,
     charSize: TextUnit,
-    containerSize: Dp,
     containerRadius: Dp,
     type: Int = OTP_VIEW_TYPE_UNDERLINE,
     charBackground: Color = Color.Transparent,
@@ -44,21 +44,20 @@ fun CharView(
         if (index == text.length) highlightColor else containerColor
     }
 
-    val modifier = if (type == OTP_VIEW_TYPE_BORDER) {
-        Modifier
-            .size(40.dp, 40.dp)
-            .border(
-                width = 1.dp,
-                color = borderColor,
-                shape = RoundedCornerShape(containerRadius)
-            )
+    Column(
+        modifier = Modifier
+            .weight(1f)
             .clip(RoundedCornerShape(containerRadius))
             .background(charBackground)
-    } else Modifier
-        .width(containerSize)
-        .background(charBackground)
-
-    Column(
+            .aspectRatio(1f)
+            .then(
+                if (type == OTP_VIEW_TYPE_BORDER) modifier.border(
+                    width = 1.dp,
+                    color = borderColor,
+                    shape = RoundedCornerShape(containerRadius)
+                )
+                else modifier
+            ),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -70,7 +69,7 @@ fun CharView(
         Text(
             text = char,
             color = charColor,
-            modifier = modifier.wrapContentHeight(),
+            modifier = Modifier.wrapContentHeight(),
             style = YallaTheme.font.label,
             fontSize = charSize,
             textAlign = TextAlign.Center,
