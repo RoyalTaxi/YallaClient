@@ -73,6 +73,7 @@ internal fun VerificationScreen(
             Spacer(modifier = Modifier.height(20.dp))
 
             OtpView(
+                modifier = Modifier.fillMaxWidth(),
                 otpText = uiState.code,
                 onOtpTextChange = { onIntent(VerificationIntent.SetCode(it)) }
             )

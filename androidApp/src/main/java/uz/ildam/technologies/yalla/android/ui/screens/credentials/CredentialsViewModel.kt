@@ -44,7 +44,6 @@ class CredentialsViewModel(
         }
     }
 
-
     fun register() = viewModelScope.launch {
         _actionFlow.emit(CredentialsActionState.Loading)
         _uiState.value.apply {
