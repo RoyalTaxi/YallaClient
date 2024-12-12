@@ -11,6 +11,8 @@ import uz.ildam.technologies.yalla.android.ui.screens.add_card.addCardScreen
 import uz.ildam.technologies.yalla.android.ui.screens.add_card.navigateToAddCardScreen
 import uz.ildam.technologies.yalla.android.ui.screens.card_list.cardListScreen
 import uz.ildam.technologies.yalla.android.ui.screens.card_list.navigateToCardListScreen
+import uz.ildam.technologies.yalla.android.ui.screens.card_verification.cardVerificationScreen
+import uz.ildam.technologies.yalla.android.ui.screens.card_verification.navigateToCardVerificationScreen
 import uz.ildam.technologies.yalla.android.ui.screens.credentials.credentialsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.credentials.navigateToCredentialsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.details.detailsScreen
@@ -106,7 +108,11 @@ fun Navigation() {
 
             addCardScreen(
                 onNavigateBack = navController::safePopBackStack,
-                onNavigateNext = {}
+                onNavigateNext = navController::navigateToCardVerificationScreen
+            )
+
+            cardVerificationScreen(
+                onNavigateBack = navController::safePopBackStack
             )
         }
     }

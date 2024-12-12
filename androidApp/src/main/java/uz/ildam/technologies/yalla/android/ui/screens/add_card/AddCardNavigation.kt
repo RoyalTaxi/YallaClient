@@ -12,7 +12,7 @@ const val ADD_CARD_ROUTE = "add_card_route"
 
 fun NavGraphBuilder.addCardScreen(
     onNavigateBack: () -> Unit,
-    onNavigateNext: (key: String) -> Unit
+    onNavigateNext: (key: String, cardNumber: String, cardExpiry: String) -> Unit
 ) {
     composable(
         route = ADD_CARD_ROUTE,

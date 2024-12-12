@@ -26,7 +26,13 @@ class AddCardViewModel(
             _actionState.emit(AddCardActionState.Loading)
             when (val result = addCardUseCase(number = cardNumber, expiry = cardExpiry)) {
                 is Result.Error -> _actionState.emit(AddCardActionState.Error)
-                is Result.Success -> _actionState.emit(AddCardActionState.Success(result.data.key))
+                is Result.Success -> _actionState.emit(
+                    AddCardActionState.Success(
+                        key = result.data.key,
+                        cardNumber = uiState.value.cardNumber,
+                        cardExpiry = uiState.value.cardExpiry
+                    )
+                )
             }
         }
     }
