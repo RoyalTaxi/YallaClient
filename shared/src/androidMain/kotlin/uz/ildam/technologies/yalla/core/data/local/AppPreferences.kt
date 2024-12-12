@@ -80,10 +80,10 @@ object AppPreferences {
             preferences.edit()?.putString(AppPreferences::dateOfBirth.name, value)?.apply()
         }
 
-    var cardNumber: String
-        get() = preferences.getString(AppPreferences::cardNumber.name, "") ?: ""
+    var cardId: String
+        get() = preferences.getString(AppPreferences::cardId.name, "") ?: ""
         set(value) {
-            preferences.edit()?.putString(AppPreferences::cardNumber.name, value)?.apply()
+            preferences.edit()?.putString(AppPreferences::cardId.name, value)?.apply()
         }
 
     var paymentType: PaymentType
@@ -91,16 +91,16 @@ object AppPreferences {
             val typeName =
                 preferences.getString(AppPreferences::paymentType.name, PaymentType.CASH.typeName)
                     ?: PaymentType.CASH.typeName
-            val cardNumber = preferences.getString(AppPreferences::cardNumber.name, "")
+            val cardNumber = preferences.getString(AppPreferences::cardId.name, "")
             return PaymentType.fromTypeName(typeName, cardNumber)
         }
         set(value) {
             preferences.edit().apply {
                 putString(AppPreferences::paymentType.name, value.typeName)
                 if (value is PaymentType.CARD) {
-                    putString(AppPreferences::cardNumber.name, value.cardNumber)
+                    putString(AppPreferences::cardId.name, value.cardId)
                 } else {
-                    remove(AppPreferences::cardNumber.name)
+                    remove(AppPreferences::cardId.name)
                 }
             }.apply()
         }

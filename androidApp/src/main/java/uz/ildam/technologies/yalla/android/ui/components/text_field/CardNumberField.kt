@@ -71,14 +71,14 @@ fun CardNumberField(
                         color = YallaTheme.color.gray
                     )
                 },
-                trailingIcon = {
-                    IconButton(onClick = onClickCamera) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_scan_camera),
-                            contentDescription = null
-                        )
-                    }
-                }
+//                trailingIcon = {
+//                    IconButton(onClick = onClickCamera) {
+//                        Icon(
+//                            painter = painterResource(R.drawable.ic_scan_camera),
+//                            contentDescription = null
+//                        )
+//                    }
+//                }
             )
         }
     )

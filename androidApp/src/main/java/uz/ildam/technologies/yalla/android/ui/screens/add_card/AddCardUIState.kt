@@ -1,7 +1,7 @@
 package uz.ildam.technologies.yalla.android.ui.screens.add_card
 
 data class AddCardUIState(
-    val buttonState: Boolean = true,
+    val buttonState: Boolean = false,
     val cardNumber: String = "",
     val cardExpiry: String = ""
 ) {

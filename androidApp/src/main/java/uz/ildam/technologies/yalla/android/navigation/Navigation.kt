@@ -112,7 +112,7 @@ fun Navigation() {
             )
 
             cardVerificationScreen(
-                onNavigateBack = navController::safePopBackStack
+                onNavigateBack = { navController.popBackStack(MAP_ROUTE, false) }
             )
         }
     }

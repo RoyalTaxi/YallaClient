@@ -22,12 +22,14 @@ import androidx.compose.ui.unit.dp
 import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 import uz.ildam.technologies.yalla.android.ui.components.item.SelectPaymentTypeItem
+import uz.ildam.technologies.yalla.core.data.enums.PaymentType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CardListScreen(
     uiState: CardListUIState,
     onNavigateBack: () -> Unit,
+    onSelectItem: (PaymentType) -> Unit,
     onIntent: (CardListIntent) -> Unit
 ) {
     Scaffold(
@@ -81,26 +83,26 @@ fun CardListScreen(
 
                 item {
                     SelectPaymentTypeItem(
-                        isSelected = false,
+                        isSelected = uiState.selectedPaymentType == PaymentType.CASH,
                         tint = YallaTheme.color.gray,
                         text = stringResource(R.string.cash),
                         painter = painterResource(R.drawable.ic_money),
-                        onSelect = {},
+                        onSelect = { onSelectItem(PaymentType.CASH) }
                     )
                 }
 
                 items(uiState.cards) { cardListItem ->
                     SelectPaymentTypeItem(
-                        isSelected = false,
+                        isSelected = uiState.selectedPaymentType == PaymentType.CARD(cardListItem.cardId),
                         painter = painterResource(
-                            id = when {
-                                cardListItem.cardId.length == 16 -> R.drawable.img_logo_humo
-                                cardListItem.cardId.length == 32 -> R.drawable.img_logo_uzcard
+                            id = when (cardListItem.cardId.length) {
+                                16 -> R.drawable.img_logo_humo
+                                32 -> R.drawable.img_logo_uzcard
                                 else -> R.drawable.ic_money
                             }
                         ),
                         text = cardListItem.maskedPan,
-                        onSelect = {}
+                        onSelect = { onSelectItem(PaymentType.CARD(cardListItem.cardId)) }
                     )
                 }
 

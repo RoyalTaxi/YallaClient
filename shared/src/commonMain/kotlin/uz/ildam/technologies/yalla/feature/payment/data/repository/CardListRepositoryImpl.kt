@@ -13,7 +13,7 @@ class CardListRepositoryImpl(
     override suspend fun getCardList(): Result<List<CardListItemModel>, DataError.Network> {
         return when (val result = service.getCardList()) {
             is Result.Error -> Result.Error(result.error)
-            is Result.Success -> Result.Success(result.data.map(CardListMapper.mapper))
+            is Result.Success -> Result.Success(result.data.result?.map(CardListMapper.mapper).orEmpty())
         }
     }
 }

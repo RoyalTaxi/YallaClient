@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -46,6 +47,7 @@ fun SelectPaymentTypeItem(
         ) {
             Icon(
                 painter = painter,
+                modifier = Modifier.size(24.dp),
                 contentDescription = null,
                 tint = tint
             )
@@ -60,13 +62,13 @@ fun SelectPaymentTypeItem(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            if (isSelected) Icon(
+            Icon(
                 imageVector = Icons.Filled.Done,
                 contentDescription = null,
                 tint = YallaTheme.color.white,
                 modifier = Modifier
                     .background(
-                        color = YallaTheme.color.primary,
+                        color = if (isSelected) YallaTheme.color.primary else YallaTheme.color.white,
                         shape = CircleShape
                     )
                     .padding(6.dp)

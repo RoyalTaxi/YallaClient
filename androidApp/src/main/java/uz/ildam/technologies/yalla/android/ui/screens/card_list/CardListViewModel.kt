@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import uz.ildam.technologies.yalla.core.data.enums.PaymentType
+import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 import uz.ildam.technologies.yalla.core.domain.error.Result
 import uz.ildam.technologies.yalla.feature.payment.domain.usecase.GetCardListUseCase
 
@@ -30,5 +32,10 @@ class CardListViewModel(
                 _actionState.emit(CardListActionState.Success)
             }
         }
+    }
+
+    fun selectPaymentType(paymentType: PaymentType) {
+        AppPreferences.paymentType = paymentType
+        _uiState.update { it.copy(selectedPaymentType = paymentType) }
     }
 }

@@ -10,6 +10,7 @@ import androidx.compose.runtime.setValue
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import uz.ildam.technologies.yalla.android.ui.dialogs.LoadingDialog
 
 @Composable
 fun CardListRoute(
@@ -38,6 +39,7 @@ fun CardListRoute(
     CardListScreen(
         uiState = uiState,
         onNavigateBack = onNavigateBack,
+        onSelectItem = viewModel::selectPaymentType,
         onIntent = { intent ->
             when (intent) {
                 is CardListIntent.AddNewCard -> onAddNewCard()
@@ -45,4 +47,6 @@ fun CardListRoute(
             }
         }
     )
+
+    if (loading) LoadingDialog()
 }

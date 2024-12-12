@@ -26,9 +26,9 @@ fun CardVerificationRoute(
     LaunchedEffect(Unit) {
 
         launch {
-            viewModel.countDownTimer(120).collectLatest { seconds ->
+            viewModel.countDownTimer(60).collectLatest { seconds ->
                 viewModel.updateUiState(
-                    buttonState = seconds != 0 && uiState.code.length == 5,
+                    buttonState = seconds != 0 && uiState.code.length == 6,
                     remainingMinutes = seconds / 60,
                     remainingSeconds = seconds % 60,
                     hasRemainingTime = seconds > 0
@@ -55,13 +55,15 @@ fun CardVerificationRoute(
                     }
 
                     is CardVerificationActionState.ResendSuccess -> {
-                        viewModel.countDownTimer(120).collectLatest { seconds ->
-                            viewModel.updateUiState(
-                                buttonState = seconds != 0 && uiState.code.length == 5,
-                                remainingMinutes = seconds / 60,
-                                remainingSeconds = seconds % 60,
-                                hasRemainingTime = seconds > 0
-                            )
+                        launch {
+                            viewModel.countDownTimer(60).collectLatest { seconds ->
+                                viewModel.updateUiState(
+                                    buttonState = seconds != 0 && uiState.code.length == 6,
+                                    remainingMinutes = seconds / 60,
+                                    remainingSeconds = seconds % 60,
+                                    hasRemainingTime = seconds > 0
+                                )
+                            }
                         }
                         false
                     }
@@ -78,10 +80,10 @@ fun CardVerificationRoute(
                 is CardVerificationIntent.ResendCode -> viewModel.addCard()
                 is CardVerificationIntent.SetCode -> {
                     if (intent.code.length <= 6 && intent.code.all { it.isDigit() })
-                        viewModel.updateUiState(code = intent.code)
-
-                    if (intent.code.length == 6 && intent.code.all { it.isDigit() })
-                        viewModel.updateUiState(buttonState = true)
+                        viewModel.updateUiState(
+                            code = intent.code,
+                            buttonState = intent.code.length == 6 && uiState.hasRemainingTime
+                        )
                 }
 
                 is CardVerificationIntent.VerifyCode -> viewModel.verifyCard()

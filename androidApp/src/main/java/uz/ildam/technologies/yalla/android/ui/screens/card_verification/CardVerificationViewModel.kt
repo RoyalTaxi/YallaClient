@@ -38,6 +38,7 @@ class CardVerificationViewModel(
     }
 
     fun addCard() = viewModelScope.launch {
+        _uiState.update { it.copy(code = "") }
         uiState.value.apply {
             _actionState.emit(CardVerificationActionState.Loading)
             when (addCardUseCase(number = cardNumber, expiry = cardExpiry)) {
@@ -48,11 +49,12 @@ class CardVerificationViewModel(
     }
 
     fun verifyCard() = viewModelScope.launch {
+        _actionState.emit(CardVerificationActionState.Loading)
         when (verifyCardUseCase(
             key = uiState.value.key,
             confirmCode = uiState.value.code
         )) {
-            is Result.Error -> _actionState.emit(CardVerificationActionState.VerificationSuccess)
+            is Result.Error -> _actionState.emit(CardVerificationActionState.Error)
             is Result.Success -> _actionState.emit(CardVerificationActionState.VerificationSuccess)
         }
     }
@@ -66,7 +68,7 @@ class CardVerificationViewModel(
         hasRemainingTime: Boolean? = null,
         remainingMinutes: Int? = null,
         remainingSeconds: Int? = null
-    ) = viewModelScope.launch {
+    ) {
         _uiState.update { currentState ->
             currentState.copy(
                 key = key ?: currentState.key,
