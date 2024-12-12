@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarData
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -124,7 +126,14 @@ internal fun VerificationScreen(
         snackbarHost = {
             SnackbarHost(
                 hostState = snackbarHostState,
-                modifier = Modifier.imePadding()
+                modifier = Modifier.imePadding(),
+                snackbar = { snackbarData: SnackbarData ->
+                    Snackbar(
+                        snackbarData = snackbarData,
+                        containerColor = YallaTheme.color.red,
+                        contentColor = YallaTheme.color.white
+                    )
+                }
             )
         }
     )
