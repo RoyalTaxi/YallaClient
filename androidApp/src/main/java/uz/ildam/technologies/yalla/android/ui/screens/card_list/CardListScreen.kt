@@ -93,7 +93,10 @@ fun CardListScreen(
 
                 items(uiState.cards) { cardListItem ->
                     SelectPaymentTypeItem(
-                        isSelected = uiState.selectedPaymentType == PaymentType.CARD(cardListItem.cardId),
+                        isSelected = uiState.selectedPaymentType == PaymentType.CARD(
+                            cardListItem.cardId,
+                            cardListItem.maskedPan
+                        ),
                         painter = painterResource(
                             id = when (cardListItem.cardId.length) {
                                 16 -> R.drawable.img_logo_humo
@@ -102,7 +105,14 @@ fun CardListScreen(
                             }
                         ),
                         text = cardListItem.maskedPan,
-                        onSelect = { onSelectItem(PaymentType.CARD(cardListItem.cardId)) }
+                        onSelect = {
+                            onSelectItem(
+                                PaymentType.CARD(
+                                    cardListItem.cardId,
+                                    cardListItem.maskedPan
+                                )
+                            )
+                        }
                     )
                 }
 

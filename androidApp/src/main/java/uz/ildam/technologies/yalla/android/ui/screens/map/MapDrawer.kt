@@ -19,6 +19,8 @@ import androidx.compose.ui.unit.dp
 import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 import uz.ildam.technologies.yalla.android.ui.components.item.DrawerItem
+import uz.ildam.technologies.yalla.core.data.enums.PaymentType
+import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 
 @Composable
 fun MapDrawer(
@@ -67,8 +69,21 @@ fun MapDrawer(
 
                     DrawerItem(
                         title = stringResource(R.string.payment_type),
-                        description = stringResource(R.string.cash),
-                        painter = painterResource(R.drawable.img_money),
+                        description = when (val paymentType = AppPreferences.paymentType) {
+                            is PaymentType.CARD -> paymentType.cardNumber
+                            is PaymentType.CASH -> stringResource(R.string.cash)
+                        },
+                        painter = painterResource(
+                            when (val paymentType = AppPreferences.paymentType) {
+                                is PaymentType.CARD -> when (paymentType.cardId.length) {
+                                    16 -> R.drawable.img_logo_humo
+                                    32 -> R.drawable.img_logo_uzcard
+                                    else -> R.drawable.img_money
+                                }
+
+                                is PaymentType.CASH -> R.drawable.img_money
+                            }
+                        ),
                         onClick = { onIntent(MapDrawerIntent.PaymentType) }
                     )
 
