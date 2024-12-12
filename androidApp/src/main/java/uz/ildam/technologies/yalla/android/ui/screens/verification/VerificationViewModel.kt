@@ -57,16 +57,14 @@ class VerificationViewModel(
                 is Result.Success -> {
                     _actionFlow.emit(VerificationActionState.VerifySuccess(result.data))
                     result.data.client?.let { client ->
-                        AppPreferences.apply {
-                            accessToken = result.data.accessToken
-                            tokenType = result.data.tokenType
-                            isDeviceRegistered = true
-                            number = number
-                            gender = client.gender
-                            dateOfBirth = client.birthday
-                            firstName = client.givenNames
-                            lastName = client.surname
-                        }
+                        AppPreferences.accessToken = result.data.accessToken
+                        AppPreferences.tokenType = result.data.tokenType
+                        AppPreferences.isDeviceRegistered = true
+                        AppPreferences.number = number
+                        AppPreferences.gender = client.gender
+                        AppPreferences.dateOfBirth = client.birthday
+                        AppPreferences.firstName = client.givenNames
+                        AppPreferences.lastName = client.surname
                     }
                 }
             }

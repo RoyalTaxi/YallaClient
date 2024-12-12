@@ -14,7 +14,7 @@ import uz.ildam.technologies.yalla.android.ui.dialogs.LoadingDialog
 @Composable
 fun AddCardRoute(
     onNavigateBack: () -> Unit,
-    onNavigateNext: (String) -> Unit,
+    onNavigateNext: (key: String, cardNumber: String, cardExpiry: String) -> Unit,
     viewModel: AddCardViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -26,7 +26,7 @@ fun AddCardRoute(
                 is AddCardActionState.Error -> false
                 is AddCardActionState.Loading -> true
                 is AddCardActionState.Success -> {
-                    onNavigateNext(action.key)
+                    onNavigateNext(action.key, action.cardNumber, action.cardExpiry)
                     false
                 }
             }

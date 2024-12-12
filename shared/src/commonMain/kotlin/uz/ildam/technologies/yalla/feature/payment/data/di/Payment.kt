@@ -3,7 +3,6 @@ package uz.ildam.technologies.yalla.feature.payment.data.di
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import uz.ildam.technologies.yalla.core.data.global.Constants
-import uz.ildam.technologies.yalla.feature.auth.domain.usecase.auth.VerifyAuthCodeUseCase
 import uz.ildam.technologies.yalla.feature.payment.data.repository.AddCardRepositoryImpl
 import uz.ildam.technologies.yalla.feature.payment.data.repository.CardListRepositoryImpl
 import uz.ildam.technologies.yalla.feature.payment.data.service.AddCardApiService
@@ -12,6 +11,7 @@ import uz.ildam.technologies.yalla.feature.payment.domain.repository.AddCardRepo
 import uz.ildam.technologies.yalla.feature.payment.domain.repository.CardListRepository
 import uz.ildam.technologies.yalla.feature.payment.domain.usecase.AddCardUseCase
 import uz.ildam.technologies.yalla.feature.payment.domain.usecase.GetCardListUseCase
+import uz.ildam.technologies.yalla.feature.payment.domain.usecase.VerifyCardUseCase
 
 object Payment {
     private val serviceModule = module {
@@ -26,7 +26,7 @@ object Payment {
 
     private val useCaseModule = module {
         single { AddCardUseCase(get()) }
-        single { VerifyAuthCodeUseCase(get()) }
+        single { VerifyCardUseCase(get()) }
         single { GetCardListUseCase(get()) }
     }
 
