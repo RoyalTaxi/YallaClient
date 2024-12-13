@@ -14,7 +14,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.koinViewModel
 import uz.ildam.technologies.yalla.android.ui.sheets.ArrangeDestinationsBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.SearchByNameBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.SetOrderOptionsBottomSheet
@@ -36,13 +35,11 @@ fun MapBottomSheetHandler(
     setOrderOptionsBottomSheetVisibility: MutableState<Boolean>,
 
     searchForLocationSheetState: SheetState,
-    selectFromMapSheetSheetState: SheetState,
     arrangeDestinationsSheetState: SheetState,
     tariffBottomSheetState: SheetState,
     setOrderOptionsBottomSheetState: SheetState,
-
     mapActionHandler: MapActionHandler,
-    viewModel: MapViewModel = koinViewModel()
+    viewModel: MapViewModel
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -99,7 +96,7 @@ fun MapBottomSheetHandler(
                 )
             },
             onClickMap = {
-                scope.launch { searchForLocationSheetState.show() }
+//                scope.launch { searchForLocationSheetState.show() }.invokeOnCompletion {  }
                 selectFromMapSheetVisibility.value =
                     if (searchForLocationSheetVisibility.value == SearchForLocationBottomSheetVisibility.START) {
                         SelectFromMapSheetVisibility.START
@@ -118,48 +115,38 @@ fun MapBottomSheetHandler(
         )
     }
 
-    AnimatedVisibility(
-        visible = selectFromMapSheetVisibility.value != SelectFromMapSheetVisibility.INVISIBLE,
-        enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
-        exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
-    ) {
-        if (selectFromMapSheetVisibility.value != SelectFromMapSheetVisibility.INVISIBLE) SelectFromMapBottomSheet(
-            sheetState = selectFromMapSheetSheetState,
-            isForDestination = selectFromMapSheetVisibility.value == SelectFromMapSheetVisibility.END,
-            onSelectLocation = { name, location, isForDestination ->
-                if (isForDestination) {
-                    val destinations = uiState.destinations.toMutableList()
-                    destinations.add(
-                        MapUIState.Destination(
-                            name,
-                            MapPoint(location.latitude, location.longitude)
-                        )
-                    )
-                    viewModel.updateDestinations(destinations)
-                } else {
-                    if (uiState.moveCameraButtonState == MoveCameraButtonState.MyRouteView) {
-                        viewModel.getAddressDetails(MapPoint(location.latitude, location.longitude))
-                    } else {
-                        mapActionHandler.moveCamera(
-                            MapPoint(
-                                lat = location.latitude,
-                                lng = location.longitude
-                            ),
-                            animate = true
-                        )
-                        currentLatLng.value = MapPoint(location.latitude, location.longitude)
 
-                    }
-                }
-            },
-            onDismissRequest = {
-                scope.launch {
-                    selectFromMapSheetVisibility.value = SelectFromMapSheetVisibility.INVISIBLE
-                    searchForLocationSheetState.hide()
+    if (selectFromMapSheetVisibility.value != SelectFromMapSheetVisibility.INVISIBLE) SelectFromMapBottomSheet(
+        isForDestination = selectFromMapSheetVisibility.value == SelectFromMapSheetVisibility.END,
+        onSelectLocation = { name, location, isForDestination ->
+            if (isForDestination) {
+                val destinations = uiState.destinations.toMutableList()
+                destinations.add(
+                    MapUIState.Destination(
+                        name,
+                        MapPoint(location.latitude, location.longitude)
+                    )
+                )
+                viewModel.updateDestinations(destinations)
+            } else {
+                if (uiState.moveCameraButtonState == MoveCameraButtonState.MyRouteView) {
+                    viewModel.getAddressDetails(MapPoint(location.latitude, location.longitude))
+                } else {
+                    mapActionHandler.moveCamera(
+                        MapPoint(
+                            lat = location.latitude,
+                            lng = location.longitude
+                        ),
+                        animate = true
+                    )
+                    currentLatLng.value = MapPoint(location.latitude, location.longitude)
                 }
             }
-        )
-    }
+        },
+        onDismissRequest = {
+            selectFromMapSheetVisibility.value = SelectFromMapSheetVisibility.INVISIBLE
+        }
+    )
 
     AnimatedVisibility(
         visible = arrangeDestinationsSheetVisibility.value,
@@ -181,7 +168,6 @@ fun MapBottomSheetHandler(
                     arrangeDestinationsSheetVisibility.value = false
                     arrangeDestinationsSheetState.hide()
                     viewModel.updateDestinations(orderedDestinations)
-                    viewModel.fetchTariffs()
 
                     if (orderedDestinations.isEmpty()) getCurrentLocation(context) { location ->
                         currentLatLng.value = MapPoint(location.latitude, location.longitude)

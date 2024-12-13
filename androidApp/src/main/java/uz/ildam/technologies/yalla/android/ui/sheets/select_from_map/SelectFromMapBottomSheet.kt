@@ -3,19 +3,20 @@ package uz.ildam.technologies.yalla.android.ui.sheets.select_from_map
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -48,10 +49,8 @@ import uz.ildam.technologies.yalla.android.ui.components.button.SelectCurrentLoc
 import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
 import uz.ildam.technologies.yalla.android.ui.components.marker.YallaMarker
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectFromMapBottomSheet(
-    sheetState: SheetState,
     isForDestination: Boolean,
     onSelectLocation: (String, LatLng, Boolean) -> Unit,
     onDismissRequest: () -> Unit,
@@ -65,6 +64,7 @@ fun SelectFromMapBottomSheet(
     var isMarkerMoving by remember { mutableStateOf(false) }
     val currentLatLng = remember { mutableStateOf(LatLng(0.0, 0.0)) }
 
+    BackHandler(onBack = onDismissRequest)
 
     LaunchedEffect(cameraPositionState.isMoving) {
         if (cameraPositionState.isMoving) {
@@ -85,7 +85,7 @@ fun SelectFromMapBottomSheet(
             viewModel.getAddressDetails(location)
             scope.launch {
                 currentLatLng.value = location
-                cameraPositionState.animate(
+                cameraPositionState.move(
                     update = CameraUpdateFactory.newCameraPosition(
                         CameraPosition(location, 15f, 0f, 0f)
                     )
@@ -94,113 +94,105 @@ fun SelectFromMapBottomSheet(
         }
     }
 
-    ModalBottomSheet(
-        shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
-        containerColor = YallaTheme.color.gray2,
-        sheetState = sheetState,
-        dragHandle = null,
-        onDismissRequest = onDismissRequest
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .navigationBarsPadding()
+            .background(YallaTheme.color.gray2)
     ) {
-        Column(
+        Box(
             modifier = Modifier
-                .fillMaxHeight(.8f)
                 .fillMaxWidth()
-                .background(YallaTheme.color.gray2)
-                .navigationBarsPadding()
+                .weight(1f)
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-            ) {
-                GoogleMap(
-                    properties = uiState.properties,
-                    uiSettings = uiState.mapUiSettings,
-                    cameraPositionState = cameraPositionState,
-                    modifier = Modifier.matchParentSize(),
-                    content = { Marker(state = markerState, alpha = 0f) }
-                )
-
-                Box(
-                    modifier = Modifier
-                        .matchParentSize()
-                        .padding(20.dp)
-                ) {
-                    YallaMarker(
-                        time = uiState.timeout,
-                        isLoading = isMarkerMoving,
-                        selectedAddressName = uiState.name,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-
-                    MapButton(
-                        painter = painterResource(R.drawable.ic_location),
-                        modifier = Modifier.align(Alignment.BottomEnd),
-                        onClick = {
-                            getCurrentLocation(context) { location ->
-                                scope.launch {
-                                    currentLatLng.value = location
-                                    cameraPositionState.animate(
-                                        update = CameraUpdateFactory.newCameraPosition(
-                                            CameraPosition(location, 15f, 0f, 0f)
-                                        ),
-                                        durationMs = 1000
-                                    )
-                                }
-                            }
-                        }
-                    )
-
-                    MapButton(
-                        painter = painterResource(R.drawable.ic_arrow_back),
-                        modifier = Modifier.align(Alignment.TopStart),
-                        onClick = onDismissRequest
-                    )
-                }
-            }
+            GoogleMap(
+                properties = uiState.properties,
+                uiSettings = uiState.mapUiSettings,
+                cameraPositionState = cameraPositionState,
+                modifier = Modifier.matchParentSize(),
+                content = { Marker(state = markerState, alpha = 0f) }
+            )
 
             Box(
-                contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        color = YallaTheme.color.white,
-                        shape = RoundedCornerShape(bottomStart = 30.dp, bottomEnd = 30.dp)
-                    )
+                    .matchParentSize()
+                    .statusBarsPadding()
+                    .padding(20.dp)
             ) {
-                SelectCurrentLocationButton(
-                    modifier = Modifier.padding(10.dp),
+                YallaMarker(
+                    time = uiState.timeout,
                     isLoading = isMarkerMoving,
-                    currentLocation = uiState.name,
-                    onClick = { }
+                    selectedAddressName = uiState.name,
+                    modifier = Modifier.align(Alignment.Center)
                 )
-            }
 
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        color = YallaTheme.color.white,
-                        shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
-                    )
-            ) {
-                YallaButton(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp),
-                    enabled = !isMarkerMoving && if (isForDestination) true else uiState.addressId != null,
-                    text = stringResource(R.string.choose),
+                MapButton(
+                    painter = painterResource(R.drawable.ic_location),
+                    modifier = Modifier.align(Alignment.BottomEnd),
                     onClick = {
-                        if (uiState.latLng != null && uiState.name != null) {
-                            onSelectLocation(uiState.name!!, uiState.latLng!!, isForDestination)
-                            onDismissRequest()
+                        getCurrentLocation(context) { location ->
+                            scope.launch {
+                                currentLatLng.value = location
+                                cameraPositionState.animate(
+                                    update = CameraUpdateFactory.newCameraPosition(
+                                        CameraPosition(location, 15f, 0f, 0f)
+                                    ),
+                                    durationMs = 1000
+                                )
+                            }
                         }
                     }
                 )
+
+                MapButton(
+                    painter = painterResource(R.drawable.ic_arrow_back),
+                    modifier = Modifier.align(Alignment.TopStart),
+                    onClick = onDismissRequest
+                )
             }
+        }
+
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = YallaTheme.color.white,
+                    shape = RoundedCornerShape(bottomStart = 30.dp, bottomEnd = 30.dp)
+                )
+        ) {
+            SelectCurrentLocationButton(
+                modifier = Modifier.padding(10.dp),
+                isLoading = isMarkerMoving,
+                currentLocation = uiState.name,
+                onClick = { }
+            )
+        }
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = YallaTheme.color.white,
+                    shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
+                )
+        ) {
+            YallaButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
+                enabled = !isMarkerMoving && if (isForDestination) true else uiState.addressId != null,
+                text = stringResource(R.string.choose),
+                onClick = {
+                    if (uiState.latLng != null && uiState.name != null) {
+                        onSelectLocation(uiState.name!!, uiState.latLng!!, isForDestination)
+                        onDismissRequest()
+                    }
+                }
+            )
         }
     }
 }

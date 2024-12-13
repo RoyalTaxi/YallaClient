@@ -8,7 +8,6 @@ import uz.ildam.technologies.yalla.feature.map.domain.repository.MapRepository
 class GetPolygonUseCase(
     private val repository: MapRepository
 ) {
-    suspend operator fun invoke(): Result<List<PolygonRemoteItem>, DataError.Network> {
-        return repository.getPolygon()
-    }
+    suspend operator fun invoke(): Result<List<PolygonRemoteItem>, DataError.Network> =
+        repository.getPolygon()
 }

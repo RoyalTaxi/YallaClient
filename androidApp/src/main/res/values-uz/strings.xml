@@ -70,5 +70,6 @@
     <string name="add_card">Добавить карту</string>
     <string name="enter_otp_definition_6digits">Введите 6-значный код, который мы отправили на номер +998%s</string>
     <string name="error_message">You have entered wrong code, please try again</string>
+    <string name="destination_count">%s destinations</string>
 
 </resources>

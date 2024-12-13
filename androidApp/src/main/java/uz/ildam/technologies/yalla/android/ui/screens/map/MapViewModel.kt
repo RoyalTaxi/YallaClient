@@ -55,6 +55,8 @@ class MapViewModel(
     }
 
     fun getAddressDetails(point: MapPoint) = viewModelScope.launch {
+        if (point.lat == 0.0 || point.lng == 0.0) return@launch
+
         _actionState.emit(MapActionState.LoadingAddressId)
         if (addresses.isEmpty()) fetchPolygons()
         else addresses

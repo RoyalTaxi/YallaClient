@@ -50,7 +50,7 @@ class MapActionHandler(
             position = GisCameraPosition(
                 GeoPoint(mapPoint.lat, mapPoint.lng),
                 Zoom(defaultZoomLevel)
-            ),
+            )
         )
     }
 

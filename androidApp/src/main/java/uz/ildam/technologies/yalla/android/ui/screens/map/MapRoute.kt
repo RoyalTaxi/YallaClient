@@ -55,10 +55,7 @@ fun MapRoute(
     val selectFromMapSheetVisibility = remember {
         mutableStateOf(SelectFromMapSheetVisibility.INVISIBLE)
     }
-    val selectFromMapSheetSheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true,
-        confirmValueChange = { false }
-    )
+
     val arrangeDestinationsSheetVisibility = remember { mutableStateOf(false) }
     val arrangeDestinationsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val tariffBottomSheetVisibility = remember { mutableStateOf(false) }
@@ -128,9 +125,7 @@ fun MapRoute(
 
     LaunchedEffect(permissionsGranted) {
         if (permissionsGranted) getCurrentLocation(context) { location ->
-            val position = mapActionHandler.getCameraPosition()
-            currentLatLng.value = position
-            vm.getAddressDetails(position)
+            currentLatLng.value = MapPoint(location.latitude, location.longitude)
             mapActionHandler.moveCamera(
                 MapPoint(
                     lat = location.latitude,
@@ -240,16 +235,16 @@ fun MapRoute(
         tariffBottomSheetVisibility = tariffBottomSheetVisibility,
         setOrderOptionsBottomSheetVisibility = setOrderOptionsBottomSheetVisibility,
         searchForLocationSheetState = searchForLocationSheetState,
-        selectFromMapSheetSheetState = selectFromMapSheetSheetState,
         arrangeDestinationsSheetState = arrangeDestinationsSheetState,
         tariffBottomSheetState = tariffBottomSheetState,
         setOrderOptionsBottomSheetState = setOrderOptionsBottomSheetState,
-        mapActionHandler = mapActionHandler
+        mapActionHandler = mapActionHandler,
+        viewModel = vm,
     )
 
     if (AppPreferences.mapType == MapType.Google) LaunchedEffect(googleCameraState.isMoving) {
-        if (googleCameraState.isMoving.not()) currentLatLng.value =
-            googleCameraState.position.target.let {
+        if (googleCameraState.isMoving.not())
+            currentLatLng.value = googleCameraState.position.target.let {
                 MapPoint(it.latitude, it.longitude)
             }
         isMarkerMoving = googleCameraState.isMoving
