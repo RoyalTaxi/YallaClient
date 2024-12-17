@@ -96,7 +96,6 @@ fun MapBottomSheetHandler(
                 )
             },
             onClickMap = {
-//                scope.launch { searchForLocationSheetState.show() }.invokeOnCompletion {  }
                 selectFromMapSheetVisibility.value =
                     if (searchForLocationSheetVisibility.value == SearchForLocationBottomSheetVisibility.START) {
                         SelectFromMapSheetVisibility.START
