@@ -154,6 +154,7 @@ fun MapRoute(
 
     LaunchedEffect(uiState.isSearchingForCars) {
         if (uiState.isSearchingForCars) sheetHandler.showSearchCars()
+        else sheetHandler.showOrderTaxi()
     }
 
     if (permissionsGranted) MapDrawer(

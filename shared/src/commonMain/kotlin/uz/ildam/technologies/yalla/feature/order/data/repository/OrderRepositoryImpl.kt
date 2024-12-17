@@ -64,4 +64,18 @@ class OrderRepositoryImpl(
             is Result.Success -> Result.Success(result.data.result.let(GetSettingMapper.mapper))
         }
     }
+
+    override suspend fun cancelRide(orderId: Int): Result<Unit, DataError.Network> {
+        return when (val result = orderService.cancelRide(orderId)) {
+            is Result.Error -> Result.Error(result.error)
+            is Result.Success -> Result.Success(Unit)
+        }
+    }
+
+    override suspend fun cancelReason(orderId: Int): Result<Unit, DataError.Network> {
+        return when (val result = orderService.cancelRide(orderId)) {
+            is Result.Error -> Result.Error(result.error)
+            is Result.Success -> Result.Success(Unit)
+        }
+    }
 }

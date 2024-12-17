@@ -18,4 +18,8 @@ interface OrderRepository {
     ): Result<SearchCarModel, DataError.Network>
 
     suspend fun getSetting(): Result<SettingModel, DataError.Network>
+
+    suspend fun cancelRide(orderId: Int): Result<Unit, DataError.Network>
+
+    suspend fun cancelReason(orderId: Int): Result<Unit, DataError.Network>
 }

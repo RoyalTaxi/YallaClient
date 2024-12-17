@@ -84,10 +84,10 @@ class MapSheetHandler(
                 uiState = uiState,
                 viewModel = viewModel,
                 onClickCancel = {
-
+                    uiState.selectedOrder?.let { viewModel.cancelRide(it) }
                 },
                 onClickDetails = {
-                    
+
                 }
             )
         }

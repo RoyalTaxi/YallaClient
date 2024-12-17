@@ -5,6 +5,7 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
+import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import uz.ildam.technologies.yalla.core.data.exception.safeApiCall
 import uz.ildam.technologies.yalla.core.data.response.ApiResponseWrapper
@@ -41,4 +42,12 @@ class OrderService(
         safeApiCall {
             ktor.get(OrderUrl.GET_SETTING).body()
         }
+
+    suspend fun cancelRide(orderId: Int): Result<Unit, DataError.Network> = safeApiCall {
+        ktor.put(OrderUrl.CANCEL_RIDE + orderId)
+    }
+
+    suspend fun cancelReason(orderId: Int): Result<Unit, DataError.Network> = safeApiCall {
+        ktor.put(OrderUrl.CANCEL_REASON + orderId)
+    }
 }

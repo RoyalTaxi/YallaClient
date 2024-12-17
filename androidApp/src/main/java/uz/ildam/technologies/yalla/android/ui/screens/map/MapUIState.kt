@@ -19,6 +19,7 @@ data class MapUIState(
     val setting: SettingModel? = null,
     val drivers: List<ExecutorModel> = emptyList(),
     val orders: List<Int> = emptyList(),
+    val selectedOrder: Int? = null,
     val foundAddresses: List<SearchForAddressItemModel> = emptyList(),
     val route: List<MapPoint> = emptyList(),
     val options: List<GetTariffsModel.Tariff.Service> = emptyList(),

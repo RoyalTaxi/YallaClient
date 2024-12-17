@@ -4,4 +4,6 @@ object OrderUrl {
     const val ORDER_TAXI = "create"
     const val SEARCH_CARS = "executor/lists"
     const val GET_SETTING = "setting/config"
+    const val CANCEL_RIDE = "order/cancel/"
+    const val CANCEL_REASON = "order/cancel/reason/"
 }

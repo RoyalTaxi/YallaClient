@@ -24,6 +24,7 @@ import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.SearchForAddre
 import uz.ildam.technologies.yalla.feature.order.domain.model.request.OrderTaxiDto
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.SettingModel
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.tarrif.GetTariffsModel
+import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.CancelRideUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.GetSettingUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.OrderTaxiUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.SearchCarUseCase
@@ -39,7 +40,8 @@ class MapViewModel(
     private val searchForAddressUseCase: SearchForAddressUseCase,
     private val orderTaxiUseCase: OrderTaxiUseCase,
     private val searchCarUseCase: SearchCarUseCase,
-    private val getSettingUseCase: GetSettingUseCase
+    private val getSettingUseCase: GetSettingUseCase,
+    private val cancelRideUseCase: CancelRideUseCase
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(MapUIState())
     val uiState = _uiState.asStateFlow()
@@ -212,7 +214,12 @@ class MapViewModel(
             is Result.Success -> {
                 val orders = uiState.value.orders.toMutableList()
                 orders.add(result.data.orderId)
-                _uiState.update { it.copy(orders = orders) }
+                _uiState.update {
+                    it.copy(
+                        orders = orders,
+                        selectedOrder = result.data.orderId
+                    )
+                }
                 getSetting()
             }
         }
@@ -254,6 +261,8 @@ class MapViewModel(
         foundAddresses: List<SearchForAddressItemModel> = _uiState.value.foundAddresses,
         selectedLocation: MapUIState.SelectedLocation? = _uiState.value.selectedLocation,
         routes: List<MapPoint> = _uiState.value.route,
+        orders: List<Int> = _uiState.value.orders,
+        selectedOrder: Int? = _uiState.value.selectedOrder,
         selectedTariff: GetTariffsModel.Tariff? = _uiState.value.selectedTariff,
         tariffs: GetTariffsModel? = _uiState.value.tariffs,
         drivers: List<ExecutorModel> = _uiState.value.drivers,
@@ -271,6 +280,8 @@ class MapViewModel(
                 route = routes,
                 selectedTariff = selectedTariff,
                 tariffs = tariffs,
+                orders = orders,
+                selectedOrder = selectedOrder,
                 isSearchingForCars = isSearchingForCars,
                 setting = setting,
                 drivers = drivers,
@@ -347,6 +358,21 @@ class MapViewModel(
                 updateUIState(
                     setting = result.data,
                     isSearchingForCars = true
+                )
+            }
+        }
+    }
+
+    fun cancelRide(orderId: Int) = viewModelScope.launch {
+        when (cancelRideUseCase(orderId)) {
+            is Result.Error -> {}
+            is Result.Success -> {
+                val orders = uiState.value.orders.toMutableList()
+                orders.remove(orderId)
+                updateUIState(
+                    orders = orders,
+                    selectedOrder = orders.firstOrNull(),
+                    isSearchingForCars = false
                 )
             }
         }
