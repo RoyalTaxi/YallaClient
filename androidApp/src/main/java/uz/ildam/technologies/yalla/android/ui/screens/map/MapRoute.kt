@@ -48,21 +48,11 @@ fun MapRoute(
     val scope = rememberCoroutineScope()
     val uiState by vm.uiState.collectAsState()
 
-    val searchForLocationSheetVisibility = remember {
-        mutableStateOf(SearchForLocationBottomSheetVisibility.INVISIBLE)
-    }
-    val searchForLocationSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val selectFromMapSheetVisibility = remember {
-        mutableStateOf(SelectFromMapSheetVisibility.INVISIBLE)
-    }
-
-    val arrangeDestinationsSheetVisibility = remember { mutableStateOf(false) }
-    val arrangeDestinationsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val tariffBottomSheetVisibility = remember { mutableStateOf(false) }
-    val tariffBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val setOrderOptionsBottomSheetVisibility = remember { mutableStateOf(false) }
-    val setOrderOptionsBottomSheetState =
-        rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val searchLocationState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val destinationsState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val tariffState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val optionsState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val searchCarsState = rememberModalBottomSheetState(confirmValueChange = { false })
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scaffoldState = rememberBottomSheetScaffoldState(sheetState = rememberBottomSheetState(
@@ -86,12 +76,39 @@ fun MapRoute(
         )
     )
 
-    val mapActionHandler by remember {
+    val actionHandler by remember {
         mutableStateOf(
             MapActionHandler(
                 mapType = AppPreferences.mapType,
                 googleCameraState = googleCameraState,
                 gisCameraState = gisCameraState
+            )
+        )
+    }
+
+    val bottomSheetHandler by remember {
+        mutableStateOf(
+            MapBottomSheetHandler(
+                context = context,
+                scope = scope,
+                searchLocationState = searchLocationState,
+                destinationsState = destinationsState,
+                tariffState = tariffState,
+                optionsState = optionsState,
+                searchCarsState = searchCarsState,
+                viewModel = vm
+            )
+        )
+    }
+
+    val sheetHandler by remember {
+        mutableStateOf(
+            MapSheetHandler(
+                context = context,
+                scope = scope,
+                viewModel = vm,
+                actionHandler = actionHandler,
+                bottomSheetHandler = bottomSheetHandler
             )
         )
     }
@@ -110,7 +127,7 @@ fun MapRoute(
     }
 
     LaunchedEffect(uiState.route) {
-        mapActionHandler.moveCameraToFitBounds(
+        actionHandler.moveCameraToFitBounds(
             routing = uiState.route,
             animate = true
         )
@@ -126,13 +143,17 @@ fun MapRoute(
     LaunchedEffect(permissionsGranted) {
         if (permissionsGranted) getCurrentLocation(context) { location ->
             currentLatLng.value = MapPoint(location.latitude, location.longitude)
-            mapActionHandler.moveCamera(
+            actionHandler.moveCamera(
                 MapPoint(
                     lat = location.latitude,
                     lng = location.longitude
                 )
             )
         }
+    }
+
+    LaunchedEffect(uiState.isSearchingForCars) {
+        if (uiState.isSearchingForCars) sheetHandler.showSearchCars()
     }
 
     if (permissionsGranted) MapDrawer(
@@ -154,18 +175,13 @@ fun MapRoute(
                 scaffoldState = scaffoldState,
                 cameraPositionState = googleCameraState,
                 cameraState = gisCameraState,
+                mapSheetHandler = sheetHandler,
+                currentLatLng = currentLatLng,
                 onIntent = { intent ->
                     when (intent) {
-                        is MapIntent.SelectTariff -> {
-                            if (intent.wasSelected) scope.launch {
-                                tariffBottomSheetVisibility.value = true
-                                tariffBottomSheetState.show()
-                            } else vm.updateSelectedTariff(intent.tariff)
-                        }
-
                         is MapIntent.MoveToMyLocation -> getCurrentLocation(context) { location ->
                             currentLatLng.value = MapPoint(location.latitude, location.longitude)
-                            mapActionHandler.moveCamera(
+                            actionHandler.moveCamera(
                                 animate = true,
                                 mapPoint = MapPoint(
                                     lat = location.latitude,
@@ -174,7 +190,7 @@ fun MapRoute(
                             )
                         }
 
-                        is MapIntent.MoveToMyRoute -> mapActionHandler.moveCameraToFitBounds(uiState.route)
+                        is MapIntent.MoveToMyRoute -> actionHandler.moveCameraToFitBounds(uiState.route)
 
                         is MapIntent.OpenDrawer -> scope.launch { drawerState.open() }
 
@@ -182,64 +198,22 @@ fun MapRoute(
                             vm.updateDestinations(emptyList())
                             getCurrentLocation(context) { loc ->
                                 currentLatLng.value = MapPoint(loc.latitude, loc.longitude)
-                                mapActionHandler.moveCamera(
+                                actionHandler.moveCamera(
                                     animate = true,
                                     mapPoint = MapPoint(lat = loc.latitude, lng = loc.longitude)
                                 )
                             }
                         }
-
-                        is MapIntent.SearchStartLocationSheet -> {
-                            scope.launch {
-                                searchForLocationSheetVisibility.value =
-                                    SearchForLocationBottomSheetVisibility.START
-                                searchForLocationSheetState.show()
-                            }
-                        }
-
-
-                        is MapIntent.SearchEndLocationSheet -> {
-                            scope.launch {
-                                if (uiState.destinations.isEmpty()) {
-                                    searchForLocationSheetVisibility.value =
-                                        SearchForLocationBottomSheetVisibility.END
-                                    searchForLocationSheetState.show()
-                                } else {
-                                    arrangeDestinationsSheetVisibility.value = true
-                                    arrangeDestinationsSheetState.show()
-                                }
-                            }
-                        }
-
-                        is MapIntent.OpenOptions -> {
-                            scope.launch {
-                                setOrderOptionsBottomSheetVisibility.value = true
-                                setOrderOptionsBottomSheetState.show()
-                            }
-                        }
-
-                        is MapIntent.OrderTaxi -> vm.orderTaxi()
                     }
                 }
             )
         }
-    )
-    else onPermissionDenied()
+    ) else onPermissionDenied()
 
-    MapBottomSheetHandler(
+    bottomSheetHandler.Sheets(
         uiState = uiState,
         currentLatLng = currentLatLng,
-        searchForLocationSheetVisibility = searchForLocationSheetVisibility,
-        selectFromMapSheetVisibility = selectFromMapSheetVisibility,
-        arrangeDestinationsSheetVisibility = arrangeDestinationsSheetVisibility,
-        tariffBottomSheetVisibility = tariffBottomSheetVisibility,
-        setOrderOptionsBottomSheetVisibility = setOrderOptionsBottomSheetVisibility,
-        searchForLocationSheetState = searchForLocationSheetState,
-        arrangeDestinationsSheetState = arrangeDestinationsSheetState,
-        tariffBottomSheetState = tariffBottomSheetState,
-        setOrderOptionsBottomSheetState = setOrderOptionsBottomSheetState,
-        mapActionHandler = mapActionHandler,
-        viewModel = vm,
+        actionHandler = actionHandler
     )
 
     if (AppPreferences.mapType == MapType.Google) LaunchedEffect(googleCameraState.isMoving) {

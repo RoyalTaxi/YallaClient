@@ -2,25 +2,34 @@ package uz.ildam.technologies.yalla.android.ui.screens.map
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 import uz.ildam.technologies.yalla.core.data.mapper.or0
 import uz.ildam.technologies.yalla.core.domain.error.Result
+import uz.ildam.technologies.yalla.core.domain.model.ExecutorModel
 import uz.ildam.technologies.yalla.feature.map.domain.model.map.PolygonRemoteItem
 import uz.ildam.technologies.yalla.feature.map.domain.model.map.SearchForAddressItemModel
 import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.GetAddressNameUseCase
 import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.GetPolygonUseCase
 import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.SearchForAddressUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.model.request.OrderTaxiDto
+import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.SettingModel
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.tarrif.GetTariffsModel
+import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.GetSettingUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.OrderTaxiUseCase
+import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.SearchCarUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.tariff.GetTariffsUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.tariff.GetTimeOutUseCase
+import kotlin.time.Duration.Companion.seconds
 
 class MapViewModel(
     private val getPolygonUseCase: GetPolygonUseCase,
@@ -28,7 +37,9 @@ class MapViewModel(
     private val getTariffsUseCase: GetTariffsUseCase,
     private val getTimeOutUseCase: GetTimeOutUseCase,
     private val searchForAddressUseCase: SearchForAddressUseCase,
-    private val orderTaxiUseCase: OrderTaxiUseCase
+    private val orderTaxiUseCase: OrderTaxiUseCase,
+    private val searchCarUseCase: SearchCarUseCase,
+    private val getSettingUseCase: GetSettingUseCase
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(MapUIState())
     val uiState = _uiState.asStateFlow()
@@ -56,22 +67,24 @@ class MapViewModel(
 
     fun getAddressDetails(point: MapPoint) = viewModelScope.launch {
         if (point.lat == 0.0 || point.lng == 0.0) return@launch
-
+        var addressId = 0
         _actionState.emit(MapActionState.LoadingAddressId)
         if (addresses.isEmpty()) fetchPolygons()
         else addresses
             .firstOrNull {
-                isPointInsidePolygon(point = point).first
-            }?.let { address ->
-                updateSelectedLocation(addressId = address.addressId, point = point)
-                _actionState.emit(MapActionState.AddressIdLoaded(address.addressId))
+                val (isInsidePolygonTemp, addressIdTemp) = isPointInsidePolygon(point = point)
+                if (isInsidePolygonTemp) addressId = addressIdTemp
+                isInsidePolygonTemp
+            }?.let {
+                updateSelectedLocation(addressId = addressId, point = point)
+                _actionState.emit(MapActionState.AddressIdLoaded(addressId))
             } ?: run {
             updateSelectedLocation(addressId = null)
         }
         fetchAddressName(point)
     }
 
-    private suspend fun fetchAddressName(point: MapPoint) {
+    private fun fetchAddressName(point: MapPoint) = viewModelScope.launch {
         _actionState.emit(MapActionState.LoadingAddressName)
         when (val result = getAddressNameUseCase(point.lat, point.lng)) {
             is Result.Success -> _actionState.emit(MapActionState.AddressNameLoaded(result.data.displayName))
@@ -90,10 +103,15 @@ class MapViewModel(
             when (val result = getTimeOutUseCase(
                 lat = point.lat,
                 lng = point.lng,
-                tariffId = tariff.id
+                tariffId = tariff.category.id
             )) {
                 is Result.Error -> changeStateToNotFound()
-                is Result.Success -> _uiState.update { it.copy(timeout = result.data.timeout) }
+                is Result.Success -> _uiState.update {
+                    it.copy(
+                        timeout = result.data.timeout,
+                        drivers = result.data.executors
+                    )
+                }
             }
         }
     }
@@ -143,6 +161,7 @@ class MapViewModel(
                 selectedTariff = data.tariff.firstOrNull(),
                 options = data.tariff[0].services
             )
+
     }
 
     fun searchForAddress(query: String, point: MapPoint) = viewModelScope.launch {
@@ -178,15 +197,23 @@ class MapViewModel(
                         lng = destination.point?.lng.or0(),
                         name = destination.name.orEmpty()
                     )
+                } + uiState.value.selectedLocation!!.let {
+                    OrderTaxiDto.Address(
+                        addressId = it.addressId,
+                        lat = it.point?.lat.or0(),
+                        lng = it.point?.lng.or0(),
+                        name = it.name.orEmpty()
+                    )
                 }
             )
         )) {
-            is Result.Error -> {
-
-            }
+            is Result.Error -> {}
 
             is Result.Success -> {
-
+                val orders = uiState.value.orders.toMutableList()
+                orders.add(result.data.orderId)
+                _uiState.update { it.copy(orders = orders) }
+                getSetting()
             }
         }
     }
@@ -218,7 +245,7 @@ class MapViewModel(
         updateUIState(
             selectedLocation = null,
             tariffs = null,
-            timeout = 0
+            timeout = null
         )
     }
 
@@ -229,6 +256,9 @@ class MapViewModel(
         routes: List<MapPoint> = _uiState.value.route,
         selectedTariff: GetTariffsModel.Tariff? = _uiState.value.selectedTariff,
         tariffs: GetTariffsModel? = _uiState.value.tariffs,
+        drivers: List<ExecutorModel> = _uiState.value.drivers,
+        isSearchingForCars: Boolean = _uiState.value.isSearchingForCars,
+        setting: SettingModel? = _uiState.value.setting,
         moveCameraButtonState: MoveCameraButtonState = _uiState.value.moveCameraButtonState,
         discardOrderButtonState: DiscardOrderButtonState = _uiState.value.discardOrderButtonState,
         options: List<GetTariffsModel.Tariff.Service> = _uiState.value.options,
@@ -241,6 +271,9 @@ class MapViewModel(
                 route = routes,
                 selectedTariff = selectedTariff,
                 tariffs = tariffs,
+                isSearchingForCars = isSearchingForCars,
+                setting = setting,
+                drivers = drivers,
                 foundAddresses = foundAddresses,
                 moveCameraButtonState = moveCameraButtonState,
                 discardOrderButtonState = discardOrderButtonState,
@@ -258,6 +291,8 @@ class MapViewModel(
                 selectedOptions = emptyList()
             )
         }
+
+        fetchTariffs()
     }
 
     fun updateSelectedOptions(options: List<GetTariffsModel.Tariff.Service>) {
@@ -284,5 +319,36 @@ class MapViewModel(
         _uiState.update { it.copy(destinations = newDestinations) }
         if (newDestinations.isEmpty()) updateUIState(routes = emptyList())
         fetchTariffs()
+    }
+
+    fun timer(range: IntRange) = flow {
+        range.forEach { seconds ->
+            delay(1.seconds)
+            emit(seconds)
+            if (!currentCoroutineContext().isActive) return@flow
+        }
+    }
+
+    fun searchForCars(point: MapPoint) = viewModelScope.launch {
+        val tariff = _uiState.value.selectedTariff ?: return@launch
+        when (val result = searchCarUseCase(point.lat, point.lng, tariff.category.id)) {
+            is Result.Error -> updateUIState(isSearchingForCars = false)
+            is Result.Success -> updateUIState(
+                isSearchingForCars = true,
+                drivers = result.data.executors
+            )
+        }
+    }
+
+    private fun getSetting() = viewModelScope.launch {
+        when (val result = getSettingUseCase()) {
+            is Result.Error -> updateUIState(isSearchingForCars = false)
+            is Result.Success -> {
+                updateUIState(
+                    setting = result.data,
+                    isSearchingForCars = true
+                )
+            }
+        }
     }
 }

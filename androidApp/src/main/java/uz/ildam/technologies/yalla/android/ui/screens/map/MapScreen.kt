@@ -5,15 +5,19 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -21,6 +25,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MarkerComposable
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberMarkerState
 import io.morfly.compose.bottomsheet.material3.BottomSheetScaffold
@@ -29,7 +34,6 @@ import io.morfly.compose.bottomsheet.material3.requireSheetVisibleHeightDp
 import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.ui.components.button.MapButton
 import uz.ildam.technologies.yalla.android.ui.components.marker.YallaMarker
-import uz.ildam.technologies.yalla.android.ui.sheets.OrderTaxiBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.SheetValue
 import uz.ildam.technologies.yalla.android.utils.vectorToBitmapDescriptor
 import uz.ildam.technologies.yalla.android2gis.CameraState
@@ -49,9 +53,11 @@ import uz.ildam.technologies.yalla.android2gis.Polyline as GisPolyline
 fun MapScreen(
     uiState: MapUIState,
     isLoading: Boolean,
+    currentLatLng: MutableState<MapPoint>,
     scaffoldState: BottomSheetScaffoldState<SheetValue>,
     cameraPositionState: CameraPositionState,
     cameraState: CameraState,
+    mapSheetHandler: MapSheetHandler,
     onIntent: (MapIntent) -> Unit
 ) {
     val context = LocalContext.current
@@ -70,16 +76,10 @@ fun MapScreen(
         sheetDragHandle = null,
         sheetShape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
         sheetContent = {
-            OrderTaxiBottomSheet(
+            mapSheetHandler.Sheets(
                 isLoading = isLoading,
                 uiState = uiState,
-                onCurrentLocationClick = { onIntent(MapIntent.SearchStartLocationSheet) },
-                onDestinationClick = { onIntent(MapIntent.SearchEndLocationSheet) },
-                onSetOptionsClick = { onIntent(MapIntent.OpenOptions) },
-                onCreateOrder = { onIntent(MapIntent.OrderTaxi) },
-                onSelectTariff = { selectedTariff, wasSelected ->
-                    onIntent(MapIntent.SelectTariff(selectedTariff, wasSelected))
-                }
+                currentLatLng = currentLatLng
             )
         },
         content = {
@@ -134,7 +134,11 @@ fun MapScreen(
                     }
                 } else GoogleMap(
                     properties = uiState.properties,
-                    uiSettings = uiState.mapUiSettings,
+                    uiSettings = uiState.mapUiSettings.copy(
+                        scrollGesturesEnabled = !uiState.isSearchingForCars,
+                        rotationGesturesEnabled = !uiState.isSearchingForCars,
+                        zoomGesturesEnabled = !uiState.isSearchingForCars
+                    ),
                     cameraPositionState = cameraPositionState,
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(bottom = 20.dp),
@@ -184,6 +188,27 @@ fun MapScreen(
                                 icon = endMarkerIcon
                             )
                         }
+
+                        uiState.drivers.forEach {
+                            MarkerComposable(
+                                flat = true,
+                                state = remember(it) {
+                                    MarkerState(
+                                        position = LatLng(
+                                            it.lat,
+                                            it.lng
+                                        )
+                                    )
+                                }
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.img_car_marker),
+                                    contentDescription = null,
+                                    tint = Color.Unspecified,
+                                    modifier = Modifier.size(48.dp)
+                                )
+                            }
+                        }
                     }
                 )
 
@@ -196,41 +221,44 @@ fun MapScreen(
                     if (uiState.route.isEmpty()) {
                         YallaMarker(
                             time = uiState.timeout,
-                            isLoading = isLoading,
+                            isLoading = isLoading || uiState.timeout == null,
+                            isSearching = uiState.isSearchingForCars,
                             selectedAddressName = uiState.selectedLocation?.name,
                             modifier = Modifier.align(Alignment.Center)
                         )
                     }
 
-                    MapButton(
-                        painter = painterResource(
-                            if (uiState.moveCameraButtonState == MoveCameraButtonState.MyLocationView) R.drawable.ic_location
-                            else R.drawable.ic_route
-                        ),
-                        modifier = Modifier.align(Alignment.BottomEnd),
-                        onClick = {
-                            if (uiState.moveCameraButtonState == MoveCameraButtonState.MyLocationView)
-                                onIntent(MapIntent.MoveToMyLocation)
-                            else
-                                onIntent(MapIntent.MoveToMyRoute)
-                        }
-                    )
+                    if (uiState.isSearchingForCars.not()) {
+                        MapButton(
+                            painter = painterResource(
+                                if (uiState.moveCameraButtonState == MoveCameraButtonState.MyLocationView) R.drawable.ic_location
+                                else R.drawable.ic_route
+                            ),
+                            modifier = Modifier.align(Alignment.BottomEnd),
+                            onClick = {
+                                if (uiState.moveCameraButtonState == MoveCameraButtonState.MyLocationView)
+                                    onIntent(MapIntent.MoveToMyLocation)
+                                else
+                                    onIntent(MapIntent.MoveToMyRoute)
+                            }
+                        )
 
-                    MapButton(
-                        painter = painterResource(
-                            if (uiState.discardOrderButtonState == DiscardOrderButtonState.OpenDrawer) R.drawable.ic_hamburger
-                            else R.drawable.ic_arrow_back
-                        ),
-                        modifier = Modifier
-                            .align(Alignment.TopStart)
-                            .statusBarsPadding(),
-                        onClick = {
-                            if (uiState.discardOrderButtonState == DiscardOrderButtonState.OpenDrawer)
-                                onIntent(MapIntent.OpenDrawer)
-                            else
-                                onIntent(MapIntent.DiscardOrder)
-                        }
-                    )
+                        MapButton(
+                            painter = painterResource(
+                                if (uiState.discardOrderButtonState == DiscardOrderButtonState.OpenDrawer) R.drawable.ic_hamburger
+                                else R.drawable.ic_arrow_back
+                            ),
+                            modifier = Modifier
+                                .align(Alignment.TopStart)
+                                .statusBarsPadding(),
+                            onClick = {
+                                if (uiState.discardOrderButtonState == DiscardOrderButtonState.OpenDrawer)
+                                    onIntent(MapIntent.OpenDrawer)
+                                else
+                                    onIntent(MapIntent.DiscardOrder)
+                            }
+                        )
+                    }
                 }
             }
         }

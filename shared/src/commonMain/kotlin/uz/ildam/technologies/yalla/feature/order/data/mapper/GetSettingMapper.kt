@@ -1,0 +1,24 @@
+package uz.ildam.technologies.yalla.feature.order.data.mapper
+
+import uz.ildam.technologies.yalla.core.data.mapper.Mapper
+import uz.ildam.technologies.yalla.core.data.mapper.or0
+import uz.ildam.technologies.yalla.feature.order.data.response.order.SettingResponse
+import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.SettingModel
+
+object GetSettingMapper {
+    val mapper: Mapper<SettingResponse?, SettingModel> = { remote ->
+        SettingModel(
+            findRadius = remote?.find_radius.or0(),
+            orderCancelTime = remote?.order_cancel_time.or0(),
+            reasons = remote?.reasons?.map(reasonMapper).orEmpty()
+        )
+    }
+
+    private val reasonMapper: Mapper<SettingResponse.CancelReason?, SettingModel.CancelReason> =
+        { remote ->
+            SettingModel.CancelReason(
+                id = remote?.id.or0(),
+                name = remote?.name.orEmpty()
+            )
+        }
+}

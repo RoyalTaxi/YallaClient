@@ -1,5 +1,6 @@
 package uz.ildam.technologies.yalla.android.ui.screens.map
 
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -10,9 +11,11 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.android.ui.sheets.ArrangeDestinationsBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.SearchByNameBottomSheet
@@ -23,203 +26,234 @@ import uz.ildam.technologies.yalla.android.utils.getCurrentLocation
 import uz.ildam.technologies.yalla.core.data.mapper.or0
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun MapBottomSheetHandler(
-    uiState: MapUIState,
-    currentLatLng: MutableState<MapPoint>,
-
-    searchForLocationSheetVisibility: MutableState<SearchForLocationBottomSheetVisibility>,
-    selectFromMapSheetVisibility: MutableState<SelectFromMapSheetVisibility>,
-    arrangeDestinationsSheetVisibility: MutableState<Boolean>,
-    tariffBottomSheetVisibility: MutableState<Boolean>,
-    setOrderOptionsBottomSheetVisibility: MutableState<Boolean>,
-
-    searchForLocationSheetState: SheetState,
-    arrangeDestinationsSheetState: SheetState,
-    tariffBottomSheetState: SheetState,
-    setOrderOptionsBottomSheetState: SheetState,
-    mapActionHandler: MapActionHandler,
-    viewModel: MapViewModel
+class MapBottomSheetHandler(
+    private val context: Context,
+    private val scope: CoroutineScope,
+    private val searchLocationState: SheetState,
+    private val destinationsState: SheetState,
+    private val tariffState: SheetState,
+    private val optionsState: SheetState,
+    private val searchCarsState: SheetState,
+    private val viewModel: MapViewModel
 ) {
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
+    private var openMapVisibility by mutableStateOf(OpenMapVisibility.INVISIBLE)
+    private var searchLocationVisibility by mutableStateOf(SearchLocationVisibility.INVISIBLE)
+    private var destinationsVisibility by mutableStateOf(false)
+    private var tariffVisibility by mutableStateOf(false)
+    private var optionsVisibility by mutableStateOf(false)
 
-    AnimatedVisibility(
-        visible = searchForLocationSheetVisibility.value != SearchForLocationBottomSheetVisibility.INVISIBLE,
-        enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
-        exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    fun Sheets(
+        uiState: MapUIState,
+        currentLatLng: MutableState<MapPoint>,
+        actionHandler: MapActionHandler,
     ) {
-        if (searchForLocationSheetVisibility.value != SearchForLocationBottomSheetVisibility.INVISIBLE) SearchByNameBottomSheet(
-            sheetState = searchForLocationSheetState,
-            foundAddresses = uiState.foundAddresses,
-            isForDestination = searchForLocationSheetVisibility.value == SearchForLocationBottomSheetVisibility.END,
-            onAddressSelected = { dest ->
-                if (searchForLocationSheetVisibility.value == SearchForLocationBottomSheetVisibility.START) {
-                    if (uiState.moveCameraButtonState == MoveCameraButtonState.MyRouteView) {
-                        if (dest.addressId != 0) viewModel.getAddressDetails(
-                            MapPoint(dest.lat, dest.lng)
-                        )
-                        else {
-                            val result =
-                                viewModel.isPointInsidePolygon(MapPoint(dest.lat, dest.lng))
-                            if (result.first) {
-                                viewModel.getAddressDetails(MapPoint(dest.lat, dest.lng))
-                                viewModel.updateSelectedLocation(addressId = result.second)
-                            } else Toast.makeText(context, "Out of service", Toast.LENGTH_SHORT)
-                                .show()
+        AnimatedVisibility(
+            visible = searchLocationVisibility != SearchLocationVisibility.INVISIBLE,
+            enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
+            exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
+        ) {
+            if (searchLocationVisibility != SearchLocationVisibility.INVISIBLE) SearchByNameBottomSheet(
+                sheetState = searchLocationState,
+                foundAddresses = uiState.foundAddresses,
+                isForDestination = searchLocationVisibility == SearchLocationVisibility.END,
+                onAddressSelected = { dest ->
+                    if (searchLocationVisibility == SearchLocationVisibility.START) {
+                        if (uiState.moveCameraButtonState == MoveCameraButtonState.MyRouteView) {
+                            if (dest.addressId != 0) viewModel.getAddressDetails(
+                                MapPoint(dest.lat, dest.lng)
+                            )
+                            else {
+                                val result =
+                                    viewModel.isPointInsidePolygon(MapPoint(dest.lat, dest.lng))
+                                if (result.first) {
+                                    viewModel.getAddressDetails(MapPoint(dest.lat, dest.lng))
+                                    viewModel.updateSelectedLocation(addressId = result.second)
+                                } else Toast.makeText(context, "Out of service", Toast.LENGTH_SHORT)
+                                    .show()
+                            }
+                        } else {
+                            currentLatLng.value = MapPoint(dest.lat, dest.lng)
+                            actionHandler.moveCamera(
+                                MapPoint(
+                                    lat = dest.lat,
+                                    lng = dest.lng
+                                ),
+                                animate = true
+                            )
                         }
-                    } else {
-                        currentLatLng.value = MapPoint(dest.lat, dest.lng)
-                        mapActionHandler.moveCamera(
-                            MapPoint(
-                                lat = dest.lat,
-                                lng = dest.lng
-                            ),
-                            animate = true
+                    } else if (searchLocationVisibility == SearchLocationVisibility.END) {
+                        val destinations = uiState.destinations.toMutableList()
+                        destinations.add(
+                            MapUIState.Destination(
+                                dest.name,
+                                MapPoint(dest.lat, dest.lng)
+                            )
                         )
+                        viewModel.updateDestinations(destinations)
                     }
-                } else if (searchForLocationSheetVisibility.value == SearchForLocationBottomSheetVisibility.END) {
+                },
+                onSearchForAddress = {
+                    viewModel.searchForAddress(
+                        query = it,
+                        point = currentLatLng.value
+                    )
+                },
+                onClickMap = {
+                    openMapVisibility =
+                        if (searchLocationVisibility == SearchLocationVisibility.START) {
+                            OpenMapVisibility.START
+                        } else {
+                            OpenMapVisibility.END
+                        }
+                },
+                onDismissRequest = {
+                    scope.launch {
+                        searchLocationVisibility = SearchLocationVisibility.INVISIBLE
+                        searchLocationState.hide()
+                        viewModel.updateUIState(foundAddresses = emptyList())
+                    }
+                }
+            )
+        }
+
+
+        if (openMapVisibility != OpenMapVisibility.INVISIBLE) SelectFromMapBottomSheet(
+            isForDestination = openMapVisibility == OpenMapVisibility.END,
+            onSelectLocation = { name, location, isForDestination ->
+                if (isForDestination) {
                     val destinations = uiState.destinations.toMutableList()
                     destinations.add(
                         MapUIState.Destination(
-                            dest.name,
-                            MapPoint(dest.lat, dest.lng)
+                            name,
+                            MapPoint(location.latitude, location.longitude)
                         )
                     )
                     viewModel.updateDestinations(destinations)
-                }
-            },
-            onSearchForAddress = {
-                viewModel.searchForAddress(
-                    query = it,
-                    point = currentLatLng.value
-                )
-            },
-            onClickMap = {
-//                scope.launch { searchForLocationSheetState.show() }.invokeOnCompletion {  }
-                selectFromMapSheetVisibility.value =
-                    if (searchForLocationSheetVisibility.value == SearchForLocationBottomSheetVisibility.START) {
-                        SelectFromMapSheetVisibility.START
-                    } else {
-                        SelectFromMapSheetVisibility.END
-                    }
-            },
-            onDismissRequest = {
-                scope.launch {
-                    searchForLocationSheetVisibility.value =
-                        SearchForLocationBottomSheetVisibility.INVISIBLE
-                    searchForLocationSheetState.hide()
-                    viewModel.updateUIState(foundAddresses = emptyList())
-                }
-            }
-        )
-    }
-
-
-    if (selectFromMapSheetVisibility.value != SelectFromMapSheetVisibility.INVISIBLE) SelectFromMapBottomSheet(
-        isForDestination = selectFromMapSheetVisibility.value == SelectFromMapSheetVisibility.END,
-        onSelectLocation = { name, location, isForDestination ->
-            if (isForDestination) {
-                val destinations = uiState.destinations.toMutableList()
-                destinations.add(
-                    MapUIState.Destination(
-                        name,
-                        MapPoint(location.latitude, location.longitude)
-                    )
-                )
-                viewModel.updateDestinations(destinations)
-            } else {
-                if (uiState.moveCameraButtonState == MoveCameraButtonState.MyRouteView) {
-                    viewModel.getAddressDetails(MapPoint(location.latitude, location.longitude))
                 } else {
-                    mapActionHandler.moveCamera(
-                        MapPoint(
-                            lat = location.latitude,
-                            lng = location.longitude
-                        ),
-                        animate = true
-                    )
-                    currentLatLng.value = MapPoint(location.latitude, location.longitude)
-                }
-            }
-        },
-        onDismissRequest = {
-            selectFromMapSheetVisibility.value = SelectFromMapSheetVisibility.INVISIBLE
-        }
-    )
-
-    AnimatedVisibility(
-        visible = arrangeDestinationsSheetVisibility.value,
-        enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
-        exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
-    ) {
-        if (arrangeDestinationsSheetVisibility.value) ArrangeDestinationsBottomSheet(
-            destinations = uiState.destinations,
-            sheetState = arrangeDestinationsSheetState,
-            onAddNewDestinationClick = {
-                scope.launch {
-                    searchForLocationSheetVisibility.value =
-                        SearchForLocationBottomSheetVisibility.END
-                    searchForLocationSheetState.show()
-                }
-            },
-            onDismissRequest = { orderedDestinations ->
-                scope.launch {
-                    arrangeDestinationsSheetVisibility.value = false
-                    arrangeDestinationsSheetState.hide()
-                    viewModel.updateDestinations(orderedDestinations)
-
-                    if (orderedDestinations.isEmpty()) getCurrentLocation(context) { location ->
-                        currentLatLng.value = MapPoint(location.latitude, location.longitude)
-                        mapActionHandler.moveCamera(
-                            mapPoint = MapPoint(location.latitude, location.longitude),
+                    if (uiState.moveCameraButtonState == MoveCameraButtonState.MyRouteView) {
+                        viewModel.getAddressDetails(MapPoint(location.latitude, location.longitude))
+                    } else {
+                        actionHandler.moveCamera(
+                            MapPoint(
+                                lat = location.latitude,
+                                lng = location.longitude
+                            ),
                             animate = true
                         )
+                        currentLatLng.value = MapPoint(location.latitude, location.longitude)
                     }
                 }
-            }
+            },
+            onDismissRequest = { openMapVisibility = OpenMapVisibility.INVISIBLE }
         )
-    }
 
-    AnimatedVisibility(
-        visible = tariffBottomSheetVisibility.value,
-        enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
-        exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
-    ) {
-        uiState.selectedTariff?.let { selectedTariff ->
-            if (tariffBottomSheetVisibility.value) TariffInfoBottomSheet(
-                sheetState = tariffBottomSheetState,
-                tariff = selectedTariff,
-                arrivingTime = uiState.timeout.or0(),
-                onDismissRequest = {
+        AnimatedVisibility(
+            visible = destinationsVisibility,
+            enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
+            exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
+        ) {
+            if (destinationsVisibility) ArrangeDestinationsBottomSheet(
+                destinations = uiState.destinations,
+                sheetState = destinationsState,
+                onAddNewDestinationClick = {
+                    searchLocationVisibility = SearchLocationVisibility.END
+                    scope.launch { searchLocationState.show() }
+                },
+                onDismissRequest = { orderedDestinations ->
+                    destinationsVisibility = false
                     scope.launch {
-                        tariffBottomSheetVisibility.value = false
-                        tariffBottomSheetState.hide()
+                        destinationsState.hide()
+                        viewModel.updateDestinations(orderedDestinations)
+
+                        if (orderedDestinations.isEmpty()) getCurrentLocation(context) { location ->
+                            currentLatLng.value = MapPoint(location.latitude, location.longitude)
+                            actionHandler.moveCamera(
+                                mapPoint = MapPoint(location.latitude, location.longitude),
+                                animate = true
+                            )
+                        }
                     }
                 }
             )
         }
+
+        AnimatedVisibility(
+            visible = tariffVisibility,
+            enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
+            exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
+        ) {
+            uiState.selectedTariff?.let { selectedTariff ->
+                if (tariffVisibility) TariffInfoBottomSheet(
+                    sheetState = tariffState,
+                    tariff = selectedTariff,
+                    arrivingTime = uiState.timeout.or0(),
+                    onDismissRequest = {
+                        tariffVisibility = false
+                        scope.launch { tariffState.hide() }
+                    }
+                )
+            }
+        }
+
+        AnimatedVisibility(
+            visible = optionsVisibility,
+            enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
+            exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
+        ) {
+            uiState.selectedTariff?.let { selectedTariff ->
+                if (optionsVisibility) SetOrderOptionsBottomSheet(
+                    sheetState = optionsState,
+                    selectedTariff = selectedTariff,
+                    options = uiState.options,
+                    selectedOptions = uiState.selectedOptions,
+                    onSave = { options -> viewModel.updateSelectedOptions(options) },
+                    onDismissRequest = {
+                        optionsVisibility = false
+                        scope.launch { optionsState.hide() }
+                    }
+                )
+            }
+        }
     }
 
-    AnimatedVisibility(
-        visible = setOrderOptionsBottomSheetVisibility.value,
-        enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
-        exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
+    fun showTariff(
+        show: Boolean
     ) {
-        uiState.selectedTariff?.let { selectedTariff ->
-            if (setOrderOptionsBottomSheetVisibility.value) SetOrderOptionsBottomSheet(
-                sheetState = setOrderOptionsBottomSheetState,
-                selectedTariff = selectedTariff,
-                options = uiState.options,
-                selectedOptions = uiState.selectedOptions,
-                onSave = { options -> viewModel.updateSelectedOptions(options) },
-                onDismissRequest = {
-                    scope.launch {
-                        setOrderOptionsBottomSheetVisibility.value = false
-                        setOrderOptionsBottomSheetState.hide()
-                    }
-                }
-            )
+        tariffVisibility = show
+        scope.launch { if (show) tariffState.show() else tariffState.hide() }
+    }
+
+    fun showSearchLocation(
+        show: Boolean,
+        forDest: Boolean = false
+    ) {
+        if (show) {
+            if (forDest) {
+                searchLocationVisibility = SearchLocationVisibility.END
+                scope.launch { searchLocationState.show() }
+            } else {
+                searchLocationVisibility = SearchLocationVisibility.START
+                scope.launch { searchLocationState.show() }
+            }
+        } else {
+            searchLocationVisibility = SearchLocationVisibility.INVISIBLE
+            scope.launch { searchLocationState.hide() }
         }
+    }
+
+    fun showDestinations(
+        show: Boolean
+    ) {
+        destinationsVisibility = show
+        scope.launch { if (show) destinationsState.show() else destinationsState.hide() }
+    }
+
+    fun showOptions(
+        show: Boolean
+    ) {
+        optionsVisibility = show
+        scope.launch { if (show) optionsState.show() else optionsState.hide() }
     }
 }

@@ -117,4 +117,7 @@ dependencies {
 
     // Google pay
     implementation(libs.play.services.wallet)
+
+    // Lottie compose
+    implementation(libs.lottie.compose)
 }

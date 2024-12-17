@@ -8,6 +8,9 @@ pluginManagement {
             url = uri("http://artifactory.2gis.dev/sdk-maven-release")
             isAllowInsecureProtocol = true
         }
+        maven {
+            url = uri("https://oss.sonatype.org/content/repositories/snapshots/v6.4.2-SNAPSHOT")
+        }
     }
 }
 
@@ -18,6 +21,10 @@ dependencyResolutionManagement {
         maven {
             url = uri("http://artifactory.2gis.dev/sdk-maven-release")
             isAllowInsecureProtocol = true
+        }
+        maven {
+            url = uri("https://oss.sonatype.org/content/repositories/snapshots/v6.4.2-SNAPSHOT")
+
         }
     }
 }

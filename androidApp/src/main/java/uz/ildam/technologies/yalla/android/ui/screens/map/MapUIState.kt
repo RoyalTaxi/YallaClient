@@ -3,7 +3,9 @@ package uz.ildam.technologies.yalla.android.ui.screens.map
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
+import uz.ildam.technologies.yalla.core.domain.model.ExecutorModel
 import uz.ildam.technologies.yalla.feature.map.domain.model.map.SearchForAddressItemModel
+import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.SettingModel
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.tarrif.GetTariffsModel
 
 data class MapUIState(
@@ -12,7 +14,11 @@ data class MapUIState(
     val destinations: List<Destination> = emptyList(),
     val tariffs: GetTariffsModel? = null,
     val selectedTariff: GetTariffsModel.Tariff? = null,
-    val timeout: Int? = 0,
+    val timeout: Int? = null,
+    val isSearchingForCars: Boolean = false,
+    val setting: SettingModel? = null,
+    val drivers: List<ExecutorModel> = emptyList(),
+    val orders: List<Int> = emptyList(),
     val foundAddresses: List<SearchForAddressItemModel> = emptyList(),
     val route: List<MapPoint> = emptyList(),
     val options: List<GetTariffsModel.Tariff.Service> = emptyList(),
