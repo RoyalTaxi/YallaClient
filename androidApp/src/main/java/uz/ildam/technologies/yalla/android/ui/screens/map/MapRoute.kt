@@ -43,6 +43,7 @@ fun MapRoute(
     onOrderHistoryClick: () -> Unit,
     onPaymentTypeClick: () -> Unit,
     onCancel: () -> Unit,
+    onAddNewCard: () -> Unit,
     vm: MapViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
@@ -54,6 +55,7 @@ fun MapRoute(
     val tariffState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val optionsState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val confirmCancellationState = rememberModalBottomSheetState(confirmValueChange = { false })
+    val selectPaymentMethodState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scaffoldState = rememberBottomSheetScaffoldState(sheetState = rememberBottomSheetState(
@@ -97,6 +99,7 @@ fun MapRoute(
                 tariffState = tariffState,
                 optionsState = optionsState,
                 confirmCancellationState = confirmCancellationState,
+                selectPaymentMethodState = selectPaymentMethodState,
                 viewModel = vm
             )
         )
@@ -105,10 +108,7 @@ fun MapRoute(
     val sheetHandler by remember {
         mutableStateOf(
             MapSheetHandler(
-                context = context,
-                scope = scope,
                 viewModel = vm,
-                actionHandler = actionHandler,
                 bottomSheetHandler = bottomSheetHandler
             )
         )
@@ -121,7 +121,6 @@ fun MapRoute(
                 is MapActionState.PolygonLoaded -> vm.getAddressDetails(currentLatLng.value)
                 is MapActionState.TariffsLoaded -> vm.getTimeout(currentLatLng.value)
                 is MapActionState.AddressNameLoaded -> vm.updateSelectedLocation(name = action.name)
-
                 else -> {}
             }
         }
@@ -154,7 +153,10 @@ fun MapRoute(
     }
 
     LaunchedEffect(uiState.isSearchingForCars) {
-        if (uiState.isSearchingForCars) sheetHandler.showSearchCars()
+        if (uiState.isSearchingForCars) {
+            sheetHandler.showSearchCars()
+            actionHandler.moveCamera(uiState.selectedLocation?.point!!)
+        }
         else {
             bottomSheetHandler.showConfirmCancellation(false)
             sheetHandler.showOrderTaxi()
@@ -219,6 +221,7 @@ fun MapRoute(
         uiState = uiState,
         currentLatLng = currentLatLng,
         actionHandler = actionHandler,
+        onAddNewCard = onAddNewCard,
         onCancel = {
             uiState.selectedOrder?.let { vm.cancelRide(it) }
             onCancel()

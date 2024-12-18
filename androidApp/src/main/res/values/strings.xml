@@ -84,4 +84,6 @@
     <string name="order_again">Заказать ещё</string>
     <string name="why_canceled">Почему вы отменили заказ?</string>
     <string name="we_need_cause">Нам важно знать причины, чтобы совершенствовать наш сервис.</string>
+    <string name="choose_desired_payment_type">Выберете удобный способ оплаты</string>
+    <string name="ready">Готово</string>
 </resources>

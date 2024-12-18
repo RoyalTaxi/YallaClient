@@ -3,6 +3,7 @@ package uz.ildam.technologies.yalla.feature.order.domain.model.request
 data class OrderTaxiDto(
     val dontCallMe: Boolean,
     val service: String,
+    val cardId: String?,
     val addressId: Int,
     val toPhone: String,
     val comment: String,

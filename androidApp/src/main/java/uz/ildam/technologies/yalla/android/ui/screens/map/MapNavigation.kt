@@ -15,7 +15,8 @@ fun NavGraphBuilder.mapScreen(
     onOrderHistoryClick: () -> Unit,
     onPaymentTypeClick: () -> Unit,
     onPermissionDenied: () -> Unit,
-    onCancel: () -> Unit
+    onCancel: () -> Unit,
+    onAddNewCard: () -> Unit,
 ) {
     composable(
         route = MAP_ROUTE,
@@ -28,7 +29,8 @@ fun NavGraphBuilder.mapScreen(
             onOrderHistoryClick = onOrderHistoryClick,
             onPaymentTypeClick = onPaymentTypeClick,
             onPermissionDenied = onPermissionDenied,
-            onCancel = onCancel
+            onCancel = onCancel,
+            onAddNewCard = onAddNewCard
         )
     }
 }

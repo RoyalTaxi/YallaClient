@@ -16,7 +16,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -39,6 +38,7 @@ fun OrderTaxiBottomSheet(
     onCurrentLocationClick: () -> Unit,
     onDestinationClick: () -> Unit,
     onSetOptionsClick: () -> Unit,
+    onSelectPaymentMethodClick: () -> Unit,
     onCreateOrder: () -> Unit
 ) {
     Column(
@@ -105,7 +105,7 @@ fun OrderTaxiBottomSheet(
             OptionsButton(
                 modifier = Modifier.fillMaxHeight(),
                 painter = painterResource(R.drawable.img_money),
-                onClick = {}
+                onClick = onSelectPaymentMethodClick
             )
 
             YallaButton(

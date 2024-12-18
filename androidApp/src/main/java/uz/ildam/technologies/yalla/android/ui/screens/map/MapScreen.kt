@@ -192,6 +192,7 @@ fun MapScreen(
                         uiState.drivers.forEach {
                             MarkerComposable(
                                 flat = true,
+                                rotation = it.heading.toFloat(),
                                 state = remember(it) {
                                     MarkerState(
                                         position = LatLng(
@@ -218,15 +219,14 @@ fun MapScreen(
                         .padding(20.dp)
                         .padding(bottom = 24.dp)
                 ) {
-                    if (uiState.route.isEmpty()) {
-                        YallaMarker(
-                            time = uiState.timeout,
-                            isLoading = isLoading || uiState.timeout == null,
-                            isSearching = uiState.isSearchingForCars,
-                            selectedAddressName = uiState.selectedLocation?.name,
-                            modifier = Modifier.align(Alignment.Center)
-                        )
-                    }
+                    YallaMarker(
+                        time = uiState.timeout,
+                        isLoading = isLoading || uiState.timeout == null,
+                        isSearching = uiState.isSearchingForCars,
+                        isDestinationEmpty = uiState.route.isEmpty(),
+                        selectedAddressName = uiState.selectedLocation?.name,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
 
                     if (uiState.isSearchingForCars.not()) {
                         MapButton(

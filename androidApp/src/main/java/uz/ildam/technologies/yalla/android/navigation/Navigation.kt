@@ -92,7 +92,8 @@ fun Navigation() {
                 onOrderHistoryClick = navController::navigateToHistoryScreen,
                 onPaymentTypeClick = navController::navigateToCardListScreen,
                 onPermissionDenied = navController::navigateToPermissionScreen,
-                onCancel = navController::navigateToCancelReasonScreen
+                onCancel = navController::navigateToCancelReasonScreen,
+                onAddNewCard = navController::navigateToAddCardScreen
             )
 
             historyScreen(

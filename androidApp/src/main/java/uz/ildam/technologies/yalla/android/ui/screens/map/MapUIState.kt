@@ -3,10 +3,12 @@ package uz.ildam.technologies.yalla.android.ui.screens.map
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
+import uz.ildam.technologies.yalla.core.data.enums.PaymentType
 import uz.ildam.technologies.yalla.core.domain.model.ExecutorModel
 import uz.ildam.technologies.yalla.feature.map.domain.model.map.SearchForAddressItemModel
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.SettingModel
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.tarrif.GetTariffsModel
+import uz.ildam.technologies.yalla.feature.payment.domain.model.CardListItemModel
 
 data class MapUIState(
     val markerSelectedLocation: SelectedLocation? = null,
@@ -20,6 +22,8 @@ data class MapUIState(
     val drivers: List<ExecutorModel> = emptyList(),
     val orders: List<Int> = emptyList(),
     val selectedOrder: Int? = null,
+    val selectedPaymentType: PaymentType = PaymentType.CASH,
+    val paymentTypes: List<CardListItemModel> = emptyList(),
     val foundAddresses: List<SearchForAddressItemModel> = emptyList(),
     val route: List<MapPoint> = emptyList(),
     val options: List<GetTariffsModel.Tariff.Service> = emptyList(),

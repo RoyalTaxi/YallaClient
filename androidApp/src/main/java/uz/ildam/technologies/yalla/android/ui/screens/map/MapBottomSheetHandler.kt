@@ -19,6 +19,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.android.ui.sheets.ArrangeDestinationsBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.ConfirmCancellationBottomSheet
+import uz.ildam.technologies.yalla.android.ui.sheets.PaymentMethodBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.SearchByNameBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.SetOrderOptionsBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.TariffInfoBottomSheet
@@ -35,6 +36,7 @@ class MapBottomSheetHandler(
     private val tariffState: SheetState,
     private val optionsState: SheetState,
     private val confirmCancellationState: SheetState,
+    private val selectPaymentMethodState: SheetState,
     private val viewModel: MapViewModel
 ) {
     private var openMapVisibility by mutableStateOf(OpenMapVisibility.INVISIBLE)
@@ -43,6 +45,7 @@ class MapBottomSheetHandler(
     private var tariffVisibility by mutableStateOf(false)
     private var optionsVisibility by mutableStateOf(false)
     private var confirmCancellationVisibility by mutableStateOf(false)
+    private var selectPaymentMethodVisibility by mutableStateOf(false)
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
@@ -50,6 +53,7 @@ class MapBottomSheetHandler(
         uiState: MapUIState,
         currentLatLng: MutableState<MapPoint>,
         actionHandler: MapActionHandler,
+        onAddNewCard: () -> Unit,
         onCancel: () -> Unit
     ) {
         AnimatedVisibility(
@@ -112,11 +116,8 @@ class MapBottomSheetHandler(
                         }
                 },
                 onDismissRequest = {
-                    scope.launch {
-                        searchLocationVisibility = SearchLocationVisibility.INVISIBLE
-                        searchLocationState.hide()
-                        viewModel.updateUIState(foundAddresses = emptyList())
-                    }
+                    showSearchLocation(false)
+                    viewModel.updateUIState(foundAddresses = emptyList())
                 }
             )
         }
@@ -165,18 +166,14 @@ class MapBottomSheetHandler(
                     scope.launch { searchLocationState.show() }
                 },
                 onDismissRequest = { orderedDestinations ->
-                    destinationsVisibility = false
-                    scope.launch {
-                        destinationsState.hide()
-                        viewModel.updateDestinations(orderedDestinations)
-
-                        if (orderedDestinations.isEmpty()) getCurrentLocation(context) { location ->
-                            currentLatLng.value = MapPoint(location.latitude, location.longitude)
-                            actionHandler.moveCamera(
-                                mapPoint = MapPoint(location.latitude, location.longitude),
-                                animate = true
-                            )
-                        }
+                    showDestinations(false)
+                    viewModel.updateDestinations(orderedDestinations)
+                    if (orderedDestinations.isEmpty()) getCurrentLocation(context) { location ->
+                        currentLatLng.value = MapPoint(location.latitude, location.longitude)
+                        actionHandler.moveCamera(
+                            mapPoint = MapPoint(location.latitude, location.longitude),
+                            animate = true
+                        )
                     }
                 }
             )
@@ -192,10 +189,7 @@ class MapBottomSheetHandler(
                     sheetState = tariffState,
                     tariff = selectedTariff,
                     arrivingTime = uiState.timeout.or0(),
-                    onDismissRequest = {
-                        tariffVisibility = false
-                        scope.launch { tariffState.hide() }
-                    }
+                    onDismissRequest = { showTariff(false) }
                 )
             }
         }
@@ -212,10 +206,7 @@ class MapBottomSheetHandler(
                     options = uiState.options,
                     selectedOptions = uiState.selectedOptions,
                     onSave = { options -> viewModel.updateSelectedOptions(options) },
-                    onDismissRequest = {
-                        optionsVisibility = false
-                        scope.launch { optionsState.hide() }
-                    }
+                    onDismissRequest = { showOptions(false) }
                 )
             }
         }
@@ -230,8 +221,23 @@ class MapBottomSheetHandler(
                 onDismissRequest = { showConfirmCancellation(false) },
                 onConfirm = {
                     uiState.selectedOrder?.let { viewModel.cancelRide(it) }
+                    showConfirmCancellation(false)
                     onCancel()
                 }
+            )
+        }
+
+        AnimatedVisibility(
+            visible = selectPaymentMethodVisibility,
+            enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
+            exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
+        ) {
+            if (selectPaymentMethodVisibility) PaymentMethodBottomSheet(
+                sheetState = selectPaymentMethodState,
+                uiState = uiState,
+                onSelectPaymentType = { viewModel.updateUIState(selectedPaymentType = it) },
+                onAddNewCard = onAddNewCard,
+                onDismissRequest = { showPaymentMethod(false) }
             )
         }
     }
@@ -280,5 +286,11 @@ class MapBottomSheetHandler(
     ) {
         confirmCancellationVisibility = show
         scope.launch { if (show) confirmCancellationState.show() else confirmCancellationState.hide() }
+    }
+
+    fun showPaymentMethod(show: Boolean) {
+        viewModel.getCardList()
+        selectPaymentMethodVisibility = show
+        scope.launch { if (show) selectPaymentMethodState.show() else selectPaymentMethodState.hide() }
     }
 }

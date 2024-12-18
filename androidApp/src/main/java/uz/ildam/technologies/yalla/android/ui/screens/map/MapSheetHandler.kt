@@ -1,6 +1,5 @@
 package uz.ildam.technologies.yalla.android.ui.screens.map
 
-import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -12,15 +11,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import kotlinx.coroutines.CoroutineScope
 import uz.ildam.technologies.yalla.android.ui.sheets.OrderTaxiBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.SearchForCarsBottomSheet
 
 class MapSheetHandler(
-    private val context: Context,
-    private val scope: CoroutineScope,
     private val viewModel: MapViewModel,
-    private val actionHandler: MapActionHandler,
     private val bottomSheetHandler: MapBottomSheetHandler
 ) {
     private var orderTaxiVisibility by mutableStateOf(true)
@@ -65,6 +60,11 @@ class MapSheetHandler(
                 },
                 onSetOptionsClick = {
                     bottomSheetHandler.showOptions(
+                        show = true
+                    )
+                },
+                onSelectPaymentMethodClick = {
+                    bottomSheetHandler.showPaymentMethod(
                         show = true
                     )
                 },
