@@ -3,6 +3,7 @@ package uz.ildam.technologies.yalla.android.di
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import uz.ildam.technologies.yalla.android.ui.screens.add_card.AddCardViewModel
+import uz.ildam.technologies.yalla.android.ui.screens.cancel_reason.CancelReasonViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.card_list.CardListViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.card_verification.CardVerificationViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.credentials.CredentialsViewModel
@@ -28,6 +29,7 @@ object Navigation {
         viewModelOf(::AddCardViewModel)
         viewModelOf(::CardListViewModel)
         viewModelOf(::CardVerificationViewModel)
+        viewModelOf(::CancelReasonViewModel)
     }
 
     val modules = listOf(viewModelModule)

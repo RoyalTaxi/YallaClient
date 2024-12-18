@@ -42,6 +42,7 @@ fun MapRoute(
     onPermissionDenied: () -> Unit,
     onOrderHistoryClick: () -> Unit,
     onPaymentTypeClick: () -> Unit,
+    onCancel: () -> Unit,
     vm: MapViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
@@ -52,7 +53,7 @@ fun MapRoute(
     val destinationsState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val tariffState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val optionsState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val searchCarsState = rememberModalBottomSheetState(confirmValueChange = { false })
+    val confirmCancellationState = rememberModalBottomSheetState(confirmValueChange = { false })
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scaffoldState = rememberBottomSheetScaffoldState(sheetState = rememberBottomSheetState(
@@ -95,7 +96,7 @@ fun MapRoute(
                 destinationsState = destinationsState,
                 tariffState = tariffState,
                 optionsState = optionsState,
-                searchCarsState = searchCarsState,
+                confirmCancellationState = confirmCancellationState,
                 viewModel = vm
             )
         )
@@ -154,7 +155,10 @@ fun MapRoute(
 
     LaunchedEffect(uiState.isSearchingForCars) {
         if (uiState.isSearchingForCars) sheetHandler.showSearchCars()
-        else sheetHandler.showOrderTaxi()
+        else {
+            bottomSheetHandler.showConfirmCancellation(false)
+            sheetHandler.showOrderTaxi()
+        }
     }
 
     if (permissionsGranted) MapDrawer(
@@ -214,7 +218,11 @@ fun MapRoute(
     bottomSheetHandler.Sheets(
         uiState = uiState,
         currentLatLng = currentLatLng,
-        actionHandler = actionHandler
+        actionHandler = actionHandler,
+        onCancel = {
+            uiState.selectedOrder?.let { vm.cancelRide(it) }
+            onCancel()
+        }
     )
 
     if (AppPreferences.mapType == MapType.Google) LaunchedEffect(googleCameraState.isMoving) {

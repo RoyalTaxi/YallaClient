@@ -21,5 +21,9 @@ interface OrderRepository {
 
     suspend fun cancelRide(orderId: Int): Result<Unit, DataError.Network>
 
-    suspend fun cancelReason(orderId: Int): Result<Unit, DataError.Network>
+    suspend fun cancelReason(
+        orderId: Int,
+        reasonId: Int,
+        reasonComment: String
+    ): Result<Unit, DataError.Network>
 }

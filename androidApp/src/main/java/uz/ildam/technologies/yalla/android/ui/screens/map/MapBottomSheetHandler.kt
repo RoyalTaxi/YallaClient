@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.android.ui.sheets.ArrangeDestinationsBottomSheet
+import uz.ildam.technologies.yalla.android.ui.sheets.ConfirmCancellationBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.SearchByNameBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.SetOrderOptionsBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.TariffInfoBottomSheet
@@ -33,7 +34,7 @@ class MapBottomSheetHandler(
     private val destinationsState: SheetState,
     private val tariffState: SheetState,
     private val optionsState: SheetState,
-    private val searchCarsState: SheetState,
+    private val confirmCancellationState: SheetState,
     private val viewModel: MapViewModel
 ) {
     private var openMapVisibility by mutableStateOf(OpenMapVisibility.INVISIBLE)
@@ -41,6 +42,7 @@ class MapBottomSheetHandler(
     private var destinationsVisibility by mutableStateOf(false)
     private var tariffVisibility by mutableStateOf(false)
     private var optionsVisibility by mutableStateOf(false)
+    private var confirmCancellationVisibility by mutableStateOf(false)
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
@@ -48,6 +50,7 @@ class MapBottomSheetHandler(
         uiState: MapUIState,
         currentLatLng: MutableState<MapPoint>,
         actionHandler: MapActionHandler,
+        onCancel: () -> Unit
     ) {
         AnimatedVisibility(
             visible = searchLocationVisibility != SearchLocationVisibility.INVISIBLE,
@@ -216,6 +219,21 @@ class MapBottomSheetHandler(
                 )
             }
         }
+
+        AnimatedVisibility(
+            visible = confirmCancellationVisibility,
+            enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
+            exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
+        ) {
+            if (confirmCancellationVisibility) ConfirmCancellationBottomSheet(
+                sheetState = confirmCancellationState,
+                onDismissRequest = { showConfirmCancellation(false) },
+                onConfirm = {
+                    uiState.selectedOrder?.let { viewModel.cancelRide(it) }
+                    onCancel()
+                }
+            )
+        }
     }
 
     fun showTariff(
@@ -255,5 +273,12 @@ class MapBottomSheetHandler(
     ) {
         optionsVisibility = show
         scope.launch { if (show) optionsState.show() else optionsState.hide() }
+    }
+
+    fun showConfirmCancellation(
+        show: Boolean
+    ) {
+        confirmCancellationVisibility = show
+        scope.launch { if (show) confirmCancellationState.show() else confirmCancellationState.hide() }
     }
 }

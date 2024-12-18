@@ -20,6 +20,12 @@ object AppPreferences {
             preferences.edit()?.putString(AppPreferences::locale.name, value)?.apply()
         }
 
+    var lastOrderId: Int
+        get() = preferences.getInt(AppPreferences::lastOrderId.name, -1)
+        set(value) {
+            preferences.edit()?.putInt(AppPreferences::lastOrderId.name, value)?.apply()
+        }
+
     var isDeviceRegistered: Boolean
         get() = preferences.getBoolean(AppPreferences::isDeviceRegistered.name, false)
         set(value) {

@@ -11,6 +11,7 @@ import uz.ildam.technologies.yalla.core.data.exception.safeApiCall
 import uz.ildam.technologies.yalla.core.data.response.ApiResponseWrapper
 import uz.ildam.technologies.yalla.core.domain.error.DataError
 import uz.ildam.technologies.yalla.core.domain.error.Result
+import uz.ildam.technologies.yalla.feature.order.data.request.order.CancelOrderReason
 import uz.ildam.technologies.yalla.feature.order.data.request.order.OrderTaxiRequest
 import uz.ildam.technologies.yalla.feature.order.data.response.order.OrderTaxiResponse
 import uz.ildam.technologies.yalla.feature.order.data.response.order.SearchCarResponse
@@ -47,7 +48,18 @@ class OrderService(
         ktor.put(OrderUrl.CANCEL_RIDE + orderId)
     }
 
-    suspend fun cancelReason(orderId: Int): Result<Unit, DataError.Network> = safeApiCall {
-        ktor.put(OrderUrl.CANCEL_REASON + orderId)
+    suspend fun cancelReason(
+        orderId: Int,
+        reasonId: Int,
+        reasonComment: String
+    ): Result<Unit, DataError.Network> = safeApiCall {
+        ktor.put(OrderUrl.CANCEL_REASON + orderId) {
+            setBody(
+                CancelOrderReason(
+                    reason_id = reasonId,
+                    reason_comment = reasonComment
+                )
+            )
+        }
     }
 }

@@ -24,6 +24,7 @@ import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.SearchForAddre
 import uz.ildam.technologies.yalla.feature.order.domain.model.request.OrderTaxiDto
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.SettingModel
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.tarrif.GetTariffsModel
+import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.CancelReasonUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.CancelRideUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.GetSettingUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.OrderTaxiUseCase
@@ -367,6 +368,7 @@ class MapViewModel(
         when (cancelRideUseCase(orderId)) {
             is Result.Error -> {}
             is Result.Success -> {
+                AppPreferences.lastOrderId = orderId
                 val orders = uiState.value.orders.toMutableList()
                 orders.remove(orderId)
                 updateUIState(

@@ -5,5 +5,9 @@ import uz.ildam.technologies.yalla.feature.order.domain.repository.OrderReposito
 class CancelReasonUseCase(
     private val repository: OrderRepository
 ) {
-    suspend operator fun invoke(orderId: Int) = repository.cancelRide(orderId)
+    suspend operator fun invoke(
+        orderId: Int,
+        reasonId: Int,
+        reasonComment: String
+    ) = repository.cancelReason(orderId, reasonId, reasonComment)
 }

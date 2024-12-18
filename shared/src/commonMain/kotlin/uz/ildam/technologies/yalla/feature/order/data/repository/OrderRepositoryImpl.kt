@@ -72,8 +72,16 @@ class OrderRepositoryImpl(
         }
     }
 
-    override suspend fun cancelReason(orderId: Int): Result<Unit, DataError.Network> {
-        return when (val result = orderService.cancelRide(orderId)) {
+    override suspend fun cancelReason(
+        orderId: Int,
+        reasonId: Int,
+        reasonComment: String
+    ): Result<Unit, DataError.Network> {
+        return when (val result = orderService.cancelReason(
+            orderId = orderId,
+            reasonId = reasonId,
+            reasonComment = reasonComment
+        )) {
             is Result.Error -> Result.Error(result.error)
             is Result.Success -> Result.Success(Unit)
         }

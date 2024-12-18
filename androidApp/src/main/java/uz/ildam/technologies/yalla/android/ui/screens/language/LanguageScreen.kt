@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
-import uz.ildam.technologies.yalla.android.ui.components.item.LanguageItem
+import uz.ildam.technologies.yalla.android.ui.components.item.ItemTextSelectable
 import uz.ildam.technologies.yalla.android.ui.components.toolbar.YallaToolbar
 
 @Composable
@@ -57,7 +57,7 @@ internal fun LanguageScreen(
         Spacer(modifier = Modifier.height(20.dp))
 
         uiState.languages.forEach { lang ->
-            LanguageItem(
+            ItemTextSelectable(
                 text = stringResource(id = lang.stringResId),
                 isSelected = uiState.selectedLanguage?.languageTag == lang.languageTag,
                 onSelect = { onIntent(LanguageIntent.SetLanguage(lang)) }

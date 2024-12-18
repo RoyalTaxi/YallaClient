@@ -83,9 +83,7 @@ class MapSheetHandler(
                 currentLocation = currentLatLng.value,
                 uiState = uiState,
                 viewModel = viewModel,
-                onClickCancel = {
-                    uiState.selectedOrder?.let { viewModel.cancelRide(it) }
-                },
+                onClickCancel = { bottomSheetHandler.showConfirmCancellation(true) },
                 onClickDetails = {
 
                 }

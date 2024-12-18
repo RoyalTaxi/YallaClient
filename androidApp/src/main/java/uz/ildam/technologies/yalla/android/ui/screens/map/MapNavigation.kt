@@ -14,7 +14,8 @@ const val MAP_ROUTE = "map_route"
 fun NavGraphBuilder.mapScreen(
     onOrderHistoryClick: () -> Unit,
     onPaymentTypeClick: () -> Unit,
-    onPermissionDenied: () -> Unit
+    onPermissionDenied: () -> Unit,
+    onCancel: () -> Unit
 ) {
     composable(
         route = MAP_ROUTE,
@@ -26,7 +27,8 @@ fun NavGraphBuilder.mapScreen(
         MapRoute(
             onOrderHistoryClick = onOrderHistoryClick,
             onPaymentTypeClick = onPaymentTypeClick,
-            onPermissionDenied = onPermissionDenied
+            onPermissionDenied = onPermissionDenied,
+            onCancel = onCancel
         )
     }
 }
