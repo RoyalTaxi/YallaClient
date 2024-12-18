@@ -28,6 +28,7 @@ class OrderRepositoryImpl(
                 tariff_options = body.tariffOptions,
                 payment_type = body.paymentType,
                 fixed_price = body.fixedPrice,
+                card_id = body.cardId,
                 addresses = body.addresses.map { address ->
                     OrderTaxiRequest.Address(
                         address_id = address.addressId,

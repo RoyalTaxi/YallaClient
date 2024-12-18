@@ -7,30 +7,33 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import okhttp3.Request
 import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
-import uz.ildam.technologies.yalla.android.ui.components.item.BonuseItem
 import uz.ildam.technologies.yalla.android.ui.components.item.SelectPaymentTypeItem
-import uz.ildam.technologies.yalla.android.ui.screens.card_list.CardListIntent
+import uz.ildam.technologies.yalla.android.ui.screens.map.MapUIState
+import uz.ildam.technologies.yalla.core.data.enums.PaymentType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PaymentMethodBottomSheet(
     sheetState: SheetState,
-    bonuseAmount: String,
+    uiState: MapUIState,
+    onSelectPaymentType: (PaymentType) -> Unit,
+    onAddNewCard: () -> Unit,
     onDismissRequest: () -> Unit
 ) {
     ModalBottomSheet(
@@ -47,9 +50,9 @@ fun PaymentMethodBottomSheet(
                 .navigationBarsPadding()
         ) {
             Column(
-                horizontalAlignment = Alignment.Start,
                 verticalArrangement = Arrangement.spacedBy(10.dp),
                 modifier = Modifier
+                    .fillMaxWidth()
                     .background(
                         color = YallaTheme.color.white,
                         shape = RoundedCornerShape(30.dp)
@@ -68,49 +71,66 @@ fun PaymentMethodBottomSheet(
                     color = YallaTheme.color.gray
                 )
             }
-
-            Column(
-                horizontalAlignment = Alignment.Start,
+            LazyColumn(
                 modifier = Modifier
-                    .background(
-                        color = YallaTheme.color.white,
-                        shape = RoundedCornerShape(30.dp)
-                    )
+                    .clip(RoundedCornerShape(30.dp))
+                    .background(YallaTheme.color.white)
             ) {
+                item {
+                    SelectPaymentTypeItem(
+                        isSelected = uiState.selectedPaymentType == PaymentType.CASH,
+                        tint = YallaTheme.color.gray,
+                        painter = painterResource(R.drawable.ic_money),
+                        text = stringResource(R.string.cash),
+                        onSelect = { onSelectPaymentType(PaymentType.CASH) },
+                    )
+                }
 
-                BonuseItem(
-                    bonuses = bonuseAmount,
-                    isSelected = false,
-                    onChecked = {}
-                )
+                items(uiState.paymentTypes) { card ->
+                    SelectPaymentTypeItem(
+                        painter = painterResource(
+                            id = when (card.cardId.length) {
+                                16 -> R.drawable.img_logo_humo
+                                32 -> R.drawable.img_logo_uzcard
+                                else -> R.drawable.ic_money
+                            }
+                        ),
+                        text = card.maskedPan,
+                        isSelected = uiState.selectedPaymentType == PaymentType.CARD(
+                            card.cardId,
+                            cardNumber = card.maskedPan
+                        ),
+                        onSelect = {
+                            onSelectPaymentType(
+                                PaymentType.CARD(
+                                    cardId = card.cardId,
+                                    cardNumber = card.maskedPan
+                                )
+                            )
+                        }
+                    )
+                }
 
-                SelectPaymentTypeItem(
-                    isSelected = true,
-                    tint = YallaTheme.color.gray,
-                    painter = painterResource(R.drawable.ic_money),
-                    text = stringResource(R.string.cash),
-                    onSelect = { },
-                )
-
-                SelectPaymentTypeItem(
-                    isSelected = false,
-                    tint = YallaTheme.color.gray,
-                    painter = painterResource(R.drawable.ic_add),
-                    text = stringResource(R.string.add_card),
-                    onSelect = { },
-                )
+                item {
+                    SelectPaymentTypeItem(
+                        isSelected = false,
+                        tint = YallaTheme.color.gray,
+                        painter = painterResource(R.drawable.ic_add),
+                        text = stringResource(R.string.add_card),
+                        onSelect = onAddNewCard,
+                    )
+                }
             }
 
             Box(
-                modifier = Modifier
-                    .background(
-                        color = YallaTheme.color.white,
-                        shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
-                    )
+                modifier = Modifier.background(
+                    color = YallaTheme.color.white,
+                    shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
+                )
             ) {
                 YallaButton(
-                    text = stringResource(R.string.add),
-                    onClick = { },
+                    text = stringResource(R.string.ready),
+                    onClick = onDismissRequest,
                     modifier = Modifier
                         .padding(20.dp)
                         .fillMaxWidth()
@@ -118,5 +138,4 @@ fun PaymentMethodBottomSheet(
             }
         }
     }
-
 }

@@ -10,6 +10,7 @@ import androidx.compose.runtime.setValue
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import uz.ildam.technologies.yalla.android.ui.dialogs.LoadingDialog
 
 @Composable
 fun CancelReasonRoute(
@@ -23,13 +24,13 @@ fun CancelReasonRoute(
         launch { viewModel.getSetting() }
         launch {
             viewModel.actionState.collectLatest { action ->
-                loading = when (action) {
-                    CancelReasonActionState.Error -> false
-                    CancelReasonActionState.GettingSuccess -> false
-                    CancelReasonActionState.Loading -> true
+                when (action) {
+                    CancelReasonActionState.Error -> loading = false
+                    CancelReasonActionState.GettingSuccess -> loading = false
+                    CancelReasonActionState.Loading -> loading = true
                     CancelReasonActionState.SettingSuccess -> {
+                        loading = false
                         onNavigateBack()
-                        false
                     }
                 }
             }
@@ -47,4 +48,6 @@ fun CancelReasonRoute(
             }
         }
     )
+
+    if (loading) LoadingDialog()
 }

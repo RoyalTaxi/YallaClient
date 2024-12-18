@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 data class OrderTaxiRequest(
     val dont_call_me: Boolean,
     val service: String,
+    val card_id: String?,
     val address_id: Int,
     val to_phone: String,
     val comment: String,

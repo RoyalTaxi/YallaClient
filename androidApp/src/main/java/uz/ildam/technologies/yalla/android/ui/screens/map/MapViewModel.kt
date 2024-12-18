@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import uz.ildam.technologies.yalla.core.data.enums.PaymentType
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 import uz.ildam.technologies.yalla.core.data.mapper.or0
 import uz.ildam.technologies.yalla.core.domain.error.Result
@@ -24,13 +25,14 @@ import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.SearchForAddre
 import uz.ildam.technologies.yalla.feature.order.domain.model.request.OrderTaxiDto
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.SettingModel
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.tarrif.GetTariffsModel
-import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.CancelReasonUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.CancelRideUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.GetSettingUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.OrderTaxiUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.SearchCarUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.tariff.GetTariffsUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.tariff.GetTimeOutUseCase
+import uz.ildam.technologies.yalla.feature.payment.domain.model.CardListItemModel
+import uz.ildam.technologies.yalla.feature.payment.domain.usecase.GetCardListUseCase
 import kotlin.time.Duration.Companion.seconds
 
 class MapViewModel(
@@ -42,7 +44,8 @@ class MapViewModel(
     private val orderTaxiUseCase: OrderTaxiUseCase,
     private val searchCarUseCase: SearchCarUseCase,
     private val getSettingUseCase: GetSettingUseCase,
-    private val cancelRideUseCase: CancelRideUseCase
+    private val cancelRideUseCase: CancelRideUseCase,
+    private val getCardListUseCase: GetCardListUseCase
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(MapUIState())
     val uiState = _uiState.asStateFlow()
@@ -189,9 +192,12 @@ class MapViewModel(
                 addressId = uiState.value.selectedLocation!!.addressId!!,
                 toPhone = AppPreferences.number,
                 comment = "",
+                cardId = if (uiState.value.selectedPaymentType is PaymentType.CARD) {
+                    (uiState.value.selectedPaymentType as PaymentType.CARD).cardId
+                } else null,
                 tariffId = uiState.value.selectedTariff!!.id,
                 tariffOptions = uiState.value.selectedOptions.map { it.id },
-                paymentType = "cash",
+                paymentType = uiState.value.selectedPaymentType.typeName.lowercase(),
                 fixedPrice = uiState.value.selectedTariff!!.fixedType,
                 addresses = uiState.value.destinations.map { destination ->
                     OrderTaxiDto.Address(
@@ -267,6 +273,8 @@ class MapViewModel(
         selectedTariff: GetTariffsModel.Tariff? = _uiState.value.selectedTariff,
         tariffs: GetTariffsModel? = _uiState.value.tariffs,
         drivers: List<ExecutorModel> = _uiState.value.drivers,
+        selectedPaymentType: PaymentType = _uiState.value.selectedPaymentType,
+        paymentTypes: List<CardListItemModel> = _uiState.value.paymentTypes,
         isSearchingForCars: Boolean = _uiState.value.isSearchingForCars,
         setting: SettingModel? = _uiState.value.setting,
         moveCameraButtonState: MoveCameraButtonState = _uiState.value.moveCameraButtonState,
@@ -282,6 +290,8 @@ class MapViewModel(
                 selectedTariff = selectedTariff,
                 tariffs = tariffs,
                 orders = orders,
+                selectedPaymentType = selectedPaymentType,
+                paymentTypes = paymentTypes,
                 selectedOrder = selectedOrder,
                 isSearchingForCars = isSearchingForCars,
                 setting = setting,
@@ -377,6 +387,13 @@ class MapViewModel(
                     isSearchingForCars = false
                 )
             }
+        }
+    }
+
+    fun getCardList() = viewModelScope.launch {
+        when (val result = getCardListUseCase()) {
+            is Result.Error -> {}
+            is Result.Success -> updateUIState(paymentTypes = result.data)
         }
     }
 }

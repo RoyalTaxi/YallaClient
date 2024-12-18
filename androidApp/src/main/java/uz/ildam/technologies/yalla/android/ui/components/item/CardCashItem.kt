@@ -1,6 +1,7 @@
 package uz.ildam.technologies.yalla.android.ui.components.item
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -32,22 +33,23 @@ fun SelectPaymentTypeItem(
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier.padding(horizontal = 10.dp),
+        modifier = modifier,
         onClick = onSelect,
         colors = CardDefaults.cardColors(YallaTheme.color.white)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    horizontal = 10.dp,
-                    vertical = 20.dp
+                    horizontal = 20.dp,
+                    vertical = 12.dp
                 )
         ) {
             Icon(
                 painter = painter,
-                modifier = Modifier.size(24.dp),
+                modifier = Modifier.size(28.dp),
                 contentDescription = null,
                 tint = tint
             )
