@@ -103,10 +103,13 @@ class MapActionHandler(
                 val boundsBuilder = LatLngBounds.Builder()
                 routing.forEach { boundsBuilder.include(LatLng(it.lat, it.lng)) }
                 val bounds = boundsBuilder.build()
-                googleCameraState.animate(
-                    update = CameraUpdateFactory.newLatLngBounds(bounds, 200),
-                    durationMs = defaultAnimationDuration
-                )
+                if (animate)
+                    googleCameraState.animate(
+                        CameraUpdateFactory.newLatLngBounds(bounds, 200),
+                        durationMs = defaultAnimationDuration
+                    )
+                else
+                    googleCameraState.animate(CameraUpdateFactory.newLatLngBounds(bounds, 200))
             } else {
                 gisCameraState.move(
                     position = GisCameraPosition(

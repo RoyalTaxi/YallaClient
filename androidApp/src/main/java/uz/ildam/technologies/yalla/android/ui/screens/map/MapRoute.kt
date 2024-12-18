@@ -143,12 +143,13 @@ fun MapRoute(
     LaunchedEffect(permissionsGranted) {
         if (permissionsGranted) getCurrentLocation(context) { location ->
             currentLatLng.value = MapPoint(location.latitude, location.longitude)
-            actionHandler.moveCamera(
+            if (uiState.route.isEmpty()) actionHandler.moveCamera(
                 MapPoint(
                     lat = location.latitude,
                     lng = location.longitude
                 )
             )
+            else actionHandler.moveCameraToFitBounds(uiState.route, false)
         }
     }
 
@@ -156,10 +157,6 @@ fun MapRoute(
         if (uiState.isSearchingForCars) {
             sheetHandler.showSearchCars()
             actionHandler.moveCamera(uiState.selectedLocation?.point!!)
-        }
-        else {
-            bottomSheetHandler.showConfirmCancellation(false)
-            sheetHandler.showOrderTaxi()
         }
     }
 
@@ -224,6 +221,7 @@ fun MapRoute(
         onAddNewCard = onAddNewCard,
         onCancel = {
             uiState.selectedOrder?.let { vm.cancelRide(it) }
+            sheetHandler.showOrderTaxi()
             onCancel()
         }
     )

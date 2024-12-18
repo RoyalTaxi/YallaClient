@@ -223,7 +223,7 @@ fun MapScreen(
                         time = uiState.timeout,
                         isLoading = isLoading || uiState.timeout == null,
                         isSearching = uiState.isSearchingForCars,
-                        isDestinationEmpty = uiState.route.isEmpty(),
+                        isRouteEmpty = uiState.route.isEmpty(),
                         selectedAddressName = uiState.selectedLocation?.name,
                         modifier = Modifier.align(Alignment.Center)
                     )
