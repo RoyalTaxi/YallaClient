@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ClientRemoteModel(
-    val id: Int?,
+    val id: Long?,
     val phone: String?,
     val given_names: String?,
     val father_name: String?,
@@ -25,7 +25,7 @@ data class ClientRemoteModel(
 ) {
     @Serializable
     data class Brand(
-        val id: Int?,
+        val id: Long?,
         val name: String?
     )
 }

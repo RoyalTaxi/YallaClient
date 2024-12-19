@@ -6,7 +6,7 @@ data class SettingModel(
     val reasons: List<CancelReason>
 ) {
     data class CancelReason(
-        val id: Int,
+        val id: Long,
         val name: String
     )
 }

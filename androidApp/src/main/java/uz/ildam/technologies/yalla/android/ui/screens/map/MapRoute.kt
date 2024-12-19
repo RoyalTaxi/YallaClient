@@ -19,6 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 import com.google.maps.android.compose.rememberCameraPositionState
 import io.morfly.compose.bottomsheet.material3.rememberBottomSheetScaffoldState
 import io.morfly.compose.bottomsheet.material3.rememberBottomSheetState
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -34,6 +35,8 @@ import uz.ildam.technologies.yalla.android2gis.lon
 import uz.ildam.technologies.yalla.android2gis.rememberCameraState
 import uz.ildam.technologies.yalla.core.data.enums.MapType
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
+import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.OrderStatus
+import kotlin.time.Duration.Companion.seconds
 import uz.ildam.technologies.yalla.android2gis.CameraPosition as Map2Gis
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -117,7 +120,7 @@ fun MapRoute(
     LaunchedEffect(Unit) {
         vm.actionState.collectLatest { action ->
             when (action) {
-                is MapActionState.AddressIdLoaded -> vm.fetchTariffs(action.id)
+                is MapActionState.AddressIdLoaded -> vm.fetchTariffs(action.id.toInt())
                 is MapActionState.PolygonLoaded -> vm.getAddressDetails(currentLatLng.value)
                 is MapActionState.TariffsLoaded -> vm.getTimeout(currentLatLng.value)
                 is MapActionState.AddressNameLoaded -> vm.updateSelectedLocation(name = action.name)
@@ -134,9 +137,35 @@ fun MapRoute(
     }
 
     LaunchedEffect(isMarkerMoving) {
-        if (uiState.route.isEmpty()) {
+        if (uiState.route.isEmpty() && uiState.selectedDriver?.status != OrderStatus.Appointed) {
             if (isMarkerMoving) vm.changeStateToNotFound()
             else vm.getAddressDetails(currentLatLng.value)
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            vm.getShow()
+            delay(5.seconds)
+        }
+    }
+
+    LaunchedEffect(uiState.selectedDriver?.status) {
+        when (uiState.selectedDriver?.status) {
+            OrderStatus.Appointed -> sheetHandler.showClientWaiting()
+            OrderStatus.AtAddress -> {}
+            OrderStatus.Canceled -> {}
+            OrderStatus.Completed -> {}
+            OrderStatus.InFetters -> {}
+            OrderStatus.New -> {
+                actionHandler.moveCamera(uiState.selectedLocation?.point!!)
+                sheetHandler.showSearchCars()
+            }
+
+            OrderStatus.NonStopSending -> {}
+            OrderStatus.Sending -> {}
+            OrderStatus.UserSending -> {}
+            null -> sheetHandler.showOrderTaxi()
         }
     }
 
@@ -153,10 +182,9 @@ fun MapRoute(
         }
     }
 
-    LaunchedEffect(uiState.isSearchingForCars) {
-        if (uiState.isSearchingForCars) {
-            sheetHandler.showSearchCars()
-            actionHandler.moveCamera(uiState.selectedLocation?.point!!)
+    LaunchedEffect(uiState.selectedOrder) {
+        if (uiState.selectedOrder == null) {
+            vm.updateUIState(selectedDriver = null)
         }
     }
 
@@ -221,7 +249,6 @@ fun MapRoute(
         onAddNewCard = onAddNewCard,
         onCancel = {
             uiState.selectedOrder?.let { vm.cancelRide(it) }
-            sheetHandler.showOrderTaxi()
             onCancel()
         }
     )

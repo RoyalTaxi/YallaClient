@@ -6,6 +6,7 @@ import uz.ildam.technologies.yalla.feature.order.domain.model.request.OrderTaxiD
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.OrderTaxiModel
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.SearchCarModel
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.SettingModel
+import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.ShowOrderModel
 
 
 interface OrderRepository {
@@ -26,4 +27,8 @@ interface OrderRepository {
         reasonId: Int,
         reasonComment: String
     ): Result<Unit, DataError.Network>
+
+    suspend fun getShowOrder(
+        orderId: Int
+    ): Result<ShowOrderModel, DataError.Network>
 }

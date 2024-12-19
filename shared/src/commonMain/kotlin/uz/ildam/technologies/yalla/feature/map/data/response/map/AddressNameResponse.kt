@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 data class AddressNameResponse(
     val db: Boolean?,
     val display_name: String?,
-    val id: Int?,
+    val id: Long?,
     val lat: Double?,
     val lng: Double?
 )

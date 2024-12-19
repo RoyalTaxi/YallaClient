@@ -24,9 +24,11 @@ import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.GetPolygonUseC
 import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.SearchForAddressUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.model.request.OrderTaxiDto
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.SettingModel
+import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.ShowOrderModel
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.tarrif.GetTariffsModel
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.CancelRideUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.GetSettingUseCase
+import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.GetShowOrderUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.OrderTaxiUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.SearchCarUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.tariff.GetTariffsUseCase
@@ -45,7 +47,8 @@ class MapViewModel(
     private val searchCarUseCase: SearchCarUseCase,
     private val getSettingUseCase: GetSettingUseCase,
     private val cancelRideUseCase: CancelRideUseCase,
-    private val getCardListUseCase: GetCardListUseCase
+    private val getCardListUseCase: GetCardListUseCase,
+    private val getShowOrderUseCase: GetShowOrderUseCase
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(MapUIState())
     val uiState = _uiState.asStateFlow()
@@ -83,7 +86,7 @@ class MapViewModel(
                 isInsidePolygonTemp
             }?.let {
                 updateSelectedLocation(addressId = addressId, point = point)
-                _actionState.emit(MapActionState.AddressIdLoaded(addressId))
+                _actionState.emit(MapActionState.AddressIdLoaded(addressId.toLong()))
             } ?: run {
             updateSelectedLocation(addressId = null)
         }
@@ -109,7 +112,7 @@ class MapViewModel(
             when (val result = getTimeOutUseCase(
                 lat = point.lat,
                 lng = point.lng,
-                tariffId = tariff.category.id
+                tariffId = tariff.category.id.toInt()
             )) {
                 is Result.Error -> changeStateToNotFound()
                 is Result.Success -> _uiState.update {
@@ -138,7 +141,7 @@ class MapViewModel(
             ) {
                 is Result.Success -> {
                     _actionState.emit(MapActionState.TariffsLoaded)
-                    updateUIState(routes = result.data.map.routing.map { MapPoint(it.lat, it.lng) })
+                    updateUIState(route = result.data.map.routing.map { MapPoint(it.lat, it.lng) })
                     if (result.data.map.routing.isNotEmpty()) updateUIState(
                         moveCameraButtonState = MoveCameraButtonState.MyRouteView,
                         discardOrderButtonState = DiscardOrderButtonState.DiscardOrder
@@ -195,8 +198,8 @@ class MapViewModel(
                 cardId = if (uiState.value.selectedPaymentType is PaymentType.CARD) {
                     (uiState.value.selectedPaymentType as PaymentType.CARD).cardId
                 } else null,
-                tariffId = uiState.value.selectedTariff!!.id,
-                tariffOptions = uiState.value.selectedOptions.map { it.id },
+                tariffId = uiState.value.selectedTariff!!.id.toInt(),
+                tariffOptions = uiState.value.selectedOptions.map { it.id.toInt() },
                 paymentType = uiState.value.selectedPaymentType.typeName.lowercase(),
                 fixedPrice = uiState.value.selectedTariff!!.fixedType,
                 addresses = uiState.value.destinations.map { destination ->
@@ -264,43 +267,75 @@ class MapViewModel(
     }
 
     fun updateUIState(
-        timeout: Int? = _uiState.value.timeout,
-        foundAddresses: List<SearchForAddressItemModel> = _uiState.value.foundAddresses,
+        // Location-related properties
+        markerSelectedLocation: MapUIState.SelectedLocation? = _uiState.value.markerSelectedLocation,
         selectedLocation: MapUIState.SelectedLocation? = _uiState.value.selectedLocation,
-        routes: List<MapPoint> = _uiState.value.route,
+        destinations: List<MapUIState.Destination> = _uiState.value.destinations,
+        foundAddresses: List<SearchForAddressItemModel> = _uiState.value.foundAddresses,
+        route: List<MapPoint> = _uiState.value.route,
+
+        // Tariff-related properties
+        tariffs: GetTariffsModel? = _uiState.value.tariffs,
+        selectedTariff: GetTariffsModel.Tariff? = _uiState.value.selectedTariff,
+        options: List<GetTariffsModel.Tariff.Service> = _uiState.value.options,
+        selectedOptions: List<GetTariffsModel.Tariff.Service> = _uiState.value.selectedOptions,
+
+        // Order-related properties
+        timeout: Int? = _uiState.value.timeout,
+//        isSearchingForCars: Boolean = _uiState.value.isSearchingForCars,
         orders: List<Int> = _uiState.value.orders,
         selectedOrder: Int? = _uiState.value.selectedOrder,
-        selectedTariff: GetTariffsModel.Tariff? = _uiState.value.selectedTariff,
-        tariffs: GetTariffsModel? = _uiState.value.tariffs,
-        drivers: List<ExecutorModel> = _uiState.value.drivers,
+
+        // Payment-related properties
         selectedPaymentType: PaymentType = _uiState.value.selectedPaymentType,
         paymentTypes: List<CardListItemModel> = _uiState.value.paymentTypes,
-        isSearchingForCars: Boolean = _uiState.value.isSearchingForCars,
+
+        // Driver-related properties
+        drivers: List<ExecutorModel> = _uiState.value.drivers,
+        selectedDriver: ShowOrderModel? = _uiState.value.selectedDriver,
+
+        // Setting-related properties
         setting: SettingModel? = _uiState.value.setting,
+
+        // UI State-related properties
         moveCameraButtonState: MoveCameraButtonState = _uiState.value.moveCameraButtonState,
         discardOrderButtonState: DiscardOrderButtonState = _uiState.value.discardOrderButtonState,
-        options: List<GetTariffsModel.Tariff.Service> = _uiState.value.options,
-        selectedOptions: List<GetTariffsModel.Tariff.Service> = _uiState.value.selectedOptions
     ) {
         _uiState.update {
             it.copy(
-                timeout = timeout,
+                // Location-related properties
+                markerSelectedLocation = markerSelectedLocation,
                 selectedLocation = selectedLocation,
-                route = routes,
-                selectedTariff = selectedTariff,
+                destinations = destinations,
+                foundAddresses = foundAddresses,
+                route = route,
+
+                // Tariff-related properties
                 tariffs = tariffs,
+                selectedTariff = selectedTariff,
+                options = options,
+                selectedOptions = selectedOptions,
+
+                // Order-related properties
+                timeout = timeout,
+//                isSearchingForCars = isSearchingForCars,
                 orders = orders,
+                selectedOrder = selectedOrder,
+
+                // Payment-related properties
                 selectedPaymentType = selectedPaymentType,
                 paymentTypes = paymentTypes,
-                selectedOrder = selectedOrder,
-                isSearchingForCars = isSearchingForCars,
-                setting = setting,
+
+                // Driver-related properties
                 drivers = drivers,
-                foundAddresses = foundAddresses,
+                selectedDriver = selectedDriver,
+
+                // Setting-related properties
+                setting = setting,
+
+                // UI State-related properties
                 moveCameraButtonState = moveCameraButtonState,
-                discardOrderButtonState = discardOrderButtonState,
-                options = options,
-                selectedOptions = selectedOptions
+                discardOrderButtonState = discardOrderButtonState
             )
         }
     }
@@ -339,7 +374,7 @@ class MapViewModel(
 
     fun updateDestinations(newDestinations: List<MapUIState.Destination>) {
         _uiState.update { it.copy(destinations = newDestinations) }
-        if (newDestinations.isEmpty()) updateUIState(routes = emptyList())
+        if (newDestinations.isEmpty()) updateUIState(route = emptyList())
         fetchTariffs()
     }
 
@@ -353,23 +388,18 @@ class MapViewModel(
 
     fun searchForCars(point: MapPoint) = viewModelScope.launch {
         val tariff = _uiState.value.selectedTariff ?: return@launch
-        when (val result = searchCarUseCase(point.lat, point.lng, tariff.category.id)) {
-            is Result.Error -> updateUIState(isSearchingForCars = false)
-            is Result.Success -> updateUIState(
-                isSearchingForCars = true,
-                drivers = result.data.executors
-            )
+        when (val result = searchCarUseCase(point.lat, point.lng, tariff.category.id.toInt())) {
+            is Result.Error -> updateUIState(drivers = emptyList())
+            is Result.Success -> updateUIState(drivers = result.data.executors)
         }
     }
 
     private fun getSetting() = viewModelScope.launch {
         when (val result = getSettingUseCase()) {
-            is Result.Error -> updateUIState(isSearchingForCars = false)
+            is Result.Error -> {}
             is Result.Success -> {
-                updateUIState(
-                    setting = result.data,
-                    isSearchingForCars = true
-                )
+                updateUIState(setting = result.data)
+                getShow()
             }
         }
     }
@@ -383,8 +413,7 @@ class MapViewModel(
                 orders.remove(orderId)
                 updateUIState(
                     orders = orders,
-                    selectedOrder = orders.firstOrNull(),
-                    isSearchingForCars = false
+                    selectedOrder = orders.firstOrNull()
                 )
             }
         }
@@ -394,6 +423,20 @@ class MapViewModel(
         when (val result = getCardListUseCase()) {
             is Result.Error -> {}
             is Result.Success -> updateUIState(paymentTypes = result.data)
+        }
+    }
+
+    fun getShow() = viewModelScope.launch {
+        uiState.value.selectedOrder?.let {
+            when (val result = getShowOrderUseCase(it)) {
+                is Result.Error -> {}
+                is Result.Success -> {
+                    updateUIState(
+                        selectedDriver = result.data,
+                        drivers = emptyList()
+                    )
+                }
+            }
         }
     }
 }

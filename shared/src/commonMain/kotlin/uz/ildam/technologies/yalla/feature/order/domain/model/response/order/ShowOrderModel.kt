@@ -1,22 +1,19 @@
-package uz.ildam.technologies.yalla.feature.history.domain.model
+package uz.ildam.technologies.yalla.feature.order.domain.model.response.order
 
 
-data class OrderHistoryModel(
+data class ShowOrderModel(
     val comment: String,
-    val date: String,
-    val time: String,
+    val dateTime: Long,
     val executor: Executor,
     val id: Long,
-    val number: Long,
     val paymentType: String,
     val service: String,
-    val status: String,
-    val statusTime: Long,
+    val status: OrderStatus,
+    val statusTime: List<StatusTime>,
     val taxi: Taxi,
-    val track: List<Track>
 ) {
     data class Executor(
-        val cords: Coordinates,
+        val coords: Coords,
         val driver: Driver,
         val fatherName: String,
         val givenNames: String,
@@ -24,14 +21,14 @@ data class OrderHistoryModel(
         val phone: String,
         val surName: String
     ) {
-        data class Coordinates(
+        data class Coords(
             val heading: Double,
             val lat: Double,
             val lng: Double
         )
 
         data class Driver(
-            val callSign: String,
+            val callsign: String,
             val color: Color,
             val id: Long,
             val mark: String,
@@ -45,36 +42,30 @@ data class OrderHistoryModel(
         }
     }
 
+    data class StatusTime(
+        val status: String,
+        val time: Long
+    )
+
     data class Taxi(
-        val bonusAmount: Int,
-        val clientTotalPrice: Int,
-        val distance: Double,
+        val clientTotalPrice: Double,
+        val distance: Int,
         val fixedPrice: Boolean,
         val routes: List<Route>,
-        val routesForRobot: List<Route>,
-        val services: String,
+        val services: List<String>,
         val startPrice: Int,
         val tariff: String,
-        val totalPrice: Int,
-        val useTheBonus: Boolean
+        val totalPrice: Int
     ) {
         data class Route(
-            val cords: Coordinates,
+            val coords: Coords,
             val fullAddress: String,
             val index: Int
         ) {
-            data class Coordinates(
+            data class Coords(
                 val lat: Double,
                 val lng: Double
             )
         }
     }
-
-    data class Track(
-        val lat: Double,
-        val lng: Double,
-        val speed: Int,
-        val status: String,
-        val time: Long
-    )
 }

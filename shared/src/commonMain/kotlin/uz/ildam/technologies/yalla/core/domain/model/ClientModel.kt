@@ -1,7 +1,7 @@
 package uz.ildam.technologies.yalla.core.domain.model
 
 data class ClientModel(
-    val id: Int,
+    val id: Long,
     val phone: String,
     val givenNames: String,
     val fatherName: String,
@@ -21,7 +21,7 @@ data class ClientModel(
     val gender: String
 ) {
     data class Brand(
-        val id: Int,
+        val id: Long,
         val name: String
     )
 }

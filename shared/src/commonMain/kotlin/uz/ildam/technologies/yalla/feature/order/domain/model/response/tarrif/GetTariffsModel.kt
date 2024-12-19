@@ -22,7 +22,7 @@ data class GetTariffsModel(
         val fixedPrice: Int,
         val fixedType: Boolean,
         val icon: String,
-        val id: Int,
+        val id: Long,
         val inCityLocation: Boolean,
         val includedKm: Double,
         val index: Int,
@@ -35,14 +35,14 @@ data class GetTariffsModel(
         val services: List<Service>
     ) {
         data class Category(
-            val id: Int,
+            val id: Long,
             val name: String
         )
 
         data class Service(
             val cost: Int,
             val costType: String,
-            val id: Int,
+            val id: Long,
             val name: String,
         )
     }

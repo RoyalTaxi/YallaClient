@@ -1,25 +1,23 @@
-package uz.ildam.technologies.yalla.feature.history.data.response
+package uz.ildam.technologies.yalla.feature.order.data.response.order
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class OrderHistoryResponse(
+data class ShowOrderResponse(
     val comment: String?,
     val date_time: Long?,
-    val executor: Executor?,
+    val executor: ExecutorData?,
     val id: Long?,
-    val number: Long?,
     val payment_type: String?,
     val service: String?,
     val status: String?,
-    val status_time: Long?,
-    val taxi: Taxi?,
-    val track: List<Track>?
+    val status_time: List<StatusTimeData>?,
+    val taxi: TaxiData?,
 ) {
     @Serializable
-    data class Executor(
-        val coords: Coordinates?,
-        val driver: Driver?,
+    data class ExecutorData(
+        val coords: CoordsData?,
+        val driver: DriverData?,
         val father_name: String?,
         val given_names: String?,
         val id: Long?,
@@ -27,23 +25,23 @@ data class OrderHistoryResponse(
         val sur_name: String?
     ) {
         @Serializable
-        data class Coordinates(
+        data class CoordsData(
             val heading: Double?,
             val lat: Double?,
             val lng: Double?
         )
 
         @Serializable
-        data class Driver(
+        data class DriverData(
             val callsign: String?,
-            val color: Color?,
+            val color: ColorData?,
             val id: Long?,
             val mark: String?,
             val model: String?,
             val state_number: String?
         ) {
             @Serializable
-            data class Color(
+            data class ColorData(
                 val color: String?,
                 val name: String?
             )
@@ -51,39 +49,33 @@ data class OrderHistoryResponse(
     }
 
     @Serializable
-    data class Taxi(
-        val bonus_amount: Int?,
-        val client_total_price: Int?,
-        val distance: Double?,
-        val fixed_price: Boolean?,
-        val routes: List<Route>?,
-        val routes_for_robot: List<Route>?,
-        val services: String?,
+    data class StatusTimeData(
+        val status: String?,
+        val time: Long?
+    )
+
+    @Serializable
+    data class TaxiData(
+        val client_total_price: Double?,
+        val distance: Int?,
+        val fixed_price: Boolean,
+        val routes: List<RouteData>?,
+        val services: List<String>?,
         val start_price: Int?,
         val tariff: String?,
-        val total_price: Int?,
-        val use_the_bonus: Boolean?
+        val total_price: Int?
     ) {
         @Serializable
-        data class Route(
-            val coords: Coordinates?,
+        data class RouteData(
+            val coords: CoordsData?,
             val full_address: String?,
             val index: Int?
         ) {
             @Serializable
-            data class Coordinates(
+            data class CoordsData(
                 val lat: Double?,
                 val lng: Double?
             )
         }
     }
-
-    @Serializable
-    data class Track(
-        val lat: Double?,
-        val lng: Double?,
-        val speed: Int?,
-        val status: String?,
-        val time: Long?
-    )
 }

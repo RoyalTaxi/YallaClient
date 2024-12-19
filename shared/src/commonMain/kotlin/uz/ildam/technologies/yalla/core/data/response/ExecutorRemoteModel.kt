@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 data class ExecutorRemoteModel(
     val distance: Double?,
     val heading: Double?,
-    val id: Int?,
+    val id: Long?,
     val lat: Double?,
     val lng: Double?
 )

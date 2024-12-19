@@ -16,6 +16,7 @@ import uz.ildam.technologies.yalla.feature.order.data.request.order.OrderTaxiReq
 import uz.ildam.technologies.yalla.feature.order.data.response.order.OrderTaxiResponse
 import uz.ildam.technologies.yalla.feature.order.data.response.order.SearchCarResponse
 import uz.ildam.technologies.yalla.feature.order.data.response.order.SettingResponse
+import uz.ildam.technologies.yalla.feature.order.data.response.order.ShowOrderResponse
 import uz.ildam.technologies.yalla.feature.order.data.url.OrderUrl
 
 class OrderService(
@@ -63,5 +64,8 @@ class OrderService(
         }
     }
 
-//    suspend fun show(orderId: Int): Result<ApiResponseWrapper>
+    suspend fun show(orderId: Int): Result<ApiResponseWrapper<ShowOrderResponse>, DataError.Network> =
+        safeApiCall {
+            ktor.get(OrderUrl.SHOW + orderId).body()
+        }
 }

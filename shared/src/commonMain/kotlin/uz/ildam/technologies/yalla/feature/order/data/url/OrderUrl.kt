@@ -6,4 +6,5 @@ object OrderUrl {
     const val GET_SETTING = "setting/config"
     const val CANCEL_RIDE = "order/cancel/"
     const val CANCEL_REASON = "order/cancel/reason/"
+    const val SHOW = "order/"
 }

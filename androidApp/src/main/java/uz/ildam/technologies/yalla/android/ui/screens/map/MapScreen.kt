@@ -27,7 +27,6 @@ import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MarkerComposable
 import com.google.maps.android.compose.MarkerState
-import com.google.maps.android.compose.rememberMarkerState
 import io.morfly.compose.bottomsheet.material3.BottomSheetScaffold
 import io.morfly.compose.bottomsheet.material3.BottomSheetScaffoldState
 import io.morfly.compose.bottomsheet.material3.requireSheetVisibleHeightDp
@@ -43,6 +42,7 @@ import uz.ildam.technologies.yalla.android2gis.Point
 import uz.ildam.technologies.yalla.android2gis.imageFromResource
 import uz.ildam.technologies.yalla.core.data.enums.MapType
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
+import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.OrderStatus
 import com.google.maps.android.compose.Marker as GoogleMarker
 import com.google.maps.android.compose.Polyline as GooglePolyline
 import uz.ildam.technologies.yalla.android2gis.Marker as GisMarker
@@ -135,35 +135,41 @@ fun MapScreen(
                 } else GoogleMap(
                     properties = uiState.properties,
                     uiSettings = uiState.mapUiSettings.copy(
-                        scrollGesturesEnabled = !uiState.isSearchingForCars,
-                        rotationGesturesEnabled = !uiState.isSearchingForCars,
-                        zoomGesturesEnabled = !uiState.isSearchingForCars
+                        scrollGesturesEnabled = uiState.selectedDriver?.status != OrderStatus.New,
+                        rotationGesturesEnabled = uiState.selectedDriver?.status != OrderStatus.New,
+                        zoomGesturesEnabled = uiState.selectedDriver?.status != OrderStatus.New
                     ),
                     cameraPositionState = cameraPositionState,
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(bottom = 20.dp),
                     content = {
-                        if (uiState.route.isEmpty()) GoogleMarker(
-                            state = rememberMarkerState(position = cameraPositionState.position.target),
-                            alpha = 0f
-                        )
-                        else {
-                            GooglePolyline(points = uiState.route.map { LatLng(it.lat, it.lng) })
-
-                            GoogleMarker(
-                                state = remember(uiState.route.first()) {
-                                    MarkerState(
-                                        position = LatLng(
-                                            uiState.route.first().lat,
-                                            uiState.route.first().lng
-                                        )
+                        if (
+                            uiState.selectedDriver?.status == OrderStatus.Appointed &&
+                            uiState.selectedLocation?.point != null
+                        ) GoogleMarker(
+                            icon = startMarkerIcon,
+                            state = remember(
+                                if (uiState.route.isEmpty()) uiState.selectedLocation.point
+                                else uiState.route.first()
+                            ) {
+                                MarkerState(
+                                    position = if (uiState.route.isEmpty()) LatLng(
+                                        uiState.selectedLocation.point.lat,
+                                        uiState.selectedLocation.point.lng
+                                    ) else LatLng(
+                                        uiState.route.first().lat,
+                                        uiState.route.first().lng
                                     )
-                                },
-                                icon = startMarkerIcon
-                            )
+                                )
+                            }
+                        )
+
+                        if (uiState.route.isNotEmpty()) {
+                            GooglePolyline(points = uiState.route.map { LatLng(it.lat, it.lng) })
 
                             uiState.destinations.dropLast(1).forEach { routePoint ->
                                 if (routePoint.point != null) GoogleMarker(
+                                    icon = middleMarkerIcon,
                                     state = remember(routePoint) {
                                         MarkerState(
                                             position = LatLng(
@@ -171,12 +177,12 @@ fun MapScreen(
                                                 routePoint.point.lng
                                             )
                                         )
-                                    },
-                                    icon = middleMarkerIcon
+                                    }
                                 )
                             }
 
                             GoogleMarker(
+                                icon = endMarkerIcon,
                                 state = remember(uiState.route.last()) {
                                     MarkerState(
                                         position = LatLng(
@@ -184,20 +190,19 @@ fun MapScreen(
                                             uiState.route.last().lng
                                         )
                                     )
-                                },
-                                icon = endMarkerIcon
+                                }
                             )
                         }
 
-                        uiState.drivers.forEach {
+                        uiState.selectedDriver?.let {
                             MarkerComposable(
                                 flat = true,
-                                rotation = it.heading.toFloat(),
+                                rotation = it.executor.coords.heading.toFloat(),
                                 state = remember(it) {
                                     MarkerState(
                                         position = LatLng(
-                                            it.lat,
-                                            it.lng
+                                            it.executor.coords.lat,
+                                            it.executor.coords.lng
                                         )
                                     )
                                 }
@@ -222,13 +227,14 @@ fun MapScreen(
                     YallaMarker(
                         time = uiState.timeout,
                         isLoading = isLoading || uiState.timeout == null,
-                        isSearching = uiState.isSearchingForCars,
+                        isSearching = uiState.selectedDriver?.status == OrderStatus.New,
                         isRouteEmpty = uiState.route.isEmpty(),
+                        isAppointed = uiState.selectedDriver?.status == OrderStatus.Appointed,
                         selectedAddressName = uiState.selectedLocation?.name,
                         modifier = Modifier.align(Alignment.Center)
                     )
 
-                    if (uiState.isSearchingForCars.not()) {
+                    if (uiState.selectedDriver?.status != OrderStatus.New) {
                         MapButton(
                             painter = painterResource(
                                 if (uiState.moveCameraButtonState == MoveCameraButtonState.MyLocationView) R.drawable.ic_location

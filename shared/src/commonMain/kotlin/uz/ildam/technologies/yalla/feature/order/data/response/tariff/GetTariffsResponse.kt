@@ -29,7 +29,7 @@ data class GetTariffsResponse(
         val fixed_price: Int?,
         val fixed_type: Boolean?,
         val icon: String?,
-        val id: Int?,
+        val id: Long?,
         val in_city_location: Boolean?,
         val included_km: Double?,
         val index: Int?,
@@ -43,7 +43,7 @@ data class GetTariffsResponse(
     ) {
         @Serializable
         data class Category(
-            val id: Int?,
+            val id: Long?,
             val name: String?
         )
 
@@ -51,7 +51,7 @@ data class GetTariffsResponse(
         data class Service(
             val cost: Int?,
             val cost_type: String?,
-            val id: Int?,
+            val id: Long?,
             val name: String?,
         )
     }

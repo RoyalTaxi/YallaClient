@@ -20,7 +20,7 @@ fun HistoryRoute(
         orders = orders,
         onIntent = { intent ->
             when (intent) {
-                is HistoryIntent.OnHistoryItemClick -> onClickItem(intent.id)
+                is HistoryIntent.OnHistoryItemClick -> onClickItem(intent.id.toInt())
                 is HistoryIntent.OnNavigateBack -> onBack()
             }
         }

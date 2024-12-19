@@ -2,7 +2,7 @@ package uz.ildam.technologies.yalla.feature.history.domain.model
 
 data class OrdersHistoryModel(
     val dateTime: Long,
-    val id: Int,
+    val id: Long,
     val service: String,
     val status: String,
     val taxi: Taxi

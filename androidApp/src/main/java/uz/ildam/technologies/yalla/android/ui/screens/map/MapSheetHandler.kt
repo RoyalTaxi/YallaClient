@@ -11,6 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import uz.ildam.technologies.yalla.android.ui.sheets.ClientWaitingBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.OrderTaxiBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.SearchForCarsBottomSheet
 
@@ -20,6 +21,7 @@ class MapSheetHandler(
 ) {
     private var orderTaxiVisibility by mutableStateOf(true)
     private var searchCarsVisibility by mutableStateOf(false)
+    private var clientWaitingVisibility by mutableStateOf(false)
 
     @Composable
     fun Sheets(
@@ -89,6 +91,19 @@ class MapSheetHandler(
                 }
             )
         }
+
+        AnimatedVisibility(
+            visible = clientWaitingVisibility,
+            enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
+            exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
+        ) {
+            uiState.selectedDriver?.executor?.driver?.let {
+                if (clientWaitingVisibility) ClientWaitingBottomSheet(
+                    car = it,
+                    onDismissRequest = {}
+                )
+            }
+        }
     }
 
     fun showOrderTaxi() {
@@ -99,6 +114,11 @@ class MapSheetHandler(
     fun showSearchCars() {
         hideAllSheets()
         searchCarsVisibility = true
+    }
+
+    fun showClientWaiting() {
+        hideAllSheets()
+        clientWaitingVisibility = true
     }
 
     private fun hideAllSheets() {

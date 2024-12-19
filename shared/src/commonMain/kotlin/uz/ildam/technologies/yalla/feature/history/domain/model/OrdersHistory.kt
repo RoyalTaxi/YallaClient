@@ -2,7 +2,7 @@ package uz.ildam.technologies.yalla.feature.history.domain.model
 
 sealed interface OrdersHistory {
     data class Item(
-        val id: Int,
+        val id: Long,
         val service: String,
         val status: String,
         val taxi: OrdersHistoryModel.Taxi,

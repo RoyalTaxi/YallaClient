@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class OrdersHistoryResponseItem(
     val date_time: Long?,
-    val id: Int?,
+    val id: Long?,
     val service: String?,
     val status: String?,
     val taxi: Taxi?

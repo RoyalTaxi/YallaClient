@@ -10,7 +10,7 @@ data class SettingResponse(
 ) {
     @Serializable
     data class CancelReason(
-        val id: Int?,
+        val id: Long?,
         val name: String?
     )
 }

@@ -43,7 +43,7 @@ class CancelReasonViewModel(
             uiState.value.selectedReason?.apply {
                 when (cancelReasonUseCase(
                     orderId = AppPreferences.lastOrderId,
-                    reasonId = id,
+                    reasonId = id.toInt(),
                     reasonComment = name
                 )) {
                     is Result.Error -> _actionState.emit(CancelReasonActionState.Error)

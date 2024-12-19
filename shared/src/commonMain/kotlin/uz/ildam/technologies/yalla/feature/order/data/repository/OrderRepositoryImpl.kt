@@ -5,12 +5,14 @@ import uz.ildam.technologies.yalla.core.domain.error.Result
 import uz.ildam.technologies.yalla.feature.order.data.mapper.GetSettingMapper
 import uz.ildam.technologies.yalla.feature.order.data.mapper.OrderTaxiMapper
 import uz.ildam.technologies.yalla.feature.order.data.mapper.SearchCarMapper
+import uz.ildam.technologies.yalla.feature.order.data.mapper.ShowOrderMapper
 import uz.ildam.technologies.yalla.feature.order.data.request.order.OrderTaxiRequest
 import uz.ildam.technologies.yalla.feature.order.data.service.OrderService
 import uz.ildam.technologies.yalla.feature.order.domain.model.request.OrderTaxiDto
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.OrderTaxiModel
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.SearchCarModel
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.SettingModel
+import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.ShowOrderModel
 import uz.ildam.technologies.yalla.feature.order.domain.repository.OrderRepository
 
 class OrderRepositoryImpl(
@@ -85,6 +87,13 @@ class OrderRepositoryImpl(
         )) {
             is Result.Error -> Result.Error(result.error)
             is Result.Success -> Result.Success(Unit)
+        }
+    }
+
+    override suspend fun getShowOrder(orderId: Int): Result<ShowOrderModel, DataError.Network> {
+        return when (val result = orderService.show(orderId)) {
+            is Result.Error -> Result.Error(result.error)
+            is Result.Success -> Result.Success(result.data.result.let(ShowOrderMapper.mapper))
         }
     }
 }
