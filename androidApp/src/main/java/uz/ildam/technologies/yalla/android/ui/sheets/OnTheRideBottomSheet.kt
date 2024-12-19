@@ -5,21 +5,16 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -31,12 +26,11 @@ import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DriverWaitingBottomSheet(
-    carInfo: String,
+fun OnTheRideBottomSheet(
     carNumber: String,
-    timer: String,
+    carInfo: String,
     sheetState: SheetState,
-    onDismissRequest: () -> Unit,
+    onDismissRequest: () -> Unit
 ) {
     ModalBottomSheet(
         shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
@@ -63,10 +57,9 @@ fun DriverWaitingBottomSheet(
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
-
-                ) {
+                ){
                     Text(
-                        text = stringResource(R.string.waiting_for_you),
+                        text = stringResource(R.string.on_the_way),
                         style = YallaTheme.font.title,
                         color = YallaTheme.color.black
                     )
@@ -77,55 +70,45 @@ fun DriverWaitingBottomSheet(
                         color = YallaTheme.color.black
                     )
                 }
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
 
-                ) {
-                    Text(
-                        text = carInfo,
-                        style = YallaTheme.font.label,
-                        color = YallaTheme.color.gray
-                    )
+                Text(
+                    text = carInfo,
+                    style = YallaTheme.font.label,
+                    color = YallaTheme.color.gray
+                )
+            }
 
-                    Text(
-                        text = timer,
-                        style = YallaTheme.font.label,
-                        color = YallaTheme.color.primary
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier
+                    .background(
+                        color = YallaTheme.color.white,
+                        shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
                     )
-                }
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    .padding(20.dp)
+            ) {
+
+                OptionsButton(
+                    modifier = Modifier.fillMaxHeight(),
+                    painter = painterResource(R.drawable.ic_return),
+                    onClick = {}
+                )
+
+                YallaButton(
+                    text = stringResource(R.string.lets_go),
+                    contentPadding = PaddingValues(vertical = 20.dp),
+                    onClick = { },
                     modifier = Modifier
-                        .background(
-                            color = YallaTheme.color.white,
-                            shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
-                        )
-                        .padding(20.dp)
-                ) {
+                        .weight(1f)
+                        .fillMaxHeight()
+                )
 
-                    OptionsButton(
-                        modifier = Modifier.fillMaxHeight(),
-                        painter = painterResource(R.drawable.ic_clear),
-                        onClick = {}
-                    )
-
-                    YallaButton(
-                        text = stringResource(R.string.lets_go),
-                        contentPadding = PaddingValues(vertical = 20.dp),
-                        onClick = { },
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight()
-                    )
-
-                    OptionsButton(
-                        modifier = Modifier.fillMaxHeight(),
-                        painter = painterResource(R.drawable.img_options),
-                        tint = YallaTheme.color.black,
-                        onClick = { }
-                    )
-                }
+                OptionsButton(
+                    modifier = Modifier.fillMaxHeight(),
+                    painter = painterResource(R.drawable.img_options),
+                    tint = YallaTheme.color.black,
+                    onClick = { }
+                )
             }
         }
     }

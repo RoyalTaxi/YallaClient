@@ -86,4 +86,5 @@
     <string name="coming_to_you">К вам едет</string>
     <string name="call">Позвонить</string>
     <string name="waiting_for_you">Вас ждёт</string>
+    <string name="on_the_way">В пути</string>
 </resources>
