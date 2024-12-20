@@ -94,38 +94,38 @@ fun DriverWaitingBottomSheet(
                         color = YallaTheme.color.primary
                     )
                 }
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+            }
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier
+                    .background(
+                        color = YallaTheme.color.white,
+                        shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
+                    )
+                    .padding(20.dp)
+            ) {
+
+                OptionsButton(
+                    modifier = Modifier.fillMaxHeight(),
+                    painter = painterResource(R.drawable.ic_clear),
+                    onClick = {}
+                )
+
+                YallaButton(
+                    text = stringResource(R.string.lets_go),
+                    contentPadding = PaddingValues(vertical = 20.dp),
+                    onClick = { },
                     modifier = Modifier
-                        .background(
-                            color = YallaTheme.color.white,
-                            shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
-                        )
-                        .padding(20.dp)
-                ) {
+                        .weight(1f)
+                        .fillMaxHeight()
+                )
 
-                    OptionsButton(
-                        modifier = Modifier.fillMaxHeight(),
-                        painter = painterResource(R.drawable.ic_clear),
-                        onClick = {}
-                    )
-
-                    YallaButton(
-                        text = stringResource(R.string.lets_go),
-                        contentPadding = PaddingValues(vertical = 20.dp),
-                        onClick = { },
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight()
-                    )
-
-                    OptionsButton(
-                        modifier = Modifier.fillMaxHeight(),
-                        painter = painterResource(R.drawable.img_options),
-                        tint = YallaTheme.color.black,
-                        onClick = { }
-                    )
-                }
+                OptionsButton(
+                    modifier = Modifier.fillMaxHeight(),
+                    painter = painterResource(R.drawable.img_options),
+                    tint = YallaTheme.color.black,
+                    onClick = { }
+                )
             }
         }
     }
