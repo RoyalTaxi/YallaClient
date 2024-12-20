@@ -91,4 +91,7 @@
     <string name="connect">Связатья</string>
 
     <string name="on_the_way">В пути</string>
+    <string name="sum">сум</string>
+    <string name="rate_the_trip">Оценит поездку</string>
+    <string name="new_order">Новый заказ</string>
 </resources>
