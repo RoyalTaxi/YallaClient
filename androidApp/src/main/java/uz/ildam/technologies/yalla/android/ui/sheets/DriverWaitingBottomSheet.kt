@@ -26,9 +26,10 @@ import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.Sho
 
 @Composable
 fun DriverWaitingBottomSheet(
-    car: ShowOrderModel.Executor.Driver,
+    car: ShowOrderModel.Executor,
     timer: String,
     onCancel: () -> Unit,
+    onClickCall: (String) -> Unit,
     onOptionsClick: () -> Unit
 ) {
     Column(
@@ -62,7 +63,7 @@ fun DriverWaitingBottomSheet(
                 )
 
                 Text(
-                    text = car.stateNumber,
+                    text = car.driver.stateNumber,
                     style = YallaTheme.font.labelSemiBold,
                     color = YallaTheme.color.black
                 )
@@ -73,7 +74,7 @@ fun DriverWaitingBottomSheet(
 
             ) {
                 Text(
-                    text = "${car.color.name} ${car.mark} ${car.model}",
+                    text = "${car.driver.color.name} ${car.driver.mark} ${car.driver.model}",
                     style = YallaTheme.font.label,
                     color = YallaTheme.color.gray
                 )
@@ -103,9 +104,9 @@ fun DriverWaitingBottomSheet(
             )
 
             YallaButton(
-                text = stringResource(R.string.lets_go),
+                text = stringResource(R.string.connect),
                 contentPadding = PaddingValues(vertical = 20.dp),
-                onClick = { },
+                onClick = { onClickCall(car.phone) },
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()

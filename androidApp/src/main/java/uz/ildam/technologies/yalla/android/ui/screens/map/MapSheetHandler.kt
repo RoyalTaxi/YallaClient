@@ -1,21 +1,30 @@
 package uz.ildam.technologies.yalla.android.ui.screens.map
 
+import android.content.Intent
+import android.content.Intent.ACTION_DIAL
+import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.flow.collectLatest
 import uz.ildam.technologies.yalla.android.ui.sheets.ClientWaitingBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.DriverWaitingBottomSheet
+import uz.ildam.technologies.yalla.android.ui.sheets.OnTheRideBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.OrderTaxiBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.SearchForCarsBottomSheet
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.OrderStatus
+import java.util.Locale
 
 class MapSheetHandler(
     private val viewModel: MapViewModel,
@@ -25,6 +34,7 @@ class MapSheetHandler(
     private var searchCarsVisibility by mutableStateOf(false)
     private var clientWaitingVisibility by mutableStateOf(false)
     private var driverWaitingVisibility by mutableStateOf(false)
+    private var onTheRideVisibility by mutableStateOf(false)
 
     @Composable
     fun Sheets(
@@ -32,6 +42,21 @@ class MapSheetHandler(
         currentLatLng: MutableState<MapPoint>,
         uiState: MapUIState
     ) {
+        val context = LocalContext.current
+
+        var timer by remember { mutableStateOf("") }
+
+        LaunchedEffect(driverWaitingVisibility) {
+            viewModel
+                .infiniteTimer(driverWaitingVisibility)
+                .collectLatest { seconds ->
+                    val minutes = seconds / 60
+                    val sec = seconds % 60
+
+                    timer = String.format(Locale.US, "%02d:%02d", minutes, sec)
+                }
+        }
+
         AnimatedVisibility(
             visible = orderTaxiVisibility,
             enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
@@ -44,7 +69,7 @@ class MapSheetHandler(
                     if (wasSelected) bottomSheetHandler.showTariff(
                         show = true
                     )
-                    else viewModel.updateSelectedTariff(
+                    else viewModel.setSelectedTariff(
                         tariff = tariff
                     )
                 },
@@ -100,24 +125,48 @@ class MapSheetHandler(
             enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
             exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
         ) {
-            uiState.selectedDriver?.executor?.driver?.let {
+            uiState.selectedDriver?.executor?.let {
                 if (clientWaitingVisibility && uiState.selectedDriver.status == OrderStatus.Appointed) ClientWaitingBottomSheet(
                     car = it,
-                    onDismissRequest = {}
+                    onClickCall = { number ->
+                        val intent = Intent(ACTION_DIAL).apply {
+                            data = Uri.parse("tel:$number")
+                        }
+                        if (intent.resolveActivity(context.packageManager) != null) {
+                            context.startActivity(intent)
+                        }
+                    }
                 )
             }
         }
 
+        AnimatedVisibility(visible = driverWaitingVisibility) {
+            uiState.selectedDriver?.executor?.let {
+                if (driverWaitingVisibility && uiState.selectedDriver.status == OrderStatus.AtAddress) {
+                    DriverWaitingBottomSheet(
+                        car = it,
+                        timer = timer,
+                        onCancel = { bottomSheetHandler.showConfirmCancellation(true) },
+                        onClickCall = { number ->
+                            val intent = Intent(Intent.ACTION_DIAL).apply {
+                                data = Uri.parse("tel:$number")
+                            }
+                            if (intent.resolveActivity(context.packageManager) != null) {
+                                context.startActivity(intent)
+                            }
+                        },
+                        onOptionsClick = {}
+                    )
+                }
+            }
+        }
+
         AnimatedVisibility(
-            visible = driverWaitingVisibility
+            visible = onTheRideVisibility
         ) {
-            uiState.selectedDriver?.executor?.driver?.let {
-                if (driverWaitingVisibility && uiState.selectedDriver.status == OrderStatus.AtAddress) DriverWaitingBottomSheet(
-                    car = it,
-                    timer = "",
-                    onCancel = { bottomSheetHandler.showConfirmCancellation(true) },
-                    onOptionsClick = {}
-                )
+            uiState.selectedDriver?.executor?.let {
+                if (onTheRideVisibility && uiState.selectedDriver.status == OrderStatus.InFetters)
+                    OnTheRideBottomSheet(car = it)
             }
         }
     }
@@ -142,8 +191,16 @@ class MapSheetHandler(
         driverWaitingVisibility = true
     }
 
+    fun showOnTheRide() {
+        hideAllSheets()
+        onTheRideVisibility = true
+    }
+
     private fun hideAllSheets() {
         orderTaxiVisibility = false
         searchCarsVisibility = false
+        clientWaitingVisibility = false
+        driverWaitingVisibility = false
+        onTheRideVisibility = false
     }
 }

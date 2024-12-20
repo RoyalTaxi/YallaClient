@@ -21,8 +21,8 @@ import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.Sho
 
 @Composable
 fun ClientWaitingBottomSheet(
-    car: ShowOrderModel.Executor.Driver,
-    onDismissRequest: () -> Unit
+    car: ShowOrderModel.Executor,
+    onClickCall: (String) -> Unit
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -51,16 +51,16 @@ fun ClientWaitingBottomSheet(
             )
 
             Text(
-                text = "${car.color.name} ${car.mark} ${car.model}",
+                text = "${car.driver.color.name} ${car.driver.mark} ${car.driver.model}",
                 style = YallaTheme.font.label,
                 color = YallaTheme.color.gray
             )
 
             CarNumberItem(
-                code = car.stateNumber.slice(0..<2),
+                code = car.driver.stateNumber.slice(0..<2),
                 number = "(\\d+|[A-Za-z]+)"
                     .toRegex()
-                    .findAll(car.stateNumber)
+                    .findAll(car.driver.stateNumber)
                     .map { it.value }
                     .toList()
             )
@@ -75,7 +75,7 @@ fun ClientWaitingBottomSheet(
                 .padding(20.dp)
         ) {
             CallButton(
-                onClick = onDismissRequest,
+                onClick = { onClickCall(car.phone) },
                 modifier = Modifier.fillMaxWidth()
             )
         }

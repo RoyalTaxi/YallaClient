@@ -11,7 +11,6 @@ data class OrderHistoryModel(
     val paymentType: String,
     val service: String,
     val status: String,
-    val statusTime: Long,
     val taxi: Taxi,
     val track: List<Track>
 ) {
@@ -73,7 +72,7 @@ data class OrderHistoryModel(
     data class Track(
         val lat: Double,
         val lng: Double,
-        val speed: Int,
+        val speed: Double,
         val status: String,
         val time: Long
     )

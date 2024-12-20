@@ -20,7 +20,6 @@ object OrderHistoryMapper {
             paymentType = remote?.payment_type.orEmpty(),
             service = remote?.service.orEmpty(),
             status = remote?.status.orEmpty(),
-            statusTime = remote?.status_time.or0(),
             taxi = remote?.taxi?.let(taxiMapper) ?: defaultTaxi(),
             track = remote?.track?.map(trackMapper).orEmpty()
         )

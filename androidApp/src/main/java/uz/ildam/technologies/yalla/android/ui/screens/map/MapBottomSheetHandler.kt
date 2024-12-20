@@ -76,7 +76,7 @@ class MapBottomSheetHandler(
                                     viewModel.isPointInsidePolygon(MapPoint(dest.lat, dest.lng))
                                 if (result.first) {
                                     viewModel.getAddressDetails(MapPoint(dest.lat, dest.lng))
-                                    viewModel.updateSelectedLocation(addressId = result.second)
+                                    viewModel.setSelectedLocation(addressId = result.second)
                                 } else Toast.makeText(context, "Out of service", Toast.LENGTH_SHORT)
                                     .show()
                             }
@@ -98,7 +98,7 @@ class MapBottomSheetHandler(
                                 MapPoint(dest.lat, dest.lng)
                             )
                         )
-                        viewModel.updateDestinations(destinations)
+                        viewModel.setDestinations(destinations)
                     }
                 },
                 onSearchForAddress = {
@@ -117,7 +117,7 @@ class MapBottomSheetHandler(
                 },
                 onDismissRequest = {
                     showSearchLocation(false)
-                    viewModel.updateUIState(foundAddresses = emptyList())
+                    viewModel.setFoundAddresses(addresses = emptyList())
                 }
             )
         }
@@ -134,7 +134,7 @@ class MapBottomSheetHandler(
                             MapPoint(location.latitude, location.longitude)
                         )
                     )
-                    viewModel.updateDestinations(destinations)
+                    viewModel.setDestinations(destinations)
                 } else {
                     if (uiState.moveCameraButtonState == MoveCameraButtonState.MyRouteView) {
                         viewModel.getAddressDetails(MapPoint(location.latitude, location.longitude))
@@ -167,7 +167,7 @@ class MapBottomSheetHandler(
                 },
                 onDismissRequest = { orderedDestinations ->
                     showDestinations(false)
-                    viewModel.updateDestinations(orderedDestinations)
+                    viewModel.setDestinations(orderedDestinations)
                     if (orderedDestinations.isEmpty()) getCurrentLocation(context) { location ->
                         currentLatLng.value = MapPoint(location.latitude, location.longitude)
                         actionHandler.moveCamera(
@@ -205,7 +205,7 @@ class MapBottomSheetHandler(
                     selectedTariff = selectedTariff,
                     options = uiState.options,
                     selectedOptions = uiState.selectedOptions,
-                    onSave = { options -> viewModel.updateSelectedOptions(options) },
+                    onSave = { options -> viewModel.setSelectedOptions(options) },
                     onDismissRequest = { showOptions(false) }
                 )
             }
@@ -235,7 +235,7 @@ class MapBottomSheetHandler(
             if (selectPaymentMethodVisibility) PaymentMethodBottomSheet(
                 sheetState = selectPaymentMethodState,
                 uiState = uiState,
-                onSelectPaymentType = { viewModel.updateUIState(selectedPaymentType = it) },
+                onSelectPaymentType = { viewModel.setPaymentType(paymentType = it) },
                 onAddNewCard = onAddNewCard,
                 onDismissRequest = { showPaymentMethod(false) }
             )

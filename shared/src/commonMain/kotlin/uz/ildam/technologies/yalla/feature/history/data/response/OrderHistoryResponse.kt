@@ -12,7 +12,6 @@ data class OrderHistoryResponse(
     val payment_type: String?,
     val service: String?,
     val status: String?,
-    val status_time: Long?,
     val taxi: Taxi?,
     val track: List<Track>?
 ) {
@@ -82,7 +81,7 @@ data class OrderHistoryResponse(
     data class Track(
         val lat: Double?,
         val lng: Double?,
-        val speed: Int?,
+        val speed: Double?,
         val status: String?,
         val time: Long?
     )
