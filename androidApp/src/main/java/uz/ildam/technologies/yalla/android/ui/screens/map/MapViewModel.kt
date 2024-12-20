@@ -300,7 +300,7 @@ class MapViewModel(
         // UI State-related properties
         moveCameraButtonState: MoveCameraButtonState = _uiState.value.moveCameraButtonState,
         discardOrderButtonState: DiscardOrderButtonState = _uiState.value.discardOrderButtonState,
-    ) {
+    )= viewModelScope.launch {
         _uiState.update {
             it.copy(
                 // Location-related properties
@@ -340,7 +340,7 @@ class MapViewModel(
         }
     }
 
-    fun updateSelectedTariff(tariff: GetTariffsModel.Tariff) {
+    fun updateSelectedTariff(tariff: GetTariffsModel.Tariff)= viewModelScope.launch {
         _uiState.update {
             it.copy(
                 selectedTariff = tariff,
@@ -352,7 +352,7 @@ class MapViewModel(
         fetchTariffs()
     }
 
-    fun updateSelectedOptions(options: List<GetTariffsModel.Tariff.Service>) {
+    fun updateSelectedOptions(options: List<GetTariffsModel.Tariff.Service>) = viewModelScope.launch{
         _uiState.update { it.copy(selectedOptions = options) }
     }
 
@@ -360,7 +360,7 @@ class MapViewModel(
         name: String? = _uiState.value.selectedLocation?.name,
         point: MapPoint? = _uiState.value.selectedLocation?.point,
         addressId: Int? = _uiState.value.selectedLocation?.addressId
-    ) {
+    ) = viewModelScope.launch{
         _uiState.update {
             it.copy(
                 selectedLocation = MapUIState.SelectedLocation(

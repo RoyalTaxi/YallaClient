@@ -153,8 +153,8 @@ fun MapRoute(
     LaunchedEffect(uiState.selectedDriver?.status) {
         when (uiState.selectedDriver?.status) {
             OrderStatus.Appointed -> sheetHandler.showClientWaiting()
-            OrderStatus.AtAddress -> {}
-            OrderStatus.Canceled -> {}
+            OrderStatus.AtAddress -> sheetHandler.showDriverWaiting()
+            OrderStatus.Canceled -> sheetHandler.showOrderTaxi()
             OrderStatus.Completed -> {}
             OrderStatus.InFetters -> {}
             OrderStatus.New -> {

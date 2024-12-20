@@ -43,6 +43,7 @@ import uz.ildam.technologies.yalla.android2gis.imageFromResource
 import uz.ildam.technologies.yalla.core.data.enums.MapType
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.OrderStatus
+import kotlin.math.abs
 import com.google.maps.android.compose.Marker as GoogleMarker
 import com.google.maps.android.compose.Polyline as GooglePolyline
 import uz.ildam.technologies.yalla.android2gis.Marker as GisMarker
@@ -89,7 +90,7 @@ fun MapScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(bottom = remember(bottomPadding) { bottomPadding - 24.dp })
+                    .padding(bottom = remember(bottomPadding) { abs(bottomPadding.value - 24).dp })
             ) {
                 if (AppPreferences.mapType == MapType.Gis) MapView(
                     modifier = Modifier.fillMaxSize(),
@@ -215,6 +216,23 @@ fun MapScreen(
                                 )
                             }
                         }
+
+                        uiState.drivers.forEach { driver ->
+                            MarkerComposable(
+                                flat = true,
+                                rotation = driver.heading.toFloat(),
+                                state = remember(it) {
+                                    MarkerState(position = LatLng(driver.lat, driver.lng))
+                                }
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.img_car_marker),
+                                    contentDescription = null,
+                                    tint = Color.Unspecified,
+                                    modifier = Modifier.size(48.dp)
+                                )
+                            }
+                        }
                     }
                 )
 
@@ -230,6 +248,7 @@ fun MapScreen(
                         isSearching = uiState.selectedDriver?.status == OrderStatus.New,
                         isRouteEmpty = uiState.route.isEmpty(),
                         isAppointed = uiState.selectedDriver?.status == OrderStatus.Appointed,
+                        isAtAddress = uiState.selectedDriver?.status == OrderStatus.AtAddress,
                         selectedAddressName = uiState.selectedLocation?.name,
                         modifier = Modifier.align(Alignment.Center)
                     )

@@ -3,23 +3,17 @@ package uz.ildam.technologies.yalla.android.ui.sheets
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -28,106 +22,101 @@ import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 import uz.ildam.technologies.yalla.android.ui.components.button.OptionsButton
 import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
+import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.ShowOrderModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DriverWaitingBottomSheet(
-    carInfo: String,
-    carNumber: String,
+    car: ShowOrderModel.Executor.Driver,
     timer: String,
-    sheetState: SheetState,
-    onDismissRequest: () -> Unit,
+    onCancel: () -> Unit,
+    onOptionsClick: () -> Unit
 ) {
-    ModalBottomSheet(
-        shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
-        containerColor = YallaTheme.color.gray2,
-        dragHandle = null,
-        sheetState = sheetState,
-        onDismissRequest = onDismissRequest
+    Column(
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = YallaTheme.color.gray2,
+                shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
+            )
+            .navigationBarsPadding()
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
             modifier = Modifier
-                .fillMaxWidth()
-                .navigationBarsPadding()
+                .background(
+                    color = YallaTheme.color.white,
+                    shape = RoundedCornerShape(30.dp)
+                )
+                .padding(20.dp)
         ) {
-            Column(
-                modifier = Modifier
-                    .background(
-                        color = YallaTheme.color.white,
-                        shape = RoundedCornerShape(30.dp)
-                    )
-                    .padding(20.dp)
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+
             ) {
-                Row {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.waiting_for_you),
-                            style = YallaTheme.font.title,
-                            color = YallaTheme.color.black
-                        )
+                Text(
+                    text = stringResource(R.string.waiting_for_you),
+                    style = YallaTheme.font.title,
+                    color = YallaTheme.color.black
+                )
 
-                        Text(
-                            text = carInfo,
-                            style = YallaTheme.font.label,
-                            color = YallaTheme.color.gray
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.weight(1f))
-
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(7.dp),
-                        horizontalAlignment = Alignment.End
-                    ) {
-                        Text(
-                            text = carNumber,
-                            style = YallaTheme.font.labelSemiBold,
-                            color = YallaTheme.color.black
-                        )
-
-                        Text(
-                            text = timer,
-                            style = YallaTheme.font.label,
-                            color = YallaTheme.color.primary
-                        )
-                    }
-                }
+                Text(
+                    text = car.stateNumber,
+                    style = YallaTheme.font.labelSemiBold,
+                    color = YallaTheme.color.black
+                )
             }
             Row(
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier
-                    .background(
-                        color = YallaTheme.color.white,
-                        shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
-                    )
-                    .padding(20.dp)
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+
             ) {
-
-                OptionsButton(
-                    modifier = Modifier.fillMaxHeight(),
-                    painter = painterResource(R.drawable.ic_clear),
-                    onClick = {}
+                Text(
+                    text = "${car.color.name} ${car.mark} ${car.model}",
+                    style = YallaTheme.font.label,
+                    color = YallaTheme.color.gray
                 )
 
-                YallaButton(
-                    text = stringResource(R.string.lets_go),
-                    contentPadding = PaddingValues(vertical = 20.dp),
-                    onClick = { },
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                )
-
-                OptionsButton(
-                    modifier = Modifier.fillMaxHeight(),
-                    painter = painterResource(R.drawable.img_options),
-                    tint = YallaTheme.color.black,
-                    onClick = { }
+                Text(
+                    text = timer,
+                    style = YallaTheme.font.label,
+                    color = YallaTheme.color.primary
                 )
             }
+        }
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier
+                .height(IntrinsicSize.Min)
+                .background(
+                    color = YallaTheme.color.white,
+                    shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
+                )
+                .padding(20.dp)
+        ) {
+            OptionsButton(
+                modifier = Modifier.fillMaxHeight(),
+                tint = YallaTheme.color.red,
+                painter = painterResource(R.drawable.ic_x),
+                onClick = onCancel
+            )
+
+            YallaButton(
+                text = stringResource(R.string.lets_go),
+                contentPadding = PaddingValues(vertical = 20.dp),
+                onClick = { },
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+            )
+
+            OptionsButton(
+                modifier = Modifier.fillMaxHeight(),
+                painter = painterResource(R.drawable.img_options),
+                tint = YallaTheme.color.black,
+                onClick = onOptionsClick
+            )
         }
     }
 }

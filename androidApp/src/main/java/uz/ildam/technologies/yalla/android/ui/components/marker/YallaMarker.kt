@@ -47,6 +47,7 @@ fun YallaMarker(
     isLoading: Boolean,
     isSearching: Boolean = false,
     isAppointed: Boolean = false,
+    isAtAddress: Boolean = false,
     isRouteEmpty: Boolean = true,
     selectedAddressName: String?,
     modifier: Modifier = Modifier
@@ -92,7 +93,7 @@ fun YallaMarker(
                 .alpha(.5f)
         )
 
-        if ((isRouteEmpty || isSearching) && isAppointed.not()) ConstraintLayout(
+        if ((isRouteEmpty || isSearching) && isAppointed.not() && isAtAddress.not()) ConstraintLayout(
             modifier = modifier
         ) {
             val (circle, stick, indicator, addressName) = createRefs()

@@ -88,5 +88,6 @@
     <string name="waiting_for_you">Вас ждёт</string>
     <string name="choose_desired_payment_type">Выберете удобный способ оплаты</string>
     <string name="ready">Готово</string>
+    <string name="connect">Связатья</string>
 
 </resources>

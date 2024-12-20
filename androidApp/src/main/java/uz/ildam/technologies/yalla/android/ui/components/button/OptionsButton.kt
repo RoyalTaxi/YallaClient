@@ -1,6 +1,5 @@
 package uz.ildam.technologies.yalla.android.ui.components.button
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,14 +17,14 @@ import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 fun OptionsButton(
     painter: Painter,
     modifier: Modifier = Modifier,
-    tint: Color? = YallaTheme.color.black,
+    tint: Color? = Color.Unspecified,
     onClick: () -> Unit
 ) {
     Button(
         modifier = modifier,
         shape = RoundedCornerShape(16.dp),
         onClick = onClick,
-        contentPadding = PaddingValues(10.dp),
+//        contentPadding = PaddingValues(10.dp),
         colors = ButtonDefaults.buttonColors(YallaTheme.color.gray2)
     ) {
         Icon(
