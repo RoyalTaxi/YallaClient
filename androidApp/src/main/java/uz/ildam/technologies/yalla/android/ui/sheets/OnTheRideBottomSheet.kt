@@ -36,7 +36,6 @@ fun OnTheRideBottomSheet(
                 color = YallaTheme.color.gray2,
                 shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
             )
-            .navigationBarsPadding()
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -45,6 +44,7 @@ fun OnTheRideBottomSheet(
                     color = YallaTheme.color.white,
                     shape = RoundedCornerShape(30.dp)
                 )
+                .navigationBarsPadding()
                 .padding(20.dp)
         ) {
             Row(

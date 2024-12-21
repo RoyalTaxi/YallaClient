@@ -23,6 +23,7 @@ import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.GetAddressName
 import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.GetPolygonUseCase
 import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.SearchForAddressUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.model.request.OrderTaxiDto
+import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.OrderStatus
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.SettingModel
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.ShowOrderModel
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.tarrif.GetTariffsModel
@@ -30,6 +31,7 @@ import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.CancelRide
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.GetSettingUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.GetShowOrderUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.OrderTaxiUseCase
+import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.RateTheRideUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.SearchCarUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.tariff.GetTariffsUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.tariff.GetTimeOutUseCase
@@ -48,7 +50,8 @@ class MapViewModel(
     private val getSettingUseCase: GetSettingUseCase,
     private val cancelRideUseCase: CancelRideUseCase,
     private val getCardListUseCase: GetCardListUseCase,
-    private val getShowOrderUseCase: GetShowOrderUseCase
+    private val getShowOrderUseCase: GetShowOrderUseCase,
+    private val rateTheRideUseCase: RateTheRideUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MapUIState())
@@ -425,8 +428,31 @@ class MapViewModel(
 
             is Result.Success -> {
                 setSelectedDriver(result.data)
-                setDrivers(emptyList()) // clear any driver list if showing a specific order
+                if (result.data.status != OrderStatus.New) setDrivers(emptyList()) // clear any driver list if showing a specific order
             }
+        }
+    }
+
+    fun completeOrder() {
+        _uiState.update {
+            it.copy(
+                selectedOrder = null,
+                selectedDriver = null,
+                orders = emptyList(),
+                route = emptyList(),
+                destinations = emptyList()
+            )
+        }
+    }
+
+    fun rateTheRide(ball: Int) = viewModelScope.launch {
+        when (rateTheRideUseCase(
+            ball = ball,
+            orderId = uiState.value.selectedOrder.or0(),
+            comment = ""
+        )) {
+            is Result.Error -> {}
+            is Result.Success -> {}
         }
     }
 }

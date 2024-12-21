@@ -1,23 +1,26 @@
 package uz.ildam.technologies.yalla.android.ui.components.item
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 
 @Composable
-fun RatingStars(
-    currentRating: Float,
-    onRatingChange: (Float) -> Unit,
+fun RatingStarsItem(
+    currentRating: Int,
     maxRating: Int = 5,
+    starSize: Dp = 40.dp,
     modifier: Modifier = Modifier,
-    starSize: Dp = 32.dp,
+    onRatingChange: (Int) -> Unit
 ) {
     Row(
         modifier = modifier,
@@ -26,16 +29,27 @@ fun RatingStars(
         for (i in 1..maxRating) {
             val isFullStar = i <= currentRating
 
-            Icon(
-                imageVector = Icons.Default.Star, // Use full star icon
-                contentDescription = "Star $i",
-                tint = if (isFullStar) YallaTheme.color.primary else YallaTheme.color.gray,
-                modifier = Modifier
-                    .size(starSize)
-                    .clickable {
-                        onRatingChange(i.toFloat())
-                    }
-            )
+            IconButton(
+                onClick = { onRatingChange(i) },
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Star,
+                    contentDescription = null,
+                    modifier = Modifier.size(starSize),
+                    tint = if (isFullStar) YallaTheme.color.primary else YallaTheme.color.gray,
+                )
+            }
         }
     }
+}
+
+@Preview
+@Composable
+fun Preview() {
+    RatingStarsItem(
+        currentRating = 4,
+        maxRating = 5,
+        starSize = 40.dp,
+        onRatingChange = {}
+    )
 }

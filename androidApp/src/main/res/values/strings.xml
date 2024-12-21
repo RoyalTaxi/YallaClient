@@ -94,4 +94,8 @@
     <string name="sum">сум</string>
     <string name="rate_the_trip">Оценит поездку</string>
     <string name="new_order">Новый заказ</string>
+    <string name="order_completed">Заказ завершен</string>
+    <string name="with_card">с картой</string>
+    <string name="rate">Оценить</string>
+    <string name="create_new_order">Новый заказ</string>
 </resources>

@@ -220,7 +220,6 @@ class MapBottomSheetHandler(
                 sheetState = confirmCancellationState,
                 onDismissRequest = { showConfirmCancellation(false) },
                 onConfirm = {
-                    uiState.selectedOrder?.let { viewModel.cancelRide(it) }
                     showConfirmCancellation(false)
                     onCancel()
                 }

@@ -31,4 +31,10 @@ interface OrderRepository {
     suspend fun getShowOrder(
         orderId: Int
     ): Result<ShowOrderModel, DataError.Network>
+
+    suspend fun rateTheRide(
+        ball: Int,
+        orderId: Int,
+        comment: String
+    ): Result<Unit, DataError.Network>
 }

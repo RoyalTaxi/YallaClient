@@ -18,9 +18,17 @@ suspend inline fun <reified T> safeApiCall(
     return try {
         val response = call()
         when (response.status.value) {
-            in 200..299 -> Result.Success(response.body())
-            in 400..499 -> Result.Error(DataError.Network.CLIENT_REQUEST_ERROR)
+            in 200..299 -> {
+                // If T == Unit, skip deserialization entirely.
+                if (T::class == Unit::class) {
+                    Result.Success(Unit as T)
+                } else {
+                    // Otherwise, parse
+                    Result.Success(response.body())
+                }
+            }
             in 300..399 -> Result.Error(DataError.Network.REDIRECT_RESPONSE_ERROR)
+            in 400..499 -> Result.Error(DataError.Network.CLIENT_REQUEST_ERROR)
             in 500..599 -> Result.Error(DataError.Network.SERVER_RESPONSE_ERROR)
             else -> Result.Error(DataError.Network.UNKNOWN_ERROR)
         }

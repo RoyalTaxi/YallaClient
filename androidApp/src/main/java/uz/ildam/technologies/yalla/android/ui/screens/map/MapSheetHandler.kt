@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -20,6 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.flow.collectLatest
 import uz.ildam.technologies.yalla.android.ui.sheets.ClientWaitingBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.DriverWaitingBottomSheet
+import uz.ildam.technologies.yalla.android.ui.sheets.FeedbackBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.OnTheRideBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.OrderTaxiBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.SearchForCarsBottomSheet
@@ -35,16 +37,18 @@ class MapSheetHandler(
     private var clientWaitingVisibility by mutableStateOf(false)
     private var driverWaitingVisibility by mutableStateOf(false)
     private var onTheRideVisibility by mutableStateOf(false)
+    private var feedBackVisibility by mutableStateOf(false)
 
     @Composable
     fun Sheets(
         isLoading: Boolean,
         currentLatLng: MutableState<MapPoint>,
-        uiState: MapUIState
+        uiState: MapUIState,
+        onCreateOrder: () -> Unit,
     ) {
         val context = LocalContext.current
-
         var timer by remember { mutableStateOf("") }
+        var rating by remember { mutableIntStateOf(0) }
 
         LaunchedEffect(driverWaitingVisibility) {
             viewModel
@@ -99,6 +103,7 @@ class MapSheetHandler(
                     )
                 },
                 onCreateOrder = {
+                    onCreateOrder()
                     viewModel.orderTaxi()
                 }
             )
@@ -148,7 +153,7 @@ class MapSheetHandler(
                         timer = timer,
                         onCancel = { bottomSheetHandler.showConfirmCancellation(true) },
                         onClickCall = { number ->
-                            val intent = Intent(Intent.ACTION_DIAL).apply {
+                            val intent = Intent(ACTION_DIAL).apply {
                                 data = Uri.parse("tel:$number")
                             }
                             if (intent.resolveActivity(context.packageManager) != null) {
@@ -167,6 +172,27 @@ class MapSheetHandler(
             uiState.selectedDriver?.executor?.let {
                 if (onTheRideVisibility && uiState.selectedDriver.status == OrderStatus.InFetters)
                     OnTheRideBottomSheet(car = it)
+            }
+        }
+
+        AnimatedVisibility(
+            visible = feedBackVisibility
+        ) {
+            uiState.selectedDriver?.executor?.let {
+                if (feedBackVisibility && uiState.selectedDriver.status == OrderStatus.Completed)
+                    FeedbackBottomSheet(
+                        userRating = rating,
+                        orderModel = uiState.selectedDriver,
+                        onRatingChange = { rating = it },
+                        onRate = {
+                            viewModel.completeOrder()
+                            viewModel.rateTheRide(rating)
+                        },
+                        onDismissRequest = {
+                            viewModel.completeOrder()
+                            showOrderTaxi()
+                        }
+                    )
             }
         }
     }
@@ -196,11 +222,17 @@ class MapSheetHandler(
         onTheRideVisibility = true
     }
 
+    fun showFeedback() {
+        hideAllSheets()
+        feedBackVisibility = true
+    }
+
     private fun hideAllSheets() {
         orderTaxiVisibility = false
         searchCarsVisibility = false
         clientWaitingVisibility = false
         driverWaitingVisibility = false
         onTheRideVisibility = false
+        feedBackVisibility = false
     }
 }

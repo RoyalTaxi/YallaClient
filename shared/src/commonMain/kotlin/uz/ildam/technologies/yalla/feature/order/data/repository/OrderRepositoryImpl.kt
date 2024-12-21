@@ -96,4 +96,19 @@ class OrderRepositoryImpl(
             is Result.Success -> Result.Success(result.data.result.let(ShowOrderMapper.mapper))
         }
     }
+
+    override suspend fun rateTheRide(
+        ball: Int,
+        orderId: Int,
+        comment: String
+    ): Result<Unit, DataError.Network> {
+        return when (val result = orderService.rateTheRide(
+            ball = ball,
+            orderId = orderId,
+            comment = comment
+        )) {
+            is Result.Error -> Result.Error(result.error)
+            is Result.Success -> Result.Success(Unit)
+        }
+    }
 }

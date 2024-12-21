@@ -13,6 +13,7 @@ import uz.ildam.technologies.yalla.core.domain.error.DataError
 import uz.ildam.technologies.yalla.core.domain.error.Result
 import uz.ildam.technologies.yalla.feature.order.data.request.order.CancelOrderReason
 import uz.ildam.technologies.yalla.feature.order.data.request.order.OrderTaxiRequest
+import uz.ildam.technologies.yalla.feature.order.data.request.order.RateTheRideRequest
 import uz.ildam.technologies.yalla.feature.order.data.response.order.OrderTaxiResponse
 import uz.ildam.technologies.yalla.feature.order.data.response.order.SearchCarResponse
 import uz.ildam.technologies.yalla.feature.order.data.response.order.SettingResponse
@@ -20,12 +21,13 @@ import uz.ildam.technologies.yalla.feature.order.data.response.order.ShowOrderRe
 import uz.ildam.technologies.yalla.feature.order.data.url.OrderUrl
 
 class OrderService(
-    private val ktor: HttpClient
+    private val ktorApi1: HttpClient,
+    private val ktorApi2: HttpClient
 ) {
     suspend fun orderTaxi(
         body: OrderTaxiRequest
     ): Result<ApiResponseWrapper<OrderTaxiResponse>, DataError.Network> = safeApiCall {
-        ktor.post(OrderUrl.ORDER_TAXI) { setBody(body) }.body()
+        ktorApi2.post(OrderUrl.ORDER_TAXI) { setBody(body) }.body()
     }
 
     suspend fun searchCars(
@@ -33,7 +35,7 @@ class OrderService(
         lng: Double,
         tariffId: Int
     ): Result<ApiResponseWrapper<SearchCarResponse>, DataError.Network> = safeApiCall {
-        ktor.get(OrderUrl.SEARCH_CARS) {
+        ktorApi2.get(OrderUrl.SEARCH_CARS) {
             parameter("lat", lat)
             parameter("lng", lng)
             parameter("tariff_id", tariffId)
@@ -42,11 +44,11 @@ class OrderService(
 
     suspend fun getSetting(): Result<ApiResponseWrapper<SettingResponse>, DataError.Network> =
         safeApiCall {
-            ktor.get(OrderUrl.GET_SETTING).body()
+            ktorApi2.get(OrderUrl.GET_SETTING).body()
         }
 
     suspend fun cancelRide(orderId: Int): Result<Unit, DataError.Network> = safeApiCall {
-        ktor.put(OrderUrl.CANCEL_RIDE + orderId)
+        ktorApi2.put(OrderUrl.CANCEL_RIDE + orderId)
     }
 
     suspend fun cancelReason(
@@ -54,7 +56,7 @@ class OrderService(
         reasonId: Int,
         reasonComment: String
     ): Result<Unit, DataError.Network> = safeApiCall {
-        ktor.put(OrderUrl.CANCEL_REASON + orderId) {
+        ktorApi2.put(OrderUrl.CANCEL_REASON + orderId) {
             setBody(
                 CancelOrderReason(
                     reason_id = reasonId,
@@ -66,6 +68,22 @@ class OrderService(
 
     suspend fun show(orderId: Int): Result<ApiResponseWrapper<ShowOrderResponse>, DataError.Network> =
         safeApiCall {
-            ktor.get(OrderUrl.SHOW + orderId).body()
+            ktorApi2.get(OrderUrl.SHOW + orderId).body()
         }
+
+    suspend fun rateTheRide(
+        ball: Int,
+        orderId: Int,
+        comment: String
+    ): Result<Unit, DataError.Network> = safeApiCall {
+        ktorApi1.post(OrderUrl.RATINGS) {
+            setBody(
+                RateTheRideRequest(
+                    order_id = orderId,
+                    ball = ball,
+                    comment = comment
+                )
+            )
+        }.body()
+    }
 }

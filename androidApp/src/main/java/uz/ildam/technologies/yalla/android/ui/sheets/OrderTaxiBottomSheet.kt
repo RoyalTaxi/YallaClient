@@ -28,6 +28,7 @@ import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
 import uz.ildam.technologies.yalla.android.ui.components.item.TariffItem
 import uz.ildam.technologies.yalla.android.ui.components.item.TariffItemShimmer
 import uz.ildam.technologies.yalla.android.ui.screens.map.MapUIState
+import uz.ildam.technologies.yalla.core.data.enums.PaymentType
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.tarrif.GetTariffsModel
 
 @Composable
@@ -43,12 +44,10 @@ fun OrderTaxiBottomSheet(
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp),
-        modifier = Modifier
-            .background(
-                color = YallaTheme.color.white,
-                shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
-            )
-            .navigationBarsPadding()
+        modifier = Modifier.background(
+            color = YallaTheme.color.gray2,
+            shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
+        )
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -100,11 +99,26 @@ fun OrderTaxiBottomSheet(
                     color = YallaTheme.color.white,
                     shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
                 )
+                .navigationBarsPadding()
                 .padding(20.dp)
         ) {
             OptionsButton(
                 modifier = Modifier.fillMaxHeight(),
-                painter = painterResource(R.drawable.img_money),
+                size = when (uiState.selectedPaymentType) {
+                    is PaymentType.CARD -> 36.dp
+                    else -> 24.dp
+                },
+                painter = when (uiState.selectedPaymentType) {
+                    is PaymentType.CARD -> painterResource(
+                        when (uiState.selectedPaymentType.cardId.length) {
+                            16 -> R.drawable.img_logo_humo
+                            32 -> R.drawable.img_logo_uzcard
+                            else -> R.drawable.img_money
+                        }
+                    )
+
+                    else -> painterResource(R.drawable.img_money)
+                },
                 onClick = onSelectPaymentMethodClick
             )
 

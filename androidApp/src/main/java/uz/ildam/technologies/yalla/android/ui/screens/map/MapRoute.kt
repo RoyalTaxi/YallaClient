@@ -1,6 +1,8 @@
 package uz.ildam.technologies.yalla.android.ui.screens.map
 
 import android.Manifest
+import android.app.Activity
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,6 +27,7 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import ru.dgis.sdk.map.CameraState
 import ru.dgis.sdk.map.Zoom
+import uz.ildam.technologies.yalla.android.ui.dialogs.LoadingDialog
 import uz.ildam.technologies.yalla.android.ui.sheets.SheetValue
 import uz.ildam.technologies.yalla.android.utils.getCurrentLocation
 import uz.ildam.technologies.yalla.android.utils.rememberPermissionState
@@ -54,6 +57,7 @@ fun MapRoute(
 
     // Collect UI State
     val uiState by vm.uiState.collectAsState()
+    var loading by remember { mutableStateOf(false) }
 
     // Bottom sheet and drawer states
     val searchLocationState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -138,6 +142,16 @@ fun MapRoute(
         }
     }
 
+    /** Handle any back pressed logic, confirm when there is route **/
+    BackHandler {
+        if (uiState.route.isNotEmpty()) {
+            vm.setDestinations(emptyList())
+            uiState.selectedLocation?.point?.let { there -> actionHandler.moveCamera(there, true) }
+        } else if (uiState.selectedDriver == null) {
+            (context as? Activity)?.finish()
+        }
+    }
+
     /** Collect Actions from ViewModel */
     LaunchedEffect(Unit) {
         vm.actionState.collectLatest { action ->
@@ -174,8 +188,8 @@ fun MapRoute(
      * Continuously poll getShow() every 5 seconds.
      * This could be considered for refactoring if an event-driven approach is possible.
      */
-    LaunchedEffect(Unit) {
-        while (true) {
+    LaunchedEffect(uiState.selectedOrder) {
+        while (uiState.selectedOrder != null) {
             vm.getShow()
             delay(5.seconds)
         }
@@ -188,8 +202,9 @@ fun MapRoute(
             OrderStatus.AtAddress -> sheetHandler.showDriverWaiting()
             OrderStatus.Canceled -> sheetHandler.showOrderTaxi()
             OrderStatus.InFetters -> sheetHandler.showOnTheRide()
-            OrderStatus.Completed -> {}
+            OrderStatus.Completed -> sheetHandler.showFeedback()
             OrderStatus.New -> {
+                loading = false
                 uiState.selectedLocation?.point?.let { actionHandler.moveCamera(it) }
                 sheetHandler.showSearchCars()
             }
@@ -254,6 +269,7 @@ fun MapRoute(
                 cameraState = gisCameraState,
                 mapSheetHandler = sheetHandler,
                 currentLatLng = currentLatLng,
+                onCreateOrder = { loading = true },
                 onIntent = { intent ->
                     when (intent) {
                         is MapIntent.MoveToMyLocation -> updateLocationAndMoveCamera(true)
@@ -310,4 +326,6 @@ fun MapRoute(
             onDispose { closeable.close() }
         }
     }
+
+    if (loading) LoadingDialog()
 }

@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
@@ -39,7 +40,6 @@ import uz.ildam.technologies.yalla.android2gis.CameraState
 import uz.ildam.technologies.yalla.android2gis.GeoPoint
 import uz.ildam.technologies.yalla.android2gis.MapView
 import uz.ildam.technologies.yalla.android2gis.Point
-import com.google.android.gms.maps.model.BitmapDescriptor
 import uz.ildam.technologies.yalla.android2gis.imageFromResource
 import uz.ildam.technologies.yalla.core.data.enums.MapType
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
@@ -60,7 +60,8 @@ fun MapScreen(
     cameraPositionState: CameraPositionState,
     cameraState: CameraState,
     mapSheetHandler: MapSheetHandler,
-    onIntent: (MapIntent) -> Unit
+    onIntent: (MapIntent) -> Unit,
+    onCreateOrder: () -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -90,7 +91,8 @@ fun MapScreen(
             mapSheetHandler.Sheets(
                 isLoading = isLoading,
                 uiState = uiState,
-                currentLatLng = currentLatLng
+                currentLatLng = currentLatLng,
+                onCreateOrder = onCreateOrder
             )
         },
         content = {
@@ -310,6 +312,7 @@ private fun MapOverlay(
             isAppointed = driverStatus == OrderStatus.Appointed,
             isAtAddress = driverStatus == OrderStatus.AtAddress,
             isInFetters = driverStatus == OrderStatus.InFetters,
+            isCompleted = driverStatus == OrderStatus.Completed,
             selectedAddressName = uiState.selectedLocation?.name,
             modifier = Modifier.align(Alignment.Center)
         )

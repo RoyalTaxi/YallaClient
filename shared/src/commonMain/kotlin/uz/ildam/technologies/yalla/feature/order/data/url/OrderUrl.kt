@@ -7,4 +7,5 @@ object OrderUrl {
     const val CANCEL_RIDE = "order/cancel/"
     const val CANCEL_REASON = "order/cancel/reason/"
     const val SHOW = "order/"
+    const val RATINGS = "ratings"
 }
