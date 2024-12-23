@@ -197,7 +197,7 @@ class MapViewModel(
             service = "road",
             addressId = selectedLocation.addressId,
             toPhone = AppPreferences.number,
-            comment = "",
+            comment = uiState.value.comment,
             cardId = (state.selectedPaymentType as? PaymentType.CARD)?.cardId,
             tariffId = selectedTariff.id.toInt(),
             tariffOptions = state.selectedOptions.map { it.id.toInt() },
