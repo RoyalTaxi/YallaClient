@@ -1,10 +1,8 @@
 package uz.ildam.technologies.yalla.android.ui.sheets
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,6 +24,7 @@ import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
 import uz.ildam.technologies.yalla.android.ui.components.item.OptionsItem
+import uz.ildam.technologies.yalla.android.ui.components.item.OrderOptionsItem
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.tarrif.GetTariffsModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,6 +35,8 @@ fun SetOrderOptionsBottomSheet(
     options: List<GetTariffsModel.Tariff.Service>,
     selectedOptions: List<GetTariffsModel.Tariff.Service>,
     onSave: (List<GetTariffsModel.Tariff.Service>) -> Unit,
+    comment: String,
+    onOrderComment: () -> Unit,
     onDismissRequest: () -> Unit
 ) {
     val newSelectedOptions = remember { mutableStateListOf(*selectedOptions.toTypedArray()) }
@@ -72,6 +73,24 @@ fun SetOrderOptionsBottomSheet(
                     ) else stringResource(R.string.starting_cost, selectedTariff.fixedPrice),
                     color = YallaTheme.color.gray,
                     style = YallaTheme.font.label
+                )
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(30.dp))
+                    .background(YallaTheme.color.white)
+                    .padding()
+            ) {
+                OrderOptionsItem(
+                    title = stringResource(R.string.comment_to_driver),
+                    description = if (comment.isEmpty()) {
+                        stringResource(R.string.systemic)
+                    } else { comment },
+                    onClick = {onOrderComment()}
                 )
             }
 

@@ -25,6 +25,7 @@ data class MapUIState(
     val selectedTariff: GetTariffsModel.Tariff? = null,
     val options: List<GetTariffsModel.Tariff.Service> = emptyList(),
     val selectedOptions: List<GetTariffsModel.Tariff.Service> = emptyList(),
+    val comment: String = "",
 
     // Order-related properties
     val timeout: Int? = null,

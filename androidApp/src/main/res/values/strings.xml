@@ -98,4 +98,11 @@
     <string name="with_card">с картой</string>
     <string name="rate">Оценить</string>
     <string name="create_new_order">Новый заказ</string>
+    <string name="comment">Комментарий</string>
+    <string name="write_comment_here">Напишите комментарий сюда. \nНапример, “Не звоните”</string>
+    <string name="close">Закрыть</string>
+    <string name="comment_to_driver">Комментарий водителю</string>
+    <string name="systemic">Системный</string>
+    <string name="order_time">Время заказа</string>
+    <string name="now">Сейчас</string>
 </resources>

@@ -101,4 +101,11 @@
     <string name="with_card">karta bilan</string>
     <string name="rate">Baholash</string>
     <string name="create_new_order">Yangi buyurtma berish</string>
+    <string name="comment">Izoh</string>
+    <string name="write_comment_here">Bu yerga fikringizni yozing. \nMasalan, "Qo\'ng\'iroq qilmang"”</string>
+    <string name="close">Yopish</string>
+    <string name="comment_to_driver">Haydovchiga izoh</string>
+    <string name="systemic">Tizim</string>
+    <string name="order_time">Buyurtma vaqti</string>
+    <string name="now">Hozir</string>
 </resources>

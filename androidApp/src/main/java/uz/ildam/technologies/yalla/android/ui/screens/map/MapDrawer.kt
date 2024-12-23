@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,6 +14,7 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -41,13 +43,11 @@ fun MapDrawer(
                     .verticalScroll(rememberScrollState())
             ) {
                 Column(
-                    modifier = Modifier.background(
-                        color = YallaTheme.color.white,
-                        shape = RoundedCornerShape(30.dp)
-                    )
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(30.dp))
+                        .background(YallaTheme.color.white)
                 ) {
-                    Spacer(modifier = Modifier.height(10.dp))
-
                     DrawerItem(
                         title = stringResource(R.string.orders_history),
                         painter = painterResource(R.drawable.ic_order_history),
@@ -86,20 +86,16 @@ fun MapDrawer(
                         ),
                         onClick = { onIntent(MapDrawerIntent.PaymentType) }
                     )
-
-                    Spacer(modifier = Modifier.height(10.dp))
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))
 
                 Column(
-                    modifier = Modifier.background(
-                        color = YallaTheme.color.white,
-                        shape = RoundedCornerShape(30.dp)
-                    )
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(30.dp))
+                        .background(YallaTheme.color.white)
                 ) {
-                    Spacer(modifier = Modifier.height(10.dp))
-
                     DrawerItem(
                         title = stringResource(R.string.invite_friends),
                         description = stringResource(R.string.win_x_sums, 5000),
@@ -118,20 +114,16 @@ fun MapDrawer(
                         painter = painterResource(R.drawable.ic_contact_us),
                         onClick = { onIntent(MapDrawerIntent.ContactUs) }
                     )
-
-                    Spacer(modifier = Modifier.height(10.dp))
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))
 
                 Column(
-                    modifier = Modifier.background(
-                        color = YallaTheme.color.white,
-                        shape = RoundedCornerShape(30.dp)
-                    )
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(30.dp))
+                        .background(YallaTheme.color.white)
                 ) {
-                    Spacer(modifier = Modifier.height(10.dp))
-
                     DrawerItem(
                         title = stringResource(R.string.settings),
                         painter = painterResource(R.drawable.ic_setting_line),
@@ -144,7 +136,6 @@ fun MapDrawer(
                         onClick = { onIntent(MapDrawerIntent.AboutTheApp) }
                     )
 
-                    Spacer(modifier = Modifier.height(10.dp))
                 }
             }
         }

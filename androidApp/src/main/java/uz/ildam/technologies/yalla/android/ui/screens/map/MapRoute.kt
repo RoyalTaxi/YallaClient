@@ -66,6 +66,7 @@ fun MapRoute(
     val optionsState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val confirmCancellationState = rememberModalBottomSheetState(confirmValueChange = { false })
     val selectPaymentMethodState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val orderCommentState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
     // Bottom sheet scaffold
@@ -119,6 +120,7 @@ fun MapRoute(
             optionsState = optionsState,
             confirmCancellationState = confirmCancellationState,
             selectPaymentMethodState = selectPaymentMethodState,
+            orderCommentState = orderCommentState,
             viewModel = vm
         )
     }
