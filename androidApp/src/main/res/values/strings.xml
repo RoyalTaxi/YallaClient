@@ -98,4 +98,13 @@
     <string name="with_card">с картой</string>
     <string name="rate">Оценить</string>
     <string name="create_new_order">Новый заказ</string>
+    <string name="my_places_desc">Добавьте адреса которые чаще всего ездите дом, работа, любимое кафе и другое.</string>
+    <string name="add_home_address">Добавьте домашний адрес</string>
+    <string name="add_work_address">Добавьте рабочий адрес</string>
+    <string name="address_name">Название</string>
+    <string name="apartment">Квартира</string>
+    <string name="entrance">Подьезд</string>
+    <string name="floor">Этаж</string>
+    <string name="comment">Комментарий</string>
+
 </resources>

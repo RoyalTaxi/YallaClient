@@ -1,5 +1,6 @@
 package uz.ildam.technologies.yalla.core.data.di
 
+import uz.ildam.technologies.yalla.feature.addresses.data.di.Addresses
 import uz.ildam.technologies.yalla.feature.auth.data.di.Auth
 import uz.ildam.technologies.yalla.feature.history.data.di.History
 import uz.ildam.technologies.yalla.feature.map.data.di.Map
@@ -13,6 +14,7 @@ object Common {
         *Map.modules.toTypedArray(),
         *Order.modules.toTypedArray(),
         *History.modules.toTypedArray(),
-        *Payment.modules.toTypedArray()
+        *Payment.modules.toTypedArray(),
+        *Addresses.modules.toTypedArray()
     )
 }

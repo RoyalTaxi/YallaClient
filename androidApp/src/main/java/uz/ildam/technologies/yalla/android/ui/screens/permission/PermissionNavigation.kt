@@ -8,6 +8,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import uz.ildam.technologies.yalla.android.navigation.safeNavigate
 
 const val PERMISSION_ROUTE = "permission_route"
 
@@ -26,4 +27,4 @@ fun NavGraphBuilder.permissionScreen(
 }
 
 fun NavController.navigateToPermissionScreen(navOptions: NavOptions? = null) =
-    navigate(PERMISSION_ROUTE, navOptions)
+    safeNavigate(PERMISSION_ROUTE, navOptions)

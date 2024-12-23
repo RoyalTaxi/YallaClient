@@ -1,7 +1,9 @@
 package uz.ildam.technologies.yalla.android.ui.sheets
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,8 +12,10 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -59,10 +63,21 @@ fun OrderTaxiBottomSheet(
                 .padding(vertical = 20.dp)
         ) {
             SelectCurrentLocationButton(
-                currentLocation = uiState.selectedLocation?.name,
-                isLoading = isLoading,
                 modifier = Modifier.padding(horizontal = 20.dp),
-                onClick = onCurrentLocationClick
+                onClick = onCurrentLocationClick,
+                text = if (isLoading.not() && uiState.selectedLocation?.name != null) uiState.selectedLocation.name
+                else stringResource(R.string.loading),
+                leadingIcon = {
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .border(
+                                shape = CircleShape,
+                                width = 1.dp,
+                                color = YallaTheme.color.gray
+                            )
+                    )
+                }
             )
 
             SelectDestinationButton(

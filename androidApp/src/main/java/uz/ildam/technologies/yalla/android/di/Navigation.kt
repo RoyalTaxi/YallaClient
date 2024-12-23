@@ -3,6 +3,8 @@ package uz.ildam.technologies.yalla.android.di
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import uz.ildam.technologies.yalla.android.ui.screens.add_card.AddCardViewModel
+import uz.ildam.technologies.yalla.android.ui.screens.address.AddressViewModel
+import uz.ildam.technologies.yalla.android.ui.screens.addresses.AddressesViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.cancel_reason.CancelReasonViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.card_list.CardListViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.card_verification.CardVerificationViewModel
@@ -13,6 +15,7 @@ import uz.ildam.technologies.yalla.android.ui.screens.language.LanguageViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.login.LoginViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.map.MapViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.verification.VerificationViewModel
+import uz.ildam.technologies.yalla.android.ui.sheets.search_address.SearchByNameBottomSheetViewModel
 import uz.ildam.technologies.yalla.android.ui.sheets.select_from_map.SelectFromMapBottomSheetViewModel
 
 object Navigation {
@@ -25,11 +28,15 @@ object Navigation {
         viewModelOf(::MapViewModel)
         viewModelOf(::HistoryViewModel)
         viewModelOf(::DetailsViewModel)
-        viewModelOf(::SelectFromMapBottomSheetViewModel)
         viewModelOf(::AddCardViewModel)
         viewModelOf(::CardListViewModel)
         viewModelOf(::CardVerificationViewModel)
         viewModelOf(::CancelReasonViewModel)
+        viewModelOf(::AddressesViewModel)
+        viewModelOf(::AddressViewModel)
+
+        viewModelOf(::SelectFromMapBottomSheetViewModel)
+        viewModelOf(::SearchByNameBottomSheetViewModel)
     }
 
     val modules = listOf(viewModelModule)

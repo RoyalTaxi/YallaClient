@@ -13,7 +13,7 @@ import uz.ildam.technologies.yalla.feature.history.data.response.OrderHistoryRes
 import uz.ildam.technologies.yalla.feature.history.data.response.OrdersHistoryResponseItem
 import uz.ildam.technologies.yalla.feature.history.data.url.OrdersHistoryUrl
 
-class OrdersHistoryService(private val ktor: HttpClient) {
+class OrdersHistoryApiService(private val ktor: HttpClient) {
     suspend fun getOrders(
         page: Int, limit: Int
     ): Result<ApiResponseWrapper<ApiPaginationWrapper<OrdersHistoryResponseItem>>, DataError.Network> =

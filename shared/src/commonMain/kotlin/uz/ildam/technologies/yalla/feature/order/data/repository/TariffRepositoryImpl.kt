@@ -6,13 +6,13 @@ import uz.ildam.technologies.yalla.feature.order.data.mapper.GetTariffMapper
 import uz.ildam.technologies.yalla.feature.order.data.mapper.GetTimeOutMapper
 import uz.ildam.technologies.yalla.feature.order.data.request.tariff.GetTariffsRequest
 import uz.ildam.technologies.yalla.feature.order.data.request.tariff.GetTimeOutRequest
-import uz.ildam.technologies.yalla.feature.order.data.service.TariffService
+import uz.ildam.technologies.yalla.feature.order.data.service.TariffApiService
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.tarrif.GetTariffsModel
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.tarrif.GetTimeOutModel
 import uz.ildam.technologies.yalla.feature.order.domain.repository.TariffRepository
 
 class TariffRepositoryImpl(
-    private val service: TariffService
+    private val service: TariffApiService
 ) : TariffRepository {
     override suspend fun getTariffs(
         optionIds: List<Int>,

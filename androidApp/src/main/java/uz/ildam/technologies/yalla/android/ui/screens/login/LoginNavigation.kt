@@ -8,6 +8,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import uz.ildam.technologies.yalla.android.navigation.safeNavigate
 
 const val LOGIN_ROUTE = "login_route"
 
@@ -30,4 +31,4 @@ fun NavGraphBuilder.loginScreen(
 }
 
 fun NavController.navigateToLoginScreen(navOptions: NavOptions? = null) =
-    navigate(LOGIN_ROUTE, navOptions)
+    safeNavigate(LOGIN_ROUTE, navOptions)

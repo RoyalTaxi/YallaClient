@@ -48,6 +48,7 @@ fun MapRoute(
     onPermissionDenied: () -> Unit,
     onOrderHistoryClick: () -> Unit,
     onPaymentTypeClick: () -> Unit,
+    onAddressesClick: () -> Unit,
     onCancel: () -> Unit,
     onAddNewCard: () -> Unit,
     vm: MapViewModel = koinViewModel()
@@ -257,6 +258,7 @@ fun MapRoute(
             when (intent) {
                 is MapDrawerIntent.OrdersHistory -> onOrderHistoryClick()
                 is MapDrawerIntent.PaymentType -> onPaymentTypeClick()
+                is MapDrawerIntent.MyPlaces -> onAddressesClick()
                 else -> {}
             }
         },

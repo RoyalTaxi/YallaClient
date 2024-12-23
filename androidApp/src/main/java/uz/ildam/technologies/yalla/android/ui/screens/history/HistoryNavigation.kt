@@ -8,6 +8,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import uz.ildam.technologies.yalla.android.navigation.safeNavigate
 
 const val HISTORY_ROUTE = "history_route"
 
@@ -30,4 +31,4 @@ fun NavGraphBuilder.historyScreen(
 }
 
 fun NavController.navigateToHistoryScreen(navOptions: NavOptions? = null) =
-    navigate(HISTORY_ROUTE, navOptions)
+    safeNavigate(HISTORY_ROUTE, navOptions)

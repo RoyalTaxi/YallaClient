@@ -10,6 +10,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import uz.ildam.technologies.yalla.android.navigation.safeNavigate
 
 const val NUMBER = "number"
 const val SECRET_KEY = "expires_in"
@@ -47,5 +48,5 @@ fun NavController.navigateToCredentialsScreen(
     navOptions: NavOptions? = null
 ) {
     val route = "$CREDENTIALS_ROUTE_BASE?$NUMBER=$number&$SECRET_KEY=$secretKey"
-    navigate(route, navOptions)
+    safeNavigate(route, navOptions)
 }

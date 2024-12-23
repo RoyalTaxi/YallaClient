@@ -6,7 +6,7 @@ import uz.ildam.technologies.yalla.feature.auth.domain.model.auth.SendAuthCodeMo
 import uz.ildam.technologies.yalla.feature.auth.domain.repository.AuthRepository
 
 
-class SendAuthCodeUseCase(
+class SendCodeUseCase(
     private val repository: AuthRepository
 ) {
     suspend operator fun invoke(number: String): Result<SendAuthCodeModel, DataError.Network> {

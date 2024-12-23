@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -13,7 +14,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -49,6 +52,7 @@ import uz.ildam.technologies.yalla.android.ui.components.marker.YallaMarker
 
 @Composable
 fun SelectFromMapBottomSheet(
+    modifier: Modifier = Modifier,
     isForDestination: Boolean,
     onSelectLocation: (String, LatLng, Boolean) -> Unit,
     onDismissRequest: () -> Unit,
@@ -93,7 +97,7 @@ fun SelectFromMapBottomSheet(
     }
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .navigationBarsPadding()
             .background(YallaTheme.color.gray2)
@@ -120,6 +124,7 @@ fun SelectFromMapBottomSheet(
                 YallaMarker(
                     time = uiState.timeout,
                     isLoading = isMarkerMoving,
+                    color = YallaTheme.color.black,
                     selectedAddressName = uiState.name,
                     modifier = Modifier.align(Alignment.Center)
                 )
@@ -161,8 +166,19 @@ fun SelectFromMapBottomSheet(
         ) {
             SelectCurrentLocationButton(
                 modifier = Modifier.padding(10.dp),
-                isLoading = isMarkerMoving,
-                currentLocation = uiState.name,
+                text = if (isMarkerMoving.not() && uiState.name != null) uiState.name!!
+                else stringResource(R.string.loading),
+                leadingIcon = {
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .border(
+                                shape = CircleShape,
+                                width = 1.dp,
+                                color = YallaTheme.color.gray
+                            )
+                    )
+                },
                 onClick = { }
             )
         }

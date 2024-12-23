@@ -26,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -51,6 +52,7 @@ fun YallaMarker(
     isInFetters: Boolean = false,
     isCompleted: Boolean = false,
     isRouteEmpty: Boolean = true,
+    color: Color = YallaTheme.color.primary,
     selectedAddressName: String?,
     modifier: Modifier = Modifier
 ) {
@@ -130,7 +132,7 @@ fun YallaMarker(
             Box(
                 modifier = Modifier
                     .clip(CircleShape)
-                    .background(YallaTheme.color.primary)
+                    .background(color)
                     .squareSize(.5f)
                     .padding(6.dp)
                     .height(IntrinsicSize.Min)
@@ -161,7 +163,7 @@ fun YallaMarker(
                     contentAlignment = Alignment.Center,
                     modifier = modifier
                         .fillMaxSize()
-                        .background(YallaTheme.color.primary)
+                        .background(color)
                         .graphicsLayer { clip = true }
                 ) {
                     Icon(

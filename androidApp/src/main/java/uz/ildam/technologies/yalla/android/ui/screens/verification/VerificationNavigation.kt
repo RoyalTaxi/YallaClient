@@ -10,6 +10,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import uz.ildam.technologies.yalla.android.navigation.safeNavigate
 
 const val NUMBER = "number"
 const val EXPIRES_IN = "expires_in"
@@ -49,5 +50,5 @@ fun NavController.navigateToVerificationScreen(
     navOptions: NavOptions? = null
 ) {
     val route = "$VERIFICATION_ROUTE_BASE?$NUMBER=$number&$EXPIRES_IN=$expiresIn"
-    navigate(route, navOptions)
+    safeNavigate(route, navOptions)
 }

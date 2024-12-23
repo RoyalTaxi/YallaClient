@@ -20,7 +20,7 @@ import uz.ildam.technologies.yalla.feature.order.data.response.order.SettingResp
 import uz.ildam.technologies.yalla.feature.order.data.response.order.ShowOrderResponse
 import uz.ildam.technologies.yalla.feature.order.data.url.OrderUrl
 
-class OrderService(
+class OrderApiService(
     private val ktorApi1: HttpClient,
     private val ktorApi2: HttpClient
 ) {

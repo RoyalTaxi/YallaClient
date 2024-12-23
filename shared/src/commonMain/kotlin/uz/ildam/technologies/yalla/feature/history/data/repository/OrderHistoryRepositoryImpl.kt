@@ -9,14 +9,13 @@ import uz.ildam.technologies.yalla.core.domain.error.DataError
 import uz.ildam.technologies.yalla.core.domain.error.Result
 import uz.ildam.technologies.yalla.feature.history.data.mapper.OrderHistoryMapper
 import uz.ildam.technologies.yalla.feature.history.data.paging.OrdersHistoryPagingSource
-import uz.ildam.technologies.yalla.feature.history.data.response.OrderHistoryResponse
-import uz.ildam.technologies.yalla.feature.history.data.service.OrdersHistoryService
+import uz.ildam.technologies.yalla.feature.history.data.service.OrdersHistoryApiService
 import uz.ildam.technologies.yalla.feature.history.domain.model.OrderHistoryModel
 import uz.ildam.technologies.yalla.feature.history.domain.model.OrdersHistoryModel
 import uz.ildam.technologies.yalla.feature.history.domain.repository.OrderHistoryRepository
 
 class OrderHistoryRepositoryImpl(
-    private val service: OrdersHistoryService
+    private val service: OrdersHistoryApiService
 ) : OrderHistoryRepository {
     override fun getOrdersHistory(): Flow<PagingData<OrdersHistoryModel>> = Pager(
         config = PagingConfig(pageSize = 20),

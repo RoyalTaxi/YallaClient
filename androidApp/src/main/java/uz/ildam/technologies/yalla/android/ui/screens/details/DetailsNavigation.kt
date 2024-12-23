@@ -10,6 +10,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import uz.ildam.technologies.yalla.android.navigation.safeNavigate
 
 const val ID = "id"
 const val DETAILS_ROUTE_BASE = "credentials_route"
@@ -35,5 +36,5 @@ fun NavGraphBuilder.detailsScreen(
 
 fun NavController.navigateToDetailsScreen(orderId: Int, navOptions: NavOptions? = null) {
     val route = "$DETAILS_ROUTE_BASE?$ID=$orderId"
-    navigate(route, navOptions)
+    safeNavigate(route, navOptions)
 }

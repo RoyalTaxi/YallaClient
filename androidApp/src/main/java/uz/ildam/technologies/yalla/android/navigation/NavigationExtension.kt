@@ -13,7 +13,7 @@ fun NavController.safeNavigate(screen: String) {
     if (canGoBack) this.navigate(screen)
 }
 
-fun NavController.safeNavigate(screen: String, navOptions: NavOptions) {
+fun NavController.safeNavigate(screen: String, navOptions: NavOptions?) {
     if (canGoBack) this.navigate(screen, navOptions)
 }
 

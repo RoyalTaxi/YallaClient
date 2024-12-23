@@ -44,8 +44,8 @@ fun yallaLight(
 )
 
 fun yallaDark(
-    black: Color = YallaBlack,
-    white: Color = YallaWhite,
+    black: Color = YallaWhite,
+    white: Color = YallaBlack,
     gray: Color = YallaGray,
     gray2: Color = YallaGray2,
     grayBackground: Color = YallaGrayBackground,

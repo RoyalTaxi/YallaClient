@@ -7,6 +7,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import uz.ildam.technologies.yalla.android.navigation.safeNavigate
 
 const val CARD_LIST_ROUTE = "card_list_route"
 
@@ -28,4 +29,4 @@ fun NavGraphBuilder.cardListScreen(
     }
 }
 
-fun NavController.navigateToCardListScreen() = navigate(CARD_LIST_ROUTE)
+fun NavController.navigateToCardListScreen() = safeNavigate(CARD_LIST_ROUTE)

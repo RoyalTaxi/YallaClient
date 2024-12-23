@@ -9,6 +9,10 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import uz.ildam.technologies.yalla.android.ui.screens.add_card.addCardScreen
 import uz.ildam.technologies.yalla.android.ui.screens.add_card.navigateToAddCardScreen
+import uz.ildam.technologies.yalla.android.ui.screens.address.addressScreen
+import uz.ildam.technologies.yalla.android.ui.screens.address.navigateToAddressScreen
+import uz.ildam.technologies.yalla.android.ui.screens.addresses.addressesScreen
+import uz.ildam.technologies.yalla.android.ui.screens.addresses.navigateToAddressesScreen
 import uz.ildam.technologies.yalla.android.ui.screens.cancel_reason.cancelReasonScreen
 import uz.ildam.technologies.yalla.android.ui.screens.cancel_reason.navigateToCancelReasonScreen
 import uz.ildam.technologies.yalla.android.ui.screens.card_list.cardListScreen
@@ -91,6 +95,7 @@ fun Navigation() {
             mapScreen(
                 onOrderHistoryClick = navController::navigateToHistoryScreen,
                 onPaymentTypeClick = navController::navigateToCardListScreen,
+                onAddressesClick = navController::navigateToAddressesScreen,
                 onPermissionDenied = navController::navigateToPermissionScreen,
                 onCancel = navController::navigateToCancelReasonScreen,
                 onAddNewCard = navController::navigateToAddCardScreen
@@ -120,6 +125,16 @@ fun Navigation() {
             )
 
             cancelReasonScreen(
+                onNavigateBack = navController::safePopBackStack
+            )
+
+            addressesScreen(
+                onNavigateBack = navController::safePopBackStack,
+                onClickAddress = navController::navigateToAddressScreen,
+                onAddAddress = navController::navigateToAddressScreen
+            )
+
+            addressScreen(
                 onNavigateBack = navController::safePopBackStack
             )
         }

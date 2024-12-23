@@ -7,7 +7,7 @@ import uz.ildam.technologies.yalla.feature.order.data.mapper.OrderTaxiMapper
 import uz.ildam.technologies.yalla.feature.order.data.mapper.SearchCarMapper
 import uz.ildam.technologies.yalla.feature.order.data.mapper.ShowOrderMapper
 import uz.ildam.technologies.yalla.feature.order.data.request.order.OrderTaxiRequest
-import uz.ildam.technologies.yalla.feature.order.data.service.OrderService
+import uz.ildam.technologies.yalla.feature.order.data.service.OrderApiService
 import uz.ildam.technologies.yalla.feature.order.domain.model.request.OrderTaxiDto
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.OrderTaxiModel
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.SearchCarModel
@@ -16,10 +16,10 @@ import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.Sho
 import uz.ildam.technologies.yalla.feature.order.domain.repository.OrderRepository
 
 class OrderRepositoryImpl(
-    private val orderService: OrderService
+    private val orderApiService: OrderApiService
 ) : OrderRepository {
     override suspend fun orderTaxi(body: OrderTaxiDto): Result<OrderTaxiModel, DataError.Network> {
-        return when (val result = orderService.orderTaxi(
+        return when (val result = orderApiService.orderTaxi(
             OrderTaxiRequest(
                 dont_call_me = body.dontCallMe,
                 service = body.service,
@@ -51,7 +51,7 @@ class OrderRepositoryImpl(
         lng: Double,
         tariffId: Int
     ): Result<SearchCarModel, DataError.Network> {
-        return when (val result = orderService.searchCars(
+        return when (val result = orderApiService.searchCars(
             lat = lat,
             lng = lng,
             tariffId = tariffId
@@ -62,14 +62,14 @@ class OrderRepositoryImpl(
     }
 
     override suspend fun getSetting(): Result<SettingModel, DataError.Network> {
-        return when (val result = orderService.getSetting()) {
+        return when (val result = orderApiService.getSetting()) {
             is Result.Error -> Result.Error(result.error)
             is Result.Success -> Result.Success(result.data.result.let(GetSettingMapper.mapper))
         }
     }
 
     override suspend fun cancelRide(orderId: Int): Result<Unit, DataError.Network> {
-        return when (val result = orderService.cancelRide(orderId)) {
+        return when (val result = orderApiService.cancelRide(orderId)) {
             is Result.Error -> Result.Error(result.error)
             is Result.Success -> Result.Success(Unit)
         }
@@ -80,7 +80,7 @@ class OrderRepositoryImpl(
         reasonId: Int,
         reasonComment: String
     ): Result<Unit, DataError.Network> {
-        return when (val result = orderService.cancelReason(
+        return when (val result = orderApiService.cancelReason(
             orderId = orderId,
             reasonId = reasonId,
             reasonComment = reasonComment
@@ -91,7 +91,7 @@ class OrderRepositoryImpl(
     }
 
     override suspend fun getShowOrder(orderId: Int): Result<ShowOrderModel, DataError.Network> {
-        return when (val result = orderService.show(orderId)) {
+        return when (val result = orderApiService.show(orderId)) {
             is Result.Error -> Result.Error(result.error)
             is Result.Success -> Result.Success(result.data.result.let(ShowOrderMapper.mapper))
         }
@@ -102,7 +102,7 @@ class OrderRepositoryImpl(
         orderId: Int,
         comment: String
     ): Result<Unit, DataError.Network> {
-        return when (val result = orderService.rateTheRide(
+        return when (val result = orderApiService.rateTheRide(
             ball = ball,
             orderId = orderId,
             comment = comment

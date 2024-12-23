@@ -8,6 +8,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import uz.ildam.technologies.yalla.android.navigation.safeNavigate
 
 const val LANGUAGE_ROUTE = "language_route"
 
@@ -30,4 +31,4 @@ fun NavGraphBuilder.languageScreen(
 }
 
 fun NavController.navigateToLanguageScreen(navOptions: NavOptions? = null) =
-    navigate(LANGUAGE_ROUTE, navOptions)
+    safeNavigate(LANGUAGE_ROUTE, navOptions)

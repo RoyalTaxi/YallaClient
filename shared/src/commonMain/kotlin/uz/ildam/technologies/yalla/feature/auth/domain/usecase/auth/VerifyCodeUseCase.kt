@@ -5,7 +5,7 @@ import uz.ildam.technologies.yalla.core.domain.error.Result
 import uz.ildam.technologies.yalla.feature.auth.domain.model.auth.VerifyAuthCodeModel
 import uz.ildam.technologies.yalla.feature.auth.domain.repository.AuthRepository
 
-class VerifyAuthCodeUseCase(
+class VerifyCodeUseCase(
     private val repository: AuthRepository
 ) {
     suspend operator fun invoke(

@@ -8,7 +8,7 @@ import uz.ildam.technologies.yalla.feature.map.data.service.MapService
 import uz.ildam.technologies.yalla.feature.map.domain.repository.MapRepository
 import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.GetAddressNameUseCase
 import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.GetPolygonUseCase
-import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.SearchForAddressUseCase
+import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.SearchAddressUseCase
 
 object Map {
 
@@ -23,7 +23,7 @@ object Map {
     private val useCaseModule = module {
         single { GetPolygonUseCase(get()) }
         single { GetAddressNameUseCase(get()) }
-        single { SearchForAddressUseCase(get()) }
+        single { SearchAddressUseCase(get()) }
     }
 
     val modules = listOf(serviceModule, repositoryModule, useCaseModule)

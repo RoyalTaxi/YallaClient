@@ -10,6 +10,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import uz.ildam.technologies.yalla.android.navigation.safeNavigate
 
 const val KEY = "key"
 const val CARD_NUMBER = "card_number"
@@ -50,5 +51,5 @@ fun NavController.navigateToCardVerificationScreen(
 ) {
     val route =
         "$CARD_VERIFICATION_ROUTE_BASE?${KEY}=$key&${CARD_NUMBER}=$cardNumber&${CARD_EXPIRY}=$cardExpiry"
-    navigate(route, navOptions)
+    safeNavigate(route, navOptions)
 }

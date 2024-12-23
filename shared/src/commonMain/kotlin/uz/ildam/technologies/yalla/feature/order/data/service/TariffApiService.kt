@@ -16,7 +16,7 @@ import uz.ildam.technologies.yalla.feature.order.data.response.tariff.GetTariffs
 import uz.ildam.technologies.yalla.feature.order.data.response.tariff.GetTimeOutResponse
 import uz.ildam.technologies.yalla.feature.order.data.url.TariffUrl
 
-class TariffService(
+class TariffApiService(
     private val ktor: HttpClient
 ) {
     suspend fun getTariffs(

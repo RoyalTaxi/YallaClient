@@ -38,13 +38,13 @@ fun SelectDestinationButton(
     onClick: () -> Unit
 ) {
     Button(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(56.dp),
         shape = RoundedCornerShape(16.dp),
         colors = ButtonDefaults.buttonColors(YallaTheme.color.gray2),
         contentPadding = PaddingValues(16.dp),
-        onClick = onClick
+        onClick = onClick,
+        modifier = modifier
+            .fillMaxWidth()
+            .height(56.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),

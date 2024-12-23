@@ -8,12 +8,14 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import uz.ildam.technologies.yalla.android.navigation.safeNavigate
 
 const val MAP_ROUTE = "map_route"
 
 fun NavGraphBuilder.mapScreen(
     onOrderHistoryClick: () -> Unit,
     onPaymentTypeClick: () -> Unit,
+    onAddressesClick: () -> Unit,
     onPermissionDenied: () -> Unit,
     onCancel: () -> Unit,
     onAddNewCard: () -> Unit,
@@ -28,6 +30,7 @@ fun NavGraphBuilder.mapScreen(
         MapRoute(
             onOrderHistoryClick = onOrderHistoryClick,
             onPaymentTypeClick = onPaymentTypeClick,
+            onAddressesClick = onAddressesClick,
             onPermissionDenied = onPermissionDenied,
             onCancel = onCancel,
             onAddNewCard = onAddNewCard
@@ -36,4 +39,4 @@ fun NavGraphBuilder.mapScreen(
 }
 
 fun NavController.navigateToMapScreen(navOptions: NavOptions? = null) =
-    navigate(MAP_ROUTE, navOptions)
+    safeNavigate(MAP_ROUTE, navOptions)

@@ -101,4 +101,12 @@
     <string name="with_card">karta bilan</string>
     <string name="rate">Baholash</string>
     <string name="create_new_order">Yangi buyurtma berish</string>
+    <string name="my_places_desc">Tez-tez boradigan manzillaringizni qo\'shing: uy, ish, sevimli kafe va boshqalar.</string>
+    <string name="add_home_address">Uy manzilini qo\'shing</string>
+    <string name="add_work_address">Ish manzilini qo\'shing</string>
+    <string name="address_name">Nomi</string>
+    <string name="apartment">Xonadon</string>
+    <string name="entrance">Kirish</string>
+    <string name="floor">Qavat</string>
+    <string name="comment">Комментарий</string>
 </resources>

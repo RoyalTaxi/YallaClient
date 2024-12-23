@@ -20,9 +20,9 @@ import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.android.ui.sheets.ArrangeDestinationsBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.ConfirmCancellationBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.PaymentMethodBottomSheet
-import uz.ildam.technologies.yalla.android.ui.sheets.SearchByNameBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.SetOrderOptionsBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.TariffInfoBottomSheet
+import uz.ildam.technologies.yalla.android.ui.sheets.search_address.SearchByNameBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.select_from_map.SelectFromMapBottomSheet
 import uz.ildam.technologies.yalla.android.utils.getCurrentLocation
 import uz.ildam.technologies.yalla.core.data.mapper.or0
@@ -63,7 +63,6 @@ class MapBottomSheetHandler(
         ) {
             if (searchLocationVisibility != SearchLocationVisibility.INVISIBLE) SearchByNameBottomSheet(
                 sheetState = searchLocationState,
-                foundAddresses = uiState.foundAddresses,
                 isForDestination = searchLocationVisibility == SearchLocationVisibility.END,
                 onAddressSelected = { dest ->
                     if (searchLocationVisibility == SearchLocationVisibility.START) {
@@ -100,12 +99,6 @@ class MapBottomSheetHandler(
                         )
                         viewModel.setDestinations(destinations)
                     }
-                },
-                onSearchForAddress = {
-                    viewModel.searchForAddress(
-                        query = it,
-                        point = currentLatLng.value
-                    )
                 },
                 onClickMap = {
                     openMapVisibility =

@@ -8,3 +8,4 @@ captures
 local.properties
 xcuserdata
 .gradle
+androidApp/release/*.apk

@@ -1,4 +1,4 @@
-package uz.ildam.technologies.yalla.android.ui.sheets
+package uz.ildam.technologies.yalla.android.ui.sheets.search_address
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -16,36 +16,48 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import org.koin.androidx.compose.koinViewModel
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 import uz.ildam.technologies.yalla.android.ui.components.item.FoundAddressItem
 import uz.ildam.technologies.yalla.android.ui.components.text_field.SearchLocationField
+import uz.ildam.technologies.yalla.android.utils.getCurrentLocation
 import uz.ildam.technologies.yalla.feature.map.domain.model.map.SearchForAddressItemModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchByNameBottomSheet(
     sheetState: SheetState,
-    foundAddresses: List<SearchForAddressItemModel>,
-    onSearchForAddress: (String) -> Unit,
     onAddressSelected: (SearchForAddressItemModel) -> Unit,
     onDismissRequest: () -> Unit,
     onClickMap: () -> Unit,
     isForDestination: Boolean,
+    viewModel: SearchByNameBottomSheetViewModel = koinViewModel()
 ) {
-    var addressName by remember { mutableStateOf("") }
+    val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        getCurrentLocation(context) { location ->
+            viewModel.setCurrentLocation(location.latitude, location.longitude)
+        }
+    }
 
     ModalBottomSheet(
         shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
         containerColor = YallaTheme.color.gray2,
         sheetState = sheetState,
         dragHandle = null,
-        onDismissRequest = onDismissRequest
+        onDismissRequest = {
+            viewModel.setQuery("")
+            viewModel.setFoundAddresses(emptyList())
+            onDismissRequest()
+        }
     ) {
         Column(
             modifier = Modifier
@@ -56,7 +68,7 @@ fun SearchByNameBottomSheet(
                 .imePadding()
         ) {
             SearchLocationField(
-                value = addressName,
+                value = uiState.query,
                 isForDestination = isForDestination,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -65,10 +77,7 @@ fun SearchByNameBottomSheet(
                     onClickMap()
                     onDismissRequest()
                 },
-                onValueChange = {
-                    addressName = it
-                    onSearchForAddress(it)
-                }
+                onValueChange = viewModel::setQuery
             )
         }
 
@@ -84,7 +93,7 @@ fun SearchByNameBottomSheet(
                 ),
             contentPadding = PaddingValues(20.dp)
         ) {
-            items(foundAddresses) { foundAddress ->
+            items(uiState.foundAddresses) { foundAddress ->
                 FoundAddressItem(
                     foundAddress = foundAddress,
                     onClick = {

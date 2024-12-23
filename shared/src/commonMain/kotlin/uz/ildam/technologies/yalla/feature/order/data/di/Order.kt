@@ -5,8 +5,8 @@ import org.koin.dsl.module
 import uz.ildam.technologies.yalla.core.data.global.Constants
 import uz.ildam.technologies.yalla.feature.order.data.repository.OrderRepositoryImpl
 import uz.ildam.technologies.yalla.feature.order.data.repository.TariffRepositoryImpl
-import uz.ildam.technologies.yalla.feature.order.data.service.OrderService
-import uz.ildam.technologies.yalla.feature.order.data.service.TariffService
+import uz.ildam.technologies.yalla.feature.order.data.service.OrderApiService
+import uz.ildam.technologies.yalla.feature.order.data.service.TariffApiService
 import uz.ildam.technologies.yalla.feature.order.domain.repository.OrderRepository
 import uz.ildam.technologies.yalla.feature.order.domain.repository.TariffRepository
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.CancelReasonUseCase
@@ -22,9 +22,9 @@ import uz.ildam.technologies.yalla.feature.order.domain.usecase.tariff.GetTimeOu
 object Order {
 
     private val serviceModule = module {
-        single { TariffService(get(named(Constants.API_2))) }
+        single { TariffApiService(get(named(Constants.API_2))) }
         single {
-            OrderService(
+            OrderApiService(
                 ktorApi1 = get(named(Constants.API_1)),
                 ktorApi2 = get(named(Constants.API_2))
             )

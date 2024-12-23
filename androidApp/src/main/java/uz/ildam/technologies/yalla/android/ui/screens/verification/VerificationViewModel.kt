@@ -14,13 +14,13 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 import uz.ildam.technologies.yalla.core.domain.error.Result
-import uz.ildam.technologies.yalla.feature.auth.domain.usecase.auth.SendAuthCodeUseCase
-import uz.ildam.technologies.yalla.feature.auth.domain.usecase.auth.VerifyAuthCodeUseCase
+import uz.ildam.technologies.yalla.feature.auth.domain.usecase.auth.SendCodeUseCase
+import uz.ildam.technologies.yalla.feature.auth.domain.usecase.auth.VerifyCodeUseCase
 import kotlin.time.Duration.Companion.seconds
 
 class VerificationViewModel(
-    private val verifyAuthCodeUseCase: VerifyAuthCodeUseCase,
-    private val sendAuthCodeUseCase: SendAuthCodeUseCase
+    private val verifyCodeUseCase: VerifyCodeUseCase,
+    private val sendCodeUseCase: SendCodeUseCase
 ) : ViewModel() {
 
     private val _actionFlow = MutableSharedFlow<VerificationActionState>()
@@ -52,7 +52,7 @@ class VerificationViewModel(
     fun verifyAuthCode() = viewModelScope.launch {
         _uiState.value.apply {
             _actionFlow.emit(VerificationActionState.Loading)
-            when (val result = verifyAuthCodeUseCase(getFormattedNumber(), code.toInt())) {
+            when (val result = verifyCodeUseCase(getFormattedNumber(), code.toInt())) {
                 is Result.Error -> _actionFlow.emit(VerificationActionState.Error(result.error.name))
                 is Result.Success -> {
                     _actionFlow.emit(VerificationActionState.VerifySuccess(result.data))
@@ -74,7 +74,7 @@ class VerificationViewModel(
     fun resendAuthCode() = viewModelScope.launch {
         _uiState.value.apply {
             _actionFlow.emit(VerificationActionState.Loading)
-            when (val result = sendAuthCodeUseCase(getFormattedNumber())) {
+            when (val result = sendCodeUseCase(getFormattedNumber())) {
                 is Result.Error -> _actionFlow.emit(VerificationActionState.Error(result.error.name))
                 is Result.Success -> _actionFlow.emit(VerificationActionState.SendSMSSuccess(result.data))
             }

@@ -4,11 +4,11 @@ import app.cash.paging.PagingSource
 import app.cash.paging.PagingState
 import uz.ildam.technologies.yalla.core.domain.error.Result
 import uz.ildam.technologies.yalla.feature.history.data.mapper.OrdersHistoryMapper
-import uz.ildam.technologies.yalla.feature.history.data.service.OrdersHistoryService
+import uz.ildam.technologies.yalla.feature.history.data.service.OrdersHistoryApiService
 import uz.ildam.technologies.yalla.feature.history.domain.model.OrdersHistoryModel
 
 class OrdersHistoryPagingSource(
-    private val service: OrdersHistoryService
+    private val service: OrdersHistoryApiService
 ) : PagingSource<Int, OrdersHistoryModel>() {
 
     override fun getRefreshKey(state: PagingState<Int, OrdersHistoryModel>): Int? {

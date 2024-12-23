@@ -21,7 +21,6 @@ import uz.ildam.technologies.yalla.feature.map.domain.model.map.PolygonRemoteIte
 import uz.ildam.technologies.yalla.feature.map.domain.model.map.SearchForAddressItemModel
 import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.GetAddressNameUseCase
 import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.GetPolygonUseCase
-import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.SearchForAddressUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.model.request.OrderTaxiDto
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.OrderStatus
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.SettingModel
@@ -44,7 +43,6 @@ class MapViewModel(
     private val getAddressNameUseCase: GetAddressNameUseCase,
     private val getTariffsUseCase: GetTariffsUseCase,
     private val getTimeOutUseCase: GetTimeOutUseCase,
-    private val searchForAddressUseCase: SearchForAddressUseCase,
     private val orderTaxiUseCase: OrderTaxiUseCase,
     private val searchCarUseCase: SearchCarUseCase,
     private val getSettingUseCase: GetSettingUseCase,
@@ -174,13 +172,6 @@ class MapViewModel(
                 options = newSelectedTariff?.services ?: emptyList(),
                 selectedOptions = emptyList()
             )
-        }
-    }
-
-    fun searchForAddress(query: String, point: MapPoint) = viewModelScope.launch {
-        when (val result = searchForAddressUseCase(point.lat, point.lng, query)) {
-            is Result.Error -> setFoundAddresses(emptyList())
-            is Result.Success -> setFoundAddresses(result.data)
         }
     }
 

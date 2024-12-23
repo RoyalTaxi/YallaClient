@@ -187,9 +187,11 @@ class MapSheetHandler(
                         onRate = {
                             viewModel.completeOrder()
                             viewModel.rateTheRide(rating)
+                            rating = 0
                         },
                         onDismissRequest = {
                             viewModel.completeOrder()
+                            rating = 0
                             showOrderTaxi()
                         }
                     )

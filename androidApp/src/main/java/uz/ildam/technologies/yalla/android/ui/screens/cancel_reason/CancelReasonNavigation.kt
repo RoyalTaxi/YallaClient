@@ -7,6 +7,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import uz.ildam.technologies.yalla.android.navigation.safeNavigate
 
 const val CANCEL_REASON_ROUTE = "cancel_reason_route"
 
@@ -26,4 +27,4 @@ fun NavGraphBuilder.cancelReasonScreen(
     }
 }
 
-fun NavController.navigateToCancelReasonScreen() = navigate(CANCEL_REASON_ROUTE)
+fun NavController.navigateToCancelReasonScreen() = safeNavigate(CANCEL_REASON_ROUTE)
