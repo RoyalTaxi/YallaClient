@@ -19,6 +19,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.android.ui.sheets.ArrangeDestinationsBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.ConfirmCancellationBottomSheet
+import uz.ildam.technologies.yalla.android.ui.sheets.OrderCommentBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.PaymentMethodBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.SetOrderOptionsBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.TariffInfoBottomSheet
@@ -37,6 +38,7 @@ class MapBottomSheetHandler(
     private val optionsState: SheetState,
     private val confirmCancellationState: SheetState,
     private val selectPaymentMethodState: SheetState,
+    private val orderCommentState: SheetState,
     private val viewModel: MapViewModel
 ) {
     private var openMapVisibility by mutableStateOf(OpenMapVisibility.INVISIBLE)
@@ -46,6 +48,7 @@ class MapBottomSheetHandler(
     private var optionsVisibility by mutableStateOf(false)
     private var confirmCancellationVisibility by mutableStateOf(false)
     private var selectPaymentMethodVisibility by mutableStateOf(false)
+    private var orderCommentVisibility by mutableStateOf(false)
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
@@ -198,7 +201,9 @@ class MapBottomSheetHandler(
                     selectedTariff = selectedTariff,
                     options = uiState.options,
                     selectedOptions = uiState.selectedOptions,
+                    comment = uiState.comment,
                     onSave = { options -> viewModel.setSelectedOptions(options) },
+                    onOrderComment = { showOrderComment(true) },
                     onDismissRequest = { showOptions(false) }
                 )
             }
@@ -230,6 +235,19 @@ class MapBottomSheetHandler(
                 onSelectPaymentType = { viewModel.setPaymentType(paymentType = it) },
                 onAddNewCard = onAddNewCard,
                 onDismissRequest = { showPaymentMethod(false) }
+            )
+        }
+
+        AnimatedVisibility(
+            visible = orderCommentVisibility,
+            enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
+            exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
+        ) {
+            if (orderCommentVisibility) OrderCommentBottomSheet(
+                sheetState = orderCommentState,
+                comment = uiState.comment,
+                onCommentChange = viewModel::setComment,
+                onDismissRequest = { showOrderComment(false) }
             )
         }
     }
@@ -284,5 +302,12 @@ class MapBottomSheetHandler(
         viewModel.getCardList()
         selectPaymentMethodVisibility = show
         scope.launch { if (show) selectPaymentMethodState.show() else selectPaymentMethodState.hide() }
+    }
+
+    fun showOrderComment(show: Boolean) {
+        orderCommentVisibility = show
+        scope.launch {
+            if (show) orderCommentState.show() else orderCommentState.hide()
+        }
     }
 }

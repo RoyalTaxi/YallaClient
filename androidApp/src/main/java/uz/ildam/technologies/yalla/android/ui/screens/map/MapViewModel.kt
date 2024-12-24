@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import org.w3c.dom.Comment
 import uz.ildam.technologies.yalla.core.data.enums.PaymentType
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 import uz.ildam.technologies.yalla.core.data.mapper.or0
@@ -187,7 +188,7 @@ class MapViewModel(
             service = "road",
             addressId = selectedLocation.addressId,
             toPhone = AppPreferences.number,
-            comment = "",
+            comment = uiState.value.comment,
             cardId = (state.selectedPaymentType as? PaymentType.CARD)?.cardId,
             tariffId = selectedTariff.id.toInt(),
             tariffOptions = state.selectedOptions.map { it.id.toInt() },
@@ -345,6 +346,10 @@ class MapViewModel(
 
     fun setSelectedDriver(driver: ShowOrderModel?) {
         _uiState.update { it.copy(selectedDriver = driver) }
+    }
+
+    fun setComment(comment: String) {
+        _uiState.update { it.copy(comment = comment) }
     }
 
     fun timer(range: IntRange) = flow {
