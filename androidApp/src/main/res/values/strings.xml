@@ -112,6 +112,4 @@
     <string name="apartment">Квартира</string>
     <string name="entrance">Подьезд</string>
     <string name="floor">Этаж</string>
-    <string name="comment">Комментарий</string>
-
 </resources>
