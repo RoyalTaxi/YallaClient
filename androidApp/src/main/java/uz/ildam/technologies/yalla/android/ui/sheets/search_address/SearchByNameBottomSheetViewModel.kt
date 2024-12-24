@@ -7,14 +7,29 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.core.domain.error.Result
+import uz.ildam.technologies.yalla.feature.addresses.domain.model.response.AddressModel
+import uz.ildam.technologies.yalla.feature.addresses.domain.usecase.FindAllMapAddressesUseCase
+import uz.ildam.technologies.yalla.feature.map.domain.model.map.PolygonRemoteItem
 import uz.ildam.technologies.yalla.feature.map.domain.model.map.SearchForAddressItemModel
+import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.GetPolygonUseCase
 import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.SearchAddressUseCase
 
 class SearchByNameBottomSheetViewModel(
     private val searchAddressUseCase: SearchAddressUseCase,
+    private val findAllMapAddressesUseCase: FindAllMapAddressesUseCase,
+    private val getPolygonUseCase: GetPolygonUseCase
 ) : ViewModel() {
+    private var addresses = listOf<PolygonRemoteItem>()
+
     private val _uiState = MutableStateFlow(SearchByNameBottomSheetState())
     val uiState = _uiState.asStateFlow()
+
+    fun fetchPolygons() = viewModelScope.launch {
+        when (val result = getPolygonUseCase()) {
+            is Result.Error -> TODO() // Handle error case
+            is Result.Success -> addresses = result.data
+        }
+    }
 
     private fun searchForAddress(lat: Double, lng: Double, query: String) = viewModelScope.launch {
         when (val result = searchAddressUseCase(lat, lng, query)) {
@@ -23,8 +38,49 @@ class SearchByNameBottomSheetViewModel(
         }
     }
 
+    fun findAllMapAddresses() = viewModelScope.launch {
+        when (val result = findAllMapAddressesUseCase()) {
+            is Result.Error -> setMapAddresses(emptyList())
+            is Result.Success -> setMapAddresses(result.data)
+        }
+    }
+
     fun setFoundAddresses(addresses: List<SearchForAddressItemModel>) {
-        _uiState.update { it.copy(foundAddresses = addresses) }
+        _uiState.update {
+            it.copy(
+                foundAddresses = addresses.map { address ->
+                    SearchableAddress.SearchResultAddress(
+                        addressId = address.addressId,
+                        addressName = address.addressName,
+                        distance = address.distance,
+                        lat = address.lat,
+                        lng = address.lng,
+                        name = address.name
+                    )
+                }
+            )
+        }
+    }
+
+    fun setMapAddresses(addresses: List<AddressModel>) {
+        _uiState.update {
+            it.copy(
+                savedAddresses = addresses.map { address ->
+                    val (isInside, addressId) = isPointInsidePolygon(
+                        lat = address.coords.lat,
+                        lng = address.coords.lng
+                    )
+                    SearchableAddress.MapAddress(
+                        addressId = if (isInside) addressId else null,
+                        addressName = address.address,
+                        distance = null, // Assuming map addresses don’t have a distance
+                        lat = address.coords.lat,
+                        lng = address.coords.lng,
+                        name = address.name
+                    )
+                }
+            )
+        }
     }
 
     fun setQuery(query: String) {
@@ -33,6 +89,7 @@ class SearchByNameBottomSheetViewModel(
             if (currentLat != null && currentLng != null)
                 searchForAddress(currentLat, currentLng, query)
         }
+        if (query.isBlank()) setFoundAddresses(emptyList())
     }
 
     fun setCurrentLocation(lat: Double, lng: Double) = _uiState.update {
@@ -40,5 +97,26 @@ class SearchByNameBottomSheetViewModel(
             currentLat = lat,
             currentLng = lng
         )
+    }
+
+    fun isPointInsidePolygon(lat: Double, lng: Double): Pair<Boolean, Int> {
+        addresses.forEach { polygonItem ->
+            val vertices = polygonItem.polygons.map { Pair(it.lat, it.lng) }
+            var isInside = false
+            var addressId = 0
+            for (i in vertices.indices) {
+                val j = if (i == 0) vertices.size - 1 else i - 1
+                val (lat1, lng1) = vertices[i]
+                val (lat2, lng2) = vertices[j]
+                val intersects = (lng1 > lng) != (lng2 > lng) &&
+                        (lat < (lat2 - lat1) * (lng - lng1) / (lng2 - lng1) + lat1)
+                if (intersects) {
+                    isInside = !isInside
+                    addressId = polygonItem.addressId
+                }
+            }
+            if (isInside) return Pair(true, addressId)
+        }
+        return Pair(false, 0)
     }
 }

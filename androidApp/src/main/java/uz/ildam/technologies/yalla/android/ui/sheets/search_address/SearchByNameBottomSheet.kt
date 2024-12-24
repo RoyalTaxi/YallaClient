@@ -22,18 +22,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 import uz.ildam.technologies.yalla.android.ui.components.item.FoundAddressItem
 import uz.ildam.technologies.yalla.android.ui.components.text_field.SearchLocationField
 import uz.ildam.technologies.yalla.android.utils.getCurrentLocation
-import uz.ildam.technologies.yalla.feature.map.domain.model.map.SearchForAddressItemModel
+import uz.ildam.technologies.yalla.core.data.mapper.or0
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchByNameBottomSheet(
     sheetState: SheetState,
-    onAddressSelected: (SearchForAddressItemModel) -> Unit,
+    onAddressSelected: (String, Double, Double, Int) -> Unit,
     onDismissRequest: () -> Unit,
     onClickMap: () -> Unit,
     isForDestination: Boolean,
@@ -43,6 +44,8 @@ fun SearchByNameBottomSheet(
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
+        launch { viewModel.fetchPolygons() }
+        launch { viewModel.findAllMapAddresses() }
         getCurrentLocation(context) { location ->
             viewModel.setCurrentLocation(location.latitude, location.longitude)
         }
@@ -93,11 +96,41 @@ fun SearchByNameBottomSheet(
                 ),
             contentPadding = PaddingValues(20.dp)
         ) {
+            if (uiState.query.isBlank()) items(uiState.savedAddresses) { foundAddress ->
+                FoundAddressItem(
+                    foundAddress = foundAddress,
+                    onClick = {
+                        when (it) {
+                            is SearchableAddress.MapAddress -> onAddressSelected(
+                                it.name, it.lat, it.lng, it.addressId.or0()
+                            )
+
+                            is SearchableAddress.SearchResultAddress -> onAddressSelected(
+                                it.name, it.lat, it.lng, it.addressId
+                            )
+                        }
+                        viewModel.setQuery("")
+                        viewModel.setFoundAddresses(emptyList())
+                        onDismissRequest()
+                    }
+                )
+            }
+
             items(uiState.foundAddresses) { foundAddress ->
                 FoundAddressItem(
                     foundAddress = foundAddress,
                     onClick = {
-                        onAddressSelected(it)
+                        when (it) {
+                            is SearchableAddress.MapAddress -> onAddressSelected(
+                                it.name, it.lat, it.lng, it.addressId.or0()
+                            )
+
+                            is SearchableAddress.SearchResultAddress -> onAddressSelected(
+                                it.name, it.lat, it.lng, it.addressId
+                            )
+                        }
+                        viewModel.setQuery("")
+                        viewModel.setFoundAddresses(emptyList())
                         onDismissRequest()
                     }
                 )

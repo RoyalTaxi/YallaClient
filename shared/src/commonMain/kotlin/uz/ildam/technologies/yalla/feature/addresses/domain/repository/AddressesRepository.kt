@@ -7,6 +7,7 @@ import uz.ildam.technologies.yalla.feature.addresses.domain.model.response.Addre
 
 interface AddressesRepository {
     suspend fun findAll(): Result<List<AddressModel>, DataError.Network>
+    suspend fun findAllMapAddresses(): Result<List<AddressModel>, DataError.Network>
     suspend fun findOne(id: Int): Result<AddressModel, DataError.Network>
     suspend fun postOne(body: PostOneAddressDto): Result<Unit, DataError.Network>
     suspend fun deleteOne(id: Int): Result<Unit, DataError.Network>

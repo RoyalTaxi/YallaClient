@@ -8,6 +8,7 @@ import uz.ildam.technologies.yalla.feature.addresses.data.service.AddressesApiSe
 import uz.ildam.technologies.yalla.feature.addresses.domain.repository.AddressesRepository
 import uz.ildam.technologies.yalla.feature.addresses.domain.usecase.DeleteOneAddressUseCase
 import uz.ildam.technologies.yalla.feature.addresses.domain.usecase.FindAllAddressesUseCase
+import uz.ildam.technologies.yalla.feature.addresses.domain.usecase.FindAllMapAddressesUseCase
 import uz.ildam.technologies.yalla.feature.addresses.domain.usecase.FindOneAddressUseCase
 import uz.ildam.technologies.yalla.feature.addresses.domain.usecase.PostOneAddressUseCase
 import uz.ildam.technologies.yalla.feature.addresses.domain.usecase.UpdateOneAddressUseCase
@@ -29,6 +30,7 @@ object Addresses {
         single { PostOneAddressUseCase(get()) }
         single { DeleteOneAddressUseCase(get()) }
         single { UpdateOneAddressUseCase(get()) }
+        single { FindAllMapAddressesUseCase(get()) }
     }
 
     val modules = listOf(serviceModule, repositoryModule, useCaseModule)

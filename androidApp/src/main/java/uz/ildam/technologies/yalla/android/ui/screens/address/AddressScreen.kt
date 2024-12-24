@@ -187,14 +187,14 @@ fun AddressScreen(
                 if (searchLocationVisibility) SearchByNameBottomSheet(
                     sheetState = searchLocationState,
                     isForDestination = false,
-                    onAddressSelected = { dest ->
+                    onAddressSelected = { name, lat, lng, _ ->
                         searchLocationVisibility = false
                         onIntent(
                             AddressIntent.OnAddressSelected(
                                 address = AddressUIState.Location(
-                                    name = dest.name,
-                                    lat = dest.lat,
-                                    lng = dest.lng
+                                    name = name,
+                                    lat = lat,
+                                    lng = lng
                                 )
                             )
                         )

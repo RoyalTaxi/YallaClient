@@ -19,26 +19,20 @@ class AddressesApiService(
     private val ktor: HttpClient
 ) {
     suspend fun findAll(): Result<ApiResponseWrapper<List<AddressRemoteModel>>, DataError.Network> =
-        safeApiCall {
-            ktor.get(AddressesUrl.FIND_ALL).body()
-        }
+        safeApiCall { ktor.get(AddressesUrl.FIND_ALL).body() }
 
     suspend fun findOne(id: Int): Result<ApiResponseWrapper<AddressRemoteModel>, DataError.Network> =
-        safeApiCall {
-            ktor.get(AddressesUrl.FIND_ONE + id).body()
-        }
+        safeApiCall { ktor.get(AddressesUrl.FIND_ONE + id).body() }
 
     suspend fun postOne(body: PostOneAddressDto): Result<ApiResponseWrapper<List<String>>, DataError.Network> =
-        safeApiCall {
-            ktor.post(AddressesUrl.POST_ONE) { setBody(body) }.body()
-        }
+        safeApiCall { ktor.post(AddressesUrl.POST_ONE) { setBody(body) }.body() }
 
-    suspend fun deleteOne(id: Int): Result<Unit, DataError.Network> = safeApiCall {
-        ktor.delete(AddressesUrl.DELETE + id).body()
-    }
+    suspend fun deleteOne(id: Int): Result<Unit, DataError.Network> =
+        safeApiCall { ktor.delete(AddressesUrl.DELETE + id).body() }
 
     suspend fun updateOne(id: Int, body: PostOneAddressDto): Result<Unit, DataError.Network> =
-        safeApiCall {
-            ktor.put(AddressesUrl.UPDATE + id) { setBody(body) }.body()
-        }
+        safeApiCall { ktor.put(AddressesUrl.UPDATE + id) { setBody(body) }.body() }
+
+    suspend fun findAllMapAddresses(): Result<ApiResponseWrapper<List<AddressRemoteModel>>, DataError.Network> =
+        safeApiCall { ktor.get(AddressesUrl.FIND_ALL_MAP_ADDRESSES).body() }
 }

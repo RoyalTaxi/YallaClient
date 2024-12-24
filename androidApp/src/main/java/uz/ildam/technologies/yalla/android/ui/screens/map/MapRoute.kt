@@ -139,6 +139,7 @@ fun MapRoute(
             currentLatLng.value = MapPoint(location.latitude, location.longitude)
             if (uiState.route.isEmpty()) {
                 actionHandler.moveCamera(animate = animate, mapPoint = currentLatLng.value)
+                vm.getAddressDetails(currentLatLng.value)
             } else {
                 actionHandler.moveCameraToFitBounds(uiState.route, animate)
             }
@@ -153,6 +154,12 @@ fun MapRoute(
         } else if (uiState.selectedDriver == null) {
             (context as? Activity)?.finish()
         }
+    }
+
+    /** When screen opens, the map should move camera to current location **/
+    LaunchedEffect(Unit) {
+        updateLocationAndMoveCamera(true)
+
     }
 
     /** Collect Actions from ViewModel */

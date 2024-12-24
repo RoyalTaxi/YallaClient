@@ -67,27 +67,27 @@ class MapBottomSheetHandler(
             if (searchLocationVisibility != SearchLocationVisibility.INVISIBLE) SearchByNameBottomSheet(
                 sheetState = searchLocationState,
                 isForDestination = searchLocationVisibility == SearchLocationVisibility.END,
-                onAddressSelected = { dest ->
+                onAddressSelected = { name, lat, lng, addressId ->
                     if (searchLocationVisibility == SearchLocationVisibility.START) {
                         if (uiState.moveCameraButtonState == MoveCameraButtonState.MyRouteView) {
-                            if (dest.addressId != 0) viewModel.getAddressDetails(
-                                MapPoint(dest.lat, dest.lng)
+                            if (addressId != 0) viewModel.getAddressDetails(
+                                MapPoint(lat, lng)
                             )
                             else {
                                 val result =
-                                    viewModel.isPointInsidePolygon(MapPoint(dest.lat, dest.lng))
+                                    viewModel.isPointInsidePolygon(MapPoint(lat, lng))
                                 if (result.first) {
-                                    viewModel.getAddressDetails(MapPoint(dest.lat, dest.lng))
+                                    viewModel.getAddressDetails(MapPoint(lat, lng))
                                     viewModel.setSelectedLocation(addressId = result.second)
                                 } else Toast.makeText(context, "Out of service", Toast.LENGTH_SHORT)
                                     .show()
                             }
                         } else {
-                            currentLatLng.value = MapPoint(dest.lat, dest.lng)
+                            currentLatLng.value = MapPoint(lat, lng)
                             actionHandler.moveCamera(
                                 MapPoint(
-                                    lat = dest.lat,
-                                    lng = dest.lng
+                                    lat = lat,
+                                    lng = lng
                                 ),
                                 animate = true
                             )
@@ -96,8 +96,8 @@ class MapBottomSheetHandler(
                         val destinations = uiState.destinations.toMutableList()
                         destinations.add(
                             MapUIState.Destination(
-                                dest.name,
-                                MapPoint(dest.lat, dest.lng)
+                                name,
+                                MapPoint(lat, lng)
                             )
                         )
                         viewModel.setDestinations(destinations)

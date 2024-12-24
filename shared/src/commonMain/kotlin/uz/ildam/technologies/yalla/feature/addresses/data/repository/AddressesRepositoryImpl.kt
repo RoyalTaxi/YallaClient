@@ -20,6 +20,15 @@ class AddressesRepositoryImpl(
         }
     }
 
+    override suspend fun findAllMapAddresses(): Result<List<AddressModel>, DataError.Network> {
+        return when (val result = service.findAllMapAddresses()) {
+            is Result.Error -> Result.Error(result.error)
+            is Result.Success -> Result.Success(
+                result.data.result?.map(AddressesMapper.mapper).orEmpty()
+            )
+        }
+    }
+
     override suspend fun findOne(id: Int): Result<AddressModel, DataError.Network> {
         return when (val result = service.findOne(id)) {
             is Result.Error -> Result.Error(result.error)
