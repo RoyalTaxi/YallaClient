@@ -49,7 +49,7 @@ data class ShowOrderModel(
 
     data class Taxi(
         val clientTotalPrice: Double,
-        val distance: Int,
+        val distance: Double,
         val fixedPrice: Boolean,
         val routes: List<Route>,
         val services: List<String>,

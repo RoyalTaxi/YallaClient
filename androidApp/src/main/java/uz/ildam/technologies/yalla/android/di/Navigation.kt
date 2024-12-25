@@ -10,6 +10,7 @@ import uz.ildam.technologies.yalla.android.ui.screens.card_list.CardListViewMode
 import uz.ildam.technologies.yalla.android.ui.screens.card_verification.CardVerificationViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.credentials.CredentialsViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.details.DetailsViewModel
+import uz.ildam.technologies.yalla.android.ui.screens.edit_profile.EditProfileViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.history.HistoryViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.language.LanguageViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.login.LoginViewModel
@@ -34,6 +35,7 @@ object Navigation {
         viewModelOf(::CancelReasonViewModel)
         viewModelOf(::AddressesViewModel)
         viewModelOf(::AddressViewModel)
+        viewModelOf(::EditProfileViewModel)
 
         viewModelOf(::SelectFromMapBottomSheetViewModel)
         viewModelOf(::SearchByNameBottomSheetViewModel)

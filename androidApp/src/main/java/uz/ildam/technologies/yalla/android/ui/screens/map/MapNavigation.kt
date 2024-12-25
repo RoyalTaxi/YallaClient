@@ -13,6 +13,7 @@ import uz.ildam.technologies.yalla.android.navigation.safeNavigate
 const val MAP_ROUTE = "map_route"
 
 fun NavGraphBuilder.mapScreen(
+    onProfileClick: () -> Unit,
     onOrderHistoryClick: () -> Unit,
     onPaymentTypeClick: () -> Unit,
     onAddressesClick: () -> Unit,
@@ -28,6 +29,7 @@ fun NavGraphBuilder.mapScreen(
         popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() }
     ) {
         MapRoute(
+            onProfileClick = onProfileClick,
             onOrderHistoryClick = onOrderHistoryClick,
             onPaymentTypeClick = onPaymentTypeClick,
             onAddressesClick = onAddressesClick,

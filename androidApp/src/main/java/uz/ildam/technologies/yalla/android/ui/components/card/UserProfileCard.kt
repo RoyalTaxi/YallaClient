@@ -50,7 +50,7 @@ fun UserProfileCard(
                 contentDescription = null,
                 error = painterResource(R.drawable.img_default_pfp),
                 placeholder = painterResource(R.drawable.img_default_pfp),
-                contentScale = ContentScale.Fit,
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .clip(CircleShape)
                     .size(60.dp)

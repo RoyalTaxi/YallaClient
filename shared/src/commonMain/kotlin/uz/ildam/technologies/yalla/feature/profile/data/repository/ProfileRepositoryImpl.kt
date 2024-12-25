@@ -9,6 +9,7 @@ import uz.ildam.technologies.yalla.feature.profile.data.request.UpdateMeRequest
 import uz.ildam.technologies.yalla.feature.profile.data.service.ProfileService
 import uz.ildam.technologies.yalla.feature.profile.domain.model.request.UpdateMeDto
 import uz.ildam.technologies.yalla.feature.profile.domain.model.response.GetMeModel
+import uz.ildam.technologies.yalla.feature.profile.domain.model.response.UpdateAvatarModel
 import uz.ildam.technologies.yalla.feature.profile.domain.repository.ProfileRepository
 
 class ProfileRepositoryImpl(
@@ -37,6 +38,13 @@ class ProfileRepositoryImpl(
         ) {
             is Result.Error -> Result.Error(result.error)
             is Result.Success -> Result.Success(result.data.result.let(ClientMapper.clientMapper))
+        }
+    }
+
+    override suspend fun updateAvatar(image: ByteArray): Result<UpdateAvatarModel, DataError.Network> {
+        return when (val result = service.updateAvatar(image)) {
+            is Result.Error -> Result.Error(result.error)
+            is Result.Success -> Result.Success(result.data.result.let(ProfileMapper.avatarMapper))
         }
     }
 }

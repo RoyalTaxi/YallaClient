@@ -185,12 +185,19 @@ private fun GoogleMapContent(
 ) {
     val driverStatus = uiState.selectedDriver?.status
 
+    val disabledStatuses = listOf(
+        OrderStatus.New,
+        OrderStatus.NonStopSending,
+        OrderStatus.UserSending,
+        OrderStatus.Sending
+    )
+
     GoogleMap(
         properties = uiState.properties,
         uiSettings = uiState.mapUiSettings.copy(
-            scrollGesturesEnabled = driverStatus != OrderStatus.New,
-            rotationGesturesEnabled = driverStatus != OrderStatus.New,
-            zoomGesturesEnabled = driverStatus != OrderStatus.New
+            scrollGesturesEnabled = disabledStatuses.contains(driverStatus).not(),
+            rotationGesturesEnabled = disabledStatuses.contains(driverStatus).not(),
+            zoomGesturesEnabled = disabledStatuses.contains(driverStatus).not()
         ),
         cameraPositionState = cameraPositionState,
         modifier = Modifier.fillMaxSize(),
@@ -298,6 +305,12 @@ private fun MapOverlay(
     driverStatus: OrderStatus?,
     onIntent: (MapIntent) -> Unit
 ) {
+    val disabledStatuses = listOf(
+        OrderStatus.New,
+        OrderStatus.Sending,
+        OrderStatus.UserSending,
+        OrderStatus.NonStopSending
+    )
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -309,6 +322,11 @@ private fun MapOverlay(
             isLoading = isLoading,
             isSearching = driverStatus == OrderStatus.New,
             isRouteEmpty = routeEmpty,
+            isSending = driverStatus in listOf(
+                OrderStatus.Sending,
+                OrderStatus.UserSending,
+                OrderStatus.NonStopSending
+            ),
             isAppointed = driverStatus == OrderStatus.Appointed,
             isAtAddress = driverStatus == OrderStatus.AtAddress,
             isInFetters = driverStatus == OrderStatus.InFetters,
@@ -318,7 +336,7 @@ private fun MapOverlay(
         )
 
         // Show buttons if driver is not in NEW status
-        if (driverStatus != OrderStatus.New) {
+        if (driverStatus !in disabledStatuses) {
             // Move camera button (my location or route view)
             MapButton(
                 painter = painterResource(

@@ -6,5 +6,5 @@ data class UpdateMeDto(
     val surname: String,
     val birthday: String,
     val gender: String,
-    val image: ByteArray
+    val image: String
 )

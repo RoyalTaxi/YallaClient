@@ -120,4 +120,5 @@
     <string name="other">Boshqa</string>
     <string name="delete_selected_address">Siz haqiqatdan ham ushbu manzilni o\'chirmoqchimisiz?</string>
     <string name="delete">O\'chirish</string>
+    <string name="edit_profile">Profilni tahrirlash</string>
 </resources>

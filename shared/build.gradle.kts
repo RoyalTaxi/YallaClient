@@ -41,6 +41,8 @@ kotlin {
 
             implementation(libs.paging.common)
             implementation(libs.kotlinx.datetime)
+
+            implementation(libs.okio)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

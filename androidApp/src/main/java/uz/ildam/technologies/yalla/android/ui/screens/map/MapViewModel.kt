@@ -197,21 +197,21 @@ class MapViewModel(
             tariffOptions = state.selectedOptions.map { it.id.toInt() },
             paymentType = state.selectedPaymentType.typeName.lowercase(),
             fixedPrice = selectedTariff.fixedType,
-            addresses = state.destinations.map {
-                OrderTaxiDto.Address(
-                    addressId = null,
-                    lat = it.point?.lat.or0(),
-                    lng = it.point?.lng.or0(),
-                    name = it.name.orEmpty()
-                )
-            } + listOf(
+            addresses = listOf(
                 OrderTaxiDto.Address(
                     addressId = selectedLocation.addressId,
                     lat = selectedLocation.point?.lat.or0(),
                     lng = selectedLocation.point?.lng.or0(),
                     name = selectedLocation.name.orEmpty()
                 )
-            )
+            ) + state.destinations.map {
+                OrderTaxiDto.Address(
+                    addressId = null,
+                    lat = it.point?.lat.or0(),
+                    lng = it.point?.lng.or0(),
+                    name = it.name.orEmpty()
+                )
+            }
         )
 
         when (val result = orderTaxiUseCase(orderDto)) {
@@ -222,6 +222,7 @@ class MapViewModel(
                 addOrder(result.data.orderId)
                 setSelectedOrder(result.data.orderId)
                 getSetting()
+                _uiState.update { it.copy(discardOrderButtonState = DiscardOrderButtonState.OpenDrawer) }
             }
         }
     }

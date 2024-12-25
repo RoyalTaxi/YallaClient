@@ -4,7 +4,7 @@ sealed class OrderStatus(val value: String) {
     data object New : OrderStatus("new")
     data object Sending : OrderStatus("sending")
     data object UserSending : OrderStatus("user_sending")
-    data object NonStopSending : OrderStatus("non_stop_sending")
+    data object NonStopSending : OrderStatus("nonstop_sending")
     data object AtAddress : OrderStatus("at_address")
     data object InFetters : OrderStatus("in_fetters")
     data object Appointed : OrderStatus("appointed")
@@ -23,7 +23,7 @@ sealed class OrderStatus(val value: String) {
                 Appointed.value -> Appointed
                 Completed.value -> Completed
                 Canceled.value -> Canceled
-                else -> throw IllegalArgumentException("Unknown OrderStatus: $value")
+                else -> Canceled
             }
         }
     }

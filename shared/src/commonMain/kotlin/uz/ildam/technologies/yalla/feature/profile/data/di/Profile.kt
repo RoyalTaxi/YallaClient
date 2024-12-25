@@ -7,6 +7,7 @@ import uz.ildam.technologies.yalla.feature.profile.data.repository.ProfileReposi
 import uz.ildam.technologies.yalla.feature.profile.data.service.ProfileService
 import uz.ildam.technologies.yalla.feature.profile.domain.repository.ProfileRepository
 import uz.ildam.technologies.yalla.feature.profile.domain.usecase.GetMeUseCase
+import uz.ildam.technologies.yalla.feature.profile.domain.usecase.UpdateAvatarUseCase
 import uz.ildam.technologies.yalla.feature.profile.domain.usecase.UpdateMeUseCase
 
 object Profile {
@@ -21,6 +22,7 @@ object Profile {
     private val useCaseModule = module {
         single { GetMeUseCase(get()) }
         single { UpdateMeUseCase(get()) }
+        single { UpdateAvatarUseCase(get()) }
     }
 
     val modules = listOf(serviceModule, repositoryModule, useCaseModule)

@@ -23,6 +23,8 @@ import uz.ildam.technologies.yalla.android.ui.screens.credentials.credentialsScr
 import uz.ildam.technologies.yalla.android.ui.screens.credentials.navigateToCredentialsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.details.detailsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.details.navigateToDetailsScreen
+import uz.ildam.technologies.yalla.android.ui.screens.edit_profile.editProfileScreen
+import uz.ildam.technologies.yalla.android.ui.screens.edit_profile.navigateToEditProfileScreen
 import uz.ildam.technologies.yalla.android.ui.screens.history.historyScreen
 import uz.ildam.technologies.yalla.android.ui.screens.history.navigateToHistoryScreen
 import uz.ildam.technologies.yalla.android.ui.screens.language.languageScreen
@@ -93,6 +95,7 @@ fun Navigation() {
             )
 
             mapScreen(
+                onProfileClick = navController::navigateToEditProfileScreen,
                 onOrderHistoryClick = navController::navigateToHistoryScreen,
                 onPaymentTypeClick = navController::navigateToCardListScreen,
                 onAddressesClick = navController::navigateToAddressesScreen,
@@ -135,6 +138,10 @@ fun Navigation() {
             )
 
             addressScreen(
+                onNavigateBack = navController::safePopBackStack
+            )
+
+            editProfileScreen(
                 onNavigateBack = navController::safePopBackStack
             )
         }

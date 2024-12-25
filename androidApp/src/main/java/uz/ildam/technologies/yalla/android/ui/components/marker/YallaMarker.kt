@@ -47,6 +47,7 @@ fun YallaMarker(
     time: Int?,
     isLoading: Boolean,
     isSearching: Boolean = false,
+    isSending: Boolean = false,
     isAppointed: Boolean = false,
     isAtAddress: Boolean = false,
     isInFetters: Boolean = false,
@@ -89,7 +90,7 @@ fun YallaMarker(
         contentAlignment = Alignment.Center,
         modifier = Modifier.fillMaxSize()
     ) {
-        if (isSearching) LottieAnimation(
+        if (isSearching || isSending) LottieAnimation(
             composition = composition,
             progress = { progress },
             modifier = Modifier
@@ -97,7 +98,7 @@ fun YallaMarker(
                 .alpha(.5f)
         )
 
-        if ((isRouteEmpty || isSearching) && isAppointed.not() && isAtAddress.not() && isInFetters.not() && isCompleted.not()) ConstraintLayout(
+        if ((isRouteEmpty || isSearching || isSending) && isAppointed.not() && isAtAddress.not() && isInFetters.not() && isCompleted.not()) ConstraintLayout(
             modifier = modifier
         ) {
             val (circle, stick, indicator, addressName) = createRefs()

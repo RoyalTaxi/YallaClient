@@ -18,7 +18,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.maps.android.compose.rememberCameraPositionState
 import io.morfly.compose.bottomsheet.material3.rememberBottomSheetScaffoldState
 import io.morfly.compose.bottomsheet.material3.rememberBottomSheetState
@@ -47,6 +46,7 @@ import uz.ildam.technologies.yalla.android2gis.CameraPosition as Map2Gis
 @Composable
 fun MapRoute(
     onPermissionDenied: () -> Unit,
+    onProfileClick: () -> Unit,
     onOrderHistoryClick: () -> Unit,
     onPaymentTypeClick: () -> Unit,
     onAddressesClick: () -> Unit,
@@ -215,17 +215,32 @@ fun MapRoute(
             OrderStatus.InFetters -> sheetHandler.showOnTheRide()
             OrderStatus.Completed -> sheetHandler.showFeedback()
             OrderStatus.New -> {
-                loading = false
                 uiState.selectedLocation?.point?.let { actionHandler.moveCamera(it) }
                 sheetHandler.showSearchCars()
             }
 
-            else -> sheetHandler.showOrderTaxi()
+            OrderStatus.NonStopSending -> {
+                uiState.selectedLocation?.point?.let { actionHandler.moveCamera(it) }
+                sheetHandler.showSearchCars()
+            }
+
+            OrderStatus.Sending -> {
+                uiState.selectedLocation?.point?.let { actionHandler.moveCamera(it) }
+                sheetHandler.showSearchCars()
+            }
+
+            OrderStatus.UserSending -> {
+                uiState.selectedLocation?.point?.let { actionHandler.moveCamera(it) }
+                sheetHandler.showSearchCars()
+            }
+
+            null -> sheetHandler.showOrderTaxi()
         }
     }
 
     /** If in fetters, move camera to driver's current location */
     LaunchedEffect(uiState.selectedDriver) {
+        if (uiState.selectedDriver != null) loading = false
         if (uiState.selectedDriver?.status == OrderStatus.InFetters)
             uiState.selectedDriver?.let { driver ->
                 val driverPosition = MapPoint(
@@ -266,6 +281,7 @@ fun MapRoute(
         uiState = uiState,
         onIntent = { intent ->
             when (intent) {
+                is MapDrawerIntent.Profile -> onProfileClick()
                 is MapDrawerIntent.OrdersHistory -> onOrderHistoryClick()
                 is MapDrawerIntent.PaymentType -> onPaymentTypeClick()
                 is MapDrawerIntent.MyPlaces -> onAddressesClick()

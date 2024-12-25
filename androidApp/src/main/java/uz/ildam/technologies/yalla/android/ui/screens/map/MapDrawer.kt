@@ -46,7 +46,7 @@ fun MapDrawer(
                 uiState.user?.let {
                     UserProfileCard(
                         clientModel = uiState.user.client,
-                        onClick = {}
+                        onClick = { onIntent(MapDrawerIntent.Profile) }
                     )
                 }
 
