@@ -27,6 +27,7 @@ class EditProfileViewModel(
     private val getMeUseCase: GetMeUseCase,
     private val updateAvatarUseCase: UpdateAvatarUseCase
 ) : ViewModel() {
+
     private val _uiState = MutableStateFlow(EditProfileUIState())
     val uiState = _uiState.asStateFlow()
 
@@ -36,14 +37,18 @@ class EditProfileViewModel(
     fun getMe() = viewModelScope.launch {
         _actionState.emit(EditProfileActionState.Loading)
         when (val result = getMeUseCase()) {
-            is Result.Error -> _actionState.emit(EditProfileActionState.Error)
+            is Result.Error -> {
+                _actionState.emit(EditProfileActionState.Error)
+            }
             is Result.Success -> {
                 _actionState.emit(EditProfileActionState.GetSuccess)
+
+                // Update our UI state with the fetched data
                 _uiState.update {
                     it.copy(
                         name = result.data.client.givenNames,
                         surname = result.data.client.surname,
-                        gender = result.data.client.gender,
+                        gender = Gender.fromType(result.data.client.gender),
                         imageUrl = result.data.client.image,
                         birthday = parseBirthdayOrNull(result.data.client.birthday)
                     )
@@ -52,57 +57,107 @@ class EditProfileViewModel(
         }
     }
 
+    /**
+     * Update the user profile data excluding avatar (which is handled separately).
+     */
     fun postMe() = viewModelScope.launch {
         _actionState.emit(EditProfileActionState.Loading)
         with(uiState.value) {
-            when (updateMeUseCase(
+            val updateResult = updateMeUseCase(
                 UpdateMeDto(
                     givenNames = name,
                     surname = surname,
                     birthday = birthday.formatWithDotsDMY(),
-                    gender = gender,
-                    image = imageUrl
+                    gender = gender.type,
+                    image = newImageUrl
                 )
-            )) {
+            )
+
+            when (updateResult) {
                 is Result.Error -> _actionState.emit(EditProfileActionState.Error)
                 is Result.Success -> _actionState.emit(EditProfileActionState.UpdateSuccess)
             }
         }
     }
 
+    /**
+     * Update the user's avatar only.
+     */
     fun updateAvatar() = viewModelScope.launch {
         _actionState.emit(EditProfileActionState.Loading)
         uiState.value.newImage?.let { newImage ->
             when (val result = updateAvatarUseCase(newImage)) {
-                is Result.Error -> _actionState.emit(EditProfileActionState.Error)
+                is Result.Error -> {
+                    _actionState.emit(EditProfileActionState.Error)
+                }
                 is Result.Success -> {
-                    _uiState.update { it.copy(imageUrl = result.data.image) }
-
+                    // Update avatar URL in the UI state
+                    _uiState.update { it.copy(newImageUrl = result.data.image) }
                     _actionState.emit(EditProfileActionState.UpdateAvatarSuccess)
                 }
             }
         }
     }
 
+    /**
+     * Handle new avatar selection from Image Picker.
+     */
     fun setNewImage(uri: Uri, context: Context) = viewModelScope.launch {
         val byteArray = context.uriToByteArray(uri)
         if (byteArray != null) {
             _uiState.update { it.copy(newImage = byteArray) }
         } else {
+            // If we failed to retrieve the byteArray from the URI
             _actionState.emit(EditProfileActionState.Error)
         }
     }
 
-
+    /**
+     * Called to parse a birthday string "dd.MM.yyyy" -> LocalDate?
+     */
     fun parseBirthdayOrNull(birthdayStr: String?): LocalDate? {
         if (birthdayStr.isNullOrBlank()) return null
 
         val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.getDefault())
-
         return try {
             LocalDate.parse(birthdayStr, formatter)
         } catch (e: DateTimeParseException) {
             null
         }
+    }
+
+    /**
+     * Toggle or set the bottom sheet visibility for the DatePicker.
+     */
+    fun setDatePickerVisible(visible: Boolean) {
+        _uiState.update { it.copy(isDatePickerVisible = visible) }
+    }
+
+    /**
+     * Update the birthday in UI state.
+     */
+    fun changeBirthday(localDate: LocalDate) {
+        _uiState.update { it.copy(birthday = localDate) }
+    }
+
+    /**
+     * Update the user's name in UI state.
+     */
+    fun changeName(newName: String) {
+        _uiState.update { it.copy(name = newName) }
+    }
+
+    /**
+     * Update the user's surname in UI state.
+     */
+    fun changeSurname(newSurname: String) {
+        _uiState.update { it.copy(surname = newSurname) }
+    }
+
+    /**
+     * Update the user's gender in UI state.
+     */
+    fun changeGender(gender: Gender) {
+        _uiState.update { it.copy(gender = gender) }
     }
 }

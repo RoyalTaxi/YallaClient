@@ -8,5 +8,5 @@ data class UpdateMeRequest(
     val sur_name: String,
     val birthday: String,
     val gender: String,
-    val image: String
+    val image: String?
 )

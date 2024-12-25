@@ -5,8 +5,10 @@ import org.threeten.bp.LocalDate
 data class EditProfileUIState(
     val name: String = "",
     val surname: String = "",
-    val gender: String = "",
+    val gender: Gender = Gender.NotSelected,
     val newImage: ByteArray? = null,
     val birthday: LocalDate? = null,
-    val imageUrl: String = ""
+    val imageUrl: String = "",
+    val isDatePickerVisible: Boolean = false,
+    val newImageUrl: String? = null
 )
