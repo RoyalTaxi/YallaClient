@@ -10,9 +10,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -36,11 +40,12 @@ fun AddressesScreen(
     onIntent: (AddressesIntent) -> Unit
 ) {
     Scaffold(
+        floatingActionButtonPosition = FabPosition.End,
+        containerColor = YallaTheme.color.white,
         modifier = Modifier
             .fillMaxSize()
             .background(YallaTheme.color.white)
             .navigationBarsPadding(),
-        containerColor = YallaTheme.color.white,
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
@@ -171,6 +176,21 @@ fun AddressesScreen(
                     }
                 }
             }
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                shape = CircleShape,
+                containerColor = YallaTheme.color.black,
+                onClick = { onIntent(AddressesIntent.OnAddNewAddress(AddressType.OTHER)) },
+                modifier = Modifier.padding(20.dp),
+                content = {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        tint = YallaTheme.color.white
+                    )
+                }
+            )
         }
     )
 }

@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.maps.android.compose.rememberCameraPositionState
 import io.morfly.compose.bottomsheet.material3.rememberBottomSheetScaffoldState
 import io.morfly.compose.bottomsheet.material3.rememberBottomSheetState
@@ -159,7 +160,7 @@ fun MapRoute(
     /** When screen opens, the map should move camera to current location **/
     LaunchedEffect(Unit) {
         updateLocationAndMoveCamera(true)
-
+        launch { vm.getMe() }
     }
 
     /** Collect Actions from ViewModel */

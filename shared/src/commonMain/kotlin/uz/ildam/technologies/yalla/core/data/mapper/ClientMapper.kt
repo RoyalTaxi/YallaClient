@@ -4,35 +4,16 @@ import uz.ildam.technologies.yalla.core.data.response.ClientRemoteModel
 import uz.ildam.technologies.yalla.core.domain.model.ClientModel
 
 object ClientMapper {
-    private val brandMapper: Mapper<ClientRemoteModel.Brand?, ClientModel.Brand> =
-        { brand ->
-            ClientModel.Brand(
-                id = brand?.id.or0(),
-                name = brand?.name.orEmpty()
-            )
-        }
-
-    val clientMapper: Mapper<ClientRemoteModel, ClientModel> =
+    val clientMapper: Mapper<ClientRemoteModel?, ClientModel> =
         { client ->
             ClientModel(
-                id = client.id.or0(),
-                phone = client.phone.orEmpty(),
-                givenNames = client.given_names.orEmpty(),
-                fatherName = client.father_name.orEmpty(),
-                surname = client.sur_name.orEmpty(),
-                blockDate = client.block_date.orEmpty(),
-                block = client.block.orFalse(),
-                balance = client.balance.or0(),
-                blockNote = client.block_note.orEmpty(),
-                rating = client.rating.or0(),
-                blockSource = client.block_source.orEmpty(),
-                image = client.image.orEmpty(),
-                blockExpiry = client.block_expiry.orEmpty(),
-                brand = client.brand.let(brandMapper),
-                createdAt = client.created_at.orEmpty(),
-                creatorType = client.creator_type.orEmpty(),
-                birthday = client.birthday.orEmpty(),
-                gender = client.gender.orEmpty()
+                id = client?.id.or0(),
+                phone = client?.phone.orEmpty(),
+                givenNames = client?.given_names.orEmpty(),
+                surname = client?.sur_name.orEmpty(),
+                image = client?.image.orEmpty(),
+                birthday = client?.birthday.orEmpty(),
+                gender = client?.gender.orEmpty()
             )
         }
 }

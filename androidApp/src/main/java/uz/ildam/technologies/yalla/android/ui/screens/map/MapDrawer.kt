@@ -20,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
+import uz.ildam.technologies.yalla.android.ui.components.card.UserProfileCard
 import uz.ildam.technologies.yalla.android.ui.components.item.DrawerItem
 import uz.ildam.technologies.yalla.core.data.enums.PaymentType
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
@@ -42,6 +43,15 @@ fun MapDrawer(
                     .fillMaxHeight()
                     .verticalScroll(rememberScrollState())
             ) {
+                uiState.user?.let {
+                    UserProfileCard(
+                        clientModel = uiState.user.client,
+                        onClick = {}
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()

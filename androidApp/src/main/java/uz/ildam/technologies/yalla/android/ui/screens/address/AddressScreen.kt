@@ -1,10 +1,5 @@
 package uz.ildam.technologies.yalla.android.ui.screens.address
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -27,12 +22,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,8 +34,7 @@ import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 import uz.ildam.technologies.yalla.android.ui.components.button.SelectCurrentLocationButton
 import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
 import uz.ildam.technologies.yalla.android.ui.components.text_field.AddressFormField
-import uz.ildam.technologies.yalla.android.ui.sheets.search_address.SearchByNameBottomSheet
-import uz.ildam.technologies.yalla.android.ui.sheets.select_from_map.SelectFromMapBottomSheet
+import uz.ildam.technologies.yalla.feature.addresses.domain.model.response.AddressType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,10 +43,6 @@ fun AddressScreen(
     uiState: AddressUIState,
     onIntent: (AddressIntent) -> Unit
 ) {
-    var searchLocationVisibility by remember { mutableStateOf(false) }
-    var openMapVisibility by remember { mutableStateOf(false) }
-    val searchLocationState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
     Scaffold(
         containerColor = YallaTheme.color.white,
         modifier = Modifier.fillMaxSize(),
@@ -66,7 +51,13 @@ fun AddressScreen(
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
                 title = {
                     Text(
-                        text = uiState.addressType.typeName,
+                        text = stringResource(
+                            when (uiState.addressType) {
+                                AddressType.HOME -> R.string.home
+                                AddressType.WORK -> R.string.work
+                                AddressType.OTHER -> R.string.other
+                            }
+                        ),
                         color = YallaTheme.color.black,
                         style = YallaTheme.font.labelLarge
                     )
@@ -115,7 +106,7 @@ fun AddressScreen(
                                 )
                         )
                     },
-                    onClick = { searchLocationVisibility = true }
+                    onClick = { onIntent(AddressIntent.OpenSearchSheet) }
                 )
 
                 AddressFormField(
@@ -138,6 +129,7 @@ fun AddressScreen(
                         },
                         placeHolder = stringResource(R.string.apartment)
                     )
+
                     AddressFormField(
                         value = uiState.entrance,
                         modifier = Modifier.weight(1f),
@@ -147,6 +139,7 @@ fun AddressScreen(
                         },
                         placeHolder = stringResource(R.string.entrance)
                     )
+
                     AddressFormField(
                         value = uiState.floor,
                         modifier = Modifier.weight(1f),
@@ -178,48 +171,6 @@ fun AddressScreen(
                     onClick = { onIntent(AddressIntent.OnSave) }
                 )
             }
-
-            AnimatedVisibility(
-                visible = searchLocationVisibility,
-                enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
-                exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
-            ) {
-                if (searchLocationVisibility) SearchByNameBottomSheet(
-                    sheetState = searchLocationState,
-                    isForDestination = false,
-                    onAddressSelected = { name, lat, lng, _ ->
-                        searchLocationVisibility = false
-                        onIntent(
-                            AddressIntent.OnAddressSelected(
-                                address = AddressUIState.Location(
-                                    name = name,
-                                    lat = lat,
-                                    lng = lng
-                                )
-                            )
-                        )
-                    },
-                    onClickMap = { openMapVisibility = true },
-                    onDismissRequest = { searchLocationVisibility = false }
-                )
-            }
-
-            if (openMapVisibility) SelectFromMapBottomSheet(
-                modifier = Modifier.padding(paddingValues),
-                isForDestination = false,
-                onSelectLocation = { name, location, _ ->
-                    onIntent(
-                        AddressIntent.OnAddressSelected(
-                            address = AddressUIState.Location(
-                                name = name,
-                                lat = location.latitude,
-                                lng = location.longitude
-                            )
-                        )
-                    )
-                },
-                onDismissRequest = { openMapVisibility = false }
-            )
         }
     )
 }

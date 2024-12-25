@@ -10,6 +10,7 @@ import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.Set
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.ShowOrderModel
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.tarrif.GetTariffsModel
 import uz.ildam.technologies.yalla.feature.payment.domain.model.CardListItemModel
+import uz.ildam.technologies.yalla.feature.profile.domain.model.response.GetMeModel
 
 data class MapUIState(
 
@@ -43,6 +44,7 @@ data class MapUIState(
 
     // Setting-related properties
     val setting: SettingModel? = null,
+    val user: GetMeModel? = null,
 
     // UI State-related properties
     val moveCameraButtonState: MoveCameraButtonState = MoveCameraButtonState.MyLocationView,

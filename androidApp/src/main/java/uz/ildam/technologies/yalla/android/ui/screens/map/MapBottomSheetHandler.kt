@@ -15,10 +15,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.ui.sheets.ArrangeDestinationsBottomSheet
-import uz.ildam.technologies.yalla.android.ui.sheets.ConfirmCancellationBottomSheet
+import uz.ildam.technologies.yalla.android.ui.sheets.ConfirmationBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.OrderCommentBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.PaymentMethodBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.SetOrderOptionsBottomSheet
@@ -214,8 +216,12 @@ class MapBottomSheetHandler(
             enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
             exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
         ) {
-            if (confirmCancellationVisibility) ConfirmCancellationBottomSheet(
+            if (confirmCancellationVisibility) ConfirmationBottomSheet(
                 sheetState = confirmCancellationState,
+                title = stringResource(R.string.cancel_order),
+                description = stringResource(R.string.cancel_order_definition),
+                actionText = stringResource(R.string.cancel),
+                dismissText = stringResource(R.string.wait),
                 onDismissRequest = { showConfirmCancellation(false) },
                 onConfirm = {
                     showConfirmCancellation(false)

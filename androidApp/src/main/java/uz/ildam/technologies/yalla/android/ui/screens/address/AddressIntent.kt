@@ -9,5 +9,5 @@ sealed interface AddressIntent {
     data class OnChangeEntrance(val value: String) : AddressIntent
     data class OnChangeFloor(val value: String) : AddressIntent
     data class OnChangeComment(val value: String) : AddressIntent
-    data class OnAddressSelected(val address: AddressUIState.Location) : AddressIntent
+    data object OpenSearchSheet : AddressIntent
 }

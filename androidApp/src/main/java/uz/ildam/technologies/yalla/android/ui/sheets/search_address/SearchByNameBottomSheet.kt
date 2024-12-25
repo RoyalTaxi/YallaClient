@@ -100,15 +100,7 @@ fun SearchByNameBottomSheet(
                 FoundAddressItem(
                     foundAddress = foundAddress,
                     onClick = {
-                        when (it) {
-                            is SearchableAddress.MapAddress -> onAddressSelected(
-                                it.name, it.lat, it.lng, it.addressId.or0()
-                            )
-
-                            is SearchableAddress.SearchResultAddress -> onAddressSelected(
-                                it.name, it.lat, it.lng, it.addressId
-                            )
-                        }
+                        onAddressSelected(it.name, it.lat, it.lng, it.addressId.or0())
                         viewModel.setQuery("")
                         viewModel.setFoundAddresses(emptyList())
                         onDismissRequest()
@@ -120,15 +112,7 @@ fun SearchByNameBottomSheet(
                 FoundAddressItem(
                     foundAddress = foundAddress,
                     onClick = {
-                        when (it) {
-                            is SearchableAddress.MapAddress -> onAddressSelected(
-                                it.name, it.lat, it.lng, it.addressId.or0()
-                            )
-
-                            is SearchableAddress.SearchResultAddress -> onAddressSelected(
-                                it.name, it.lat, it.lng, it.addressId
-                            )
-                        }
+                        onAddressSelected(it.name, it.lat, it.lng, it.addressId.or0())
                         viewModel.setQuery("")
                         viewModel.setFoundAddresses(emptyList())
                         onDismissRequest()

@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.core.domain.error.Result
 import uz.ildam.technologies.yalla.feature.addresses.domain.model.response.AddressModel
+import uz.ildam.technologies.yalla.feature.addresses.domain.model.response.AddressType
 import uz.ildam.technologies.yalla.feature.addresses.domain.usecase.FindAllMapAddressesUseCase
 import uz.ildam.technologies.yalla.feature.map.domain.model.map.PolygonRemoteItem
 import uz.ildam.technologies.yalla.feature.map.domain.model.map.SearchForAddressItemModel
@@ -49,13 +50,14 @@ class SearchByNameBottomSheetViewModel(
         _uiState.update {
             it.copy(
                 foundAddresses = addresses.map { address ->
-                    SearchableAddress.SearchResultAddress(
+                    SearchableAddress(
                         addressId = address.addressId,
                         addressName = address.addressName,
                         distance = address.distance,
                         lat = address.lat,
                         lng = address.lng,
-                        name = address.name
+                        name = address.name,
+                        type = AddressType.OTHER
                     )
                 }
             )
@@ -70,13 +72,14 @@ class SearchByNameBottomSheetViewModel(
                         lat = address.coords.lat,
                         lng = address.coords.lng
                     )
-                    SearchableAddress.MapAddress(
+                    SearchableAddress(
                         addressId = if (isInside) addressId else null,
                         addressName = address.address,
-                        distance = null, // Assuming map addresses don’t have a distance
+                        distance = null,
                         lat = address.coords.lat,
                         lng = address.coords.lng,
-                        name = address.name
+                        name = address.name,
+                        type = address.type
                     )
                 }
             )

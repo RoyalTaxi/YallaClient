@@ -112,4 +112,9 @@
     <string name="apartment">Квартира</string>
     <string name="entrance">Подьезд</string>
     <string name="floor">Этаж</string>
+    <string name="home">Дом</string>
+    <string name="work">Работа</string>
+    <string name="other">Другой</string>
+    <string name="delete_selected_address">Вы уверены, что хотите удалить этот адрес?</string>
+    <string name="delete">Удалить</string>
 </resources>

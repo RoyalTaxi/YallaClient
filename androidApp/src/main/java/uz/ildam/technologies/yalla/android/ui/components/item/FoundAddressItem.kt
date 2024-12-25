@@ -1,22 +1,22 @@
 package uz.ildam.technologies.yalla.android.ui.components.item
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 import uz.ildam.technologies.yalla.android.ui.sheets.search_address.SearchableAddress
+import uz.ildam.technologies.yalla.feature.addresses.domain.model.response.AddressType
 
 @Composable
 fun FoundAddressItem(
@@ -34,77 +34,42 @@ fun FoundAddressItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .size(14.dp)
-                    .border(
-                        color = YallaTheme.color.gray,
-                        shape = CircleShape,
-                        width = 2.dp
-                    )
-                    .padding(10.dp)
+            Icon(
+                painter = painterResource(
+                    when (foundAddress.type) {
+                        AddressType.HOME -> R.drawable.ic_home
+                        AddressType.OTHER -> R.drawable.ic_work
+                        AddressType.WORK -> R.drawable.ic_other
+                    }
+                ),
+                contentDescription = null
             )
 
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                when (foundAddress) {
-                    is SearchableAddress.MapAddress -> {
-                        Text(
-                            text = foundAddress.name,
-                            color = YallaTheme.color.black,
-                            style = YallaTheme.font.labelSemiBold
-                        )
+                Text(
+                    text = foundAddress.name,
+                    color = YallaTheme.color.black,
+                    style = YallaTheme.font.labelSemiBold
+                )
 
-                        if (foundAddress.addressName.isNotEmpty()) {
-                            Text(
-                                text = foundAddress.addressName,
-                                color = YallaTheme.color.gray,
-                                style = YallaTheme.font.bodySmall
-                            )
-                        }
-                    }
-
-                    is SearchableAddress.SearchResultAddress -> {
-                        Text(
-                            text = foundAddress.name,
-                            color = YallaTheme.color.black,
-                            style = YallaTheme.font.labelSemiBold
-                        )
-
-                        if (foundAddress.addressName.isNotEmpty()) {
-                            Text(
-                                text = foundAddress.addressName,
-                                color = YallaTheme.color.gray,
-                                style = YallaTheme.font.bodySmall
-                            )
-                        }
-                    }
+                if (foundAddress.addressName.isNotEmpty()) {
+                    Text(
+                        text = foundAddress.addressName,
+                        color = YallaTheme.color.gray,
+                        style = YallaTheme.font.bodySmall
+                    )
                 }
             }
 
-            when (foundAddress) {
-                is SearchableAddress.MapAddress -> {
-                    // Display distance only if it's not null
-                    foundAddress.distance?.let {
-                        Text(
-                            text = "$it m",
-                            color = YallaTheme.color.gray,
-                            style = YallaTheme.font.label
-                        )
-                    }
-                }
-
-                is SearchableAddress.SearchResultAddress -> {
-                    foundAddress.distance?.let {
-                        Text(
-                            text = "$it m",
-                            color = YallaTheme.color.gray,
-                            style = YallaTheme.font.label
-                        )
-                    }
-                }
+            foundAddress.distance?.let {
+                Text(
+                    text = "$it km",
+                    color = YallaTheme.color.gray,
+                    style = YallaTheme.font.label
+                )
             }
         }
     }

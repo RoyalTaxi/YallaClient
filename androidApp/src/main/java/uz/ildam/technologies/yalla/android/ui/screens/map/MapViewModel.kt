@@ -12,11 +12,11 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import org.w3c.dom.Comment
 import uz.ildam.technologies.yalla.core.data.enums.PaymentType
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 import uz.ildam.technologies.yalla.core.data.mapper.or0
 import uz.ildam.technologies.yalla.core.domain.error.Result
+import uz.ildam.technologies.yalla.core.domain.model.ClientModel
 import uz.ildam.technologies.yalla.core.domain.model.ExecutorModel
 import uz.ildam.technologies.yalla.feature.map.domain.model.map.PolygonRemoteItem
 import uz.ildam.technologies.yalla.feature.map.domain.model.map.SearchForAddressItemModel
@@ -37,6 +37,8 @@ import uz.ildam.technologies.yalla.feature.order.domain.usecase.tariff.GetTariff
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.tariff.GetTimeOutUseCase
 import uz.ildam.technologies.yalla.feature.payment.domain.model.CardListItemModel
 import uz.ildam.technologies.yalla.feature.payment.domain.usecase.GetCardListUseCase
+import uz.ildam.technologies.yalla.feature.profile.domain.model.response.GetMeModel
+import uz.ildam.technologies.yalla.feature.profile.domain.usecase.GetMeUseCase
 import kotlin.time.Duration.Companion.seconds
 
 class MapViewModel(
@@ -50,7 +52,8 @@ class MapViewModel(
     private val cancelRideUseCase: CancelRideUseCase,
     private val getCardListUseCase: GetCardListUseCase,
     private val getShowOrderUseCase: GetShowOrderUseCase,
-    private val rateTheRideUseCase: RateTheRideUseCase
+    private val rateTheRideUseCase: RateTheRideUseCase,
+    private val getMeUseCase: GetMeUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MapUIState())
@@ -450,5 +453,16 @@ class MapViewModel(
             is Result.Error -> {}
             is Result.Success -> {}
         }
+    }
+
+    fun getMe() = viewModelScope.launch {
+        when (val result = getMeUseCase()) {
+            is Result.Error -> {}
+            is Result.Success -> setUser(result.data)
+        }
+    }
+
+    fun setUser(user: GetMeModel) {
+        _uiState.update { it.copy(user = user) }
     }
 }
