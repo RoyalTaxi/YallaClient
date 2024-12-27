@@ -69,6 +69,7 @@ fun MapRoute(
     val confirmCancellationState = rememberModalBottomSheetState(confirmValueChange = { false })
     val selectPaymentMethodState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val orderCommentState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val activeOrdersState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
     // Bottom sheet scaffold
@@ -123,6 +124,7 @@ fun MapRoute(
             confirmCancellationState = confirmCancellationState,
             selectPaymentMethodState = selectPaymentMethodState,
             orderCommentState = orderCommentState,
+            activeOrdersState = activeOrdersState,
             viewModel = vm
         )
     }
@@ -163,22 +165,35 @@ fun MapRoute(
         launch { vm.getMe() }
     }
 
+    LaunchedEffect(Unit) {
+        launch {
+            while (true) {
+                vm.getActiveOrders()
+                delay(5.seconds)
+            }
+        }
+    }
+
     /** Collect Actions from ViewModel */
     LaunchedEffect(Unit) {
-        vm.actionState.collectLatest { action ->
-            when (action) {
-                is MapActionState.AddressIdLoaded -> vm.fetchTariffs(action.id.toInt())
-                is MapActionState.PolygonLoaded -> vm.getAddressDetails(currentLatLng.value)
-                is MapActionState.TariffsLoaded -> vm.getTimeout(currentLatLng.value)
-                is MapActionState.AddressNameLoaded -> vm.setSelectedLocation(name = action.name)
-                else -> {}
+        launch {
+            vm.actionState.collectLatest { action ->
+                when (action) {
+                    is MapActionState.AddressIdLoaded -> vm.fetchTariffs(action.id.toInt())
+                    is MapActionState.PolygonLoaded -> vm.getAddressDetails(currentLatLng.value)
+                    is MapActionState.TariffsLoaded -> vm.getTimeout(currentLatLng.value)
+                    is MapActionState.AddressNameLoaded -> vm.setSelectedLocation(name = action.name)
+                    else -> {}
+                }
             }
         }
     }
 
     /** Adjust camera on route changes */
     LaunchedEffect(uiState.route) {
-        actionHandler.moveCameraToFitBounds(uiState.route, animate = true)
+        launch {
+            actionHandler.moveCameraToFitBounds(uiState.route, animate = true)
+        }
     }
 
     /**
@@ -186,11 +201,13 @@ fun MapRoute(
      * fetch address details. If the marker is moving, reset state.
      */
     LaunchedEffect(isMarkerMoving) {
-        if (uiState.route.isEmpty() && uiState.selectedDriver?.status != OrderStatus.Appointed) {
-            if (isMarkerMoving) {
-                vm.setNotFoundState()
-            } else {
-                vm.getAddressDetails(currentLatLng.value)
+        launch {
+            if (uiState.route.isEmpty() && uiState.selectedDriver?.status != OrderStatus.Appointed) {
+                if (isMarkerMoving) {
+                    vm.setNotFoundState()
+                } else {
+                    vm.getAddressDetails(currentLatLng.value)
+                }
             }
         }
     }
@@ -199,73 +216,83 @@ fun MapRoute(
      * Continuously poll getShow() every 5 seconds.
      * This could be considered for refactoring if an event-driven approach is possible.
      */
-    LaunchedEffect(uiState.selectedOrder) {
-        while (uiState.selectedOrder != null) {
-            vm.getShow()
-            delay(5.seconds)
+    LaunchedEffect(uiState.showingOrderId) {
+        launch {
+            while (uiState.showingOrderId != null) {
+                vm.getShow()
+                delay(5.seconds)
+            }
         }
     }
 
     /** Update UI based on selected driver's order status */
     LaunchedEffect(uiState.selectedDriver?.status) {
-        when (uiState.selectedDriver?.status) {
-            OrderStatus.Appointed -> sheetHandler.showClientWaiting()
-            OrderStatus.AtAddress -> sheetHandler.showDriverWaiting()
-            OrderStatus.Canceled -> sheetHandler.showOrderTaxi()
-            OrderStatus.InFetters -> sheetHandler.showOnTheRide()
-            OrderStatus.Completed -> sheetHandler.showFeedback()
-            OrderStatus.New -> {
-                uiState.selectedLocation?.point?.let { actionHandler.moveCamera(it) }
-                sheetHandler.showSearchCars()
-            }
+        launch {
+            when (uiState.selectedDriver?.status) {
+                OrderStatus.Appointed -> sheetHandler.showClientWaiting()
+                OrderStatus.AtAddress -> sheetHandler.showDriverWaiting()
+                OrderStatus.Canceled -> sheetHandler.showOrderTaxi()
+                OrderStatus.InFetters -> sheetHandler.showOnTheRide()
+                OrderStatus.Completed -> sheetHandler.showFeedback()
+                OrderStatus.New -> {
+                    uiState.selectedLocation?.point?.let { actionHandler.moveCamera(it) }
+                    sheetHandler.showSearchCars()
+                }
 
-            OrderStatus.NonStopSending -> {
-                uiState.selectedLocation?.point?.let { actionHandler.moveCamera(it) }
-                sheetHandler.showSearchCars()
-            }
+                OrderStatus.NonStopSending -> {
+                    uiState.selectedLocation?.point?.let { actionHandler.moveCamera(it) }
+                    sheetHandler.showSearchCars()
+                }
 
-            OrderStatus.Sending -> {
-                uiState.selectedLocation?.point?.let { actionHandler.moveCamera(it) }
-                sheetHandler.showSearchCars()
-            }
+                OrderStatus.Sending -> {
+                    uiState.selectedLocation?.point?.let { actionHandler.moveCamera(it) }
+                    sheetHandler.showSearchCars()
+                }
 
-            OrderStatus.UserSending -> {
-                uiState.selectedLocation?.point?.let { actionHandler.moveCamera(it) }
-                sheetHandler.showSearchCars()
-            }
+                OrderStatus.UserSending -> {
+                    uiState.selectedLocation?.point?.let { actionHandler.moveCamera(it) }
+                    sheetHandler.showSearchCars()
+                }
 
-            null -> sheetHandler.showOrderTaxi()
+                null -> sheetHandler.showOrderTaxi()
+            }
         }
     }
 
     /** If in fetters, move camera to driver's current location */
     LaunchedEffect(uiState.selectedDriver) {
-        if (uiState.selectedDriver != null) loading = false
-        if (uiState.selectedDriver?.status == OrderStatus.InFetters)
-            uiState.selectedDriver?.let { driver ->
-                val driverPosition = MapPoint(
-                    lat = driver.executor.coords.lat,
-                    lng = driver.executor.coords.lng
-                )
-                actionHandler.moveCamera(
-                    mapPoint = driverPosition,
-                    animate = true,
-                    duration = 1000
-                )
-            }
+        launch {
+            if (uiState.selectedDriver != null) loading = false
+            if (uiState.selectedDriver?.status == OrderStatus.InFetters)
+                uiState.selectedDriver?.let { driver ->
+                    val driverPosition = MapPoint(
+                        lat = driver.executor.coords.lat,
+                        lng = driver.executor.coords.lng
+                    )
+                    actionHandler.moveCamera(
+                        mapPoint = driverPosition,
+                        animate = true,
+                        duration = 1000
+                    )
+                }
+        }
     }
 
     /** If permissions are granted, update location and camera */
     LaunchedEffect(permissionsGranted) {
-        if (permissionsGranted) {
-            updateLocationAndMoveCamera(false)
+        launch {
+            if (permissionsGranted) {
+                updateLocationAndMoveCamera(false)
+            }
         }
     }
 
     /** Reset selected driver if there's no selected order */
     LaunchedEffect(uiState.selectedOrder) {
-        if (uiState.selectedOrder == null) {
-            vm.setSelectedDriver(driver = null)
+        launch {
+            if (uiState.selectedOrder == null) {
+                vm.setSelectedDriver(driver = null)
+            }
         }
     }
 
@@ -298,6 +325,8 @@ fun MapRoute(
                 mapSheetHandler = sheetHandler,
                 currentLatLng = currentLatLng,
                 onCreateOrder = { loading = true },
+                mapBottomSheetHandler = bottomSheetHandler,
+                activeOrdersState = activeOrdersState,
                 onIntent = { intent ->
                     when (intent) {
                         is MapIntent.MoveToMyLocation -> updateLocationAndMoveCamera(true)
@@ -320,7 +349,7 @@ fun MapRoute(
         actionHandler = actionHandler,
         onAddNewCard = onAddNewCard,
         onCancel = {
-            uiState.selectedOrder?.let { vm.cancelRide(it) }
+            uiState.showingOrderId?.let { vm.cancelRide(it) }
             onCancel()
         }
     )

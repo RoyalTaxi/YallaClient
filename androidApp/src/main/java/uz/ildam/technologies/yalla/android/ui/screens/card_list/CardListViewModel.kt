@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.core.data.enums.PaymentType
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
-import uz.ildam.technologies.yalla.core.domain.error.Result
 import uz.ildam.technologies.yalla.feature.payment.domain.usecase.GetCardListUseCase
 
 class CardListViewModel(
@@ -25,13 +24,10 @@ class CardListViewModel(
 
     fun getCardList() = viewModelScope.launch {
         _actionState.emit(CardListActionState.Loading)
-        when (val result = getCardListUseCase()) {
-            is Result.Error -> _actionState.emit(CardListActionState.Error)
-            is Result.Success -> {
-                _uiState.update { it.copy(cards = result.data) }
-                _actionState.emit(CardListActionState.Success)
-            }
-        }
+        getCardListUseCase().onSuccess { result ->
+            _uiState.update { it.copy(cards = result) }
+            _actionState.emit(CardListActionState.Success)
+        }.onFailure { _actionState.emit(CardListActionState.Error) }
     }
 
     fun selectPaymentType(paymentType: PaymentType) {

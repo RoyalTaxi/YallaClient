@@ -31,8 +31,9 @@ data class MapUIState(
     // Order-related properties
     val timeout: Int? = null,
     // val isSearchingForCars: Boolean = false,
-    val orders: List<Int> = emptyList(),
-    val selectedOrder: Int? = null,
+    val orders: List<ShowOrderModel> = emptyList(),
+    val selectedOrder: ShowOrderModel? = null,
+    val showingOrderId: Int? = null,
 
     // Payment-related properties
     val selectedPaymentType: PaymentType = PaymentType.CASH,

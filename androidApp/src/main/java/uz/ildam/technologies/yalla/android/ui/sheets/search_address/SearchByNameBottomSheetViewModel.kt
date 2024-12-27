@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import uz.ildam.technologies.yalla.core.domain.error.Result
 import uz.ildam.technologies.yalla.feature.addresses.domain.model.response.AddressModel
 import uz.ildam.technologies.yalla.feature.addresses.domain.model.response.AddressType
 import uz.ildam.technologies.yalla.feature.addresses.domain.usecase.FindAllMapAddressesUseCase
@@ -26,24 +25,19 @@ class SearchByNameBottomSheetViewModel(
     val uiState = _uiState.asStateFlow()
 
     fun fetchPolygons() = viewModelScope.launch {
-        when (val result = getPolygonUseCase()) {
-            is Result.Error -> TODO() // Handle error case
-            is Result.Success -> addresses = result.data
-        }
+        getPolygonUseCase().onSuccess { addresses = it }
     }
 
     private fun searchForAddress(lat: Double, lng: Double, query: String) = viewModelScope.launch {
-        when (val result = searchAddressUseCase(lat, lng, query)) {
-            is Result.Error -> setFoundAddresses(emptyList())
-            is Result.Success -> setFoundAddresses(result.data)
-        }
+        searchAddressUseCase(lat, lng, query).onSuccess {
+            setFoundAddresses(it)
+        }.onFailure { setFoundAddresses(emptyList()) }
     }
 
     fun findAllMapAddresses() = viewModelScope.launch {
-        when (val result = findAllMapAddressesUseCase()) {
-            is Result.Error -> setMapAddresses(emptyList())
-            is Result.Success -> setMapAddresses(result.data)
-        }
+        findAllMapAddressesUseCase()
+            .onSuccess { setMapAddresses(it) }
+            .onFailure { setMapAddresses(emptyList()) }
     }
 
     fun setFoundAddresses(addresses: List<SearchForAddressItemModel>) {

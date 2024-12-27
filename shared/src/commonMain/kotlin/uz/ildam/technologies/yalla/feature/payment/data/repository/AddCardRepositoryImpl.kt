@@ -1,7 +1,7 @@
 package uz.ildam.technologies.yalla.feature.payment.data.repository
 
 import uz.ildam.technologies.yalla.core.domain.error.DataError
-import uz.ildam.technologies.yalla.core.domain.error.Result
+import uz.ildam.technologies.yalla.core.domain.error.Either
 import uz.ildam.technologies.yalla.feature.payment.data.mapper.AddCardMapper
 import uz.ildam.technologies.yalla.feature.payment.data.request.AddCardRequest
 import uz.ildam.technologies.yalla.feature.payment.data.request.VerifyCardRequest
@@ -15,17 +15,17 @@ class AddCardRepositoryImpl(
     override suspend fun addCard(
         number: String,
         expiry: String
-    ): Result<AddCardModel, DataError.Network> {
+    ): Either<AddCardModel, DataError.Network> {
         return when (val result = service.addCard(AddCardRequest(number, expiry))) {
-            is Result.Error -> Result.Error(result.error)
-            is Result.Success -> Result.Success(result.data.result.let(AddCardMapper.mapper))
+            is Either.Error -> Either.Error(result.error)
+            is Either.Success -> Either.Success(result.data.result.let(AddCardMapper.mapper))
         }
     }
 
     override suspend fun verifyCard(
         key: String,
         confirmCode: String
-    ): Result<Unit, DataError.Network> {
+    ): Either<Unit, DataError.Network> {
         return when (
             val result = service.verifyCard(
                 VerifyCardRequest(
@@ -34,8 +34,8 @@ class AddCardRepositoryImpl(
                 )
             )
         ) {
-            is Result.Error -> Result.Error(result.error)
-            is Result.Success -> Result.Success(Unit)
+            is Either.Error -> Either.Error(result.error)
+            is Either.Success -> Either.Success(Unit)
         }
     }
 }

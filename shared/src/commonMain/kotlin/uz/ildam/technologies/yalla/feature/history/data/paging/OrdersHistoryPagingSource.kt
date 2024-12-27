@@ -2,7 +2,7 @@ package uz.ildam.technologies.yalla.feature.history.data.paging
 
 import app.cash.paging.PagingSource
 import app.cash.paging.PagingState
-import uz.ildam.technologies.yalla.core.domain.error.Result
+import uz.ildam.technologies.yalla.core.domain.error.Either
 import uz.ildam.technologies.yalla.feature.history.data.mapper.OrdersHistoryMapper
 import uz.ildam.technologies.yalla.feature.history.data.service.OrdersHistoryApiService
 import uz.ildam.technologies.yalla.feature.history.domain.model.OrdersHistoryModel
@@ -22,8 +22,8 @@ class OrdersHistoryPagingSource(
         val currentPage = params.key ?: 1
         return try {
             when (val response = service.getOrders(currentPage, 20)) {
-                is Result.Error -> LoadResult.Error(Exception(response.error.name))
-                is Result.Success -> {
+                is Either.Error -> LoadResult.Error(Exception(response.error.name))
+                is Either.Success -> {
                     val data = response.data.result?.list?.map(OrdersHistoryMapper.mapper).orEmpty()
                     val nextKey = if (data.isEmpty()) null else currentPage + 1
 

@@ -1,9 +1,22 @@
 package uz.ildam.technologies.yalla.feature.addresses.domain.usecase
 
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.withContext
+import uz.ildam.technologies.yalla.core.domain.error.Either
 import uz.ildam.technologies.yalla.feature.addresses.domain.repository.AddressesRepository
 
 class DeleteOneAddressUseCase(
-    private val repository: AddressesRepository
+    private val repository: AddressesRepository,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    suspend operator fun invoke(id: Int) = repository.deleteOne(id)
+    suspend operator fun invoke(id: Int): Result<Unit> {
+        return withContext(dispatcher) {
+            when (val result = repository.deleteOne(id)) {
+                is Either.Error -> Result.failure(Exception(result.error.name))
+                is Either.Success -> Result.success(Unit)
+            }
+        }
+    }
 }

@@ -3,7 +3,7 @@ package uz.ildam.technologies.yalla.feature.order.domain.model.response.order
 
 data class ShowOrderModel(
     val comment: String,
-    val dateTime: Long,
+    val dateTime: String,
     val executor: Executor,
     val id: Long,
     val paymentType: String,

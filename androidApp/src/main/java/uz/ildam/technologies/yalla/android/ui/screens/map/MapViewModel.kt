@@ -15,8 +15,6 @@ import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.core.data.enums.PaymentType
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 import uz.ildam.technologies.yalla.core.data.mapper.or0
-import uz.ildam.technologies.yalla.core.domain.error.Result
-import uz.ildam.technologies.yalla.core.domain.model.ClientModel
 import uz.ildam.technologies.yalla.core.domain.model.ExecutorModel
 import uz.ildam.technologies.yalla.feature.map.domain.model.map.PolygonRemoteItem
 import uz.ildam.technologies.yalla.feature.map.domain.model.map.SearchForAddressItemModel
@@ -28,6 +26,7 @@ import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.Set
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.ShowOrderModel
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.tarrif.GetTariffsModel
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.CancelRideUseCase
+import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.GetActiveOrdersUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.GetSettingUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.GetShowOrderUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.OrderTaxiUseCase
@@ -53,7 +52,8 @@ class MapViewModel(
     private val getCardListUseCase: GetCardListUseCase,
     private val getShowOrderUseCase: GetShowOrderUseCase,
     private val rateTheRideUseCase: RateTheRideUseCase,
-    private val getMeUseCase: GetMeUseCase
+    private val getMeUseCase: GetMeUseCase,
+    private val getActiveOrdersUseCase: GetActiveOrdersUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MapUIState())
@@ -70,16 +70,14 @@ class MapViewModel(
 
     private fun fetchPolygons() = viewModelScope.launch {
         _actionState.emit(MapActionState.LoadingPolygon)
-        when (val result = getPolygonUseCase()) {
-            is Result.Success -> {
-                addresses = result.data
+        getPolygonUseCase()
+            .onSuccess {
+                addresses = it
                 _actionState.emit(MapActionState.PolygonLoaded)
             }
-
-            is Result.Error -> {
+            .onFailure {
                 setNotFoundState()
             }
-        }
     }
 
     fun getAddressDetails(point: MapPoint) = viewModelScope.launch {
@@ -110,10 +108,9 @@ class MapViewModel(
 
     private fun fetchAddressName(point: MapPoint) = viewModelScope.launch {
         _actionState.emit(MapActionState.LoadingAddressName)
-        when (val result = getAddressNameUseCase(point.lat, point.lng)) {
-            is Result.Success -> _actionState.emit(MapActionState.AddressNameLoaded(result.data.displayName))
-            is Result.Error -> setNotFoundState()
-        }
+        getAddressNameUseCase(point.lat, point.lng)
+            .onSuccess { _actionState.emit(MapActionState.AddressNameLoaded(it.displayName)) }
+            .onFailure { setNotFoundState() }
     }
 
     fun getTimeout(point: MapPoint) = viewModelScope.launch {
@@ -122,19 +119,14 @@ class MapViewModel(
         if (selectedTariff == null) return@launch
 
         _actionState.emit(MapActionState.LoadingTariffs)
-        val result = getTimeOutUseCase(point.lat, point.lng, selectedTariff.category.id.toInt())
-
-        when (result) {
-            is Result.Error -> {
+        getTimeOutUseCase(point.lat, point.lng, selectedTariff.category.id.toInt())
+            .onSuccess {
+                setTimeout(it.timeout)
+                setDrivers(it.executors)
+            }.onFailure {
                 setTimeout(null)
                 setDrivers(emptyList())
             }
-
-            is Result.Success -> {
-                setTimeout(result.data.timeout)
-                setDrivers(result.data.executors)
-            }
-        }
     }
 
     fun fetchTariffs(
@@ -144,22 +136,16 @@ class MapViewModel(
     ) = viewModelScope.launch {
         if (addressId == null || from == null) return@launch
         _actionState.emit(MapActionState.LoadingTariffs)
-
-        val result = getTariffsUseCase(
+        getTariffsUseCase(
             optionIds = listOf(),
             coords = listOf(from.toPair()) + to.map { it.toPair() },
             addressId = addressId
-        )
-        when (result) {
-            is Result.Success -> {
-                _actionState.emit(MapActionState.TariffsLoaded)
-                setRoute(result.data.map.routing.map { MapPoint(it.lat, it.lng) })
-                adjustUIForRoute(result.data.map.routing.isNotEmpty())
-                setTariffs(result.data)
-            }
-
-            is Result.Error -> setNotFoundState()
-        }
+        ).onSuccess { result ->
+            _actionState.emit(MapActionState.TariffsLoaded)
+            setRoute(result.map.routing.map { MapPoint(it.lat, it.lng) })
+            adjustUIForRoute(result.map.routing.isNotEmpty())
+            setTariffs(result)
+        }.onFailure { setNotFoundState() }
     }
 
     private fun setTariffs(data: GetTariffsModel) {
@@ -214,15 +200,14 @@ class MapViewModel(
             }
         )
 
-        when (val result = orderTaxiUseCase(orderDto)) {
-            is Result.Error -> { /* handle error if needed */
-            }
-
-            is Result.Success -> {
-                addOrder(result.data.orderId)
-                setSelectedOrder(result.data.orderId)
-                getSetting()
-                _uiState.update { it.copy(discardOrderButtonState = DiscardOrderButtonState.OpenDrawer) }
+        orderTaxiUseCase(orderDto).onSuccess { result ->
+            getActiveOrders()
+            getSetting()
+            _uiState.update {
+                it.copy(
+                    discardOrderButtonState = DiscardOrderButtonState.OpenDrawer,
+                    showingOrderId = result.orderId
+                )
             }
         }
     }
@@ -326,14 +311,21 @@ class MapViewModel(
         _uiState.update { it.copy(drivers = drivers) }
     }
 
-    fun addOrder(orderId: Int) {
+    fun addOrder(order: ShowOrderModel) {
         _uiState.update { state ->
-            state.copy(orders = state.orders + orderId)
+            state.copy(orders = state.orders + order)
         }
     }
 
-    fun setSelectedOrder(orderId: Int?) {
-        _uiState.update { it.copy(selectedOrder = orderId) }
+    fun setSelectedOrder(order: ShowOrderModel) {
+        _uiState.update { it.copy(selectedOrder = order, showingOrderId = order.id.toInt()) }
+        order.taxi.routes.firstOrNull()?.let { first ->
+            setSelectedLocation(
+                point = MapPoint(first.coords.lat, first.coords.lng),
+                name = first.fullAddress
+            )
+        }
+
     }
 
     fun setPaymentTypes(paymentTypes: List<CardListItemModel>) {
@@ -375,61 +367,45 @@ class MapViewModel(
 
     fun searchForCars(point: MapPoint) = viewModelScope.launch {
         val tariff = _uiState.value.selectedTariff ?: return@launch
-        when (val result = searchCarUseCase(point.lat, point.lng, tariff.category.id.toInt())) {
-            is Result.Error -> setDrivers(emptyList())
-            is Result.Success -> setDrivers(result.data.executors)
-        }
+        searchCarUseCase(point.lat, point.lng, tariff.category.id.toInt())
+            .onSuccess { setDrivers(it.executors) }
+            .onFailure { setDrivers(emptyList()) }
     }
 
     private fun getSetting() = viewModelScope.launch {
-        when (val result = getSettingUseCase()) {
-            is Result.Error -> { /* Handle error if needed */
-            }
-
-            is Result.Success -> {
-                setSetting(result.data)
-                getShow()
-            }
+        getSettingUseCase().onSuccess { result ->
+            setSetting(result)
+            getShow()
         }
     }
 
     fun cancelRide(orderId: Int) = viewModelScope.launch {
-        when (cancelRideUseCase(orderId)) {
-            is Result.Error -> { /* Handle error if needed */
-            }
-
-            is Result.Success -> {
+        cancelRideUseCase(orderId)
+            .onSuccess {
                 AppPreferences.lastOrderId = orderId
                 _uiState.update { state ->
-                    val newOrders = state.orders.toMutableList().apply { remove(orderId) }
+                    val newOrders =
+                        state.orders.toMutableList()
+                            .apply { removeIf { it.id == orderId.toLong() } }
                     state.copy(
                         orders = newOrders,
                         selectedOrder = newOrders.firstOrNull()
                     )
                 }
+                getSetting()
             }
-        }
+            .onFailure {}
     }
 
     fun getCardList() = viewModelScope.launch {
-        when (val result = getCardListUseCase()) {
-            is Result.Error -> { /* Handle error if needed */
-            }
-
-            is Result.Success -> setPaymentTypes(result.data)
-        }
+        getCardListUseCase().onSuccess { setPaymentTypes(it) }
     }
 
     fun getShow() = viewModelScope.launch {
-        val selectedOrder = uiState.value.selectedOrder ?: return@launch
-        when (val result = getShowOrderUseCase(selectedOrder)) {
-            is Result.Error -> { /* Handle error if needed */
-            }
-
-            is Result.Success -> {
-                setSelectedDriver(result.data)
-                if (result.data.status != OrderStatus.New) setDrivers(emptyList()) // clear any driver list if showing a specific order
-            }
+        val selectedOrder = uiState.value.showingOrderId ?: return@launch
+        getShowOrderUseCase(selectedOrder).onSuccess { result ->
+            setSelectedDriver(result)
+            if (result.status != OrderStatus.New) setDrivers(emptyList())
         }
     }
 
@@ -446,24 +422,27 @@ class MapViewModel(
     }
 
     fun rateTheRide(ball: Int) = viewModelScope.launch {
-        when (rateTheRideUseCase(
+        rateTheRideUseCase(
             ball = ball,
-            orderId = uiState.value.selectedOrder.or0(),
+            orderId = uiState.value.showingOrderId.or0(),
             comment = ""
-        )) {
-            is Result.Error -> {}
-            is Result.Success -> {}
-        }
+        )
     }
 
     fun getMe() = viewModelScope.launch {
-        when (val result = getMeUseCase()) {
-            is Result.Error -> {}
-            is Result.Success -> setUser(result.data)
-        }
+        getMeUseCase().onSuccess(::setUser)
     }
 
     fun setUser(user: GetMeModel) {
         _uiState.update { it.copy(user = user) }
+    }
+
+    fun getActiveOrders() = viewModelScope.launch {
+        getActiveOrdersUseCase()
+            .onSuccess { setActiveOrders(it.list) }
+    }
+
+    fun setActiveOrders(orders: List<ShowOrderModel>) {
+        _uiState.update { it.copy(orders = orders) }
     }
 }

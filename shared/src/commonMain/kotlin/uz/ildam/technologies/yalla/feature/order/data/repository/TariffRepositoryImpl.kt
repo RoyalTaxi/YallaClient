@@ -1,7 +1,7 @@
 package uz.ildam.technologies.yalla.feature.order.data.repository
 
 import uz.ildam.technologies.yalla.core.domain.error.DataError
-import uz.ildam.technologies.yalla.core.domain.error.Result
+import uz.ildam.technologies.yalla.core.domain.error.Either
 import uz.ildam.technologies.yalla.feature.order.data.mapper.GetTariffMapper
 import uz.ildam.technologies.yalla.feature.order.data.mapper.GetTimeOutMapper
 import uz.ildam.technologies.yalla.feature.order.data.request.tariff.GetTariffsRequest
@@ -18,7 +18,7 @@ class TariffRepositoryImpl(
         optionIds: List<Int>,
         cords: List<Pair<Double, Double>>,
         addressId: Int
-    ): Result<GetTariffsModel, DataError.Network> {
+    ): Either<GetTariffsModel, DataError.Network> {
 
         return when (val result = service.getTariffs(
             GetTariffsRequest(
@@ -27,8 +27,8 @@ class TariffRepositoryImpl(
                 address_id = addressId
             )
         )) {
-            is Result.Error -> Result.Error(result.error)
-            is Result.Success -> Result.Success(result.data.result.let(GetTariffMapper.mapper))
+            is Either.Error -> Either.Error(result.error)
+            is Either.Success -> Either.Success(result.data.result.let(GetTariffMapper.mapper))
         }
     }
 
@@ -36,7 +36,7 @@ class TariffRepositoryImpl(
         lat: Double,
         lng: Double,
         tariffId: Int
-    ): Result<GetTimeOutModel, DataError.Network> {
+    ): Either<GetTimeOutModel, DataError.Network> {
         return when (val result = service.getTimeOut(
             GetTimeOutRequest(
                 lng = lng,
@@ -44,8 +44,8 @@ class TariffRepositoryImpl(
                 tariff_id = tariffId,
             )
         )) {
-            is Result.Error -> Result.Error(result.error)
-            is Result.Success -> Result.Success(result.data.result.let(GetTimeOutMapper.mapper))
+            is Either.Error -> Either.Error(result.error)
+            is Either.Success -> Either.Success(result.data.result.let(GetTimeOutMapper.mapper))
         }
     }
 }

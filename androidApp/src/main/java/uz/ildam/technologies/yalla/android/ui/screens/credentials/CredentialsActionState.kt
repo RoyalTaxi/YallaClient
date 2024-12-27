@@ -4,6 +4,6 @@ import uz.ildam.technologies.yalla.feature.auth.domain.model.register.RegisterMo
 
 sealed interface CredentialsActionState {
     data object Loading : CredentialsActionState
-    data class Error(val error: String) : CredentialsActionState
+    data object Error : CredentialsActionState
     data class Success(val data: RegisterModel) : CredentialsActionState
 }

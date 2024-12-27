@@ -2,7 +2,7 @@ package uz.ildam.technologies.yalla.feature.profile.data.repository
 
 import uz.ildam.technologies.yalla.core.data.mapper.ClientMapper
 import uz.ildam.technologies.yalla.core.domain.error.DataError
-import uz.ildam.technologies.yalla.core.domain.error.Result
+import uz.ildam.technologies.yalla.core.domain.error.Either
 import uz.ildam.technologies.yalla.core.domain.model.ClientModel
 import uz.ildam.technologies.yalla.feature.profile.data.mapper.ProfileMapper
 import uz.ildam.technologies.yalla.feature.profile.data.request.UpdateMeRequest
@@ -15,14 +15,14 @@ import uz.ildam.technologies.yalla.feature.profile.domain.repository.ProfileRepo
 class ProfileRepositoryImpl(
     private val service: ProfileService
 ) : ProfileRepository {
-    override suspend fun getMe(): Result<GetMeModel, DataError.Network> {
+    override suspend fun getMe(): Either<GetMeModel, DataError.Network> {
         return when (val result = service.getMe()) {
-            is Result.Error -> Result.Error(result.error)
-            is Result.Success -> Result.Success(result.data.result.let(ProfileMapper.mapper))
+            is Either.Error -> Either.Error(result.error)
+            is Either.Success -> Either.Success(result.data.result.let(ProfileMapper.mapper))
         }
     }
 
-    override suspend fun updateMe(body: UpdateMeDto): Result<ClientModel, DataError.Network> {
+    override suspend fun updateMe(body: UpdateMeDto): Either<ClientModel, DataError.Network> {
         return when (
             val result = service.updateMe(
                 body.let { dto ->
@@ -36,15 +36,15 @@ class ProfileRepositoryImpl(
                 }
             )
         ) {
-            is Result.Error -> Result.Error(result.error)
-            is Result.Success -> Result.Success(result.data.result.let(ClientMapper.clientMapper))
+            is Either.Error -> Either.Error(result.error)
+            is Either.Success -> Either.Success(result.data.result.let(ClientMapper.clientMapper))
         }
     }
 
-    override suspend fun updateAvatar(image: ByteArray): Result<UpdateAvatarModel, DataError.Network> {
+    override suspend fun updateAvatar(image: ByteArray): Either<UpdateAvatarModel, DataError.Network> {
         return when (val result = service.updateAvatar(image)) {
-            is Result.Error -> Result.Error(result.error)
-            is Result.Success -> Result.Success(result.data.result.let(ProfileMapper.avatarMapper))
+            is Either.Error -> Either.Error(result.error)
+            is Either.Success -> Either.Success(result.data.result.let(ProfileMapper.avatarMapper))
         }
     }
 }

@@ -1,15 +1,23 @@
 package uz.ildam.technologies.yalla.feature.auth.domain.usecase.auth
 
-import uz.ildam.technologies.yalla.core.domain.error.DataError
-import uz.ildam.technologies.yalla.core.domain.error.Result
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.withContext
+import uz.ildam.technologies.yalla.core.domain.error.Either
 import uz.ildam.technologies.yalla.feature.auth.domain.model.auth.SendAuthCodeModel
 import uz.ildam.technologies.yalla.feature.auth.domain.repository.AuthRepository
 
-
 class SendCodeUseCase(
-    private val repository: AuthRepository
+    private val repository: AuthRepository,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    suspend operator fun invoke(number: String): Result<SendAuthCodeModel, DataError.Network> {
-        return repository.sendAuthCode(number)
+    suspend operator fun invoke(number: String): Result<SendAuthCodeModel> {
+        return withContext(dispatcher) {
+            when (val result = repository.sendAuthCode(number)) {
+                is Either.Error -> Result.failure(Exception(result.error.name))
+                is Either.Success -> Result.success(result.data)
+            }
+        }
     }
 }

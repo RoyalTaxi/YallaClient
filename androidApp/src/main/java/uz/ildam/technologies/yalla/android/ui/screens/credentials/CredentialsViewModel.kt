@@ -11,7 +11,6 @@ import kotlinx.coroutines.launch
 import org.threeten.bp.LocalDate
 import uz.ildam.technologies.yalla.android.utils.formatWithDotsDMY
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
-import uz.ildam.technologies.yalla.core.domain.error.Result
 import uz.ildam.technologies.yalla.feature.auth.domain.usecase.register.RegisterUseCase
 
 class CredentialsViewModel(
@@ -47,29 +46,25 @@ class CredentialsViewModel(
     fun register() = viewModelScope.launch {
         _actionFlow.emit(CredentialsActionState.Loading)
         _uiState.value.apply {
-            when (
-                val result = registerUseCase(
-                    formattedNumber(),
-                    firstName,
-                    lastName,
-                    gender.name,
-                    dateOfBirth.formatWithDotsDMY(),
-                    secretKey
-                )
-            ) {
-                is Result.Error -> _actionFlow.emit(CredentialsActionState.Error(result.error.name))
-
-                is Result.Success -> {
-                    AppPreferences.accessToken = result.data.accessToken
-                    AppPreferences.tokenType = result.data.tokenType
-                    AppPreferences.isDeviceRegistered = true
-                    AppPreferences.number = number
-                    AppPreferences.firstName = firstName
-                    AppPreferences.lastName = lastName
-                    AppPreferences.gender = gender.name
-                    AppPreferences.dateOfBirth = dateOfBirth.formatWithDotsDMY()
-                    _actionFlow.emit(CredentialsActionState.Success(result.data))
-                }
+            registerUseCase(
+                formattedNumber(),
+                firstName,
+                lastName,
+                gender.name,
+                dateOfBirth.formatWithDotsDMY(),
+                secretKey
+            ).onSuccess {
+                AppPreferences.accessToken = it.accessToken
+                AppPreferences.tokenType = it.tokenType
+                AppPreferences.isDeviceRegistered = true
+                AppPreferences.number = number
+                AppPreferences.firstName = firstName
+                AppPreferences.lastName = lastName
+                AppPreferences.gender = gender.name
+                AppPreferences.dateOfBirth = dateOfBirth.formatWithDotsDMY()
+                _actionFlow.emit(CredentialsActionState.Success(it))
+            }.onFailure {
+                _actionFlow.emit(CredentialsActionState.Error)
             }
         }
     }

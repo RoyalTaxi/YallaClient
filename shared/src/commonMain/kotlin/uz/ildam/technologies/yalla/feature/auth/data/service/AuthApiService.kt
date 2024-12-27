@@ -7,7 +7,7 @@ import io.ktor.client.request.setBody
 import uz.ildam.technologies.yalla.core.data.exception.safeApiCall
 import uz.ildam.technologies.yalla.core.data.response.ApiResponseWrapper
 import uz.ildam.technologies.yalla.core.domain.error.DataError
-import uz.ildam.technologies.yalla.core.domain.error.Result
+import uz.ildam.technologies.yalla.core.domain.error.Either
 import uz.ildam.technologies.yalla.feature.auth.data.request.auth.SendAuthCodeRequest
 import uz.ildam.technologies.yalla.feature.auth.data.request.auth.ValidateAuthCodeRequest
 import uz.ildam.technologies.yalla.feature.auth.data.response.auth.SendAuthCodeResponse
@@ -20,13 +20,13 @@ class AuthApiService(
 
     suspend fun sendAuthCode(
         body: SendAuthCodeRequest
-    ): Result<ApiResponseWrapper<SendAuthCodeResponse>, DataError.Network> = safeApiCall {
+    ): Either<ApiResponseWrapper<SendAuthCodeResponse>, DataError.Network> = safeApiCall {
         ktor.post(AuthUrl.SEND_SMS) { setBody(body) }.body()
     }
 
     suspend fun validateAuthCode(
         body: ValidateAuthCodeRequest
-    ): Result<ApiResponseWrapper<ValidateAuthCodeResponse>, DataError.Network> = safeApiCall {
+    ): Either<ApiResponseWrapper<ValidateAuthCodeResponse>, DataError.Network> = safeApiCall {
         ktor.post(AuthUrl.VALIDATE_CODE) { setBody(body) }.body()
     }
 }

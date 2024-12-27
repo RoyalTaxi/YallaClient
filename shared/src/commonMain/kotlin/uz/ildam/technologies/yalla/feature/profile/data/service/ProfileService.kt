@@ -16,7 +16,7 @@ import uz.ildam.technologies.yalla.core.data.exception.safeApiCall
 import uz.ildam.technologies.yalla.core.data.response.ApiResponseWrapper
 import uz.ildam.technologies.yalla.core.data.response.ClientRemoteModel
 import uz.ildam.technologies.yalla.core.domain.error.DataError
-import uz.ildam.technologies.yalla.core.domain.error.Result
+import uz.ildam.technologies.yalla.core.domain.error.Either
 import uz.ildam.technologies.yalla.feature.profile.data.request.UpdateMeRequest
 import uz.ildam.technologies.yalla.feature.profile.data.response.GetMeResponse
 import uz.ildam.technologies.yalla.feature.profile.data.response.UpdateAvatarResponse
@@ -25,15 +25,15 @@ import uz.ildam.technologies.yalla.feature.profile.data.url.ProfileUrl
 class ProfileService(
     private val ktor: HttpClient
 ) {
-    suspend fun getMe(): Result<ApiResponseWrapper<GetMeResponse>, DataError.Network> =
+    suspend fun getMe(): Either<ApiResponseWrapper<GetMeResponse>, DataError.Network> =
         safeApiCall { ktor.post(ProfileUrl.GET_ME).body() }
 
-    suspend fun updateMe(body: UpdateMeRequest): Result<ApiResponseWrapper<ClientRemoteModel>, DataError.Network> =
+    suspend fun updateMe(body: UpdateMeRequest): Either<ApiResponseWrapper<ClientRemoteModel>, DataError.Network> =
         safeApiCall {
             ktor.put(ProfileUrl.UPDATE_ME) { setBody(body) }.body()
         }
 
-    suspend fun updateAvatar(image: ByteArray): Result<ApiResponseWrapper<UpdateAvatarResponse>, DataError.Network> =
+    suspend fun updateAvatar(image: ByteArray): Either<ApiResponseWrapper<UpdateAvatarResponse>, DataError.Network> =
         safeApiCall {
             val formData = MultiPartFormDataContent(
                 formData {

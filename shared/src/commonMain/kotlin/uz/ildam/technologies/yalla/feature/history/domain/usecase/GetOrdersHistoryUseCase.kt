@@ -3,6 +3,7 @@ package uz.ildam.technologies.yalla.feature.history.domain.usecase
 import app.cash.paging.PagingData
 import app.cash.paging.insertSeparators
 import app.cash.paging.map
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
@@ -15,7 +16,8 @@ import uz.ildam.technologies.yalla.feature.history.domain.model.OrdersHistory
 import uz.ildam.technologies.yalla.feature.history.domain.repository.OrderHistoryRepository
 
 class GetOrdersHistoryUseCase(
-    private val repository: OrderHistoryRepository
+    private val repository: OrderHistoryRepository,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     operator fun invoke(): Flow<PagingData<OrdersHistory>> =
         repository.getOrdersHistory()
@@ -40,5 +42,5 @@ class GetOrdersHistoryUseCase(
                         else -> null
                     }
                 }
-            }.flowOn(Dispatchers.IO)
+            }.flowOn(dispatcher)
 }

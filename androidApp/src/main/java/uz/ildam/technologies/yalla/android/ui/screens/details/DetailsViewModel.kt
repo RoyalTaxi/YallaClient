@@ -2,9 +2,12 @@ package uz.ildam.technologies.yalla.android.ui.screens.details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import uz.ildam.technologies.yalla.core.domain.error.Result
 import uz.ildam.technologies.yalla.feature.history.domain.usecase.GetOrderHistoryUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.tariff.GetTariffsUseCase
 
@@ -20,30 +23,30 @@ class DetailsViewModel(
 
     fun getOrderHistory(orderId: Int) = viewModelScope.launch {
         _actionState.emit(DetailsActionState.Loading)
-        when (val result = getOrderHistoryUseCase(orderId = orderId)) {
-            is Result.Error -> _actionState.emit(DetailsActionState.Error(result.error))
-
-            is Result.Success -> {
+        getOrderHistoryUseCase(orderId)
+            .onSuccess { result ->
                 _actionState.emit(DetailsActionState.DetailsSuccess)
-                _uiState.update { it.copy(orderDetails = result.data) }
+                _uiState.update { it.copy(orderDetails = result) }
             }
-        }
+            .onFailure {
+                _actionState.emit(DetailsActionState.Error)
+            }
     }
 
     fun getMapPoints() = viewModelScope.launch {
         _actionState.emit(DetailsActionState.Loading)
-        when (
-            val result = getTariffsUseCase(
-                coords = _uiState.value.orderDetails?.taxi?.routes?.map { Pair(it.cords.lat, it.cords.lng) }.orEmpty(),
-                optionIds = emptyList(),
-                addressId = 221
-            )
-        ) {
-            is Result.Error -> _actionState.emit(DetailsActionState.Error(result.error))
-            is Result.Success -> {
-                _actionState.emit(DetailsActionState.RouteSuccess)
-                _uiState.update { it.copy(routes = result.data.map.routing) }
-            }
-        }
+        getTariffsUseCase(
+            coords = _uiState.value.orderDetails?.taxi?.routes?.map {
+                Pair(
+                    it.cords.lat,
+                    it.cords.lng
+                )
+            }.orEmpty(),
+            optionIds = emptyList(),
+            addressId = 221
+        ).onSuccess { result ->
+            _actionState.emit(DetailsActionState.RouteSuccess)
+            _uiState.update { it.copy(routes = result.map.routing) }
+        }.onFailure { _actionState.emit(DetailsActionState.Error) }
     }
 }

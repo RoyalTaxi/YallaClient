@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import uz.ildam.technologies.yalla.core.domain.error.Result
 import uz.ildam.technologies.yalla.feature.auth.domain.usecase.auth.SendCodeUseCase
 
 class LoginViewModel(
@@ -33,10 +32,9 @@ class LoginViewModel(
 
     fun sendAuthCode() = viewModelScope.launch {
         _actionFlow.emit(LoginActionState.Loading)
-        when (val result = sendCodeUseCase(_uiState.value.getFormattedNumber())) {
-            is Result.Error -> _actionFlow.emit(LoginActionState.Error(result.error.name))
-            is Result.Success -> _actionFlow.emit(LoginActionState.Success(result.data))
-        }
+        sendCodeUseCase(uiState.value.getFormattedNumber())
+            .onSuccess { result -> _actionFlow.emit(LoginActionState.Success(result)) }
+            .onFailure { _actionFlow.emit(LoginActionState.Error) }
     }
 }
 

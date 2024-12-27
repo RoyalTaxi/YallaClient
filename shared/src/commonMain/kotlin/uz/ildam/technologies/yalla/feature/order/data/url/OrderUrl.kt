@@ -8,4 +8,5 @@ object OrderUrl {
     const val CANCEL_REASON = "order/cancel/reason/"
     const val SHOW = "order/"
     const val RATINGS = "ratings"
+    const val ACTIVE_ORDERS = "active/orders"
 }

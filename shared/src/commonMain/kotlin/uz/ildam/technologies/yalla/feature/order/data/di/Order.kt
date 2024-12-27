@@ -11,6 +11,7 @@ import uz.ildam.technologies.yalla.feature.order.domain.repository.OrderReposito
 import uz.ildam.technologies.yalla.feature.order.domain.repository.TariffRepository
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.CancelReasonUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.CancelRideUseCase
+import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.GetActiveOrdersUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.GetSettingUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.GetShowOrderUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.OrderTaxiUseCase
@@ -46,6 +47,7 @@ object Order {
         single { CancelReasonUseCase(get()) }
         single { GetShowOrderUseCase(get()) }
         single { RateTheRideUseCase(get()) }
+        single { GetActiveOrdersUseCase(get()) }
     }
 
     val modules = listOf(serviceModule, repositoryModule, useCaseModule)

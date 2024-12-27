@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
@@ -33,6 +34,7 @@ import io.morfly.compose.bottomsheet.material3.BottomSheetScaffoldState
 import io.morfly.compose.bottomsheet.material3.requireSheetVisibleHeightDp
 import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.ui.components.button.MapButton
+import uz.ildam.technologies.yalla.android.ui.components.button.ShowActiveOrdersButton
 import uz.ildam.technologies.yalla.android.ui.components.marker.YallaMarker
 import uz.ildam.technologies.yalla.android.ui.sheets.SheetValue
 import uz.ildam.technologies.yalla.android.utils.vectorToBitmapDescriptor
@@ -57,9 +59,11 @@ fun MapScreen(
     isLoading: Boolean,
     currentLatLng: MutableState<MapPoint>,
     scaffoldState: BottomSheetScaffoldState<SheetValue>,
+    activeOrdersState: SheetState,
     cameraPositionState: CameraPositionState,
     cameraState: CameraState,
     mapSheetHandler: MapSheetHandler,
+    mapBottomSheetHandler: MapBottomSheetHandler,
     onIntent: (MapIntent) -> Unit,
     onCreateOrder: () -> Unit,
 ) {
@@ -115,7 +119,7 @@ fun MapScreen(
                         cameraPositionState = cameraPositionState,
                         startMarkerIcon = startMarkerIcon,
                         middleMarkerIcon = middleMarkerIcon,
-                        endMarkerIcon = endMarkerIcon
+                        endMarkerIcon = endMarkerIcon,
                     )
                 }
 
@@ -125,7 +129,9 @@ fun MapScreen(
                     isLoading = isLoading,
                     routeEmpty = routeEmpty,
                     driverStatus = driverStatus,
-                    onIntent = onIntent
+                    onIntent = onIntent,
+                    activeOrdersState = activeOrdersState,
+                    onClickShowOrders = { visible -> mapBottomSheetHandler.showActiveOrders(visible.not()) }
                 )
             }
         }
@@ -297,12 +303,15 @@ private fun MapMarkers(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MapOverlay(
     uiState: MapUIState,
+    activeOrdersState: SheetState,
     isLoading: Boolean,
     routeEmpty: Boolean,
     driverStatus: OrderStatus?,
+    onClickShowOrders: (visible: Boolean) -> Unit,
     onIntent: (MapIntent) -> Unit
 ) {
     val disabledStatuses = listOf(
@@ -373,5 +382,12 @@ private fun MapOverlay(
                 }
             )
         }
+
+        if (uiState.orders.isNotEmpty()) ShowActiveOrdersButton(
+            orderCount = uiState.orders.size,
+            isOpen = activeOrdersState.isVisible,
+            onClick = { onClickShowOrders(activeOrdersState.isVisible) },
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
     }
 }

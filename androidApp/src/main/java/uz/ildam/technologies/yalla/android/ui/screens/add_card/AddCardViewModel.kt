@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import uz.ildam.technologies.yalla.core.domain.error.Result
 import uz.ildam.technologies.yalla.feature.payment.domain.usecase.AddCardUseCase
 
 class AddCardViewModel(
@@ -24,16 +23,14 @@ class AddCardViewModel(
     fun addCard() = viewModelScope.launch {
         uiState.value.apply {
             _actionState.emit(AddCardActionState.Loading)
-            when (val result = addCardUseCase(number = cardNumber, expiry = cardExpiry)) {
-                is Result.Error -> _actionState.emit(AddCardActionState.Error)
-                is Result.Success -> _actionState.emit(
+            addCardUseCase(number = cardNumber, expiry = cardExpiry)
+                .onSuccess { result ->
                     AddCardActionState.Success(
-                        key = result.data.key,
+                        key = result.key,
                         cardNumber = uiState.value.cardNumber,
                         cardExpiry = uiState.value.cardExpiry
                     )
-                )
-            }
+                }.onFailure { _actionState.emit(AddCardActionState.Error) }
         }
     }
 

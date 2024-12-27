@@ -19,6 +19,7 @@ import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.android.R
+import uz.ildam.technologies.yalla.android.ui.sheets.ActiveOrdersBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.ArrangeDestinationsBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.ConfirmationBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.OrderCommentBottomSheet
@@ -41,6 +42,7 @@ class MapBottomSheetHandler(
     private val confirmCancellationState: SheetState,
     private val selectPaymentMethodState: SheetState,
     private val orderCommentState: SheetState,
+    private val activeOrdersState: SheetState,
     private val viewModel: MapViewModel
 ) {
     private var openMapVisibility by mutableStateOf(OpenMapVisibility.INVISIBLE)
@@ -51,6 +53,7 @@ class MapBottomSheetHandler(
     private var confirmCancellationVisibility by mutableStateOf(false)
     private var selectPaymentMethodVisibility by mutableStateOf(false)
     private var orderCommentVisibility by mutableStateOf(false)
+    private var activeOrdersVisibility by mutableStateOf(false)
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
@@ -256,6 +259,22 @@ class MapBottomSheetHandler(
                 onDismissRequest = { showOrderComment(false) }
             )
         }
+
+        AnimatedVisibility(
+            visible = activeOrdersVisibility,
+            enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
+            exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
+        ) {
+            if (activeOrdersVisibility) ActiveOrdersBottomSheet(
+                sheetState = activeOrdersState,
+                orders = uiState.orders,
+                onDismissRequest = { showActiveOrders(false) },
+                onSelect = { order ->
+                    viewModel.setSelectedOrder(order)
+                    showActiveOrders(false)
+                }
+            )
+        }
     }
 
     fun showTariff(
@@ -312,8 +331,11 @@ class MapBottomSheetHandler(
 
     fun showOrderComment(show: Boolean) {
         orderCommentVisibility = show
-        scope.launch {
-            if (show) orderCommentState.show() else orderCommentState.hide()
-        }
+        scope.launch { if (show) orderCommentState.show() else orderCommentState.hide() }
+    }
+
+    fun showActiveOrders(show: Boolean) {
+        activeOrdersVisibility = show
+        scope.launch { if (show) activeOrdersState.show() else activeOrdersState.hide() }
     }
 }

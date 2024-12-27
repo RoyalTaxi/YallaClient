@@ -1,7 +1,7 @@
 package uz.ildam.technologies.yalla.feature.auth.domain.repository
 
 import uz.ildam.technologies.yalla.core.domain.error.DataError
-import uz.ildam.technologies.yalla.core.domain.error.Result
+import uz.ildam.technologies.yalla.core.domain.error.Either
 import uz.ildam.technologies.yalla.feature.auth.domain.model.register.RegisterModel
 
 interface RegisterRepository {
@@ -13,5 +13,5 @@ interface RegisterRepository {
         gender: String,
         dateOfBirth: String,
         key: String
-    ):  Result<RegisterModel, DataError.Network>
+    ):  Either<RegisterModel, DataError.Network>
 }

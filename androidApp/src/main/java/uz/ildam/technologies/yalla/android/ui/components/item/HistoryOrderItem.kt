@@ -27,16 +27,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
-import uz.ildam.technologies.yalla.feature.history.domain.model.OrdersHistory
 
 @Composable
 fun HistoryOrderItem(
-    order: OrdersHistory.Item,
+    firstAddress: String,
+    secondAddress: String? = null,
+    time: String,
+    totalPrice: String,
+    status: String,
     onClick: () -> Unit,
+    enabled: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     Card(
         onClick = onClick,
+        enabled = enabled,
         colors = CardDefaults.cardColors(YallaTheme.color.gray2),
         shape = RoundedCornerShape(16.dp),
         modifier = modifier.fillMaxWidth()
@@ -47,29 +52,27 @@ fun HistoryOrderItem(
                 .height(IntrinsicSize.Min)
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                order.taxi.routes.firstOrNull()?.let {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            modifier = Modifier
-                                .size(10.dp)
-                                .border(
-                                    shape = CircleShape,
-                                    width = 1.dp,
-                                    color = YallaTheme.color.primary
-                                )
-                        )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(10.dp)
+                            .border(
+                                shape = CircleShape,
+                                width = 1.dp,
+                                color = YallaTheme.color.primary
+                            )
+                    )
 
-                        Spacer(modifier = Modifier.width(10.dp))
+                    Spacer(modifier = Modifier.width(10.dp))
 
-                        Text(
-                            text = it.fullAddress,
-                            color = YallaTheme.color.black,
-                            style = YallaTheme.font.labelSemiBold
-                        )
-                    }
+                    Text(
+                        text = firstAddress,
+                        color = YallaTheme.color.black,
+                        style = YallaTheme.font.labelSemiBold
+                    )
                 }
 
-                order.taxi.routes.lastOrNull()?.let {
+                secondAddress?.let {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
@@ -84,7 +87,7 @@ fun HistoryOrderItem(
                         Spacer(modifier = Modifier.width(10.dp))
 
                         Text(
-                            text = it.fullAddress,
+                            text = it,
                             color = YallaTheme.color.gray,
                             style = YallaTheme.font.bodySmall
                         )
@@ -94,7 +97,7 @@ fun HistoryOrderItem(
                 Spacer(modifier = Modifier.weight(1f))
 
                 Text(
-                    text = order.time,
+                    text = time,
                     color = YallaTheme.color.gray,
                     style = YallaTheme.font.bodySmall,
                 )
@@ -105,14 +108,14 @@ fun HistoryOrderItem(
                 modifier = Modifier.heightIn(min = 80.dp)
             ) {
                 Text(
-                    text = stringResource(R.string.fixed_cost, order.taxi.totalPrice),
+                    text = stringResource(R.string.fixed_cost, totalPrice),
                     color = YallaTheme.color.black,
                     style = YallaTheme.font.labelSemiBold,
                     textAlign = TextAlign.End
                 )
 
                 Text(
-                    text = order.status,
+                    text = status,
                     color = YallaTheme.color.red,
                     style = YallaTheme.font.bodySmall
                 )

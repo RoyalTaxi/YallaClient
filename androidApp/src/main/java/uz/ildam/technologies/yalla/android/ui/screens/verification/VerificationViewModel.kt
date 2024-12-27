@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
-import uz.ildam.technologies.yalla.core.domain.error.Result
 import uz.ildam.technologies.yalla.feature.auth.domain.usecase.auth.SendCodeUseCase
 import uz.ildam.technologies.yalla.feature.auth.domain.usecase.auth.VerifyCodeUseCase
 import kotlin.time.Duration.Companion.seconds
@@ -52,13 +51,12 @@ class VerificationViewModel(
     fun verifyAuthCode() = viewModelScope.launch {
         _uiState.value.apply {
             _actionFlow.emit(VerificationActionState.Loading)
-            when (val result = verifyCodeUseCase(getFormattedNumber(), code.toInt())) {
-                is Result.Error -> _actionFlow.emit(VerificationActionState.Error(result.error.name))
-                is Result.Success -> {
-                    _actionFlow.emit(VerificationActionState.VerifySuccess(result.data))
-                    result.data.client?.let { client ->
-                        AppPreferences.accessToken = result.data.accessToken
-                        AppPreferences.tokenType = result.data.tokenType
+
+            verifyCodeUseCase(getFormattedNumber(), code.toInt())
+                .onSuccess {
+                    it.client?.let { client ->
+                        AppPreferences.accessToken = it.accessToken
+                        AppPreferences.tokenType = it.tokenType
                         AppPreferences.isDeviceRegistered = true
                         AppPreferences.number = number
                         AppPreferences.gender = client.gender
@@ -66,18 +64,20 @@ class VerificationViewModel(
                         AppPreferences.firstName = client.givenNames
                         AppPreferences.lastName = client.surname
                     }
+                    _actionFlow.emit(VerificationActionState.VerifySuccess(it))
                 }
-            }
+                .onFailure {
+                    _actionFlow.emit(VerificationActionState.Error)
+                }
         }
     }
 
     fun resendAuthCode() = viewModelScope.launch {
         _uiState.value.apply {
             _actionFlow.emit(VerificationActionState.Loading)
-            when (val result = sendCodeUseCase(getFormattedNumber())) {
-                is Result.Error -> _actionFlow.emit(VerificationActionState.Error(result.error.name))
-                is Result.Success -> _actionFlow.emit(VerificationActionState.SendSMSSuccess(result.data))
-            }
+            sendCodeUseCase(getFormattedNumber())
+                .onSuccess { _actionFlow.emit(VerificationActionState.SendSMSSuccess(it)) }
+                .onFailure { _actionFlow.emit(VerificationActionState.Error) }
         }
     }
 

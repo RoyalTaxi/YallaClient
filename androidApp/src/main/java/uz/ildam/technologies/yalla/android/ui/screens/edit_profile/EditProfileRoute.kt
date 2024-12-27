@@ -1,6 +1,5 @@
 package uz.ildam.technologies.yalla.android.ui.screens.edit_profile
 
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -107,7 +106,7 @@ fun EditProfileRoute(
                 EditProfileIntent.OnSave -> {
                     if (uiState.newImage != null) {
                         viewModel.updateAvatar()
-                    } else {
+                    } else {4
                         // If no new avatar, just update other fields
                         viewModel.postMe()
                     }

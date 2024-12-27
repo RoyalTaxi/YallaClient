@@ -4,6 +4,6 @@ import uz.ildam.technologies.yalla.feature.auth.domain.model.auth.SendAuthCodeMo
 
 sealed interface LoginActionState {
     data object Loading : LoginActionState
-    data class Error(val error: String) : LoginActionState
+    data object Error : LoginActionState
     data class Success(val data: SendAuthCodeModel) : LoginActionState
 }

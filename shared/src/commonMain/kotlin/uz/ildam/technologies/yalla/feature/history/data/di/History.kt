@@ -21,9 +21,8 @@ object History {
     }
 
     private val useCaseModule = module {
-        singleOf(::GetOrdersHistoryUseCase)
-        singleOf(::GetOrderHistoryUseCase)
-
+        single { GetOrdersHistoryUseCase(get()) }
+        single { GetOrderHistoryUseCase(get()) }
     }
 
     val modules = listOf(serviceModule, repositoryModule, useCaseModule)

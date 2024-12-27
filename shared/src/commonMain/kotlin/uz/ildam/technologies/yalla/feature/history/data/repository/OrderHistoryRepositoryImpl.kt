@@ -6,7 +6,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
 import uz.ildam.technologies.yalla.core.domain.error.DataError
-import uz.ildam.technologies.yalla.core.domain.error.Result
+import uz.ildam.technologies.yalla.core.domain.error.Either
 import uz.ildam.technologies.yalla.feature.history.data.mapper.OrderHistoryMapper
 import uz.ildam.technologies.yalla.feature.history.data.paging.OrdersHistoryPagingSource
 import uz.ildam.technologies.yalla.feature.history.data.service.OrdersHistoryApiService
@@ -22,10 +22,10 @@ class OrderHistoryRepositoryImpl(
         pagingSourceFactory = { OrdersHistoryPagingSource(service) }
     ).flow
 
-    override suspend fun getOrderHistory(orderId: Int): Result<OrderHistoryModel, DataError.Network> {
+    override suspend fun getOrderHistory(orderId: Int): Either<OrderHistoryModel, DataError.Network> {
         return when (val result = service.getOrder(orderId)) {
-            is Result.Error -> Result.Error(result.error)
-            is Result.Success -> Result.Success(result.data.result.let(OrderHistoryMapper.mapper))
+            is Either.Error -> Either.Error(result.error)
+            is Either.Success -> Either.Success(result.data.result.let(OrderHistoryMapper.mapper))
         }
     }
 }

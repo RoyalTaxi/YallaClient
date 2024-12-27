@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import uz.ildam.technologies.yalla.core.domain.error.Result
 import uz.ildam.technologies.yalla.feature.payment.domain.usecase.AddCardUseCase
 import uz.ildam.technologies.yalla.feature.payment.domain.usecase.VerifyCardUseCase
 import kotlin.time.Duration.Companion.seconds
@@ -41,22 +40,18 @@ class CardVerificationViewModel(
         _uiState.update { it.copy(code = "") }
         uiState.value.apply {
             _actionState.emit(CardVerificationActionState.Loading)
-            when (addCardUseCase(number = cardNumber, expiry = cardExpiry)) {
-                is Result.Error -> _actionState.emit(CardVerificationActionState.Error)
-                is Result.Success -> _actionState.emit(CardVerificationActionState.ResendSuccess)
-            }
+            addCardUseCase(number = cardNumber, expiry = cardExpiry)
+                .onSuccess { _actionState.emit(CardVerificationActionState.ResendSuccess) }
+                .onFailure { _actionState.emit(CardVerificationActionState.Error) }
         }
+
     }
 
     fun verifyCard() = viewModelScope.launch {
         _actionState.emit(CardVerificationActionState.Loading)
-        when (verifyCardUseCase(
-            key = uiState.value.key,
-            confirmCode = uiState.value.code
-        )) {
-            is Result.Error -> _actionState.emit(CardVerificationActionState.Error)
-            is Result.Success -> _actionState.emit(CardVerificationActionState.VerificationSuccess)
-        }
+        verifyCardUseCase(key = uiState.value.key, confirmCode = uiState.value.code)
+            .onSuccess { _actionState.emit(CardVerificationActionState.VerificationSuccess) }
+            .onFailure { _actionState.emit(CardVerificationActionState.Error) }
     }
 
     fun updateUiState(

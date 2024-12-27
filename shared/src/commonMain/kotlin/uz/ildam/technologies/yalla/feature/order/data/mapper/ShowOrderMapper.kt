@@ -3,6 +3,7 @@ package uz.ildam.technologies.yalla.feature.order.data.mapper
 import uz.ildam.technologies.yalla.core.data.mapper.Mapper
 import uz.ildam.technologies.yalla.core.data.mapper.or0
 import uz.ildam.technologies.yalla.core.data.mapper.orFalse
+import uz.ildam.technologies.yalla.core.domain.utils.Formation.toFormattedTime
 import uz.ildam.technologies.yalla.feature.order.data.response.order.ShowOrderResponse
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.OrderStatus
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.ShowOrderModel
@@ -11,7 +12,7 @@ object ShowOrderMapper {
     val mapper: Mapper<ShowOrderResponse?, ShowOrderModel> = { remote ->
         ShowOrderModel(
             comment = remote?.comment.orEmpty(),
-            dateTime = remote?.date_time.or0(),
+            dateTime = remote?.date_time?.toFormattedTime().orEmpty(),
             executor = remote?.executor.let(executorMapper),
             id = remote?.id.or0(),
             paymentType = remote?.payment_type.orEmpty(),

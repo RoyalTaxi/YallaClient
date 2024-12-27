@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
-import uz.ildam.technologies.yalla.core.domain.error.Result
+import uz.ildam.technologies.yalla.core.domain.error.Either
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.SettingModel
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.CancelReasonUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.usecase.order.GetSettingUseCase
@@ -27,28 +27,26 @@ class CancelReasonViewModel(
 
     fun getSetting() = viewModelScope.launch {
         _actionState.emit(CancelReasonActionState.Loading)
-        when (val result = getSettingUseCase()) {
-            is Result.Error -> _actionState.emit(CancelReasonActionState.Error)
-
-            is Result.Success -> {
-                _uiState.update { it.copy(reasons = result.data.reasons) }
+        getSettingUseCase()
+            .onSuccess {
+                _uiState.update { it.copy(reasons = it.reasons) }
                 _actionState.emit(CancelReasonActionState.GettingSuccess)
             }
-        }
+            .onFailure {
+                _actionState.emit(CancelReasonActionState.Error)
+            }
     }
 
     fun cancelReason() = viewModelScope.launch {
         if (AppPreferences.lastOrderId != -1) {
             _actionState.emit(CancelReasonActionState.Loading)
             uiState.value.selectedReason?.apply {
-                when (cancelReasonUseCase(
+                cancelReasonUseCase(
                     orderId = AppPreferences.lastOrderId,
                     reasonId = id.toInt(),
                     reasonComment = name
-                )) {
-                    is Result.Error -> _actionState.emit(CancelReasonActionState.Error)
-                    is Result.Success -> _actionState.emit(CancelReasonActionState.SettingSuccess)
-                }
+                ).onSuccess { _actionState.emit(CancelReasonActionState.SettingSuccess) }
+                    .onFailure { _actionState.emit(CancelReasonActionState.Error) }
             }
         }
         AppPreferences.lastOrderId = -1

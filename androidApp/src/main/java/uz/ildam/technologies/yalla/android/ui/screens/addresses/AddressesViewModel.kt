@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import uz.ildam.technologies.yalla.core.domain.error.Result
 import uz.ildam.technologies.yalla.feature.addresses.domain.usecase.FindAllAddressesUseCase
 
 class AddressesViewModel(
@@ -23,12 +22,11 @@ class AddressesViewModel(
 
     fun findAllAddresses() = viewModelScope.launch {
         _actionState.emit(AddressesActionState.Loading)
-        when (val result = findAllAddressesUseCase()) {
-            is Result.Error -> _actionState.emit(AddressesActionState.Error)
-            is Result.Success -> {
-                _uiState.update { it.copy(addresses = result.data) }
+        findAllAddressesUseCase()
+            .onSuccess { result ->
+                _uiState.update { it.copy(addresses = result) }
                 _actionState.emit(AddressesActionState.Success)
             }
-        }
+            .onFailure { _actionState.emit(AddressesActionState.Error) }
     }
 }

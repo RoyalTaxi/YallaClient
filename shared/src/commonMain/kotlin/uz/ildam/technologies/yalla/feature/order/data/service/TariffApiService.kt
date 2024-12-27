@@ -9,7 +9,7 @@ import io.ktor.client.request.setBody
 import uz.ildam.technologies.yalla.core.data.exception.safeApiCall
 import uz.ildam.technologies.yalla.core.data.response.ApiResponseWrapper
 import uz.ildam.technologies.yalla.core.domain.error.DataError
-import uz.ildam.technologies.yalla.core.domain.error.Result
+import uz.ildam.technologies.yalla.core.domain.error.Either
 import uz.ildam.technologies.yalla.feature.order.data.request.tariff.GetTariffsRequest
 import uz.ildam.technologies.yalla.feature.order.data.request.tariff.GetTimeOutRequest
 import uz.ildam.technologies.yalla.feature.order.data.response.tariff.GetTariffsResponse
@@ -21,13 +21,13 @@ class TariffApiService(
 ) {
     suspend fun getTariffs(
         body: GetTariffsRequest
-    ): Result<ApiResponseWrapper<GetTariffsResponse>, DataError.Network> = safeApiCall {
+    ): Either<ApiResponseWrapper<GetTariffsResponse>, DataError.Network> = safeApiCall {
         ktor.post(TariffUrl.GET_TARIFFS) { setBody(body) }.body()
     }
 
     suspend fun getTimeOut(
         body: GetTimeOutRequest
-    ): Result<ApiResponseWrapper<GetTimeOutResponse>, DataError.Network> = safeApiCall {
+    ): Either<ApiResponseWrapper<GetTimeOutResponse>, DataError.Network> = safeApiCall {
         ktor.get(TariffUrl.GET_TIMEOUT) {
             parameter("lat", body.lat)
             parameter("lng", body.lng)

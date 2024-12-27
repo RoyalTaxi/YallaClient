@@ -15,7 +15,6 @@ import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.format.DateTimeParseException
 import uz.ildam.technologies.yalla.android.utils.formatWithDotsDMY
 import uz.ildam.technologies.yalla.android.utils.uriToByteArray
-import uz.ildam.technologies.yalla.core.domain.error.Result
 import uz.ildam.technologies.yalla.feature.profile.domain.model.request.UpdateMeDto
 import uz.ildam.technologies.yalla.feature.profile.domain.usecase.GetMeUseCase
 import uz.ildam.technologies.yalla.feature.profile.domain.usecase.UpdateAvatarUseCase
@@ -36,23 +35,18 @@ class EditProfileViewModel(
 
     fun getMe() = viewModelScope.launch {
         _actionState.emit(EditProfileActionState.Loading)
-        when (val result = getMeUseCase()) {
-            is Result.Error -> {
-                _actionState.emit(EditProfileActionState.Error)
-            }
-            is Result.Success -> {
-                _actionState.emit(EditProfileActionState.GetSuccess)
+        getMeUseCase().onSuccess { result ->
+            _actionState.emit(EditProfileActionState.GetSuccess)
 
-                // Update our UI state with the fetched data
-                _uiState.update {
-                    it.copy(
-                        name = result.data.client.givenNames,
-                        surname = result.data.client.surname,
-                        gender = Gender.fromType(result.data.client.gender),
-                        imageUrl = result.data.client.image,
-                        birthday = parseBirthdayOrNull(result.data.client.birthday)
-                    )
-                }
+            // Update our UI state with the fetched data
+            _uiState.update {
+                it.copy(
+                    name = result.client.givenNames,
+                    surname = result.client.surname,
+                    gender = Gender.fromType(result.client.gender),
+                    imageUrl = result.client.image,
+                    birthday = parseBirthdayOrNull(result.client.birthday)
+                )
             }
         }
     }
@@ -63,7 +57,7 @@ class EditProfileViewModel(
     fun postMe() = viewModelScope.launch {
         _actionState.emit(EditProfileActionState.Loading)
         with(uiState.value) {
-            val updateResult = updateMeUseCase(
+            updateMeUseCase(
                 UpdateMeDto(
                     givenNames = name,
                     surname = surname,
@@ -71,12 +65,8 @@ class EditProfileViewModel(
                     gender = gender.type,
                     image = newImageUrl
                 )
-            )
-
-            when (updateResult) {
-                is Result.Error -> _actionState.emit(EditProfileActionState.Error)
-                is Result.Success -> _actionState.emit(EditProfileActionState.UpdateSuccess)
-            }
+            ).onSuccess { _actionState.emit(EditProfileActionState.UpdateSuccess) }
+                .onFailure { _actionState.emit(EditProfileActionState.Error) }
         }
     }
 
@@ -86,16 +76,10 @@ class EditProfileViewModel(
     fun updateAvatar() = viewModelScope.launch {
         _actionState.emit(EditProfileActionState.Loading)
         uiState.value.newImage?.let { newImage ->
-            when (val result = updateAvatarUseCase(newImage)) {
-                is Result.Error -> {
-                    _actionState.emit(EditProfileActionState.Error)
-                }
-                is Result.Success -> {
-                    // Update avatar URL in the UI state
-                    _uiState.update { it.copy(newImageUrl = result.data.image) }
-                    _actionState.emit(EditProfileActionState.UpdateAvatarSuccess)
-                }
-            }
+            updateAvatarUseCase(newImage).onSuccess { result ->
+                _uiState.update { it.copy(newImageUrl = result.image) }
+                _actionState.emit(EditProfileActionState.UpdateAvatarSuccess)
+            }.onFailure { _actionState.emit(EditProfileActionState.Error) }
         }
     }
 

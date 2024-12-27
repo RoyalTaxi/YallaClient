@@ -1,7 +1,8 @@
 package uz.ildam.technologies.yalla.feature.order.data.repository
 
 import uz.ildam.technologies.yalla.core.domain.error.DataError
-import uz.ildam.technologies.yalla.core.domain.error.Result
+import uz.ildam.technologies.yalla.core.domain.error.Either
+import uz.ildam.technologies.yalla.feature.order.data.mapper.ActiveOrdersMapper
 import uz.ildam.technologies.yalla.feature.order.data.mapper.GetSettingMapper
 import uz.ildam.technologies.yalla.feature.order.data.mapper.OrderTaxiMapper
 import uz.ildam.technologies.yalla.feature.order.data.mapper.SearchCarMapper
@@ -9,6 +10,7 @@ import uz.ildam.technologies.yalla.feature.order.data.mapper.ShowOrderMapper
 import uz.ildam.technologies.yalla.feature.order.data.request.order.OrderTaxiRequest
 import uz.ildam.technologies.yalla.feature.order.data.service.OrderApiService
 import uz.ildam.technologies.yalla.feature.order.domain.model.request.OrderTaxiDto
+import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.ActiveOrdersModel
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.OrderTaxiModel
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.SearchCarModel
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.SettingModel
@@ -18,7 +20,7 @@ import uz.ildam.technologies.yalla.feature.order.domain.repository.OrderReposito
 class OrderRepositoryImpl(
     private val orderApiService: OrderApiService
 ) : OrderRepository {
-    override suspend fun orderTaxi(body: OrderTaxiDto): Result<OrderTaxiModel, DataError.Network> {
+    override suspend fun orderTaxi(body: OrderTaxiDto): Either<OrderTaxiModel, DataError.Network> {
         return when (val result = orderApiService.orderTaxi(
             OrderTaxiRequest(
                 dont_call_me = body.dontCallMe,
@@ -41,8 +43,8 @@ class OrderRepositoryImpl(
                 }
             )
         )) {
-            is Result.Error -> Result.Error(result.error)
-            is Result.Success -> Result.Success(result.data.result.let(OrderTaxiMapper.mapper))
+            is Either.Error -> Either.Error(result.error)
+            is Either.Success -> Either.Success(result.data.result.let(OrderTaxiMapper.mapper))
         }
     }
 
@@ -50,28 +52,28 @@ class OrderRepositoryImpl(
         lat: Double,
         lng: Double,
         tariffId: Int
-    ): Result<SearchCarModel, DataError.Network> {
+    ): Either<SearchCarModel, DataError.Network> {
         return when (val result = orderApiService.searchCars(
             lat = lat,
             lng = lng,
             tariffId = tariffId
         )) {
-            is Result.Error -> Result.Error(result.error)
-            is Result.Success -> Result.Success(result.data.result.let(SearchCarMapper.mapper))
+            is Either.Error -> Either.Error(result.error)
+            is Either.Success -> Either.Success(result.data.result.let(SearchCarMapper.mapper))
         }
     }
 
-    override suspend fun getSetting(): Result<SettingModel, DataError.Network> {
+    override suspend fun getSetting(): Either<SettingModel, DataError.Network> {
         return when (val result = orderApiService.getSetting()) {
-            is Result.Error -> Result.Error(result.error)
-            is Result.Success -> Result.Success(result.data.result.let(GetSettingMapper.mapper))
+            is Either.Error -> Either.Error(result.error)
+            is Either.Success -> Either.Success(result.data.result.let(GetSettingMapper.mapper))
         }
     }
 
-    override suspend fun cancelRide(orderId: Int): Result<Unit, DataError.Network> {
+    override suspend fun cancelRide(orderId: Int): Either<Unit, DataError.Network> {
         return when (val result = orderApiService.cancelRide(orderId)) {
-            is Result.Error -> Result.Error(result.error)
-            is Result.Success -> Result.Success(Unit)
+            is Either.Error -> Either.Error(result.error)
+            is Either.Success -> Either.Success(Unit)
         }
     }
 
@@ -79,21 +81,21 @@ class OrderRepositoryImpl(
         orderId: Int,
         reasonId: Int,
         reasonComment: String
-    ): Result<Unit, DataError.Network> {
+    ): Either<Unit, DataError.Network> {
         return when (val result = orderApiService.cancelReason(
             orderId = orderId,
             reasonId = reasonId,
             reasonComment = reasonComment
         )) {
-            is Result.Error -> Result.Error(result.error)
-            is Result.Success -> Result.Success(Unit)
+            is Either.Error -> Either.Error(result.error)
+            is Either.Success -> Either.Success(Unit)
         }
     }
 
-    override suspend fun getShowOrder(orderId: Int): Result<ShowOrderModel, DataError.Network> {
+    override suspend fun getShowOrder(orderId: Int): Either<ShowOrderModel, DataError.Network> {
         return when (val result = orderApiService.show(orderId)) {
-            is Result.Error -> Result.Error(result.error)
-            is Result.Success -> Result.Success(result.data.result.let(ShowOrderMapper.mapper))
+            is Either.Error -> Either.Error(result.error)
+            is Either.Success -> Either.Success(result.data.result.let(ShowOrderMapper.mapper))
         }
     }
 
@@ -101,14 +103,21 @@ class OrderRepositoryImpl(
         ball: Int,
         orderId: Int,
         comment: String
-    ): Result<Unit, DataError.Network> {
+    ): Either<Unit, DataError.Network> {
         return when (val result = orderApiService.rateTheRide(
             ball = ball,
             orderId = orderId,
             comment = comment
         )) {
-            is Result.Error -> Result.Error(result.error)
-            is Result.Success -> Result.Success(Unit)
+            is Either.Error -> Either.Error(result.error)
+            is Either.Success -> Either.Success(Unit)
+        }
+    }
+
+    override suspend fun getActiveOrders(): Either<ActiveOrdersModel, DataError.Network> {
+        return when (val result = orderApiService.getActiveOrders()) {
+            is Either.Error -> Either.Error(result.error)
+            is Either.Success -> Either.Success(result.data.result.let(ActiveOrdersMapper.mapper))
         }
     }
 }

@@ -105,10 +105,12 @@ fun HistoryScreen(
 
                             is OrdersHistory.Item -> {
                                 HistoryOrderItem(
-                                    order = order,
-                                    onClick = {
-                                        onIntent(HistoryIntent.OnHistoryItemClick(order.id))
-                                    }
+                                    firstAddress = order.taxi.routes.firstOrNull()?.fullAddress.orEmpty(),
+                                    secondAddress = order.taxi.routes.lastOrNull()?.fullAddress,
+                                    time = order.time,
+                                    totalPrice = order.taxi.totalPrice,
+                                    status = order.status,
+                                    onClick = { onIntent(HistoryIntent.OnHistoryItemClick(order.id)) }
                                 )
                             }
                         }

@@ -17,8 +17,9 @@ object Formation {
         return "$day.$month.$year"
     }
 
-    fun Long.toFormattedTime(): String {
-        val dateTime = Instant.fromEpochMilliseconds(this)
+    fun Long?.toFormattedTime(): String {
+        val time = this ?: return ""
+        val dateTime = Instant.fromEpochMilliseconds(time)
             .toLocalDateTime(TimeZone.currentSystemDefault())
         return "${dateTime.hour.toString().let { if (it.length == 2) it else "0$it" }}:${
             dateTime.minute.toString().let { if (it.length == 2) it else "0$it" }

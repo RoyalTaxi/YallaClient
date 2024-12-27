@@ -7,7 +7,7 @@ import io.ktor.client.request.setBody
 import uz.ildam.technologies.yalla.core.data.exception.safeApiCall
 import uz.ildam.technologies.yalla.core.data.response.ApiResponseWrapper
 import uz.ildam.technologies.yalla.core.domain.error.DataError
-import uz.ildam.technologies.yalla.core.domain.error.Result
+import uz.ildam.technologies.yalla.core.domain.error.Either
 import uz.ildam.technologies.yalla.feature.auth.data.request.register.RegisterUserRequest
 import uz.ildam.technologies.yalla.feature.auth.data.response.register.RegisterResponse
 import uz.ildam.technologies.yalla.feature.auth.data.url.RegisterUrl
@@ -17,7 +17,7 @@ class RegisterApiService(
 ) {
     suspend fun register(
         body: RegisterUserRequest
-    ): Result<ApiResponseWrapper<RegisterResponse>, DataError.Network> = safeApiCall {
+    ): Either<ApiResponseWrapper<RegisterResponse>, DataError.Network> = safeApiCall {
         ktor.post(RegisterUrl.REGISTER) { setBody(body) }.body()
     }
 }
