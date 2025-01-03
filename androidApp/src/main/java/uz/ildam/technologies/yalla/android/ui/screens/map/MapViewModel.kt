@@ -1,5 +1,6 @@
 package uz.ildam.technologies.yalla.android.ui.screens.map
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.currentCoroutineContext
@@ -16,10 +17,12 @@ import uz.ildam.technologies.yalla.core.data.enums.PaymentType
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 import uz.ildam.technologies.yalla.core.data.mapper.or0
 import uz.ildam.technologies.yalla.core.domain.model.ExecutorModel
-import uz.ildam.technologies.yalla.feature.map.domain.model.map.PolygonRemoteItem
-import uz.ildam.technologies.yalla.feature.map.domain.model.map.SearchForAddressItemModel
+import uz.ildam.technologies.yalla.feature.map.domain.model.request.GetRoutingDtoItem
+import uz.ildam.technologies.yalla.feature.map.domain.model.response.map.PolygonRemoteItem
+import uz.ildam.technologies.yalla.feature.map.domain.model.response.map.SearchForAddressItemModel
 import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.GetAddressNameUseCase
 import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.GetPolygonUseCase
+import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.GetRoutingUseCase
 import uz.ildam.technologies.yalla.feature.order.domain.model.request.OrderTaxiDto
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.OrderStatus
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.SettingModel
@@ -53,7 +56,8 @@ class MapViewModel(
     private val getShowOrderUseCase: GetShowOrderUseCase,
     private val rateTheRideUseCase: RateTheRideUseCase,
     private val getMeUseCase: GetMeUseCase,
-    private val getActiveOrdersUseCase: GetActiveOrdersUseCase
+    private val getActiveOrdersUseCase: GetActiveOrdersUseCase,
+    private val getRoutingUseCase: GetRoutingUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MapUIState())
@@ -71,8 +75,8 @@ class MapViewModel(
     private fun fetchPolygons() = viewModelScope.launch {
         _actionState.emit(MapActionState.LoadingPolygon)
         getPolygonUseCase()
-            .onSuccess {
-                addresses = it
+            .onSuccess { result ->
+                addresses = result
                 _actionState.emit(MapActionState.PolygonLoaded)
             }
             .onFailure {
@@ -109,7 +113,7 @@ class MapViewModel(
     private fun fetchAddressName(point: MapPoint) = viewModelScope.launch {
         _actionState.emit(MapActionState.LoadingAddressName)
         getAddressNameUseCase(point.lat, point.lng)
-            .onSuccess { _actionState.emit(MapActionState.AddressNameLoaded(it.displayName)) }
+            .onSuccess { result -> _actionState.emit(MapActionState.AddressNameLoaded(result.displayName)) }
             .onFailure { setNotFoundState() }
     }
 
@@ -120,9 +124,9 @@ class MapViewModel(
 
         _actionState.emit(MapActionState.LoadingTariffs)
         getTimeOutUseCase(point.lat, point.lng, selectedTariff.category.id.toInt())
-            .onSuccess {
-                setTimeout(it.timeout)
-                setDrivers(it.executors)
+            .onSuccess { result ->
+                setTimeout(result.timeout)
+                setDrivers(result.executors)
             }.onFailure {
                 setTimeout(null)
                 setDrivers(emptyList())
@@ -319,13 +323,13 @@ class MapViewModel(
 
     fun setSelectedOrder(order: ShowOrderModel) {
         _uiState.update { it.copy(selectedOrder = order, showingOrderId = order.id.toInt()) }
+        getRouting(order.taxi.routes.map { MapPoint(it.coords.lat, it.coords.lng) })
         order.taxi.routes.firstOrNull()?.let { first ->
             setSelectedLocation(
                 point = MapPoint(first.coords.lat, first.coords.lng),
                 name = first.fullAddress
             )
         }
-
     }
 
     fun setPaymentTypes(paymentTypes: List<CardListItemModel>) {
@@ -368,7 +372,7 @@ class MapViewModel(
     fun searchForCars(point: MapPoint) = viewModelScope.launch {
         val tariff = _uiState.value.selectedTariff ?: return@launch
         searchCarUseCase(point.lat, point.lng, tariff.category.id.toInt())
-            .onSuccess { setDrivers(it.executors) }
+            .onSuccess { result -> setDrivers(result.executors) }
             .onFailure { setDrivers(emptyList()) }
     }
 
@@ -384,9 +388,10 @@ class MapViewModel(
             .onSuccess {
                 AppPreferences.lastOrderId = orderId
                 _uiState.update { state ->
-                    val newOrders =
-                        state.orders.toMutableList()
-                            .apply { removeIf { it.id == orderId.toLong() } }
+                    val newOrders = state
+                        .orders
+                        .toMutableList()
+                        .apply { removeIf { it.id == orderId.toLong() } }
                     state.copy(
                         orders = newOrders,
                         selectedOrder = newOrders.firstOrNull()
@@ -398,7 +403,7 @@ class MapViewModel(
     }
 
     fun getCardList() = viewModelScope.launch {
-        getCardListUseCase().onSuccess { setPaymentTypes(it) }
+        getCardListUseCase().onSuccess { result -> setPaymentTypes(result) }
     }
 
     fun getShow() = viewModelScope.launch {
@@ -414,6 +419,7 @@ class MapViewModel(
             it.copy(
                 selectedOrder = null,
                 selectedDriver = null,
+                showingOrderId = null,
                 orders = emptyList(),
                 route = emptyList(),
                 destinations = emptyList()
@@ -439,10 +445,52 @@ class MapViewModel(
 
     fun getActiveOrders() = viewModelScope.launch {
         getActiveOrdersUseCase()
-            .onSuccess { setActiveOrders(it.list) }
+            .onSuccess { result -> setActiveOrders(result.list) }
     }
 
     fun setActiveOrders(orders: List<ShowOrderModel>) {
         _uiState.update { it.copy(orders = orders) }
+    }
+
+    fun setMoveCameraButtonState(state: MoveCameraButtonState) {
+        _uiState.update { it.copy(moveCameraButtonState = state) }
+    }
+
+    fun getRouting(list: List<MapPoint>) = viewModelScope.launch {
+        if (list.size < 2) return@launch
+        val addresses = mutableListOf<GetRoutingDtoItem>()
+
+        addresses.add(
+            GetRoutingDtoItem(
+                type = "start",
+                lat = list.first().lat,
+                lng = list.first().lng
+            )
+        )
+
+        for (address in 1..<addresses.lastIndex) {
+            GetRoutingDtoItem(
+                type = "point",
+                lat = list[address].lat,
+                lng = list[address].lng
+            )
+        }
+
+        addresses.add(
+            GetRoutingDtoItem(
+                type = "end",
+                lat = list.last().lat,
+                lng = list.last().lng
+            )
+        )
+
+        getRoutingUseCase(addresses).onSuccess { result ->
+            setRoute(result.routing.map {
+                MapPoint(it.lat, it.lng)
+            })
+            setMoveCameraButtonState(MoveCameraButtonState.MyRouteView)
+        }.onFailure {
+            Log.d("freaking", "getRouting: ")
+        }
     }
 }

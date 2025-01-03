@@ -5,7 +5,7 @@ import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import uz.ildam.technologies.yalla.core.data.enums.PaymentType
 import uz.ildam.technologies.yalla.core.domain.model.ExecutorModel
-import uz.ildam.technologies.yalla.feature.map.domain.model.map.SearchForAddressItemModel
+import uz.ildam.technologies.yalla.feature.map.domain.model.response.map.SearchForAddressItemModel
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.SettingModel
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.ShowOrderModel
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.tarrif.GetTariffsModel

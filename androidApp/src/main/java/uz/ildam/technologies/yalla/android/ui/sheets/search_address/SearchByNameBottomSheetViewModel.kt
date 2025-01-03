@@ -9,8 +9,8 @@ import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.feature.addresses.domain.model.response.AddressModel
 import uz.ildam.technologies.yalla.feature.addresses.domain.model.response.AddressType
 import uz.ildam.technologies.yalla.feature.addresses.domain.usecase.FindAllMapAddressesUseCase
-import uz.ildam.technologies.yalla.feature.map.domain.model.map.PolygonRemoteItem
-import uz.ildam.technologies.yalla.feature.map.domain.model.map.SearchForAddressItemModel
+import uz.ildam.technologies.yalla.feature.map.domain.model.response.map.PolygonRemoteItem
+import uz.ildam.technologies.yalla.feature.map.domain.model.response.map.SearchForAddressItemModel
 import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.GetPolygonUseCase
 import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.SearchAddressUseCase
 
@@ -25,18 +25,18 @@ class SearchByNameBottomSheetViewModel(
     val uiState = _uiState.asStateFlow()
 
     fun fetchPolygons() = viewModelScope.launch {
-        getPolygonUseCase().onSuccess { addresses = it }
+        getPolygonUseCase().onSuccess {result-> addresses = result }
     }
 
     private fun searchForAddress(lat: Double, lng: Double, query: String) = viewModelScope.launch {
-        searchAddressUseCase(lat, lng, query).onSuccess {
-            setFoundAddresses(it)
+        searchAddressUseCase(lat, lng, query).onSuccess {result->
+            setFoundAddresses(result)
         }.onFailure { setFoundAddresses(emptyList()) }
     }
 
     fun findAllMapAddresses() = viewModelScope.launch {
         findAllMapAddressesUseCase()
-            .onSuccess { setMapAddresses(it) }
+            .onSuccess { result->setMapAddresses(result) }
             .onFailure { setMapAddresses(emptyList()) }
     }
 

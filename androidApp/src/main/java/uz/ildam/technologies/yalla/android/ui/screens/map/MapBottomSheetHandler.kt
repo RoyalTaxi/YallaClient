@@ -70,6 +70,7 @@ class MapBottomSheetHandler(
             exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
         ) {
             if (searchLocationVisibility != SearchLocationVisibility.INVISIBLE) SearchByNameBottomSheet(
+                initialAddress = uiState.selectedLocation?.name,
                 sheetState = searchLocationState,
                 isForDestination = searchLocationVisibility == SearchLocationVisibility.END,
                 onAddressSelected = { name, lat, lng, addressId ->

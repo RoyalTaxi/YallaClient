@@ -285,7 +285,7 @@ private fun MapMarkers(
     }
 
     // Other drivers markers
-    uiState.drivers.forEach { driver ->
+    uiState.drivers.take(20).forEach { driver ->
         MarkerComposable(
             flat = true,
             rotation = driver.heading.toFloat(),

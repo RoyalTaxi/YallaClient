@@ -8,6 +8,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -15,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
@@ -49,6 +51,7 @@ class MapSheetHandler(
         val context = LocalContext.current
         var timer by remember { mutableStateOf("") }
         var rating by remember { mutableIntStateOf(0) }
+        val listState = rememberSaveable(saver = LazyListState.Saver) { LazyListState() }
 
         LaunchedEffect(driverWaitingVisibility) {
             viewModel
@@ -69,6 +72,7 @@ class MapSheetHandler(
             if (orderTaxiVisibility) OrderTaxiBottomSheet(
                 isLoading = isLoading,
                 uiState = uiState,
+                listState = listState,
                 onSelectTariff = { tariff, wasSelected ->
                     if (wasSelected) bottomSheetHandler.showTariff(
                         show = true

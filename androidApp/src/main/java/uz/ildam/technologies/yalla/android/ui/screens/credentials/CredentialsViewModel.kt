@@ -53,16 +53,16 @@ class CredentialsViewModel(
                 gender.name,
                 dateOfBirth.formatWithDotsDMY(),
                 secretKey
-            ).onSuccess {
-                AppPreferences.accessToken = it.accessToken
-                AppPreferences.tokenType = it.tokenType
+            ).onSuccess { result ->
+                AppPreferences.accessToken = result.accessToken
+                AppPreferences.tokenType = result.tokenType
                 AppPreferences.isDeviceRegistered = true
                 AppPreferences.number = number
                 AppPreferences.firstName = firstName
                 AppPreferences.lastName = lastName
                 AppPreferences.gender = gender.name
                 AppPreferences.dateOfBirth = dateOfBirth.formatWithDotsDMY()
-                _actionFlow.emit(CredentialsActionState.Success(it))
+                _actionFlow.emit(CredentialsActionState.Success(result))
             }.onFailure {
                 _actionFlow.emit(CredentialsActionState.Error)
             }
