@@ -3,6 +3,7 @@ package uz.ildam.technologies.yalla.android.ui.sheets
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,9 +13,9 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
@@ -36,10 +37,12 @@ import uz.ildam.technologies.yalla.feature.order.domain.model.response.tarrif.Ge
 @Composable
 fun TariffInfoBottomSheet(
     sheetState: SheetState,
-    tariff: GetTariffsModel.Tariff,
+    tariffs: GetTariffsModel,
     arrivingTime: Int,
-    onDismissRequest: () -> Unit
+    onDismissRequest: () -> Unit,
+    onSelect: (GetTariffsModel.Tariff) -> Unit
 ) {
+    val pagerState = rememberPagerState { tariffs.tariff.size }
     ModalBottomSheet(
         shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
         containerColor = YallaTheme.color.gray2,
@@ -47,113 +50,129 @@ fun TariffInfoBottomSheet(
         dragHandle = null,
         onDismissRequest = onDismissRequest
     ) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-            modifier = Modifier
-                .background(YallaTheme.color.gray2)
-                .navigationBarsPadding()
-        ) {
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxWidth()
+        ) { index ->
             Column(
-                horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.Top,
+                verticalArrangement = Arrangement.spacedBy(10.dp),
                 modifier = Modifier
-                    .background(
-                        color = YallaTheme.color.white,
-                        shape = RoundedCornerShape(30.dp)
-                    )
-                    .padding(20.dp)
+                    .background(YallaTheme.color.gray2)
+                    .navigationBarsPadding()
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
+                Column(
+                    horizontalAlignment = Alignment.Start,
+                    verticalArrangement = Arrangement.Top,
+                    modifier = Modifier
+                        .background(
+                            color = YallaTheme.color.white,
+                            shape = RoundedCornerShape(bottomStart = 30.dp, bottomEnd = 30.dp)
+                        )
+                        .padding(20.dp)
                 ) {
-                    AsyncImage(
-                        model = tariff.photo,
-                        contentDescription = null,
-                        modifier = Modifier.width(200.dp),
-                        placeholder = painterResource(R.drawable.img_default_car),
-                        error = painterResource(R.drawable.img_default_car)
-                    )
-
-                    Image(
-                        modifier = Modifier.size(width = 60.dp, height = 60.dp),
-                        painter = painterResource(R.drawable.img_flash),
-                        contentDescription = null,
-                    )
-                }
-
-                Spacer(modifier = Modifier.padding(4.dp))
-
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Bottom,
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.Start,
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(
-                            text = tariff.name,
-                            style = YallaTheme.font.title,
-                            color = YallaTheme.color.black
+                        AsyncImage(
+                            model = tariffs.tariff[index].photo,
+                            contentDescription = null,
+                            modifier = Modifier.width(200.dp),
+                            placeholder = painterResource(R.drawable.img_default_car),
+                            error = painterResource(R.drawable.img_default_car)
                         )
 
-                        Text(
-                            text = stringResource(id = R.string.starting_cost, tariff.cost),
-                            style = YallaTheme.font.label,
-                            color = YallaTheme.color.gray
+                        Image(
+                            modifier = Modifier.size(width = 60.dp, height = 60.dp),
+                            painter = painterResource(R.drawable.img_flash),
+                            contentDescription = null,
                         )
                     }
 
+                    Spacer(modifier = Modifier.padding(4.dp))
+
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.Bottom,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.Start,
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(
+                                text = tariffs.tariff[index].name,
+                                style = YallaTheme.font.title,
+                                color = YallaTheme.color.black
+                            )
+
+                            Text(
+                                text = stringResource(
+                                    id = R.string.starting_cost,
+                                    tariffs.tariff[index].cost
+                                ),
+                                style = YallaTheme.font.label,
+                                color = YallaTheme.color.gray
+                            )
+                        }
+
+                        Text(
+                            text = stringResource(R.string.minute, arrivingTime.toString()),
+                            style = YallaTheme.font.label,
+                            color = YallaTheme.color.gray,
+                            textAlign = TextAlign.End
+                        )
+                    }
+                }
+
+                if (tariffs.tariff[index].description.isNotEmpty()) Column(
+                    horizontalAlignment = Alignment.Start,
+                    verticalArrangement = Arrangement.Top,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            color = YallaTheme.color.white,
+                            shape = RoundedCornerShape(30.dp)
+                        )
+                        .padding(20.dp)
+                ) {
                     Text(
-                        text = stringResource(R.string.minute, arrivingTime.toString()),
-                        style = YallaTheme.font.label,
-                        color = YallaTheme.color.gray,
-                        textAlign = TextAlign.End
+                        text = stringResource(id = R.string.tariff_title),
+                        style = YallaTheme.font.title,
+                        color = YallaTheme.color.black
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    Text(
+                        text = tariffs.tariff[index].description,
+                        color = YallaTheme.color.black,
+                        style = YallaTheme.font.label
                     )
                 }
             }
+        }
 
-            if (tariff.description.isNotEmpty()) Column(
-                horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.Top,
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = YallaTheme.color.white,
+                    shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
+                )
+        ) {
+            YallaButton(
+                text = stringResource(R.string.select_tariff),
+                onClick = {
+                    onSelect(tariffs.tariff[pagerState.currentPage])
+                    onDismissRequest()
+                },
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        color = YallaTheme.color.white,
-                        shape = RoundedCornerShape(30.dp)
-                    )
                     .padding(20.dp)
-            ) {
-                Text(
-                    text = stringResource(id = R.string.tariff_title),
-                    style = YallaTheme.font.title,
-                    color = YallaTheme.color.black
-                )
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                Text(
-                    text = tariff.description,
-                    color = YallaTheme.color.black,
-                    style = YallaTheme.font.label
-                )
-            }
-
-            Card(
-                colors = CardDefaults.cardColors(YallaTheme.color.white),
-                shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                YallaButton(
-                    text = stringResource(R.string.select_tariff),
-                    onClick = onDismissRequest,
-                    modifier = Modifier
-                        .padding(20.dp)
-                        .fillMaxWidth()
-                )
-            }
+                    .fillMaxWidth()
+            )
         }
     }
 }

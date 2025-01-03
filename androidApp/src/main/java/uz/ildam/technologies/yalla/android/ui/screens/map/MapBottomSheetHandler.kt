@@ -186,12 +186,13 @@ class MapBottomSheetHandler(
             enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
             exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
         ) {
-            uiState.selectedTariff?.let { selectedTariff ->
-                if (tariffVisibility) TariffInfoBottomSheet(
+            if (tariffVisibility) uiState.tariffs?.let {
+                TariffInfoBottomSheet(
                     sheetState = tariffState,
-                    tariff = selectedTariff,
+                    tariffs = it,
                     arrivingTime = uiState.timeout.or0(),
-                    onDismissRequest = { showTariff(false) }
+                    onDismissRequest = { showTariff(false) },
+                    onSelect = { tariff -> viewModel.setSelectedTariff(tariff) }
                 )
             }
         }
