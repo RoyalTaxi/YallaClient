@@ -4,11 +4,13 @@ import uz.ildam.technologies.yalla.core.data.mapper.Mapper
 import uz.ildam.technologies.yalla.core.data.mapper.or0
 import uz.ildam.technologies.yalla.core.data.mapper.orFalse
 import uz.ildam.technologies.yalla.feature.map.data.response.map.AddressNameResponse
+import uz.ildam.technologies.yalla.feature.map.data.response.map.GetRoutingResponse
 import uz.ildam.technologies.yalla.feature.map.data.response.map.PolygonResponseItem
 import uz.ildam.technologies.yalla.feature.map.data.response.map.SearchForAddressResponseItem
-import uz.ildam.technologies.yalla.feature.map.domain.model.map.AddressModel
-import uz.ildam.technologies.yalla.feature.map.domain.model.map.PolygonRemoteItem
-import uz.ildam.technologies.yalla.feature.map.domain.model.map.SearchForAddressItemModel
+import uz.ildam.technologies.yalla.feature.map.domain.model.response.map.AddressModel
+import uz.ildam.technologies.yalla.feature.map.domain.model.response.map.GetRoutingModel
+import uz.ildam.technologies.yalla.feature.map.domain.model.response.map.PolygonRemoteItem
+import uz.ildam.technologies.yalla.feature.map.domain.model.response.map.SearchForAddressItemModel
 
 object MapMapper {
     val polygonMapper: Mapper<PolygonResponseItem?, PolygonRemoteItem> = { remote ->
@@ -46,6 +48,22 @@ object MapMapper {
                 lat = remote?.lat.or0(),
                 lng = remote?.lng.or0(),
                 name = remote?.name.orEmpty()
+            )
+        }
+
+    val routingMapper: Mapper<GetRoutingResponse?, GetRoutingModel> = { remote ->
+        GetRoutingModel(
+            distance = remote?.distance.or0(),
+            duration = remote?.duration.or0(),
+            routing = remote?.routing?.map(routingItemMapper).orEmpty()
+        )
+    }
+
+    private val routingItemMapper: Mapper<GetRoutingResponse.Routing?, GetRoutingModel.Routing> =
+        { remote ->
+            GetRoutingModel.Routing(
+                lat = remote?.lat.or0(),
+                lng = remote?.lng.or0()
             )
         }
 }

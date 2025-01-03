@@ -53,10 +53,10 @@ class VerificationViewModel(
             _actionFlow.emit(VerificationActionState.Loading)
 
             verifyCodeUseCase(getFormattedNumber(), code.toInt())
-                .onSuccess {
-                    it.client?.let { client ->
-                        AppPreferences.accessToken = it.accessToken
-                        AppPreferences.tokenType = it.tokenType
+                .onSuccess { result ->
+                    result.client?.let { client ->
+                        AppPreferences.accessToken = result.accessToken
+                        AppPreferences.tokenType = result.tokenType
                         AppPreferences.isDeviceRegistered = true
                         AppPreferences.number = number
                         AppPreferences.gender = client.gender
@@ -64,7 +64,7 @@ class VerificationViewModel(
                         AppPreferences.firstName = client.givenNames
                         AppPreferences.lastName = client.surname
                     }
-                    _actionFlow.emit(VerificationActionState.VerifySuccess(it))
+                    _actionFlow.emit(VerificationActionState.VerifySuccess(result))
                 }
                 .onFailure {
                     _actionFlow.emit(VerificationActionState.Error)
@@ -76,7 +76,11 @@ class VerificationViewModel(
         _uiState.value.apply {
             _actionFlow.emit(VerificationActionState.Loading)
             sendCodeUseCase(getFormattedNumber())
-                .onSuccess { _actionFlow.emit(VerificationActionState.SendSMSSuccess(it)) }
+                .onSuccess { result ->
+                    _actionFlow.emit(
+                        VerificationActionState.SendSMSSuccess(result)
+                    )
+                }
                 .onFailure { _actionFlow.emit(VerificationActionState.Error) }
         }
     }

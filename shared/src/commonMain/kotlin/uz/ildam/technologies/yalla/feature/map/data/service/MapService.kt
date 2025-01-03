@@ -9,9 +9,11 @@ import uz.ildam.technologies.yalla.core.data.exception.safeApiCall
 import uz.ildam.technologies.yalla.core.data.response.ApiResponseWrapper
 import uz.ildam.technologies.yalla.core.domain.error.DataError
 import uz.ildam.technologies.yalla.core.domain.error.Either
+import uz.ildam.technologies.yalla.feature.map.data.request.map.GetRoutingRequestItem
 import uz.ildam.technologies.yalla.feature.map.data.request.map.LocationNameRequest
 import uz.ildam.technologies.yalla.feature.map.data.request.map.SearchForAddressRequest
 import uz.ildam.technologies.yalla.feature.map.data.response.map.AddressNameResponse
+import uz.ildam.technologies.yalla.feature.map.data.response.map.GetRoutingResponse
 import uz.ildam.technologies.yalla.feature.map.data.response.map.PolygonResponseItem
 import uz.ildam.technologies.yalla.feature.map.data.response.map.SearchForAddressResponseItem
 import uz.ildam.technologies.yalla.feature.map.data.url.MapUrl
@@ -35,5 +37,10 @@ class MapService(
     ): Either<ApiResponseWrapper<List<SearchForAddressResponseItem>>, DataError.Network> =
         safeApiCall {
             ktorWithApi2.post(MapUrl.SEARCH) { setBody(body) }.body()
+        }
+
+    suspend fun getRouting(body: List<GetRoutingRequestItem>): Either<ApiResponseWrapper<GetRoutingResponse>, DataError.Network> =
+        safeApiCall {
+            ktorWithApi2.post(MapUrl.ROUTING) { setBody(body) }.body()
         }
 }

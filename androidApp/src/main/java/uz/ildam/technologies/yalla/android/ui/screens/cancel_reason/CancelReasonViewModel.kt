@@ -28,8 +28,8 @@ class CancelReasonViewModel(
     fun getSetting() = viewModelScope.launch {
         _actionState.emit(CancelReasonActionState.Loading)
         getSettingUseCase()
-            .onSuccess {
-                _uiState.update { it.copy(reasons = it.reasons) }
+            .onSuccess {result ->
+                _uiState.update { it.copy(reasons = result.reasons) }
                 _actionState.emit(CancelReasonActionState.GettingSuccess)
             }
             .onFailure {

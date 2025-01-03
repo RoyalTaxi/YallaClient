@@ -5,7 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
 import uz.ildam.technologies.yalla.core.domain.error.Either
-import uz.ildam.technologies.yalla.feature.map.domain.model.map.PolygonRemoteItem
+import uz.ildam.technologies.yalla.feature.map.domain.model.response.map.PolygonRemoteItem
 import uz.ildam.technologies.yalla.feature.map.domain.repository.MapRepository
 
 class GetPolygonUseCase(

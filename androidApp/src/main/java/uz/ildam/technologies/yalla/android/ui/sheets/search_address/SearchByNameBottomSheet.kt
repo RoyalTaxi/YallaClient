@@ -2,7 +2,6 @@ package uz.ildam.technologies.yalla.android.ui.sheets.search_address
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,6 +19,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
@@ -33,6 +33,7 @@ import uz.ildam.technologies.yalla.core.data.mapper.or0
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchByNameBottomSheet(
+    initialAddress: String? = null,
     sheetState: SheetState,
     onAddressSelected: (String, Double, Double, Int) -> Unit,
     onDismissRequest: () -> Unit,
@@ -44,8 +45,9 @@ fun SearchByNameBottomSheet(
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        launch { viewModel.fetchPolygons() }
         launch { viewModel.findAllMapAddresses() }
+        launch { if (isForDestination.not()) initialAddress?.let { viewModel.setQuery(it) } }
+        launch { viewModel.fetchPolygons() }
         getCurrentLocation(context) { location ->
             viewModel.setCurrentLocation(location.latitude, location.longitude)
         }
@@ -90,11 +92,8 @@ fun SearchByNameBottomSheet(
             modifier = Modifier
                 .fillMaxHeight(.8f)
                 .fillMaxWidth()
-                .background(
-                    color = YallaTheme.color.white,
-                    shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
-                ),
-            contentPadding = PaddingValues(20.dp)
+                .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
+                .background(YallaTheme.color.white)
         ) {
             if (uiState.query.isBlank()) items(uiState.savedAddresses) { foundAddress ->
                 FoundAddressItem(

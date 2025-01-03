@@ -13,11 +13,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -32,6 +35,9 @@ import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
 import uz.ildam.technologies.yalla.android.ui.components.item.TariffItem
 import uz.ildam.technologies.yalla.android.ui.components.item.TariffItemShimmer
 import uz.ildam.technologies.yalla.android.ui.screens.map.MapUIState
+import uz.ildam.technologies.yalla.android.utils.AnimatedScroll
+import uz.ildam.technologies.yalla.android.utils.InstantScroll
+import uz.ildam.technologies.yalla.android.utils.ScrollBehavior
 import uz.ildam.technologies.yalla.core.data.enums.PaymentType
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.tarrif.GetTariffsModel
 
@@ -39,6 +45,7 @@ import uz.ildam.technologies.yalla.feature.order.domain.model.response.tarrif.Ge
 fun OrderTaxiBottomSheet(
     isLoading: Boolean,
     uiState: MapUIState,
+    listState: LazyListState,
     onSelectTariff: (GetTariffsModel.Tariff, Boolean) -> Unit,
     onCurrentLocationClick: () -> Unit,
     onDestinationClick: () -> Unit,
@@ -46,6 +53,20 @@ fun OrderTaxiBottomSheet(
     onSelectPaymentMethodClick: () -> Unit,
     onCreateOrder: () -> Unit
 ) {
+
+    LaunchedEffect(isLoading, uiState.selectedTariff, uiState.tariffs) {
+        if (!isLoading && uiState.tariffs?.tariff?.isNotEmpty() == true) {
+            uiState.selectedTariff?.let { selected ->
+                centerTariff(
+                    listState = listState,
+                    tariffs = uiState.tariffs.tariff,
+                    targetTariff = selected,
+                    scrollBehavior = AnimatedScroll
+                )
+            }
+        }
+    }
+
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier.background(
@@ -87,10 +108,13 @@ fun OrderTaxiBottomSheet(
             )
 
             LazyRow(
+                state = listState,
                 contentPadding = PaddingValues(horizontal = 20.dp),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                if (uiState.tariffs?.tariff?.isNotEmpty() == true && isLoading.not()) items(uiState.tariffs.tariff) { tariff ->
+                if (uiState.tariffs?.tariff?.isNotEmpty() == true && isLoading.not()) itemsIndexed(
+                    uiState.tariffs.tariff
+                ) { _, tariff ->
                     TariffItem(
                         tariff = tariff.name,
                         tariffImageUrl = tariff.photo,
@@ -153,5 +177,29 @@ fun OrderTaxiBottomSheet(
                 onClick = { if (uiState.tariffs?.tariff?.isNotEmpty() == true) onSetOptionsClick() }
             )
         }
+    }
+}
+
+private suspend fun centerTariff(
+    listState: LazyListState,
+    tariffs: List<GetTariffsModel.Tariff>,
+    targetTariff: GetTariffsModel.Tariff,
+    scrollBehavior: ScrollBehavior
+) {
+    val targetIndex = tariffs.indexOf(targetTariff)
+    val visibleItem = listState.layoutInfo.visibleItemsInfo
+        .firstOrNull { it.index == targetIndex }
+
+    if (targetIndex == -1) return
+
+    if (visibleItem != null) {
+        val viewportCenter = (listState.layoutInfo.viewportStartOffset +
+                listState.layoutInfo.viewportEndOffset) / 2
+        val childCenter = visibleItem.offset + (visibleItem.size / 2)
+        val distance = (childCenter - viewportCenter).toFloat()
+
+        scrollBehavior.scrollBy(listState, distance)
+    } else {
+        scrollBehavior.scrollToItem(listState, targetIndex)
     }
 }

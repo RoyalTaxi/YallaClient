@@ -105,6 +105,7 @@ fun AddressRoute(
         exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
     ) {
         if (searchLocationVisibility) SearchByNameBottomSheet(
+            initialAddress = uiState.selectedAddress?.name,
             sheetState = searchLocationState,
             isForDestination = false,
             onAddressSelected = { name, lat, lng, _ ->

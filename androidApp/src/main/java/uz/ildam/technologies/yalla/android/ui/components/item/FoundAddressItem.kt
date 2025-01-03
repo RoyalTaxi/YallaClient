@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import uz.ildam.technologies.yalla.android.R
@@ -26,11 +27,12 @@ fun FoundAddressItem(
 ) {
     Card(
         modifier = modifier,
+        shape = RectangleShape,
         onClick = { onClick(foundAddress) },
         colors = CardDefaults.cardColors(YallaTheme.color.white)
     ) {
         Row(
-            modifier = Modifier.padding(10.dp),
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(20.dp)
         ) {
@@ -38,8 +40,8 @@ fun FoundAddressItem(
                 painter = painterResource(
                     when (foundAddress.type) {
                         AddressType.HOME -> R.drawable.ic_home
-                        AddressType.OTHER -> R.drawable.ic_work
-                        AddressType.WORK -> R.drawable.ic_other
+                        AddressType.WORK -> R.drawable.ic_work
+                        AddressType.OTHER -> R.drawable.ic_other
                     }
                 ),
                 contentDescription = null

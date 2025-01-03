@@ -24,7 +24,6 @@ fun GenderButton(
     onSelect: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(16.dp),

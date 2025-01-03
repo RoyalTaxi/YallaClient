@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import uz.ildam.technologies.yalla.feature.map.domain.model.map.PolygonRemoteItem
+import uz.ildam.technologies.yalla.feature.map.domain.model.response.map.PolygonRemoteItem
 import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.GetAddressNameUseCase
 import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.GetPolygonUseCase
 
@@ -26,7 +26,7 @@ class SelectFromMapBottomSheetViewModel(
 
     private fun fetchPolygons() = viewModelScope.launch {
         getPolygonUseCase()
-            .onSuccess { addresses = it }
+            .onSuccess { result -> addresses = result }
             .onFailure { changeStateToNotFound() }
     }
 
@@ -50,8 +50,11 @@ class SelectFromMapBottomSheetViewModel(
 
     private fun fetchAddressName(point: LatLng) = viewModelScope.launch {
         getAddressNameUseCase(point.latitude, point.longitude)
-            .onSuccess {
-                updateSelectedLocation(name = it.displayName, latLng = LatLng(it.lat, it.lng))
+            .onSuccess { result ->
+                updateSelectedLocation(
+                    name = result.displayName,
+                    latLng = LatLng(result.lat, result.lng)
+                )
             }
             .onFailure {
                 changeStateToNotFound()
