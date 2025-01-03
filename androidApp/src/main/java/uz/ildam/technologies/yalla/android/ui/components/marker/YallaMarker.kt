@@ -1,9 +1,6 @@
 package uz.ildam.technologies.yalla.android.ui.components.marker
 
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +19,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -38,6 +37,7 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
+import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 import uz.ildam.technologies.yalla.android.ui.components.shape.squareSize
@@ -57,26 +57,8 @@ fun YallaMarker(
     selectedAddressName: String?,
     modifier: Modifier = Modifier
 ) {
-    val loadingTransition = rememberInfiniteTransition("loading")
-
-    val loadingImageRotationDegree by loadingTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1000),
-            repeatMode = RepeatMode.Restart,
-        ), label = "loading"
-    )
-
-    val animatedJumpingMargin by loadingTransition.animateFloat(
-        label = "infiniteTransition",
-        initialValue = 9f,
-        targetValue = 17f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 600),
-            repeatMode = RepeatMode.Reverse
-        )
-    )
+    val jumpOffset = remember { Animatable(initialValue = 3f) }
+    val rotation = remember { Animatable(initialValue = 0f) }
 
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.lottie_ripple_default))
     val progress by animateLottieCompositionAsState(
@@ -86,122 +68,167 @@ fun YallaMarker(
         restartOnPlay = true
     )
 
+    LaunchedEffect(isLoading) {
+        if (isLoading) {
+            if (jumpOffset.value < 9f) {
+                jumpOffset.animateTo(
+                    targetValue = 17f,
+                    animationSpec = tween(durationMillis = 600)
+                )
+            }
+
+            kotlinx.coroutines.coroutineScope {
+                launch {
+                    while (true) {
+                        jumpOffset.animateTo(
+                            targetValue = 9f,
+                            animationSpec = tween(durationMillis = 600)
+                        )
+                        jumpOffset.animateTo(
+                            targetValue = 17f,
+                            animationSpec = tween(durationMillis = 600)
+                        )
+                    }
+                }
+
+                launch {
+                    while (true) {
+                        rotation.animateTo(
+                            targetValue = 360f,
+                            animationSpec = tween(durationMillis = 1000)
+                        )
+                        rotation.snapTo(0f)
+                    }
+                }
+            }
+        } else {
+            jumpOffset.animateTo(
+                targetValue = 3f,
+                animationSpec = tween(durationMillis = 600)
+            )
+            rotation.snapTo(0f)
+        }
+    }
+
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier.fillMaxSize()
     ) {
-        if (isSearching || isSending) LottieAnimation(
-            composition = composition,
-            progress = { progress },
-            modifier = Modifier
-                .fillMaxSize(.8f)
-                .alpha(.5f)
-        )
-
-        if ((isRouteEmpty || isSearching || isSending) && isAppointed.not() && isAtAddress.not() && isInFetters.not() && isCompleted.not()) ConstraintLayout(
-            modifier = modifier
-        ) {
-            val (circle, stick, indicator, addressName) = createRefs()
-
-            Box(
+        if (isSearching || isSending) {
+            LottieAnimation(
+                composition = composition,
+                progress = { progress },
                 modifier = Modifier
-                    .height(6.dp)
-                    .width(8.dp)
-                    .clip(CircleShape)
-                    .background(YallaTheme.color.black)
-                    .constrainAs(indicator) {
-                        linkTo(start = parent.start, end = parent.end)
-                        linkTo(top = parent.top, bottom = parent.bottom)
-                    }
+                    .fillMaxSize(.8f)
+                    .alpha(.5f)
             )
+        }
 
-            Box(
-                modifier = Modifier
-                    .height(20.dp)
-                    .width(2.dp)
-                    .clip(RoundedCornerShape(bottomStart = 10.dp, bottomEnd = 10.dp))
-                    .background(YallaTheme.color.black)
-                    .constrainAs(stick) {
-                        linkTo(start = indicator.start, end = indicator.end)
-                        bottom.linkTo(
-                            indicator.bottom,
-                            margin = if (isLoading) animatedJumpingMargin.dp else 3.dp
+        if (
+            (isRouteEmpty || isSearching || isSending) &&
+            !isAppointed && !isAtAddress && !isInFetters && !isCompleted
+        ) {
+            ConstraintLayout(modifier = modifier) {
+                val (circle, stick, indicator, addressName) = createRefs()
+
+                Box(
+                    modifier = Modifier
+                        .height(6.dp)
+                        .width(8.dp)
+                        .clip(CircleShape)
+                        .background(YallaTheme.color.black)
+                        .constrainAs(indicator) {
+                            linkTo(start = parent.start, end = parent.end)
+                            linkTo(top = parent.top, bottom = parent.bottom)
+                        }
+                )
+
+                Box(
+                    modifier = Modifier
+                        .height(20.dp)
+                        .width(2.dp)
+                        .clip(RoundedCornerShape(bottomStart = 10.dp, bottomEnd = 10.dp))
+                        .background(YallaTheme.color.black)
+                        .constrainAs(stick) {
+                            linkTo(start = indicator.start, end = indicator.end)
+                            // animate the bottom margin from 3..9..17 dp
+                            bottom.linkTo(indicator.bottom, margin = jumpOffset.value.dp)
+                        }
+                )
+
+                Box(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(color)
+                        .squareSize(.5f)
+                        .padding(6.dp)
+                        .height(IntrinsicSize.Min)
+                        .width(IntrinsicSize.Min)
+                        .constrainAs(circle) {
+                            bottom.linkTo(stick.top)
+                            linkTo(start = indicator.start, end = indicator.end)
+                        }
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = time?.toString().orEmpty(),
+                            color = YallaTheme.color.white,
+                            style = YallaTheme.font.title
+                        )
+                        Text(
+                            text = if (time != null) stringResource(R.string.min) else "",
+                            color = YallaTheme.color.white,
+                            style = YallaTheme.font.body
                         )
                     }
-            )
 
-            Box(
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .background(color)
-                    .squareSize(.5f)
-                    .padding(6.dp)
-                    .height(IntrinsicSize.Min)
-                    .width(IntrinsicSize.Min)
-                    .constrainAs(circle) {
-                        bottom.linkTo(stick.top)
+                    if (isLoading) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = modifier
+                                .fillMaxSize()
+                                .background(color)
+                                .graphicsLayer { clip = true }
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_loading),
+                                contentDescription = null,
+                                tint = YallaTheme.color.white,
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .graphicsLayer {
+                                        // rotationZ in degrees
+                                        rotationZ = rotation.value
+                                    }
+                            )
+                        }
+                    }
+                }
+
+                Surface(
+                    color = YallaTheme.color.black,
+                    shape = RoundedCornerShape(25.dp),
+                    modifier = Modifier.constrainAs(addressName) {
+                        bottom.linkTo(indicator.top, margin = 96.dp)
                         linkTo(start = indicator.start, end = indicator.end)
                     }
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = (time)?.toString().orEmpty(),
+                        text = if (!isLoading && selectedAddressName != null) {
+                            selectedAddressName
+                        } else {
+                            stringResource(R.string.loading)
+                        },
                         color = YallaTheme.color.white,
-                        style = YallaTheme.font.title
-                    )
-
-                    Text(
-                        text = if (time != null) stringResource(R.string.min) else "",
-                        color = YallaTheme.color.white,
-                        style = YallaTheme.font.body
+                        style = YallaTheme.font.labelSemiBold,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp)
                     )
                 }
-
-                if (isLoading) Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = modifier
-                        .fillMaxSize()
-                        .background(color)
-                        .graphicsLayer { clip = true }
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_loading),
-                        contentDescription = null,
-                        tint = YallaTheme.color.white,
-                        modifier = Modifier
-                            .size(24.dp)
-                            .graphicsLayer {
-                                rotationZ = loadingImageRotationDegree
-                            }
-                    )
-                }
-            }
-
-            Surface(
-                color = YallaTheme.color.black,
-                shape = RoundedCornerShape(25.dp),
-                modifier = Modifier.constrainAs(addressName) {
-                    bottom.linkTo(indicator.top, margin = 96.dp)
-                    linkTo(start = indicator.start, end = indicator.end)
-                }
-            ) {
-                Text(
-                    text =
-                    if (isLoading.not() && selectedAddressName != null) selectedAddressName
-                    else stringResource(R.string.loading),
-                    color = YallaTheme.color.white,
-                    style = YallaTheme.font.labelSemiBold,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(
-                        horizontal = 20.dp,
-                        vertical = 4.dp
-                    )
-                )
             }
         }
     }
 }
-
