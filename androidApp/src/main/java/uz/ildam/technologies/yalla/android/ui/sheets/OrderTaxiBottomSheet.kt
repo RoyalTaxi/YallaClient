@@ -20,12 +20,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 import uz.ildam.technologies.yalla.android.ui.components.button.OptionsButton
@@ -36,7 +36,6 @@ import uz.ildam.technologies.yalla.android.ui.components.item.TariffItem
 import uz.ildam.technologies.yalla.android.ui.components.item.TariffItemShimmer
 import uz.ildam.technologies.yalla.android.ui.screens.map.MapUIState
 import uz.ildam.technologies.yalla.android.utils.AnimatedScroll
-import uz.ildam.technologies.yalla.android.utils.InstantScroll
 import uz.ildam.technologies.yalla.android.utils.ScrollBehavior
 import uz.ildam.technologies.yalla.core.data.enums.PaymentType
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.tarrif.GetTariffsModel
@@ -55,14 +54,16 @@ fun OrderTaxiBottomSheet(
 ) {
 
     LaunchedEffect(isLoading, uiState.selectedTariff, uiState.tariffs) {
-        if (!isLoading && uiState.tariffs?.tariff?.isNotEmpty() == true) {
-            uiState.selectedTariff?.let { selected ->
-                centerTariff(
-                    listState = listState,
-                    tariffs = uiState.tariffs.tariff,
-                    targetTariff = selected,
-                    scrollBehavior = AnimatedScroll
-                )
+        launch {
+            if (!isLoading && uiState.tariffs?.tariff?.isNotEmpty() == true) {
+                uiState.selectedTariff?.let { selected ->
+                    centerTariff(
+                        listState = listState,
+                        tariffs = uiState.tariffs.tariff,
+                        targetTariff = selected,
+                        scrollBehavior = AnimatedScroll
+                    )
+                }
             }
         }
     }

@@ -26,6 +26,6 @@ data object AnimatedScroll : ScrollBehavior {
     }
 
     override suspend fun scrollToItem(listState: LazyListState, index: Int) {
-        listState.animateScrollBy(index.toFloat(), animationSpec = tween(500))
+        listState.animateScrollToItem(index)
     }
 }
