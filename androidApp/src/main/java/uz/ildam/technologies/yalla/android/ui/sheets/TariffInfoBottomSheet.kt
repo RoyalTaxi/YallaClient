@@ -38,11 +38,13 @@ import uz.ildam.technologies.yalla.feature.order.domain.model.response.tarrif.Ge
 fun TariffInfoBottomSheet(
     sheetState: SheetState,
     tariffs: GetTariffsModel,
+    selectedTariffIndex: Int,
     arrivingTime: Int,
     onDismissRequest: () -> Unit,
     onSelect: (GetTariffsModel.Tariff) -> Unit
 ) {
-    val pagerState = rememberPagerState { tariffs.tariff.size }
+    val pagerState = rememberPagerState(initialPage = selectedTariffIndex) { tariffs.tariff.size }
+
     ModalBottomSheet(
         shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
         containerColor = YallaTheme.color.gray2,

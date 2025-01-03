@@ -190,6 +190,7 @@ class MapBottomSheetHandler(
                 TariffInfoBottomSheet(
                     sheetState = tariffState,
                     tariffs = it,
+                    selectedTariffIndex = uiState.tariffs.tariff.indexOf(uiState.selectedTariff),
                     arrivingTime = uiState.timeout.or0(),
                     onDismissRequest = { showTariff(false) },
                     onSelect = { tariff -> viewModel.setSelectedTariff(tariff) }
