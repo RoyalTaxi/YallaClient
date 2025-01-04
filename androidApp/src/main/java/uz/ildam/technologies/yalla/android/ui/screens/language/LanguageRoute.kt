@@ -10,9 +10,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.os.LocaleListCompat
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import uz.ildam.technologies.yalla.android.MainActivity
+import uz.ildam.technologies.yalla.android.activity.MainActivity
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 
 @Composable
