@@ -119,4 +119,7 @@
     <string name="delete">Удалить</string>
     <string name="edit_profile">Редактировать профиль</string>
     <string name="x_order">%s заказ</string>
+    <string name="no_internet_connection">Нет подключение к интернету</string>
+    <string name="no_internet_connection_body">Проверьте интернет-соединение или позвоните чтобы вызвать такси</string>
+    <string name="repeat">ПОВТОРИТЬ</string>
 </resources>

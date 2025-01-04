@@ -119,4 +119,10 @@ object AppPreferences {
                 }
             }.apply()
         }
+
+    var supportNumber: String
+        get() = preferences.getString(AppPreferences::supportNumber.name, "") ?: ""
+        set(value) {
+            preferences.edit()?.putString(AppPreferences::supportNumber.name, value)?.apply()
+        }
 }

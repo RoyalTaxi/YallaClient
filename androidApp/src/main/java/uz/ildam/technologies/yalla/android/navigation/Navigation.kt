@@ -3,6 +3,7 @@ package uz.ildam.technologies.yalla.android.navigation
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
@@ -34,6 +35,7 @@ import uz.ildam.technologies.yalla.android.ui.screens.login.navigateToLoginScree
 import uz.ildam.technologies.yalla.android.ui.screens.map.MAP_ROUTE
 import uz.ildam.technologies.yalla.android.ui.screens.map.mapScreen
 import uz.ildam.technologies.yalla.android.ui.screens.map.navigateToMapScreen
+import uz.ildam.technologies.yalla.android.ui.screens.offline.OfflineScreen
 import uz.ildam.technologies.yalla.android.ui.screens.onboarding.ONBOARDING_ROUTE
 import uz.ildam.technologies.yalla.android.ui.screens.onboarding.onboardingScreen
 import uz.ildam.technologies.yalla.android.ui.screens.permission.navigateToPermissionScreen
@@ -43,7 +45,9 @@ import uz.ildam.technologies.yalla.android.ui.screens.verification.verificationS
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 
 @Composable
-fun Navigation() {
+fun Navigation(
+    isConnected: Boolean
+) {
     val navController = rememberNavController()
 
     Surface(
@@ -146,4 +150,6 @@ fun Navigation() {
             )
         }
     }
+
+    if (isConnected.not()) OfflineScreen()
 }
