@@ -1,7 +1,13 @@
 package uz.ildam.technologies.yalla.android.ui.components.marker
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -41,7 +47,10 @@ import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 import uz.ildam.technologies.yalla.android.ui.components.shape.squareSize
+import androidx.compose.animation.with
 
+
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun YallaMarker(
     time: Int?,
@@ -216,17 +225,28 @@ fun YallaMarker(
                         linkTo(start = indicator.start, end = indicator.end)
                     }
                 ) {
-                    Text(
-                        text = if (!isLoading && selectedAddressName != null) {
+                    AnimatedContent(
+                        targetState = if (!isLoading && selectedAddressName != null) {
                             selectedAddressName
                         } else {
                             stringResource(R.string.loading)
                         },
-                        color = YallaTheme.color.white,
-                        style = YallaTheme.font.labelSemiBold,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp)
-                    )
+                        transitionSpec = {
+                            fadeIn(
+                                animationSpec = tween(durationMillis = 500)
+                            ) with fadeOut(
+                                animationSpec = tween(durationMillis = 500)
+                            )
+                        }
+                    ) { targetText ->
+                        Text(
+                            text = targetText,
+                            color = YallaTheme.color.white,
+                            style = YallaTheme.font.labelSemiBold,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp)
+                        )
+                    }
                 }
             }
         }
