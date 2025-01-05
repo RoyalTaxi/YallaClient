@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,6 +49,8 @@ import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 import uz.ildam.technologies.yalla.android.ui.components.shape.squareSize
 import androidx.compose.animation.with
+import androidx.compose.ui.text.style.TextOverflow
+import kotlinx.coroutines.coroutineScope
 
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -86,28 +89,26 @@ fun YallaMarker(
                 )
             }
 
-            kotlinx.coroutines.coroutineScope {
-                launch {
-                    while (true) {
-                        jumpOffset.animateTo(
-                            targetValue = 9f,
-                            animationSpec = tween(durationMillis = 600)
-                        )
-                        jumpOffset.animateTo(
-                            targetValue = 17f,
-                            animationSpec = tween(durationMillis = 600)
-                        )
-                    }
+            launch {
+                while (true) {
+                    jumpOffset.animateTo(
+                        targetValue = 9f,
+                        animationSpec = tween(durationMillis = 600)
+                    )
+                    jumpOffset.animateTo(
+                        targetValue = 17f,
+                        animationSpec = tween(durationMillis = 600)
+                    )
                 }
+            }
 
-                launch {
-                    while (true) {
-                        rotation.animateTo(
-                            targetValue = 360f,
-                            animationSpec = tween(durationMillis = 1000)
-                        )
-                        rotation.snapTo(0f)
-                    }
+            launch {
+                while (true) {
+                    rotation.animateTo(
+                        targetValue = 360f,
+                        animationSpec = tween(durationMillis = 1000)
+                    )
+                    rotation.snapTo(0f)
                 }
             }
         } else {
@@ -234,16 +235,18 @@ fun YallaMarker(
                         transitionSpec = {
                             fadeIn(
                                 animationSpec = tween(durationMillis = 500)
-                            ) with fadeOut(
+                            ) togetherWith fadeOut(
                                 animationSpec = tween(durationMillis = 500)
                             )
-                        }
+                        }, label = "textAnimation"
                     ) { targetText ->
                         Text(
                             text = targetText,
                             color = YallaTheme.color.white,
                             style = YallaTheme.font.labelSemiBold,
                             textAlign = TextAlign.Center,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp)
                         )
                     }

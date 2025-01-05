@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -40,6 +41,7 @@ fun OfflineScreen() {
         modifier = Modifier
             .fillMaxSize()
             .background(color = YallaTheme.color.white)
+            .systemBarsPadding()
             .padding(20.dp)
     ) {
         Spacer(modifier = Modifier.weight(1f))
@@ -52,7 +54,7 @@ fun OfflineScreen() {
         )
 
         Image(
-            painter = painterResource(id = R.drawable.img_logo_uzcard),
+            painter = painterResource(id = R.drawable.img_offline),
             contentDescription = null,
             contentScale = ContentScale.Fit
         )

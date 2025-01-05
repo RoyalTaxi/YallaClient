@@ -57,11 +57,9 @@ fun MapRoute(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    // Collect UI State
     val uiState by vm.uiState.collectAsState()
     var loading by remember { mutableStateOf(false) }
 
-    // Bottom sheet and drawer states
     val searchLocationState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val destinationsState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val tariffState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -72,7 +70,6 @@ fun MapRoute(
     val activeOrdersState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
-    // Bottom sheet scaffold
     val scaffoldState = rememberBottomSheetScaffoldState(
         sheetState = rememberBottomSheetState(
             confirmValueChange = { false },
@@ -85,18 +82,14 @@ fun MapRoute(
         )
     )
 
-    // Camera states for Google and 2GIS maps
     val googleCameraState = rememberCameraPositionState()
     val gisCameraState = rememberCameraState(Map2Gis(GeoPoint(49.545, 78.87), Zoom(2.0f)))
-    val gisCameraNode by gisCameraState.node.collectAsState()
+    val gisCameraNode = gisCameraState.node.collectAsState()
 
-    // Marker movement state
     var isMarkerMoving by remember { mutableStateOf(false) }
 
-    // Current LatLng of the user's location
     val currentLatLng = remember { mutableStateOf(MapPoint(0.0, 0.0)) }
 
-    // Permission state
     val permissionsGranted by rememberPermissionState(
         permissions = listOf(
             Manifest.permission.ACCESS_FINE_LOCATION,
@@ -104,12 +97,13 @@ fun MapRoute(
         )
     )
 
-    // Handlers for map actions, bottom sheets, and sheets
     val actionHandler = remember {
         MapActionHandler(
+            context = context,
             mapType = AppPreferences.mapType,
             googleCameraState = googleCameraState,
-            gisCameraState = gisCameraState
+            gisCameraState = gisCameraState,
+            gisCameraNode = gisCameraNode
         )
     }
 
@@ -136,7 +130,6 @@ fun MapRoute(
         )
     }
 
-    // Helper function to update currentLatLng with the user's current location and optionally move camera
     val updateLocationAndMoveCamera: (Boolean) -> Unit = { animate ->
         getCurrentLocation(context) { location ->
             currentLatLng.value = MapPoint(location.latitude, location.longitude)
@@ -148,7 +141,6 @@ fun MapRoute(
         }
     }
 
-    /** Handle any back pressed logic, confirm when there is route **/
     BackHandler {
         if (uiState.route.isNotEmpty()) {
             vm.setDestinations(emptyList())
@@ -156,12 +148,6 @@ fun MapRoute(
         } else if (uiState.selectedDriver == null) {
             (context as? Activity)?.finish()
         }
-    }
-
-    /** When screen opens, the map should move camera to current location **/
-    LaunchedEffect(Unit) {
-        updateLocationAndMoveCamera(true)
-        launch { vm.getMe() }
     }
 
     LaunchedEffect(Unit) {
@@ -173,7 +159,6 @@ fun MapRoute(
         }
     }
 
-    /** Collect Actions from ViewModel */
     LaunchedEffect(Unit) {
         launch {
             vm.actionState.collectLatest { action ->
@@ -188,33 +173,21 @@ fun MapRoute(
         }
     }
 
-    /** Adjust camera on route changes */
     LaunchedEffect(uiState.route) {
         launch {
             actionHandler.moveCameraToFitBounds(uiState.route, animate = true)
         }
     }
 
-    /**
-     * If the marker stops moving and there's no route and the order isn't appointed,
-     * fetch address details. If the marker is moving, reset state.
-     */
     LaunchedEffect(isMarkerMoving) {
         launch {
             if (uiState.route.isEmpty() && uiState.selectedDriver?.status != OrderStatus.Appointed) {
-                if (isMarkerMoving) {
-                    vm.setNotFoundState()
-                } else {
-                    vm.getAddressDetails(currentLatLng.value)
-                }
+                if (isMarkerMoving) vm.setNotFoundState()
+                else vm.getAddressDetails(currentLatLng.value)
             }
         }
     }
 
-    /**
-     * Continuously poll getShow() every 5 seconds.
-     * This could be considered for refactoring if an event-driven approach is possible.
-     */
     LaunchedEffect(uiState.showingOrderId) {
         launch {
             while (uiState.showingOrderId != null) {
@@ -224,7 +197,6 @@ fun MapRoute(
         }
     }
 
-    /** Update UI based on selected driver's order status */
     LaunchedEffect(uiState.selectedDriver?.status) {
         launch {
             when (uiState.selectedDriver?.status) {
@@ -258,7 +230,6 @@ fun MapRoute(
         }
     }
 
-    /** If in fetters, move camera to driver's current location */
     LaunchedEffect(uiState.selectedDriver) {
         launch {
             if (uiState.selectedDriver != null) loading = false
@@ -277,16 +248,16 @@ fun MapRoute(
         }
     }
 
-    /** If permissions are granted, update location and camera */
     LaunchedEffect(permissionsGranted) {
+        launch { vm.getMe() }
+
         launch {
             if (permissionsGranted) {
-                updateLocationAndMoveCamera(false)
+                updateLocationAndMoveCamera(true)
             }
         }
     }
 
-    /** Reset selected driver if there's no selected order */
     LaunchedEffect(uiState.selectedOrder) {
         launch {
             if (uiState.selectedOrder == null) {
@@ -295,13 +266,11 @@ fun MapRoute(
         }
     }
 
-    // If permissions are denied, show the appropriate UI or handle it
     if (!permissionsGranted) {
         onPermissionDenied()
         return
     }
 
-    // Main UI: Drawer + MapScreen + Bottom sheets
     MapDrawer(
         drawerState = drawerState,
         uiState = uiState,
@@ -329,19 +298,32 @@ fun MapRoute(
                 onIntent = { intent ->
                     when (intent) {
                         is MapIntent.MoveToMyLocation -> updateLocationAndMoveCamera(true)
-                        is MapIntent.MoveToMyRoute -> actionHandler.moveCameraToFitBounds(uiState.route)
+                        is MapIntent.MoveToMyRoute -> {
+                            vm.updateCameraButton(MoveCameraButtonState.FirstLocation)
+                            actionHandler.moveCameraToFitBounds(uiState.route)
+                        }
+
+                        is MapIntent.MoveToFirstLocation -> {
+                            vm.updateCameraButton(MoveCameraButtonState.MyRouteView)
+                            actionHandler.moveCamera(
+                                mapPoint = uiState.route.first(),
+                                animate = true,
+                                duration = 1000
+                            )
+                        }
+
                         is MapIntent.OpenDrawer -> scope.launch { drawerState.open() }
                         is MapIntent.DiscardOrder -> {
                             vm.setDestinations(emptyList())
                             updateLocationAndMoveCamera(true)
                         }
+
                     }
                 }
             )
         }
     )
 
-    // Bottom sheets
     bottomSheetHandler.Sheets(
         uiState = uiState,
         currentLatLng = currentLatLng,
@@ -353,7 +335,6 @@ fun MapRoute(
         }
     )
 
-    // Handle marker movement updates for Google Maps
     if (AppPreferences.mapType == MapType.Google) {
         LaunchedEffect(googleCameraState.isMoving) {
             if (!googleCameraState.isMoving) {
@@ -364,18 +345,13 @@ fun MapRoute(
         }
     }
 
-    // Handle marker movement updates for 2GIS Maps
     if (AppPreferences.mapType == MapType.Gis) {
-        DisposableEffect(gisCameraNode) {
-            val node = gisCameraNode ?: return@DisposableEffect onDispose { }
+        DisposableEffect(gisCameraState.position) {
+            val node = gisCameraNode.value ?: return@DisposableEffect onDispose { }
             val closeable = node.stateChannel.connect(DirectExecutor) { newState ->
+                currentLatLng.value = gisCameraState.position.point.let { MapPoint(it.lat, it.lon) }
                 isMarkerMoving = when (newState) {
-                    CameraState.FREE -> {
-                        currentLatLng.value =
-                            gisCameraState.position.point.let { MapPoint(it.lat, it.lon) }
-                        false
-                    }
-
+                    CameraState.FREE -> false
                     else -> true
                 }
             }

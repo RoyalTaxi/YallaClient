@@ -7,13 +7,13 @@ import kotlinx.coroutines.flow.stateIn
 import uz.ildam.technologies.yalla.android.connectivity.ConnectivityObserver
 
 class MainViewModel(
-    private val connectivityObserver: ConnectivityObserver
-): ViewModel() {
+    connectivityObserver: ConnectivityObserver
+) : ViewModel() {
     val isConnected = connectivityObserver
         .isConnected
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000L),
-            false
+            true
         )
 }

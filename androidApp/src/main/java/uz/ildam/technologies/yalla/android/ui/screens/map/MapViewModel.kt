@@ -311,6 +311,10 @@ class MapViewModel(
         }
     }
 
+    fun updateCameraButton(state: MoveCameraButtonState) {
+        _uiState.update { it.copy(moveCameraButtonState = state) }
+    }
+
     fun setDrivers(drivers: List<ExecutorModel>) {
         _uiState.update { it.copy(drivers = drivers) }
     }

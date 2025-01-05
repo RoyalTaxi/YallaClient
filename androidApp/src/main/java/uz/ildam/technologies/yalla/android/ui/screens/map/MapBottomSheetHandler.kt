@@ -138,17 +138,24 @@ class MapBottomSheetHandler(
                     )
                     viewModel.setDestinations(destinations)
                 } else {
-                    if (uiState.moveCameraButtonState == MoveCameraButtonState.MyRouteView) {
-                        viewModel.getAddressDetails(MapPoint(location.latitude, location.longitude))
-                    } else {
-                        actionHandler.moveCamera(
+                    when (uiState.moveCameraButtonState) {
+                        MoveCameraButtonState.MyLocationView -> {
+                            actionHandler.moveCamera(
+                                MapPoint(
+                                    lat = location.latitude,
+                                    lng = location.longitude
+                                ),
+                                animate = true
+                            )
+                            currentLatLng.value = MapPoint(location.latitude, location.longitude)
+                        }
+
+                        else -> viewModel.getAddressDetails(
                             MapPoint(
-                                lat = location.latitude,
-                                lng = location.longitude
-                            ),
-                            animate = true
+                                location.latitude,
+                                location.longitude
+                            )
                         )
-                        currentLatLng.value = MapPoint(location.latitude, location.longitude)
                     }
                 }
             },

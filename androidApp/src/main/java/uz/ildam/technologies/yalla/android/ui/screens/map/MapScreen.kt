@@ -3,9 +3,11 @@ package uz.ildam.technologies.yalla.android.ui.screens.map
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -20,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.google.android.gms.maps.model.BitmapDescriptor
@@ -37,6 +40,7 @@ import uz.ildam.technologies.yalla.android.ui.components.button.MapButton
 import uz.ildam.technologies.yalla.android.ui.components.button.ShowActiveOrdersButton
 import uz.ildam.technologies.yalla.android.ui.components.marker.YallaMarker
 import uz.ildam.technologies.yalla.android.ui.sheets.SheetValue
+import uz.ildam.technologies.yalla.android.utils.pxToDp
 import uz.ildam.technologies.yalla.android.utils.vectorToBitmapDescriptor
 import uz.ildam.technologies.yalla.android2gis.CameraState
 import uz.ildam.technologies.yalla.android2gis.GeoPoint
@@ -189,6 +193,7 @@ private fun GoogleMapContent(
     middleMarkerIcon: BitmapDescriptor,
     endMarkerIcon: BitmapDescriptor
 ) {
+    val context = LocalContext.current
     val driverStatus = uiState.selectedDriver?.status
 
     val disabledStatuses = listOf(
@@ -207,7 +212,10 @@ private fun GoogleMapContent(
         ),
         cameraPositionState = cameraPositionState,
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = 20.dp)
+        contentPadding = PaddingValues(
+            bottom = 20.dp,
+            top = pxToDp(context, WindowInsets.statusBars.getTop(LocalDensity.current)).dp
+        )
     ) {
         MapMarkers(uiState, startMarkerIcon, middleMarkerIcon, endMarkerIcon)
     }
@@ -341,7 +349,9 @@ private fun MapOverlay(
             isInFetters = driverStatus == OrderStatus.InFetters,
             isCompleted = driverStatus == OrderStatus.Completed,
             selectedAddressName = uiState.selectedLocation?.name,
-            modifier = Modifier.align(Alignment.Center)
+            modifier = Modifier
+                .align(Alignment.Center)
+                .statusBarsPadding()
         )
 
         // Show buttons if driver is not in NEW status
@@ -356,10 +366,11 @@ private fun MapOverlay(
                 ),
                 modifier = Modifier.align(Alignment.BottomEnd),
                 onClick = {
-                    if (uiState.moveCameraButtonState == MoveCameraButtonState.MyLocationView)
-                        onIntent(MapIntent.MoveToMyLocation)
-                    else
-                        onIntent(MapIntent.MoveToMyRoute)
+                    when (uiState.moveCameraButtonState) {
+                        MoveCameraButtonState.MyLocationView -> onIntent(MapIntent.MoveToMyLocation)
+                        MoveCameraButtonState.MyRouteView -> onIntent(MapIntent.MoveToMyRoute)
+                        MoveCameraButtonState.FirstLocation -> onIntent(MapIntent.MoveToFirstLocation)
+                    }
                 }
             )
 

@@ -10,6 +10,7 @@ import ru.dgis.sdk.DGis
 import uz.ildam.technologies.yalla.android.BuildConfig
 import uz.ildam.technologies.yalla.android.di.Navigation
 import uz.ildam.technologies.yalla.core.data.di.Common
+import uz.ildam.technologies.yalla.core.data.enums.MapType
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 
 class App : Application() {
@@ -18,9 +19,9 @@ class App : Application() {
         AndroidThreeTen.init(this)
         AppPreferences.init(this)
 
-        MapsInitializer.initialize(this)
-
-        DGis.initialize(
+        AppPreferences.mapType = MapType.Google
+        if (AppPreferences.mapType == MapType.Google) MapsInitializer.initialize(this)
+        else DGis.initialize(
             appContext = this,
             apiKeys = ApiKeys(
                 map = BuildConfig.MAP_API_KEY,

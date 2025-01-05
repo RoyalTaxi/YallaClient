@@ -29,7 +29,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "YallaKMM"
+rootProject.name = "YallaClient"
 include(":androidApp")
 include(":shared")
 include(":android2gis")
