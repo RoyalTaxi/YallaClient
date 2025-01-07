@@ -7,6 +7,7 @@ import uz.ildam.technologies.yalla.feature.map.data.di.Map
 import uz.ildam.technologies.yalla.feature.order.data.di.Order
 import uz.ildam.technologies.yalla.feature.payment.data.di.Payment
 import uz.ildam.technologies.yalla.feature.profile.data.di.Profile
+import uz.ildam.technologies.yalla.feature.settings.data.di.Settings
 
 object Common {
     val modules = listOf(
@@ -17,6 +18,7 @@ object Common {
         *History.modules.toTypedArray(),
         *Payment.modules.toTypedArray(),
         *Addresses.modules.toTypedArray(),
-        *Profile.modules.toTypedArray()
+        *Profile.modules.toTypedArray(),
+        *Settings.modules.toTypedArray()
     )
 }
