@@ -8,6 +8,12 @@ data class SettingsResponse(
 ) {
     @Serializable
     data class Setting(
+        val executor_link: String?,
+        val invite_link_for_friend: String?,
+        val support_email: String?,
+        val support_telegram_nickname: String?,
+        val support_instagram_nickname: String?,
+        val support_phone: String?,
         val facebook: String?,
         val instagram: String?,
         val youtube: String?,

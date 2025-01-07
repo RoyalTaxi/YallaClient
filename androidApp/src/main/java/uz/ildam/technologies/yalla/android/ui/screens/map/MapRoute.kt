@@ -9,7 +9,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -18,29 +17,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import com.google.maps.android.compose.rememberCameraPositionState
 import io.morfly.compose.bottomsheet.material3.rememberBottomSheetScaffoldState
 import io.morfly.compose.bottomsheet.material3.rememberBottomSheetState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import ru.dgis.sdk.map.CameraState
-import ru.dgis.sdk.map.Zoom
 import uz.ildam.technologies.yalla.android.ui.dialogs.LoadingDialog
 import uz.ildam.technologies.yalla.android.ui.sheets.SheetValue
 import uz.ildam.technologies.yalla.android.utils.getCurrentLocation
 import uz.ildam.technologies.yalla.android.utils.rememberPermissionState
-import uz.ildam.technologies.yalla.android2gis.DirectExecutor
-import uz.ildam.technologies.yalla.android2gis.GeoPoint
-import uz.ildam.technologies.yalla.android2gis.lat
-import uz.ildam.technologies.yalla.android2gis.lon
-import uz.ildam.technologies.yalla.android2gis.rememberCameraState
 import uz.ildam.technologies.yalla.core.data.enums.MapType
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
+import uz.ildam.technologies.yalla.core.domain.model.MapPoint
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.OrderStatus
 import kotlin.time.Duration.Companion.seconds
-import uz.ildam.technologies.yalla.android2gis.CameraPosition as Map2Gis
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -83,14 +74,6 @@ fun MapRoute(
         )
     )
 
-    val googleCameraState = rememberCameraPositionState()
-    val gisCameraState = rememberCameraState(Map2Gis(GeoPoint(49.545, 78.87), Zoom(2.0f)))
-    val gisCameraNode = gisCameraState.node.collectAsState()
-
-    var isMarkerMoving by remember { mutableStateOf(false) }
-
-    val currentLatLng = remember { mutableStateOf(MapPoint(0.0, 0.0)) }
-
     val permissionsGranted by rememberPermissionState(
         permissions = listOf(
             Manifest.permission.ACCESS_FINE_LOCATION,
@@ -98,14 +81,11 @@ fun MapRoute(
         )
     )
 
-    val actionHandler = remember {
-        MapActionHandler(
-            context = context,
-            mapType = AppPreferences.mapType,
-            googleCameraState = googleCameraState,
-            gisCameraState = gisCameraState,
-            gisCameraNode = gisCameraNode
-        )
+    val map: MapStrategy = remember {
+        when (AppPreferences.mapType) {
+            MapType.Google -> ConcreteGoogleMap()
+            MapType.Gis -> ConcreteGisMap()
+        }
     }
 
     val bottomSheetHandler = remember {
@@ -131,21 +111,10 @@ fun MapRoute(
         )
     }
 
-    val updateLocationAndMoveCamera: (Boolean) -> Unit = { animate ->
-        getCurrentLocation(context) { location ->
-            currentLatLng.value = MapPoint(location.latitude, location.longitude)
-            if (uiState.route.isEmpty()) {
-                actionHandler.moveCamera(animate = animate, mapPoint = currentLatLng.value)
-            } else {
-                actionHandler.moveCameraToFitBounds(uiState.route, animate)
-            }
-        }
-    }
-
     BackHandler {
         if (uiState.route.isNotEmpty()) {
             vm.setDestinations(emptyList())
-            uiState.selectedLocation?.point?.let { there -> actionHandler.moveCamera(there, true) }
+            uiState.selectedLocation?.point?.let { there -> map.animate(to = there) }
         } else if (uiState.selectedDriver == null) {
             (context as? Activity)?.finish()
         }
@@ -165,8 +134,8 @@ fun MapRoute(
             vm.actionState.collectLatest { action ->
                 when (action) {
                     is MapActionState.AddressIdLoaded -> vm.fetchTariffs(action.id.toInt())
-                    is MapActionState.PolygonLoaded -> vm.getAddressDetails(currentLatLng.value)
-                    is MapActionState.TariffsLoaded -> vm.getTimeout(currentLatLng.value)
+                    is MapActionState.PolygonLoaded -> vm.getAddressDetails(map.mapPoint.value)
+                    is MapActionState.TariffsLoaded -> vm.getTimeout(map.mapPoint.value)
                     is MapActionState.AddressNameLoaded -> vm.setSelectedLocation(name = action.name)
                     else -> {}
                 }
@@ -176,15 +145,16 @@ fun MapRoute(
 
     LaunchedEffect(uiState.route) {
         launch {
-            actionHandler.moveCameraToFitBounds(uiState.route, animate = true)
+            if (uiState.route.isEmpty()) map.animateToMyLocation()
+            else map.animateToFitBounds(uiState.route)
         }
     }
 
-    LaunchedEffect(isMarkerMoving) {
+    LaunchedEffect(map.isMarkerMoving.value) {
         launch {
             if (uiState.route.isEmpty() && uiState.selectedDriver?.status != OrderStatus.Appointed) {
-                if (isMarkerMoving) vm.setNotFoundState()
-                else vm.getAddressDetails(currentLatLng.value)
+                if (map.isMarkerMoving.value) vm.setNotFoundState()
+                else vm.getAddressDetails(map.mapPoint.value)
             }
         }
     }
@@ -207,22 +177,22 @@ fun MapRoute(
                 OrderStatus.InFetters -> sheetHandler.showOnTheRide()
                 OrderStatus.Completed -> sheetHandler.showFeedback()
                 OrderStatus.New -> {
-                    uiState.selectedLocation?.point?.let { actionHandler.moveCamera(it) }
+                    uiState.selectedLocation?.point?.let { there -> map.move(there) }
                     sheetHandler.showSearchCars()
                 }
 
                 OrderStatus.NonStopSending -> {
-                    uiState.selectedLocation?.point?.let { actionHandler.moveCamera(it) }
+                    uiState.selectedLocation?.point?.let { there -> map.move(there) }
                     sheetHandler.showSearchCars()
                 }
 
                 OrderStatus.Sending -> {
-                    uiState.selectedLocation?.point?.let { actionHandler.moveCamera(it) }
+                    uiState.selectedLocation?.point?.let { there -> map.move(there) }
                     sheetHandler.showSearchCars()
                 }
 
                 OrderStatus.UserSending -> {
-                    uiState.selectedLocation?.point?.let { actionHandler.moveCamera(it) }
+                    uiState.selectedLocation?.point?.let { there -> map.move(there) }
                     sheetHandler.showSearchCars()
                 }
 
@@ -240,11 +210,7 @@ fun MapRoute(
                         lat = driver.executor.coords.lat,
                         lng = driver.executor.coords.lng
                     )
-                    actionHandler.moveCamera(
-                        mapPoint = driverPosition,
-                        animate = true,
-                        duration = 1000
-                    )
+                    map.animate(to = driverPosition)
                 }
         }
     }
@@ -253,8 +219,9 @@ fun MapRoute(
         launch { vm.getMe() }
 
         launch {
-            if (permissionsGranted) {
-                updateLocationAndMoveCamera(true)
+            if (permissionsGranted) getCurrentLocation(context) { loc ->
+                if (uiState.route.isEmpty()) map.animate(MapPoint(loc.latitude, loc.longitude))
+                else map.animateToFitBounds(uiState.route)
             }
         }
     }
@@ -288,38 +255,29 @@ fun MapRoute(
         content = {
             MapScreen(
                 uiState = uiState,
-                isLoading = isMarkerMoving && uiState.route.isEmpty(),
+                map = map,
+                isLoading = map.isMarkerMoving.value && uiState.route.isEmpty(),
                 scaffoldState = scaffoldState,
-                cameraPositionState = googleCameraState,
-                cameraState = gisCameraState,
                 mapSheetHandler = sheetHandler,
-                currentLatLng = currentLatLng,
+                currentLatLng = map.mapPoint,
                 onCreateOrder = { loading = true },
                 mapBottomSheetHandler = bottomSheetHandler,
                 activeOrdersState = activeOrdersState,
                 onIntent = { intent ->
                     when (intent) {
-                        is MapIntent.MoveToMyLocation -> updateLocationAndMoveCamera(true)
+                        is MapIntent.MoveToMyLocation -> map.animateToMyLocation()
                         is MapIntent.MoveToMyRoute -> {
                             vm.updateCameraButton(MoveCameraButtonState.FirstLocation)
-                            actionHandler.moveCameraToFitBounds(uiState.route)
+                            map.animateToFitBounds(uiState.route)
                         }
 
                         is MapIntent.MoveToFirstLocation -> {
                             vm.updateCameraButton(MoveCameraButtonState.MyRouteView)
-                            actionHandler.moveCamera(
-                                mapPoint = uiState.route.first(),
-                                animate = true,
-                                duration = 1000
-                            )
+                            map.animate(uiState.route.first())
                         }
 
                         is MapIntent.OpenDrawer -> scope.launch { drawerState.open() }
-                        is MapIntent.DiscardOrder -> {
-                            vm.setDestinations(emptyList())
-                            updateLocationAndMoveCamera(true)
-                        }
-
+                        is MapIntent.DiscardOrder -> vm.setDestinations(emptyList())
                     }
                 }
             )
@@ -328,38 +286,13 @@ fun MapRoute(
 
     bottomSheetHandler.Sheets(
         uiState = uiState,
-        currentLatLng = currentLatLng,
-        actionHandler = actionHandler,
+        map = map,
         onAddNewCard = onAddNewCard,
         onCancel = {
             uiState.showingOrderId?.let { vm.cancelRide(it) }
             onCancel()
         }
     )
-
-    if (AppPreferences.mapType == MapType.Google) {
-        LaunchedEffect(googleCameraState.isMoving) {
-            if (!googleCameraState.isMoving) {
-                val pos = googleCameraState.position.target
-                currentLatLng.value = MapPoint(pos.latitude, pos.longitude)
-            }
-            isMarkerMoving = googleCameraState.isMoving
-        }
-    }
-
-    if (AppPreferences.mapType == MapType.Gis) {
-        DisposableEffect(gisCameraState.position) {
-            val node = gisCameraNode.value ?: return@DisposableEffect onDispose { }
-            val closeable = node.stateChannel.connect(DirectExecutor) { newState ->
-                currentLatLng.value = gisCameraState.position.point.let { MapPoint(it.lat, it.lon) }
-                isMarkerMoving = when (newState) {
-                    CameraState.FREE -> false
-                    else -> true
-                }
-            }
-            onDispose { closeable.close() }
-        }
-    }
 
     if (loading) LoadingDialog()
 }

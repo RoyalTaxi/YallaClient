@@ -19,7 +19,13 @@ object SettingsMapper {
                 youtube = remote?.youtube.orEmpty(),
                 telegram = remote?.telegram_nickname.orEmpty(),
                 privacyPolicyRu = remote?.privacy_policy_ru.orEmpty(),
-                privacyPolicyUz = remote?.privacy_policy_uz.orEmpty()
+                privacyPolicyUz = remote?.privacy_policy_uz.orEmpty(),
+                supportTelegramNickname = remote?.support_telegram_nickname.orEmpty(),
+                supportEmail = remote?.support_email.orEmpty(),
+                inviteLinkForFriend = remote?.invite_link_for_friend.orEmpty(),
+                executorLink = remote?.executor_link.orEmpty(),
+                supportPhone = remote?.support_phone.orEmpty(),
+                supportInstagramNickname = remote?.support_instagram_nickname.orEmpty(),
             )
         }
 }

@@ -5,6 +5,7 @@ import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import uz.ildam.technologies.yalla.core.data.enums.PaymentType
 import uz.ildam.technologies.yalla.core.domain.model.ExecutorModel
+import uz.ildam.technologies.yalla.core.domain.model.MapPoint
 import uz.ildam.technologies.yalla.feature.map.domain.model.response.map.SearchForAddressItemModel
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.SettingModel
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.ShowOrderModel
@@ -50,21 +51,6 @@ data class MapUIState(
     // UI State-related properties
     val moveCameraButtonState: MoveCameraButtonState = MoveCameraButtonState.MyLocationView,
     val discardOrderButtonState: DiscardOrderButtonState = DiscardOrderButtonState.OpenDrawer,
-    val mapUiSettings: MapUiSettings = MapUiSettings(
-        compassEnabled = false,
-        mapToolbarEnabled = false,
-        zoomControlsEnabled = false,
-        myLocationButtonEnabled = false,
-        rotationGesturesEnabled = true,
-        scrollGesturesEnabled = true,
-        scrollGesturesEnabledDuringRotateOrZoom = false,
-        tiltGesturesEnabled = false
-    ),
-    val properties: MapProperties = MapProperties(
-        mapType = MapType.NORMAL,
-        isBuildingEnabled = true,
-        isMyLocationEnabled = true,
-    )
 ) {
     data class SelectedLocation(
         val name: String?,

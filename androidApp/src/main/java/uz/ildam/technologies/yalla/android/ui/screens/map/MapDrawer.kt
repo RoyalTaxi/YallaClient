@@ -70,12 +70,12 @@ fun MapDrawer(
                         onClick = { onIntent(MapDrawerIntent.MyPlaces) }
                     )
 
-                    DrawerItem(
-                        title = stringResource(R.string.bonuses_and_discounts),
-                        description = stringResource(R.string.you_have_x_sums, 70_000),
-                        painter = painterResource(R.drawable.ic_discount),
-                        onClick = { onIntent(MapDrawerIntent.BonusesAndDiscounts) }
-                    )
+//                    DrawerItem(
+//                        title = stringResource(R.string.bonuses_and_discounts),
+//                        description = stringResource(R.string.you_have_x_sums, 70_000),
+//                        painter = painterResource(R.drawable.ic_discount),
+//                        onClick = { onIntent(MapDrawerIntent.BonusesAndDiscounts) }
+//                    )
 
                     DrawerItem(
                         title = stringResource(R.string.payment_type),

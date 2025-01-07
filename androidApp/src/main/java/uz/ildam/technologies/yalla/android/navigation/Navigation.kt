@@ -43,6 +43,7 @@ import uz.ildam.technologies.yalla.android.ui.screens.settings.navigateToSetting
 import uz.ildam.technologies.yalla.android.ui.screens.settings.settingsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.verification.navigateToVerificationScreen
 import uz.ildam.technologies.yalla.android.ui.screens.verification.verificationScreen
+import uz.ildam.technologies.yalla.android.ui.screens.web.webScreen
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 
 @Composable
@@ -130,7 +131,7 @@ fun Navigation(
             )
 
             cardVerificationScreen(
-                onNavigateBack = { navController.popBackStack(MAP_ROUTE, false) }
+                onNavigateBack = navController::navigateToCardListScreen
             )
 
             cancelReasonScreen(
@@ -152,6 +153,10 @@ fun Navigation(
             )
 
             settingsScreen(onNavigateBack = navController::safePopBackStack)
+
+            webScreen(
+                onNavigateBack = navController::safePopBackStack
+            )
         }
     }
 

@@ -1,4 +1,4 @@
-package uz.ildam.technologies.yalla.android.ui.screens.map
+package uz.ildam.technologies.yalla.core.domain.model
 
 data class MapPoint(
     val lat: Double,

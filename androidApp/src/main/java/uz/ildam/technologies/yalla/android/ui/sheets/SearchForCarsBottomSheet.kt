@@ -31,10 +31,10 @@ import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 import uz.ildam.technologies.yalla.android.ui.components.item.SearchCarItem
 import uz.ildam.technologies.yalla.android.ui.components.progress.YallaProgressBar
-import uz.ildam.technologies.yalla.android.ui.screens.map.MapPoint
 import uz.ildam.technologies.yalla.android.ui.screens.map.MapUIState
 import uz.ildam.technologies.yalla.android.ui.screens.map.MapViewModel
 import uz.ildam.technologies.yalla.core.data.mapper.or0
+import uz.ildam.technologies.yalla.core.domain.model.MapPoint
 import kotlin.time.Duration.Companion.seconds
 
 @Composable

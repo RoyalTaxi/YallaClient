@@ -10,7 +10,6 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -30,6 +29,7 @@ import uz.ildam.technologies.yalla.android.ui.sheets.search_address.SearchByName
 import uz.ildam.technologies.yalla.android.ui.sheets.select_from_map.SelectFromMapBottomSheet
 import uz.ildam.technologies.yalla.android.utils.getCurrentLocation
 import uz.ildam.technologies.yalla.core.data.mapper.or0
+import uz.ildam.technologies.yalla.core.domain.model.MapPoint
 
 @OptIn(ExperimentalMaterial3Api::class)
 class MapBottomSheetHandler(
@@ -59,8 +59,7 @@ class MapBottomSheetHandler(
     @Composable
     fun Sheets(
         uiState: MapUIState,
-        currentLatLng: MutableState<MapPoint>,
-        actionHandler: MapActionHandler,
+        map: MapStrategy,
         onAddNewCard: () -> Unit,
         onCancel: () -> Unit
     ) {
@@ -76,9 +75,7 @@ class MapBottomSheetHandler(
                 onAddressSelected = { name, lat, lng, addressId ->
                     if (searchLocationVisibility == SearchLocationVisibility.START) {
                         if (uiState.moveCameraButtonState == MoveCameraButtonState.MyRouteView) {
-                            if (addressId != 0) viewModel.getAddressDetails(
-                                MapPoint(lat, lng)
-                            )
+                            if (addressId != 0) viewModel.getAddressDetails(MapPoint(lat, lng))
                             else {
                                 val result =
                                     viewModel.isPointInsidePolygon(MapPoint(lat, lng))
@@ -88,16 +85,7 @@ class MapBottomSheetHandler(
                                 } else Toast.makeText(context, "Out of service", Toast.LENGTH_SHORT)
                                     .show()
                             }
-                        } else {
-                            currentLatLng.value = MapPoint(lat, lng)
-                            actionHandler.moveCamera(
-                                MapPoint(
-                                    lat = lat,
-                                    lng = lng
-                                ),
-                                animate = true
-                            )
-                        }
+                        } else map.animate(MapPoint(lat, lng))
                     } else if (searchLocationVisibility == SearchLocationVisibility.END) {
                         val destinations = uiState.destinations.toMutableList()
                         destinations.add(
@@ -140,22 +128,10 @@ class MapBottomSheetHandler(
                 } else {
                     when (uiState.moveCameraButtonState) {
                         MoveCameraButtonState.MyLocationView -> {
-                            actionHandler.moveCamera(
-                                MapPoint(
-                                    lat = lat,
-                                    lng = lng
-                                ),
-                                animate = true
-                            )
-                            currentLatLng.value = MapPoint(lat, lng)
+                            map.animate(MapPoint(lat = lat, lng = lng))
                         }
 
-                        else -> viewModel.getAddressDetails(
-                            MapPoint(
-                                lat,
-                                lng
-                            )
-                        )
+                        else -> viewModel.getAddressDetails(MapPoint(lat, lng))
                     }
                 }
             },
@@ -178,11 +154,7 @@ class MapBottomSheetHandler(
                     showDestinations(false)
                     viewModel.setDestinations(orderedDestinations)
                     if (orderedDestinations.isEmpty()) getCurrentLocation(context) { location ->
-                        currentLatLng.value = MapPoint(location.latitude, location.longitude)
-                        actionHandler.moveCamera(
-                            mapPoint = MapPoint(location.latitude, location.longitude),
-                            animate = true
-                        )
+                        map.animate(MapPoint(location.latitude, location.longitude))
                     }
                 }
             )

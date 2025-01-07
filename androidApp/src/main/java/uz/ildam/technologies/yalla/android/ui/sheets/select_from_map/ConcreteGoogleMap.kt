@@ -20,6 +20,7 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.android.utils.getCurrentLocation
+import uz.ildam.technologies.yalla.core.domain.model.MapPoint
 
 class ConcreteGoogleMap : MapStrategy {
     override val isMarkerMoving: MutableState<Boolean> = mutableStateOf(false)
