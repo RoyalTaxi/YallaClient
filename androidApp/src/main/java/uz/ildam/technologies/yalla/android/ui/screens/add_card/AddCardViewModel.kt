@@ -25,10 +25,12 @@ class AddCardViewModel(
             _actionState.emit(AddCardActionState.Loading)
             addCardUseCase(number = cardNumber, expiry = cardExpiry)
                 .onSuccess { result ->
-                    AddCardActionState.Success(
-                        key = result.key,
-                        cardNumber = uiState.value.cardNumber,
-                        cardExpiry = uiState.value.cardExpiry
+                    _actionState.emit(
+                        AddCardActionState.Success(
+                            key = result.key,
+                            cardNumber = uiState.value.cardNumber,
+                            cardExpiry = uiState.value.cardExpiry
+                        )
                     )
                 }.onFailure { _actionState.emit(AddCardActionState.Error) }
         }
