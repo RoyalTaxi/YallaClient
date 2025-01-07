@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Non-translatable language labels -->
-    <string name="russian" translatable="false">Русский</string>
-    <string name="uzbek" translatable="false">O\'zbekcha</string>
-
     <!-- Translated strings -->
     <string name="enter_phone_number">Telefon raqamingizni kiriting</string>
     <string name="we_send_code">Sizga tasdiqlash kodini yuboramiz</string>
@@ -127,4 +123,8 @@
     <string name="repeat">TAKRORLASH</string>
     <string name="setting">Sozlamalar</string>
     <string name="app_language">Ilova tili</string>
+    <string name="ildam">Ildam</string>
+    <string name="user_agreement">Foydalanuvchi shartnomasi</string>
+    <string name="we_on_social_networks">Biz ijtimoiy tarmoqlardamiz</string>
+
 </resources>

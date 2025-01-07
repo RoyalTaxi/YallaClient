@@ -2,6 +2,11 @@
 <resources>
     <string name="russian" translatable="false">Русский</string>
     <string name="uzbek" translatable="false">O\'zbekcha</string>
+    <string name="youtube" translatable="false">Youtube</string>
+    <string name="telegram" translatable="false">Telegram</string>
+    <string name="facebook" translatable="false">Faceboook</string>
+    <string name="instagram" translatable="false">Instagram</string>
+
     <string name="enter_phone_number">Введите номер телефона</string>
     <string name="we_send_code">Мы отправим вам код подтверждения</string>
     <string name="next">Далее</string>
@@ -124,4 +129,7 @@
     <string name="repeat">ПОВТОРИТЬ</string>
     <string name="setting">Настройки</string>
     <string name="app_language">Язык приложения</string>
+    <string name="ildam">Ildam</string>
+    <string name="user_agreement">Пользовательское соглашение</string>
+    <string name="we_on_social_networks">Мы в соцсетях</string>
 </resources>

@@ -9,6 +9,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.navigation.safeNavigate
 
 

@@ -1,5 +1,6 @@
 package uz.ildam.technologies.yalla.android.di
 
+import AboutAppViewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import uz.ildam.technologies.yalla.android.activity.MainViewModel
@@ -38,6 +39,7 @@ object Navigation {
         viewModelOf(::AddressViewModel)
         viewModelOf(::EditProfileViewModel)
         viewModelOf(::MainViewModel)
+        viewModelOf(::AboutAppViewModel)
 
         viewModelOf(::SelectFromMapBottomSheetViewModel)
         viewModelOf(::SearchByNameBottomSheetViewModel)

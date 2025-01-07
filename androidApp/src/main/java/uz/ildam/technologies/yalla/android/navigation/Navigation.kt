@@ -7,6 +7,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
+import uz.ildam.technologies.yalla.android.ui.screens.about_app.aboutAppScreen
+import uz.ildam.technologies.yalla.android.ui.screens.about_app.navigateToAboutAppScreen
 import uz.ildam.technologies.yalla.android.ui.screens.add_card.addCardScreen
 import uz.ildam.technologies.yalla.android.ui.screens.add_card.navigateToAddCardScreen
 import uz.ildam.technologies.yalla.android.ui.screens.address.addressScreen
@@ -43,6 +45,7 @@ import uz.ildam.technologies.yalla.android.ui.screens.settings.navigateToSetting
 import uz.ildam.technologies.yalla.android.ui.screens.settings.settingsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.verification.navigateToVerificationScreen
 import uz.ildam.technologies.yalla.android.ui.screens.verification.verificationScreen
+import uz.ildam.technologies.yalla.android.ui.screens.web.navigateToWebScreen
 import uz.ildam.technologies.yalla.android.ui.screens.web.webScreen
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 
@@ -108,7 +111,8 @@ fun Navigation(
                 onSettingsClick = navController::navigateToSettings,
                 onPermissionDenied = navController::navigateToPermissionScreen,
                 onCancel = navController::navigateToCancelReasonScreen,
-                onAddNewCard = navController::navigateToAddCardScreen
+                onAddNewCard = navController::navigateToAddCardScreen,
+                onAboutAppClick = navController::navigateToAboutAppScreen
             )
 
             historyScreen(
@@ -153,6 +157,11 @@ fun Navigation(
             )
 
             settingsScreen(onNavigateBack = navController::safePopBackStack)
+
+            aboutAppScreen(
+                onBack = navController::safePopBackStack,
+                onClickUrl = navController::navigateToWebScreen
+            )
 
             webScreen(
                 onNavigateBack = navController::safePopBackStack

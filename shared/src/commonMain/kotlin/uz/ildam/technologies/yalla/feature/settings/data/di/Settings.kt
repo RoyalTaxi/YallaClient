@@ -10,7 +10,7 @@ import uz.ildam.technologies.yalla.feature.settings.domain.usecase.GetConfigUseC
 
 object Settings {
     private val serviceModule = module {
-        single { SettingsService(get(named(Constants.API_1))) }
+        single { SettingsService(get(named(Constants.API_2))) }
     }
 
     private val repositoryModule = module {

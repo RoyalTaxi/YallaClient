@@ -2,6 +2,7 @@ package uz.ildam.technologies.yalla.android.ui.screens.web
 
 import android.view.ViewGroup
 import android.webkit.WebView
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -48,7 +49,9 @@ fun WebScreen(
         },
         content = { paddingValues ->
             AndroidView(
-                modifier = Modifier.padding(paddingValues),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
                 factory = {
                     WebView(it).apply {
                         layoutParams = ViewGroup.LayoutParams(
@@ -56,7 +59,8 @@ fun WebScreen(
                             ViewGroup.LayoutParams.MATCH_PARENT
                         )
                     }
-                }, update = {
+                },
+                update = {
                     it.loadUrl(url)
                 }
             )
