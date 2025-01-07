@@ -1,7 +1,18 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.compose.compiler)
+}
+
+val localProperties = Properties().apply {
+    load(rootProject.file("local.properties").inputStream())
+}
+
+fun getLocalProperty(name: String): String {
+    return localProperties.getProperty(name)
+        ?: throw RuntimeException("'$name' should be specified in local.properties")
 }
 
 android {
@@ -10,6 +21,7 @@ android {
 
     defaultConfig {
         minSdk = 24
+        buildConfigField("String", "MAP_API_KEY", getLocalProperty("dgisMapApiKey"))
     }
 
     packaging {
@@ -46,5 +58,6 @@ dependencies {
     debugImplementation(libs.compose.ui.tooling)
 
     // Public API for downstream modules
-    api(libs.ru.sdk.map)
+
+    api(libs.sdk.map)
 }

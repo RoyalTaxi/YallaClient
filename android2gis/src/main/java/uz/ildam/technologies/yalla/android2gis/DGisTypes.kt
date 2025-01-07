@@ -1,5 +1,6 @@
 package uz.ildam.technologies.yalla.android2gis
 
+import ru.dgis.sdk.Meter
 import ru.dgis.sdk.coordinates.GeoPoint
 import ru.dgis.sdk.coordinates.GeoRect
 import ru.dgis.sdk.geometry.GeoPointWithElevation
@@ -9,7 +10,6 @@ import ru.dgis.sdk.map.CameraPosition
 import ru.dgis.sdk.map.Image
 import ru.dgis.sdk.map.Map
 import ru.dgis.sdk.map.MapObjectManager
-import ru.dgis.sdk.map.Meter
 import ru.dgis.sdk.map.Zoom
 
 internal typealias DGisMap = Map

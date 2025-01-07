@@ -2,7 +2,6 @@ package uz.ildam.technologies.yalla.android.ui.sheets.select_from_map
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -30,30 +29,30 @@ class SelectFromMapBottomSheetViewModel(
             .onFailure { changeStateToNotFound() }
     }
 
-    fun getAddressDetails(latLng: LatLng) = viewModelScope.launch {
+    fun getAddressDetails(point: MapPoint) = viewModelScope.launch {
         if (addresses.isEmpty()) fetchPolygons()
         else addresses.firstOrNull {
             isPointInsidePolygon(
-                point = latLng,
+                point = point,
                 vertices = it.polygons.map { polygon ->
                     Pair(polygon.lat, polygon.lng)
                 }
             )
         }?.let { address ->
-            updateSelectedLocation(addressId = address.addressId, latLng = latLng)
+            updateSelectedLocation(addressId = address.addressId, latLng = point)
         } ?: run {
             updateSelectedLocation(addressId = null)
         }
-        fetchAddressName(latLng)
+        fetchAddressName(point)
     }
 
 
-    private fun fetchAddressName(point: LatLng) = viewModelScope.launch {
-        getAddressNameUseCase(point.latitude, point.longitude)
+    private fun fetchAddressName(point: MapPoint) = viewModelScope.launch {
+        getAddressNameUseCase(point.lat, point.lng)
             .onSuccess { result ->
                 updateSelectedLocation(
                     name = result.displayName,
-                    latLng = LatLng(result.lat, result.lng)
+                    latLng = point
                 )
             }
             .onFailure {
@@ -74,7 +73,7 @@ class SelectFromMapBottomSheetViewModel(
 
     private fun updateSelectedLocation(
         name: String? = _uiState.value.name,
-        latLng: LatLng? = _uiState.value.latLng,
+        latLng: MapPoint? = _uiState.value.latLng,
         addressId: Int? = _uiState.value.addressId
     ) {
         _uiState.update {
@@ -86,14 +85,17 @@ class SelectFromMapBottomSheetViewModel(
         }
     }
 
-    private fun isPointInsidePolygon(point: LatLng, vertices: List<Pair<Double, Double>>): Boolean {
+    private fun isPointInsidePolygon(
+        point: MapPoint,
+        vertices: List<Pair<Double, Double>>
+    ): Boolean {
         var isInside = false
         for (i in vertices.indices) {
             val j = if (i == 0) vertices.size - 1 else i - 1
             val (lat1, lng1) = vertices[i]
             val (lat2, lng2) = vertices[j]
-            val intersects = (lng1 > point.longitude) != (lng2 > point.longitude) &&
-                    (point.latitude < (lat2 - lat1) * (point.longitude - lng1) / (lng2 - lng1) + lat1)
+            val intersects = (lng1 > point.lng) != (lng2 > point.lng) &&
+                    (point.lat < (lat2 - lat1) * (point.lng - lng1) / (lng2 - lng1) + lat1)
             if (intersects) isInside = !isInside
         }
         return isInside

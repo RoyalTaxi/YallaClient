@@ -125,12 +125,12 @@ fun AddressRoute(
 
     if (openMapVisibility) SelectFromMapBottomSheet(
         isForDestination = false,
-        onSelectLocation = { name, location, _ ->
+        onSelectLocation = { name, lat, lng, _ ->
             viewModel.updateSelectedAddress(
                 AddressUIState.Location(
                     name = name,
-                    lat = location.latitude,
-                    lng = location.longitude
+                    lat = lat,
+                    lng = lng
                 )
             )
         },

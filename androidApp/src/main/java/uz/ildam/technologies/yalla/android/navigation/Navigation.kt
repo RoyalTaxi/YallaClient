@@ -3,7 +3,6 @@ package uz.ildam.technologies.yalla.android.navigation
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
@@ -40,6 +39,8 @@ import uz.ildam.technologies.yalla.android.ui.screens.onboarding.ONBOARDING_ROUT
 import uz.ildam.technologies.yalla.android.ui.screens.onboarding.onboardingScreen
 import uz.ildam.technologies.yalla.android.ui.screens.permission.navigateToPermissionScreen
 import uz.ildam.technologies.yalla.android.ui.screens.permission.permissionScreen
+import uz.ildam.technologies.yalla.android.ui.screens.settings.navigateToSettings
+import uz.ildam.technologies.yalla.android.ui.screens.settings.settingsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.verification.navigateToVerificationScreen
 import uz.ildam.technologies.yalla.android.ui.screens.verification.verificationScreen
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
@@ -103,6 +104,7 @@ fun Navigation(
                 onOrderHistoryClick = navController::navigateToHistoryScreen,
                 onPaymentTypeClick = navController::navigateToCardListScreen,
                 onAddressesClick = navController::navigateToAddressesScreen,
+                onSettingsClick = navController::navigateToSettings,
                 onPermissionDenied = navController::navigateToPermissionScreen,
                 onCancel = navController::navigateToCancelReasonScreen,
                 onAddNewCard = navController::navigateToAddCardScreen
@@ -148,6 +150,8 @@ fun Navigation(
             editProfileScreen(
                 onNavigateBack = navController::safePopBackStack
             )
+
+            settingsScreen(onNavigateBack = navController::safePopBackStack)
         }
     }
 

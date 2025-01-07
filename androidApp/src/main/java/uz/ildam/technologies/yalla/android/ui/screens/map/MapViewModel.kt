@@ -258,7 +258,7 @@ class MapViewModel(
                 selectedOptions = emptyList()
             )
         }
-        fetchTariffs()
+//        fetchTariffs()
     }
 
     fun setSelectedOptions(options: List<GetTariffsModel.Tariff.Service>) {
@@ -334,6 +334,15 @@ class MapViewModel(
                 name = first.fullAddress
             )
         }
+
+        setDestinations(order.taxi.routes.drop(1).map { address ->
+            MapUIState.Destination(
+                name = address.fullAddress,
+                point = address.coords.let { coordinate ->
+                    MapPoint(coordinate.lat, coordinate.lng)
+                }
+            )
+        })
     }
 
     fun setPaymentTypes(paymentTypes: List<CardListItemModel>) {

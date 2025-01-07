@@ -5,10 +5,9 @@ import com.google.android.gms.maps.MapsInitializer
 import com.jakewharton.threetenabp.AndroidThreeTen
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext.startKoin
-import ru.dgis.sdk.ApiKeys
-import ru.dgis.sdk.DGis
-import uz.ildam.technologies.yalla.android.BuildConfig
+import ru.dgis.sdk.Context
 import uz.ildam.technologies.yalla.android.di.Navigation
+import uz.ildam.technologies.yalla.android2gis.InitMap
 import uz.ildam.technologies.yalla.core.data.di.Common
 import uz.ildam.technologies.yalla.core.data.enums.MapType
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
@@ -19,15 +18,10 @@ class App : Application() {
         AndroidThreeTen.init(this)
         AppPreferences.init(this)
 
-        AppPreferences.mapType = MapType.Google
+        AppPreferences.mapType = MapType.Gis
+
         if (AppPreferences.mapType == MapType.Google) MapsInitializer.initialize(this)
-        else DGis.initialize(
-            appContext = this,
-            apiKeys = ApiKeys(
-                map = BuildConfig.MAP_API_KEY,
-                directory = ""
-            )
-        )
+        else InitMap.init(this)
 
         startKoin {
             androidContext(this@App)
@@ -37,5 +31,9 @@ class App : Application() {
                 *Navigation.modules.toTypedArray(),
             )
         }
+    }
+
+    companion object {
+        lateinit var context: Context
     }
 }

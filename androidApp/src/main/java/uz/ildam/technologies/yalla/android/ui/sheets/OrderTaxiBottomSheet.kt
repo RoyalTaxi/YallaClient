@@ -2,6 +2,7 @@ package uz.ildam.technologies.yalla.android.ui.sheets
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,7 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -108,25 +109,29 @@ fun OrderTaxiBottomSheet(
                 onClick = onDestinationClick
             )
 
+            val snappingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
+
             LazyRow(
                 state = listState,
+                flingBehavior = snappingBehavior,
                 contentPadding = PaddingValues(horizontal = 20.dp),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                if (uiState.tariffs?.tariff?.isNotEmpty() == true && isLoading.not()) itemsIndexed(
-                    uiState.tariffs.tariff
-                ) { _, tariff ->
-                    TariffItem(
-                        tariff = tariff.name,
-                        tariffImageUrl = tariff.photo,
-                        startingCost = tariff.cost,
-                        fixedCost = tariff.fixedPrice,
-                        fixedState = tariff.fixedType,
-                        selectedState = uiState.selectedTariff?.id == tariff.id,
-                        onSelect = { wasSelected -> onSelectTariff(tariff, wasSelected) }
-                    )
+                if (uiState.tariffs?.tariff?.isNotEmpty() == true && isLoading.not()) {
+                    items(uiState.tariffs.tariff) { tariff ->
+                        TariffItem(
+                            tariff = tariff.name,
+                            tariffImageUrl = tariff.photo,
+                            startingCost = tariff.cost,
+                            fixedCost = tariff.fixedPrice,
+                            fixedState = tariff.fixedType,
+                            selectedState = uiState.selectedTariff?.id == tariff.id,
+                            onSelect = { wasSelected -> onSelectTariff(tariff, wasSelected) }
+                        )
+                    }
+                } else {
+                    items(3) { TariffItemShimmer() }
                 }
-                else items(3) { TariffItemShimmer() }
             }
         }
 

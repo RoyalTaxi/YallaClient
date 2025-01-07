@@ -22,7 +22,7 @@ data object InstantScroll : ScrollBehavior {
 
 data object AnimatedScroll : ScrollBehavior {
     override suspend fun scrollBy(listState: LazyListState, distance: Float) {
-        listState.animateScrollBy(distance, animationSpec = tween(500))
+        listState.animateScrollBy(distance, animationSpec = tween(200))
     }
 
     override suspend fun scrollToItem(listState: LazyListState, index: Int) {

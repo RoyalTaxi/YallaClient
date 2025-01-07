@@ -12,7 +12,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import ru.dgis.sdk.map.Gesture
+import ru.dgis.sdk.map.MapTheme
 import ru.dgis.sdk.map.Padding
+import ru.dgis.sdk.positioning.DefaultLocationSource
+import ru.dgis.sdk.positioning.registerPlatformLocationSource
 
 private class MapNode(
     val camera: CameraNode,
@@ -81,17 +84,22 @@ private fun createDGisMapView(
     return DGisMapView(context, DGisMapOptions().apply {
         position = options.cameraState.position
     }).apply {
-        setTheme("light")
         getMapAsync {
             this.gestureManager?.disableGesture(Gesture.ROTATION)
             this.gestureManager?.disableGesture(Gesture.MULTI_TOUCH_SHIFT)
             this.gestureManager?.disableGesture(Gesture.TILT)
+            this.setTheme(MapTheme.defaultTheme)
 
             this.setCopyrightMargins(
                 left = 0,
                 top = 0,
                 right = dpToPx(context, 8),
-                bottom = dpToPx(context, 22),
+                bottom = dpToPx(context, 16),
+            )
+
+            registerPlatformLocationSource(
+                context = InitMap.context,
+                source = DefaultLocationSource(context)
             )
 
             onMapReady(it, this)
@@ -114,13 +122,11 @@ private fun createMapNode(
     view.setTouchEventsObserver(touchEventProcessor)
     val closeables = listOf(map, objectManager, camera, touchEventProcessor)
 
-    dgisCamera.setPadding(
-        Padding(
-            dpToPx(context, 100),
-            dpToPx(context, 100),
-            dpToPx(context, 100),
-            dpToPx(context, 100)
-        )
+    dgisCamera.padding = Padding(
+        dpToPx(context, 100),
+        dpToPx(context, 100),
+        dpToPx(context, 100),
+        dpToPx(context, 100)
     )
 
     return MapNode(camera, objectManager, closeables)

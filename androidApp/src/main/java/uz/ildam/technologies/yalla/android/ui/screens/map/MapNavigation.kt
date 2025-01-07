@@ -17,6 +17,7 @@ fun NavGraphBuilder.mapScreen(
     onOrderHistoryClick: () -> Unit,
     onPaymentTypeClick: () -> Unit,
     onAddressesClick: () -> Unit,
+    onSettingsClick: () -> Unit,
     onPermissionDenied: () -> Unit,
     onCancel: () -> Unit,
     onAddNewCard: () -> Unit,
@@ -33,6 +34,7 @@ fun NavGraphBuilder.mapScreen(
             onOrderHistoryClick = onOrderHistoryClick,
             onPaymentTypeClick = onPaymentTypeClick,
             onAddressesClick = onAddressesClick,
+            onSettingsClick = onSettingsClick,
             onPermissionDenied = onPermissionDenied,
             onCancel = onCancel,
             onAddNewCard = onAddNewCard

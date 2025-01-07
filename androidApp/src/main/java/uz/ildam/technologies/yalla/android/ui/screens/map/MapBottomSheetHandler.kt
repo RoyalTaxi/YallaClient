@@ -127,13 +127,13 @@ class MapBottomSheetHandler(
 
         if (openMapVisibility != OpenMapVisibility.INVISIBLE) SelectFromMapBottomSheet(
             isForDestination = openMapVisibility == OpenMapVisibility.END,
-            onSelectLocation = { name, location, isForDestination ->
+            onSelectLocation = { name, lat, lng, isForDestination ->
                 if (isForDestination) {
                     val destinations = uiState.destinations.toMutableList()
                     destinations.add(
                         MapUIState.Destination(
                             name,
-                            MapPoint(location.latitude, location.longitude)
+                            MapPoint(lat, lng)
                         )
                     )
                     viewModel.setDestinations(destinations)
@@ -142,18 +142,18 @@ class MapBottomSheetHandler(
                         MoveCameraButtonState.MyLocationView -> {
                             actionHandler.moveCamera(
                                 MapPoint(
-                                    lat = location.latitude,
-                                    lng = location.longitude
+                                    lat = lat,
+                                    lng = lng
                                 ),
                                 animate = true
                             )
-                            currentLatLng.value = MapPoint(location.latitude, location.longitude)
+                            currentLatLng.value = MapPoint(lat, lng)
                         }
 
                         else -> viewModel.getAddressDetails(
                             MapPoint(
-                                location.latitude,
-                                location.longitude
+                                lat,
+                                lng
                             )
                         )
                     }

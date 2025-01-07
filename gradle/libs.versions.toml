@@ -75,7 +75,6 @@ paging-common = { module = "app.cash.paging:paging-common", version.ref = "pagin
 paging-compose-common = { module = "app.cash.paging:paging-compose-common", version.ref = "pagingComposeCommon" }
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
 play-services-wallet = { module = "com.google.android.gms:play-services-wallet", version.ref = "playServicesWallet" }
-ru-sdk-map = { module = "ru.dgis.sdk:sdk-map", version.ref = "sdkMapVersion" }
 sdk-map = { module = "ru.dgis.sdk:sdk-full", version.ref = "sdkMap" }
 snapper = { module = "dev.chrisbanes.snapper:snapper", version.ref = "snapper" }
 threetenabp = { module = "com.jakewharton.threetenabp:threetenabp", version.ref = "threetenabp" }

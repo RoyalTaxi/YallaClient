@@ -9,8 +9,13 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import kotlinx.coroutines.launch
 
 @Composable
@@ -20,15 +25,30 @@ fun PermissionRoute(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
+    var isPermissionGranted by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        )
+    }
+
     val locationPermissionRequest = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (isGranted) onPermissionGranted()
-        else {
+    ) { granted ->
+        isPermissionGranted = granted
+        if (!granted) {
             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                 data = Uri.fromParts("package", context.packageName, null)
             }
             context.startActivity(intent)
+        }
+    }
+
+    LaunchedEffect(isPermissionGranted) {
+        if (isPermissionGranted) {
+            onPermissionGranted()
         }
     }
 

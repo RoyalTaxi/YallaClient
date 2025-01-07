@@ -4,7 +4,7 @@
     "type": "APK",
     "kind": "Directory"
   },
-  "applicationId": "uz.ildam.technologies.yalla.android",
+  "applicationId": "uz.yalla.client",
   "variantName": "release",
   "elements": [
     {

@@ -122,4 +122,6 @@
     <string name="no_internet_connection">Нет подключение к интернету</string>
     <string name="no_internet_connection_body">Проверьте интернет-соединение или позвоните чтобы вызвать такси</string>
     <string name="repeat">ПОВТОРИТЬ</string>
+    <string name="setting">Настройки</string>
+    <string name="app_language">Язык приложения</string>
 </resources>

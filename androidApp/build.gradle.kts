@@ -1,33 +1,19 @@
-import java.util.Properties
-
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.compose.compiler)
 }
 
-
-val localProperties = Properties().apply {
-    load(rootProject.file("local.properties").inputStream())
-}
-
-fun getLocalProperty(name: String): String {
-    return localProperties.getProperty(name)
-        ?: throw RuntimeException("'$name' should be specified in local.properties")
-}
-
 android {
     namespace = "uz.ildam.technologies.yalla.android"
     compileSdk = 34
     defaultConfig {
-        applicationId = "uz.ildam.technologies.yalla.android"
+        applicationId = "uz.lola.client"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
         resourceConfigurations.plus(listOf("uz", "ru"))
-        buildConfigField("String", "MAP_API_KEY", getLocalProperty("dgisMapApiKey"))
-
     }
     buildFeatures {
         compose = true

@@ -1,8 +1,5 @@
 package uz.ildam.technologies.yalla.android.ui.sheets.select_from_map
 
-import android.Manifest
-import android.content.Context
-import android.content.pm.PackageManager
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -22,26 +19,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.app.ActivityCompat
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.Marker
-import com.google.maps.android.compose.rememberCameraPositionState
-import com.google.maps.android.compose.rememberMarkerState
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
@@ -49,52 +32,34 @@ import uz.ildam.technologies.yalla.android.ui.components.button.MapButton
 import uz.ildam.technologies.yalla.android.ui.components.button.SelectCurrentLocationButton
 import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
 import uz.ildam.technologies.yalla.android.ui.components.marker.YallaMarker
+import uz.ildam.technologies.yalla.core.data.enums.MapType
+import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 
 @Composable
 fun SelectFromMapBottomSheet(
     modifier: Modifier = Modifier,
     isForDestination: Boolean,
-    onSelectLocation: (String, LatLng, Boolean) -> Unit,
+    onSelectLocation: (String, Double, Double, Boolean) -> Unit,
     onDismissRequest: () -> Unit,
     viewModel: SelectFromMapBottomSheetViewModel = koinViewModel()
 ) {
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
     val uiState by viewModel.uiState.collectAsState()
-    val cameraPositionState = rememberCameraPositionState()
-    val markerState = rememberMarkerState()
-    var isMarkerMoving by remember { mutableStateOf(false) }
-    val currentLatLng = remember { mutableStateOf(LatLng(0.0, 0.0)) }
+
+    val map: MapStrategy = remember {
+        when (AppPreferences.mapType) {
+            MapType.Google -> ConcreteGoogleMap()
+            MapType.Gis -> ConcreteGisMap()
+        }
+    }
 
     BackHandler(onBack = onDismissRequest)
 
-    LaunchedEffect(cameraPositionState.isMoving) {
-        if (cameraPositionState.isMoving) {
-            viewModel.changeStateToNotFound()
-        } else {
-            val position = cameraPositionState.position.target
-            currentLatLng.value = position
-            markerState.position = position
-
-            viewModel.getAddressDetails(position)
-        }
-
-        isMarkerMoving = cameraPositionState.isMoving
+    LaunchedEffect(map.mapPoint.value) {
+        if (map.isMarkerMoving.value) viewModel.changeStateToNotFound()
+        else viewModel.getAddressDetails(map.mapPoint.value)
     }
 
-    LaunchedEffect(Unit) {
-        getCurrentLocation(context) { location ->
-            viewModel.getAddressDetails(location)
-            scope.launch {
-                currentLatLng.value = location
-                cameraPositionState.move(
-                    update = CameraUpdateFactory.newCameraPosition(
-                        CameraPosition(location, 15f, 0f, 0f)
-                    )
-                )
-            }
-        }
-    }
+    LaunchedEffect(Unit) { map.moveToMyLocation() }
 
     Column(
         modifier = modifier
@@ -107,23 +72,17 @@ fun SelectFromMapBottomSheet(
                 .fillMaxWidth()
                 .weight(1f)
         ) {
-            GoogleMap(
-                properties = uiState.properties,
-                uiSettings = uiState.mapUiSettings,
-                cameraPositionState = cameraPositionState,
-                modifier = Modifier.matchParentSize(),
-                content = { Marker(state = markerState, alpha = 0f) }
-            )
+
+            map.Map(modifier = Modifier.matchParentSize())
 
             Box(
                 modifier = Modifier
                     .matchParentSize()
-                    .statusBarsPadding()
                     .padding(20.dp)
             ) {
                 YallaMarker(
                     time = uiState.timeout,
-                    isLoading = isMarkerMoving,
+                    isLoading = map.isMarkerMoving.value,
                     color = YallaTheme.color.black,
                     selectedAddressName = uiState.name,
                     modifier = Modifier.align(Alignment.Center)
@@ -132,25 +91,15 @@ fun SelectFromMapBottomSheet(
                 MapButton(
                     painter = painterResource(R.drawable.ic_location),
                     modifier = Modifier.align(Alignment.BottomEnd),
-                    onClick = {
-                        getCurrentLocation(context) { location ->
-                            scope.launch {
-                                currentLatLng.value = location
-                                cameraPositionState.animate(
-                                    update = CameraUpdateFactory.newCameraPosition(
-                                        CameraPosition(location, 15f, 0f, 0f)
-                                    ),
-                                    durationMs = 1000
-                                )
-                            }
-                        }
-                    }
+                    onClick = map::animateToMyLocation
                 )
 
                 MapButton(
+                    onClick = onDismissRequest,
                     painter = painterResource(R.drawable.ic_arrow_back),
-                    modifier = Modifier.align(Alignment.TopStart),
-                    onClick = onDismissRequest
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .statusBarsPadding()
                 )
             }
         }
@@ -166,7 +115,7 @@ fun SelectFromMapBottomSheet(
         ) {
             SelectCurrentLocationButton(
                 modifier = Modifier.padding(10.dp),
-                text = if (isMarkerMoving.not() && uiState.name != null) uiState.name!!
+                text = if (map.isMarkerMoving.value.not() && uiState.name != null) uiState.name!!
                 else stringResource(R.string.loading),
                 leadingIcon = {
                     Box(
@@ -198,30 +147,20 @@ fun SelectFromMapBottomSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp),
-                enabled = !isMarkerMoving && if (isForDestination) true else uiState.addressId != null,
+                enabled = !map.isMarkerMoving.value && if (isForDestination) true else uiState.addressId != null,
                 text = stringResource(R.string.choose),
                 onClick = {
                     if (uiState.latLng != null && uiState.name != null) {
-                        onSelectLocation(uiState.name!!, uiState.latLng!!, isForDestination)
+                        onSelectLocation(
+                            uiState.name!!,
+                            uiState.latLng!!.lat,
+                            uiState.latLng!!.lng,
+                            isForDestination
+                        )
                         onDismissRequest()
                     }
                 }
             )
         }
-    }
-}
-
-private fun getCurrentLocation(context: Context, onLocationFetched: (LatLng) -> Unit) {
-    val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
-    if (ActivityCompat.checkSelfPermission(
-            context,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-            context,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        ) != PackageManager.PERMISSION_GRANTED
-    ) return
-    fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-        location?.let { onLocationFetched(LatLng(it.latitude, it.longitude)) }
     }
 }

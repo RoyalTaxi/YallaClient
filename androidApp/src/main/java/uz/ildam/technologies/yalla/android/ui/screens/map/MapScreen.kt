@@ -1,6 +1,7 @@
 package uz.ildam.technologies.yalla.android.ui.screens.map
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
@@ -21,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -45,7 +47,6 @@ import uz.ildam.technologies.yalla.android.utils.vectorToBitmapDescriptor
 import uz.ildam.technologies.yalla.android2gis.CameraState
 import uz.ildam.technologies.yalla.android2gis.GeoPoint
 import uz.ildam.technologies.yalla.android2gis.MapView
-import uz.ildam.technologies.yalla.android2gis.Point
 import uz.ildam.technologies.yalla.android2gis.imageFromResource
 import uz.ildam.technologies.yalla.core.data.enums.MapType
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
@@ -71,25 +72,14 @@ fun MapScreen(
     onIntent: (MapIntent) -> Unit,
     onCreateOrder: () -> Unit,
 ) {
-    val context = LocalContext.current
-
-    // Extract commonly used states
-    val driverStatus = uiState.selectedDriver?.status
     val routeEmpty = uiState.route.isEmpty()
 
-    // Convert vector resources to bitmap descriptors for Google Map markers
-    val startMarkerIcon = remember {
-        vectorToBitmapDescriptor(context, R.drawable.ic_origin_marker)
-            ?: BitmapDescriptorFactory.defaultMarker()
-    }
-    val middleMarkerIcon = remember {
-        vectorToBitmapDescriptor(context, R.drawable.ic_middle_marker)
-            ?: BitmapDescriptorFactory.defaultMarker()
-    }
-    val endMarkerIcon = remember {
-        vectorToBitmapDescriptor(context, R.drawable.ic_destination_marker)
-            ?: BitmapDescriptorFactory.defaultMarker()
-    }
+    val disabledStatuses = listOf(
+        OrderStatus.New,
+        OrderStatus.NonStopSending,
+        OrderStatus.UserSending,
+        OrderStatus.Sending
+    )
 
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
@@ -114,28 +104,22 @@ fun MapScreen(
                     .fillMaxSize()
                     .padding(bottom = adjustedBottomPadding)
             ) {
-                // Show either GisMapContent or GoogleMapContent depending on the selected map type
-                if (AppPreferences.mapType == MapType.Gis) {
-                    GisMapContent(uiState, cameraState)
-                } else {
-                    GoogleMapContent(
-                        uiState = uiState,
-                        cameraPositionState = cameraPositionState,
-                        startMarkerIcon = startMarkerIcon,
-                        middleMarkerIcon = middleMarkerIcon,
-                        endMarkerIcon = endMarkerIcon,
-                    )
-                }
+                if (AppPreferences.mapType == MapType.Gis) GisMapContent(uiState, cameraState)
+                else GoogleMapContent(uiState, cameraPositionState)
 
-                // Overlay UI elements (Marker, Buttons)
                 MapOverlay(
                     uiState = uiState,
                     isLoading = isLoading,
                     routeEmpty = routeEmpty,
-                    driverStatus = driverStatus,
                     onIntent = onIntent,
                     activeOrdersState = activeOrdersState,
                     onClickShowOrders = { visible -> mapBottomSheetHandler.showActiveOrders(visible.not()) }
+                )
+
+                if (disabledStatuses.contains(uiState.selectedDriver?.status)) Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .pointerInput(Unit) { detectTapGestures { } }
                 )
             }
         }
@@ -143,73 +127,28 @@ fun MapScreen(
 }
 
 @Composable
-private fun GisMapContent(
-    uiState: MapUIState,
-    cameraState: CameraState
-) {
-    val routeEmpty = uiState.route.isEmpty()
-    MapView(
-        modifier = Modifier.fillMaxSize(),
-        cameraState = cameraState
-    ) {
-        if (routeEmpty) {
-            Point(position = cameraState.position.point)
-        } else {
-            GisPolyline(
-                points = uiState.route.map { GeoPoint(it.lat, it.lng) },
-                width = 4.dp
-            )
-
-            // Start marker
-            GisMarker(
-                icon = imageFromResource(R.drawable.ic_origin_marker),
-                position = GeoPoint(uiState.route.first().lat, uiState.route.first().lng)
-            )
-
-            // Middle markers
-            uiState.destinations.dropLast(1).forEach { routePoint ->
-                routePoint.point?.let {
-                    GisMarker(
-                        icon = imageFromResource(R.drawable.ic_middle_marker),
-                        position = GeoPoint(it.lat, it.lng)
-                    )
-                }
-            }
-
-            // End marker
-            GisMarker(
-                icon = imageFromResource(R.drawable.ic_destination_marker),
-                position = GeoPoint(uiState.route.last().lat, uiState.route.last().lng)
-            )
-        }
-    }
-}
-
-@Composable
 private fun GoogleMapContent(
     uiState: MapUIState,
-    cameraPositionState: CameraPositionState,
-    startMarkerIcon: BitmapDescriptor,
-    middleMarkerIcon: BitmapDescriptor,
-    endMarkerIcon: BitmapDescriptor
+    cameraPositionState: CameraPositionState
 ) {
     val context = LocalContext.current
-    val driverStatus = uiState.selectedDriver?.status
 
-    val disabledStatuses = listOf(
-        OrderStatus.New,
-        OrderStatus.NonStopSending,
-        OrderStatus.UserSending,
-        OrderStatus.Sending
-    )
+    val startMarkerIcon = remember {
+        vectorToBitmapDescriptor(context, R.drawable.ic_origin_marker)
+            ?: BitmapDescriptorFactory.defaultMarker()
+    }
+    val middleMarkerIcon = remember {
+        vectorToBitmapDescriptor(context, R.drawable.ic_middle_marker)
+            ?: BitmapDescriptorFactory.defaultMarker()
+    }
+    val endMarkerIcon = remember {
+        vectorToBitmapDescriptor(context, R.drawable.ic_destination_marker)
+            ?: BitmapDescriptorFactory.defaultMarker()
+    }
 
     GoogleMap(
         properties = uiState.properties,
-        uiSettings = uiState.mapUiSettings.copy(
-            scrollGesturesEnabled = disabledStatuses.contains(driverStatus).not(),
-            rotationGesturesEnabled = disabledStatuses.contains(driverStatus).not(),
-            zoomGesturesEnabled = disabledStatuses.contains(driverStatus).not()
-        ),
+        uiSettings = uiState.mapUiSettings,
         cameraPositionState = cameraPositionState,
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(
@@ -311,6 +250,62 @@ private fun MapMarkers(
     }
 }
 
+@Composable
+private fun GisMapContent(
+    uiState: MapUIState,
+    cameraState: CameraState
+) {
+    MapView(
+        modifier = Modifier.fillMaxSize(),
+        cameraState = cameraState
+    ) {
+        if (uiState.route.isNotEmpty()) {
+            // Draw the route
+            GisPolyline(
+                points = uiState.route.map { GeoPoint(it.lat, it.lng) },
+                width = 4.dp
+            )
+
+            // Add start marker
+            GisMarker(
+                icon = imageFromResource(R.drawable.ic_origin_marker),
+                position = GeoPoint(uiState.route.first().lat, uiState.route.first().lng)
+            )
+
+            // Add middle markers
+            uiState.destinations.dropLast(1).forEach { routePoint ->
+                routePoint.point?.let {
+                    GisMarker(
+                        icon = imageFromResource(R.drawable.ic_middle_marker),
+                        position = GeoPoint(it.lat, it.lng)
+                    )
+                }
+            }
+
+            // Add end marker
+            GisMarker(
+                icon = imageFromResource(R.drawable.ic_destination_marker),
+                position = GeoPoint(uiState.route.last().lat, uiState.route.last().lng)
+            )
+        }
+
+        uiState.selectedDriver?.let {
+            GisMarker(
+                icon = imageFromResource(R.drawable.img_car_marker), // Use car marker icon
+                position = GeoPoint(it.executor.coords.lat, it.executor.coords.lat), // Driver's position
+            )
+        }
+
+        // Add car markers
+        uiState.drivers.take(20).forEach { driver ->
+            GisMarker(
+                icon = imageFromResource(R.drawable.img_car_marker), // Use car marker icon
+                position = GeoPoint(driver.lat, driver.lng), // Driver's position
+            )
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MapOverlay(
@@ -318,7 +313,6 @@ private fun MapOverlay(
     activeOrdersState: SheetState,
     isLoading: Boolean,
     routeEmpty: Boolean,
-    driverStatus: OrderStatus?,
     onClickShowOrders: (visible: Boolean) -> Unit,
     onIntent: (MapIntent) -> Unit
 ) {
@@ -337,17 +331,17 @@ private fun MapOverlay(
         YallaMarker(
             time = uiState.timeout,
             isLoading = isLoading,
-            isSearching = driverStatus == OrderStatus.New,
+            isSearching = uiState.selectedDriver?.status == OrderStatus.New,
             isRouteEmpty = routeEmpty,
-            isSending = driverStatus in listOf(
+            isSending = uiState.selectedDriver?.status in listOf(
                 OrderStatus.Sending,
                 OrderStatus.UserSending,
                 OrderStatus.NonStopSending
             ),
-            isAppointed = driverStatus == OrderStatus.Appointed,
-            isAtAddress = driverStatus == OrderStatus.AtAddress,
-            isInFetters = driverStatus == OrderStatus.InFetters,
-            isCompleted = driverStatus == OrderStatus.Completed,
+            isAppointed = uiState.selectedDriver?.status == OrderStatus.Appointed,
+            isAtAddress = uiState.selectedDriver?.status == OrderStatus.AtAddress,
+            isInFetters = uiState.selectedDriver?.status == OrderStatus.InFetters,
+            isCompleted = uiState.selectedDriver?.status == OrderStatus.Completed,
             selectedAddressName = uiState.selectedLocation?.name,
             modifier = Modifier
                 .align(Alignment.Center)
@@ -355,7 +349,7 @@ private fun MapOverlay(
         )
 
         // Show buttons if driver is not in NEW status
-        if (driverStatus !in disabledStatuses) {
+        if (uiState.selectedDriver?.status !in disabledStatuses) {
             // Move camera button (my location or route view)
             MapButton(
                 painter = painterResource(
