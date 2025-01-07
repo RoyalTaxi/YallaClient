@@ -1,5 +1,7 @@
 package uz.ildam.technologies.yalla.android.ui.sheets.select_from_map
 
+import uz.ildam.technologies.yalla.core.domain.model.MapPoint
+
 data class SelectFromMapBottomSheetState(
     val timeout: Int? = null,
     val name: String? = null,

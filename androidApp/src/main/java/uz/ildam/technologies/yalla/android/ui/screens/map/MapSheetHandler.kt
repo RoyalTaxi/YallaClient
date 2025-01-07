@@ -27,6 +27,7 @@ import uz.ildam.technologies.yalla.android.ui.sheets.FeedbackBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.OnTheRideBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.OrderTaxiBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.SearchForCarsBottomSheet
+import uz.ildam.technologies.yalla.core.domain.model.MapPoint
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.OrderStatus
 import java.util.Locale
 

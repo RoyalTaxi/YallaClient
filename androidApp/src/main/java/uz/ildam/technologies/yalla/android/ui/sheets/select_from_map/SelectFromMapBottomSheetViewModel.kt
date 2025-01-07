@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import uz.ildam.technologies.yalla.core.domain.model.MapPoint
 import uz.ildam.technologies.yalla.feature.map.domain.model.response.map.PolygonRemoteItem
 import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.GetAddressNameUseCase
 import uz.ildam.technologies.yalla.feature.map.domain.usecase.map.GetPolygonUseCase

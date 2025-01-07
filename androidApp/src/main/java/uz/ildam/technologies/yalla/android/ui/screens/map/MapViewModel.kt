@@ -17,6 +17,7 @@ import uz.ildam.technologies.yalla.core.data.enums.PaymentType
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 import uz.ildam.technologies.yalla.core.data.mapper.or0
 import uz.ildam.technologies.yalla.core.domain.model.ExecutorModel
+import uz.ildam.technologies.yalla.core.domain.model.MapPoint
 import uz.ildam.technologies.yalla.feature.map.domain.model.request.GetRoutingDtoItem
 import uz.ildam.technologies.yalla.feature.map.domain.model.response.map.PolygonRemoteItem
 import uz.ildam.technologies.yalla.feature.map.domain.model.response.map.SearchForAddressItemModel
@@ -400,6 +401,7 @@ class MapViewModel(
         cancelRideUseCase(orderId)
             .onSuccess {
                 AppPreferences.lastOrderId = orderId
+                completeOrder()
                 _uiState.update { state ->
                     val newOrders = state
                         .orders

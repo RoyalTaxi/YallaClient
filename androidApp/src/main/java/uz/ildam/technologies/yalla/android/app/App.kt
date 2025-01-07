@@ -18,7 +18,7 @@ class App : Application() {
         AndroidThreeTen.init(this)
         AppPreferences.init(this)
 
-        AppPreferences.mapType = MapType.Gis
+        AppPreferences.mapType = MapType.Google
 
         if (AppPreferences.mapType == MapType.Google) MapsInitializer.initialize(this)
         else InitMap.init(this)

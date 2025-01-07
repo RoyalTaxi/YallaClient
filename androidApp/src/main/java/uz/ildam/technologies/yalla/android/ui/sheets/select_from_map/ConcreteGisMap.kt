@@ -23,6 +23,7 @@ import uz.ildam.technologies.yalla.android2gis.Zoom
 import uz.ildam.technologies.yalla.android2gis.lat
 import uz.ildam.technologies.yalla.android2gis.lon
 import uz.ildam.technologies.yalla.android2gis.rememberCameraState
+import uz.ildam.technologies.yalla.core.domain.model.MapPoint
 import uz.ildam.technologies.yalla.android2gis.CameraState as ComposableCameraState
 
 class ConcreteGisMap : MapStrategy {
