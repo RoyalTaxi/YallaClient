@@ -2,10 +2,11 @@ package uz.ildam.technologies.yalla.android.ui.sheets.select_from_map
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
 
 interface MapStrategy {
-    val isMarkerMoving: MutableState<Boolean>
+    val isMarkerMoving: State<Boolean>
     val mapPoint: MutableState<MapPoint>
 
     @Composable

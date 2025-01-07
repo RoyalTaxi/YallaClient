@@ -54,7 +54,7 @@ fun SelectFromMapBottomSheet(
 
     BackHandler(onBack = onDismissRequest)
 
-    LaunchedEffect(map.mapPoint.value) {
+    LaunchedEffect(map.isMarkerMoving.value) {
         if (map.isMarkerMoving.value) viewModel.changeStateToNotFound()
         else viewModel.getAddressDetails(map.mapPoint.value)
     }

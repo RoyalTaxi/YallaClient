@@ -23,9 +23,7 @@ import uz.ildam.technologies.yalla.android.utils.getCurrentLocation
 
 class ConcreteGoogleMap : MapStrategy {
     override val isMarkerMoving: MutableState<Boolean> = mutableStateOf(false)
-
     override val mapPoint: MutableState<MapPoint> = mutableStateOf(MapPoint(0.0, 0.0))
-
     private lateinit var context: Context
     private lateinit var coroutineScope: CoroutineScope
     private lateinit var cameraPositionState: CameraPositionState

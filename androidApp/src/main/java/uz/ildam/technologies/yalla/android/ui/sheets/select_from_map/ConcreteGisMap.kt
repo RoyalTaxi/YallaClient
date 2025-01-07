@@ -5,6 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -31,10 +33,13 @@ class ConcreteGisMap : MapStrategy {
     private lateinit var cameraState: ComposableCameraState
 
     @Composable
-    override fun Map(modifier: Modifier) {
+    override fun Map(
+        modifier: Modifier,
+    ) {
         context = LocalContext.current
         coroutineScope = rememberCoroutineScope()
         cameraState = rememberCameraState(CameraPosition(GeoPoint(0.0, 0.0), Zoom(2.0f)))
+        val cameraNode by cameraState.node.collectAsState()
 
         LaunchedEffect(cameraState.position.point) {
             mapPoint.value = MapPoint(
@@ -48,9 +53,8 @@ class ConcreteGisMap : MapStrategy {
             cameraState = cameraState
         )
 
-        DisposableEffect(cameraState.position) {
-            val node = cameraState.node.value
-            val closable = node?.stateChannel?.connect { state ->
+        DisposableEffect(cameraNode?.dgisCamera?.position) {
+            val closable = cameraNode?.stateChannel?.connect { state ->
                 isMarkerMoving.value = (state != CameraState.FREE)
             }
             onDispose { closable?.close() }
