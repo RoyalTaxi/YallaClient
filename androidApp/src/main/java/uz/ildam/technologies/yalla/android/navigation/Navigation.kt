@@ -21,6 +21,8 @@ import uz.ildam.technologies.yalla.android.ui.screens.card_list.cardListScreen
 import uz.ildam.technologies.yalla.android.ui.screens.card_list.navigateToCardListScreen
 import uz.ildam.technologies.yalla.android.ui.screens.card_verification.cardVerificationScreen
 import uz.ildam.technologies.yalla.android.ui.screens.card_verification.navigateToCardVerificationScreen
+import uz.ildam.technologies.yalla.android.ui.screens.contact_us.contactUsScreen
+import uz.ildam.technologies.yalla.android.ui.screens.contact_us.navigateToContactUsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.credentials.credentialsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.credentials.navigateToCredentialsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.details.detailsScreen
@@ -112,7 +114,8 @@ fun Navigation(
                 onPermissionDenied = navController::navigateToPermissionScreen,
                 onCancel = navController::navigateToCancelReasonScreen,
                 onAddNewCard = navController::navigateToAddCardScreen,
-                onAboutAppClick = navController::navigateToAboutAppScreen
+                onAboutAppClick = navController::navigateToAboutAppScreen,
+                onContactUsClick = navController::navigateToContactUsScreen
             )
 
             historyScreen(
@@ -159,6 +162,11 @@ fun Navigation(
             settingsScreen(onNavigateBack = navController::safePopBackStack)
 
             aboutAppScreen(
+                onBack = navController::safePopBackStack,
+                onClickUrl = navController::navigateToWebScreen
+            )
+
+            contactUsScreen(
                 onBack = navController::safePopBackStack,
                 onClickUrl = navController::navigateToWebScreen
             )

@@ -45,6 +45,7 @@ fun MapRoute(
     onCancel: () -> Unit,
     onAddNewCard: () -> Unit,
     onAboutAppClick: () -> Unit,
+    onContactUsClick: () -> Unit,
     vm: MapViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
@@ -251,6 +252,7 @@ fun MapRoute(
                 is MapDrawerIntent.MyPlaces -> onAddressesClick()
                 is MapDrawerIntent.Settings -> onSettingsClick()
                 is MapDrawerIntent.AboutTheApp -> onAboutAppClick()
+                is MapDrawerIntent.ContactUs -> onContactUsClick()
                 else -> {}
             }
         },
