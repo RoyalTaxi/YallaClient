@@ -12,9 +12,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -22,6 +25,7 @@ import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 import uz.ildam.technologies.yalla.android.ui.components.button.OptionsButton
 import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
+import uz.ildam.technologies.yalla.android.ui.components.item.SearchCarItem
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.ShowOrderModel
 
 @Composable
@@ -85,6 +89,14 @@ fun DriverWaitingBottomSheet(
                 )
             }
         }
+
+        SearchCarItem(
+            modifier = Modifier.clip(RoundedCornerShape(30.dp)),
+            text = stringResource(R.string.cancel_order),
+            imageVector = Icons.Default.Close,
+            onClick = onCancel
+        )
+
         Row(
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier
@@ -96,12 +108,12 @@ fun DriverWaitingBottomSheet(
                 .navigationBarsPadding()
                 .padding(20.dp)
         ) {
-            OptionsButton(
-                modifier = Modifier.fillMaxHeight(),
-                tint = YallaTheme.color.red,
-                painter = painterResource(R.drawable.ic_x),
-                onClick = onCancel
-            )
+//            OptionsButton(
+//                modifier = Modifier.fillMaxHeight(),
+//                tint = YallaTheme.color.red,
+//                painter = painterResource(R.drawable.ic_x),
+//                onClick = onCancel
+//            )
 
             YallaButton(
                 text = stringResource(R.string.connect),
@@ -112,12 +124,12 @@ fun DriverWaitingBottomSheet(
                     .fillMaxHeight()
             )
 
-            OptionsButton(
-                modifier = Modifier.fillMaxHeight(),
-                painter = painterResource(R.drawable.img_options),
-                tint = YallaTheme.color.black,
-                onClick = onOptionsClick
-            )
+//            OptionsButton(
+//                modifier = Modifier.fillMaxHeight(),
+//                painter = painterResource(R.drawable.img_options),
+//                tint = YallaTheme.color.black,
+//                onClick = onOptionsClick
+//            )
         }
     }
 }

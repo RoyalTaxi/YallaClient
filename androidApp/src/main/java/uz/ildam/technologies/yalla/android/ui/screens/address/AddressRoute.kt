@@ -6,6 +6,8 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -45,6 +47,8 @@ fun AddressRoute(
     var confirmCancellationVisibility by remember { mutableStateOf(false) }
     val searchLocationState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val confirmCancellationState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val snackbarHostState = remember { SnackbarHostState() }
+
 
     LaunchedEffect(Unit) {
         launch {
@@ -60,7 +64,17 @@ fun AddressRoute(
                         false
                     }
 
-                    AddressActionState.Error -> false
+                    is AddressActionState.Error -> {
+                        launch {
+                            snackbarHostState.showSnackbar(
+                                message = action.errorMessage,
+                                withDismissAction = true,
+                                duration = SnackbarDuration.Short
+                            )
+                        }
+                        false
+                    }
+
                     AddressActionState.GetSuccess -> false
                     AddressActionState.Loading -> true
                     AddressActionState.PutSuccess -> {
@@ -75,6 +89,7 @@ fun AddressRoute(
     AddressScreen(
         id = id,
         uiState = uiState,
+        snackbarHostState = snackbarHostState,
         onIntent = { intent ->
             when (intent) {
                 is AddressIntent.OnNavigateBack -> onNavigateBack()
@@ -94,7 +109,7 @@ fun AddressRoute(
                 is AddressIntent.OnChangeComment -> viewModel.updateComment(intent.value)
                 is AddressIntent.OnChangeEntrance -> viewModel.updateEnter(intent.value)
                 is AddressIntent.OnChangeFloor -> viewModel.updateFloor(intent.value)
-                AddressIntent.OpenSearchSheet -> searchLocationVisibility = true
+                is AddressIntent.OpenSearchSheet -> searchLocationVisibility = true
             }
         }
     )

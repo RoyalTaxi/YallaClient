@@ -96,7 +96,7 @@ fun MapOverlay(
             )
         }
 
-        if (uiState.orders.isNotEmpty()) ShowActiveOrdersButton(
+        if (uiState.orders.size > 1) ShowActiveOrdersButton(
             orderCount = uiState.orders.size,
             isOpen = activeOrdersState.isVisible,
             onClick = { onClickShowOrders(activeOrdersState.isVisible) },
