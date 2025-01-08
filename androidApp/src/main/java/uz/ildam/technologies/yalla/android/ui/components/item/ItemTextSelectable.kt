@@ -27,7 +27,7 @@ fun ItemTextSelectable(
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier.padding(horizontal = 10.dp),
+        modifier = modifier,
         onClick = onSelect,
         colors = CardDefaults.cardColors(YallaTheme.color.white)
     ) {
@@ -36,10 +36,7 @@ fun ItemTextSelectable(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(
-                    horizontal = 10.dp,
-                    vertical = 16.dp
-                )
+                .padding(16.dp)
         ) {
             Text(
                 text = text,
