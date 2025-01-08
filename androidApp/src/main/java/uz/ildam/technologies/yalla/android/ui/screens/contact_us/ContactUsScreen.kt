@@ -41,7 +41,7 @@ fun ContactUsScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = {onIntent(ContactUsIntent.OnNavigateBack)}) {
+                    IconButton(onClick = { onIntent(ContactUsIntent.OnNavigateBack) }) {
                         Icon(
                             painter = painterResource(R.drawable.ic_arrow_back),
                             contentDescription = null
@@ -50,7 +50,7 @@ fun ContactUsScreen(
                 }
             )
         },
-        content = {paddingValues ->
+        content = { paddingValues ->
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier
@@ -59,10 +59,17 @@ fun ContactUsScreen(
                     .padding(20.dp)
             ) {
 
-                uiState.socialNetworks.forEach {
+                uiState.socialNetworks.forEach { socialNetwork ->
                     ContactUsCard(
-                        socialNetwork = it,
-                        onClick = { onIntent(ContactUsIntent.OnClickUrl(it.third, it.second)) }
+                        socialNetwork = socialNetwork,
+                        onClick = {
+                            when (socialNetwork.third) {
+                                R.string.email -> onIntent(ContactUsIntent.OnClickEmail(socialNetwork.second))
+                                R.string.contuct_us -> onIntent(ContactUsIntent.OnClickPhone(socialNetwork.second))
+                                else -> onIntent(ContactUsIntent.OnClickUrl(socialNetwork.third, socialNetwork.second)
+                                )
+                            }
+                        }
                     )
                 }
             }

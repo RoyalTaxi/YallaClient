@@ -10,6 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.viewmodel.compose.viewModel
+import org.koin.androidx.compose.koinViewModel
 import uz.ildam.technologies.yalla.android.connectivity.AndroidConnectivityObserver
 import uz.ildam.technologies.yalla.android.navigation.Navigation
 
@@ -28,9 +29,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         setContent {
-            val viewModel = viewModel <MainViewModel> {
-                MainViewModel(AndroidConnectivityObserver(this@MainActivity))
-            }
+            val viewModel: MainViewModel = koinViewModel()
             val isConnected by viewModel.isConnected.collectAsState()
             Navigation(isConnected)
         }

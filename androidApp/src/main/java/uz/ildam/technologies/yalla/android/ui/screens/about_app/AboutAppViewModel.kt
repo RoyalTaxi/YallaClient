@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.ui.screens.about_app.AboutAppActionState
 import uz.ildam.technologies.yalla.android.ui.screens.about_app.AboutAppUIState
+import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 import uz.ildam.technologies.yalla.feature.settings.domain.usecase.GetConfigUseCase
 
 class AboutAppViewModel(
@@ -53,6 +54,7 @@ class AboutAppViewModel(
                         privacyPolicyUz = result.setting.privacyPolicyUz to R.string.user_agreement
                     )
                 }
+                AppPreferences.supportNumber = result.setting.supportPhone
                 _actionState.emit(AboutAppActionState.Success)
             }
             .onFailure {

@@ -58,7 +58,9 @@ fun PermissionRoute(
         scrollState = scrollState,
         onIntent = { intent ->
             when (intent) {
-                PermissionIntent.GrantPermission -> locationPermissionRequest.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                PermissionIntent.GrantPermission ->
+                    if (isPermissionGranted) onPermissionGranted()
+                    else locationPermissionRequest.launch(Manifest.permission.ACCESS_FINE_LOCATION)
             }
         }
     )

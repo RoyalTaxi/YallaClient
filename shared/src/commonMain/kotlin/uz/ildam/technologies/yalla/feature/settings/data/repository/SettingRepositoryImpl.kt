@@ -13,7 +13,7 @@ class SettingRepositoryImpl(
     override suspend fun getConfig(): Either<SettingsModel, DataError.Network> {
         return when (val result = service.getConfig()) {
             is Either.Error -> Either.Error(result.error)
-            is Either.Success -> Either.Success(result.data.let(SettingsMapper.mapper))
+            is Either.Success -> Either.Success(result.data.result.let(SettingsMapper.mapper))
         }
     }
 }

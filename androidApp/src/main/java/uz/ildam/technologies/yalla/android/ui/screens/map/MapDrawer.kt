@@ -15,6 +15,7 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -32,6 +33,7 @@ fun MapDrawer(
     onIntent: (MapDrawerIntent) -> Unit,
     content: @Composable () -> Unit
 ) {
+    val context = LocalContext.current
     ModalNavigationDrawer(
         drawerState = drawerState,
         gesturesEnabled = drawerState.isOpen,
@@ -110,13 +112,27 @@ fun MapDrawer(
                         title = stringResource(R.string.invite_friends),
                         description = stringResource(R.string.win_x_sums, 5000),
                         painter = painterResource(R.drawable.ic_invite),
-                        onClick = { onIntent(MapDrawerIntent.InviteFriend) }
+                        onClick = {
+                            onIntent(
+                                MapDrawerIntent.InviteFriend(
+                                    title = context.getString(R.string.invite_friends),
+                                    url = AppPreferences.inviteFriends
+                                )
+                            )
+                        }
                     )
 
                     DrawerItem(
                         title = stringResource(R.string.become_a_driver),
                         painter = painterResource(R.drawable.ic_driver),
-                        onClick = { onIntent(MapDrawerIntent.BecomeADriver) }
+                        onClick = {
+                            onIntent(
+                                MapDrawerIntent.BecomeADriver(
+                                    title = context.getString(R.string.become_a_driver),
+                                    url = AppPreferences.becomeDrive
+                                )
+                            )
+                        }
                     )
 
                     DrawerItem(
