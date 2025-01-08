@@ -107,7 +107,10 @@ class ConcreteGoogleMap : MapStrategy {
                 tiltGesturesEnabled = false
             )
         ) {
-            if (uiState.selectedDriver?.status == OrderStatus.Appointed) Marker(
+            if (
+                uiState.selectedDriver?.status == OrderStatus.Appointed &&
+                uiState.selectedDriver.status == OrderStatus.AtAddress
+            ) Marker(
                 icon = startMarkerIcon,
                 state = remember(uiState.selectedLocation) {
                     MarkerState(

@@ -89,7 +89,7 @@ fun AddressesScreen(
                         title = stringResource(R.string.add_home_address),
                         leadingIcon = {
                             Icon(
-                                painter = painterResource(R.drawable.ic_work),
+                                painter = painterResource(R.drawable.ic_home),
                                 contentDescription = null,
                                 tint = YallaTheme.color.gray
                             )
@@ -112,7 +112,7 @@ fun AddressesScreen(
                         title = stringResource(R.string.add_work_address),
                         leadingIcon = {
                             Icon(
-                                painter = painterResource(R.drawable.ic_home),
+                                painter = painterResource(R.drawable.ic_work),
                                 contentDescription = null,
                                 tint = YallaTheme.color.gray
                             )

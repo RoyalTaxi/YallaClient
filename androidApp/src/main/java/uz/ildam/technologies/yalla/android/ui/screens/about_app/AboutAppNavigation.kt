@@ -1,6 +1,5 @@
 package uz.ildam.technologies.yalla.android.ui.screens.about_app
 
-import android.util.Log
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally

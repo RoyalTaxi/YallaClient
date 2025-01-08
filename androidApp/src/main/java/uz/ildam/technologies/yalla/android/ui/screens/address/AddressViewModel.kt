@@ -49,14 +49,14 @@ class AddressViewModel(
                 }
                 _actionState.emit(AddressActionState.GetSuccess)
             }
-            .onFailure { _actionState.emit(AddressActionState.Error) }
+            .onFailure { _actionState.emit(AddressActionState.Error(it.message.orEmpty())) }
     }
 
     fun deleteOneAddress(id: Int) = viewModelScope.launch {
         _actionState.emit(AddressActionState.Loading)
         deleteOneAddressUseCase(id)
             .onSuccess { _actionState.emit(AddressActionState.DeleteSuccess) }
-            .onFailure { _actionState.emit(AddressActionState.Error) }
+            .onFailure { _actionState.emit(AddressActionState.Error(it.message.orEmpty())) }
     }
 
     fun updateOneAddress(id: Int) = viewModelScope.launch {
@@ -76,7 +76,7 @@ class AddressViewModel(
                     comment = state.comment
                 )
             ).onSuccess { _actionState.emit(AddressActionState.PutSuccess) }
-                .onFailure { _actionState.emit(AddressActionState.Error) }
+                .onFailure { _actionState.emit(AddressActionState.Error(it.message.orEmpty())) }
         }
     }
 
@@ -95,8 +95,8 @@ class AddressViewModel(
                     floor = state.floor,
                     comment = state.comment
                 )
-            ).onSuccess { _actionState.emit(AddressActionState.Error) }
-                .onFailure { _actionState.emit(AddressActionState.PutSuccess) }
+            ).onSuccess { _actionState.emit(AddressActionState.PutSuccess) }
+                .onFailure { _actionState.emit(AddressActionState.Error(it.message.orEmpty())) }
         }
     }
 

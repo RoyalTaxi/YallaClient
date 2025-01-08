@@ -179,10 +179,21 @@ fun OrderTaxiBottomSheet(
 
             OptionsButton(
                 modifier = Modifier.fillMaxHeight(),
+                badgeText = determineBadgeText(uiState),
                 painter = painterResource(R.drawable.img_options),
-                onClick = { if (uiState.tariffs?.tariff?.isNotEmpty() == true) onSetOptionsClick() }
+                onClick = {
+                    if (uiState.tariffs?.tariff?.isNotEmpty() == true) onSetOptionsClick()
+                }
             )
         }
+    }
+}
+
+private fun determineBadgeText(uiState: MapUIState): String? {
+    return when {
+        uiState.selectedOptions.isNotEmpty() -> uiState.selectedOptions.size.toString()
+        uiState.comment.isNotBlank() -> ""
+        else -> null
     }
 }
 

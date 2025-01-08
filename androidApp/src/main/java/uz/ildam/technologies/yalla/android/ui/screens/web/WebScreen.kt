@@ -26,7 +26,7 @@ fun WebScreen(
     onNavigateBack: () -> Unit
 ) {
     Scaffold(
-        contentColor = YallaTheme.color.white,
+        containerColor = YallaTheme.color.white,
         topBar = {
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(YallaTheme.color.white),
