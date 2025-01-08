@@ -46,6 +46,8 @@ fun MapRoute(
     onAddNewCard: () -> Unit,
     onAboutAppClick: () -> Unit,
     onContactUsClick: () -> Unit,
+    becomeDriverClick: (String, String) -> Unit,
+    inviteFriendClick: (String, String) -> Unit,
     vm: MapViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
@@ -253,7 +255,8 @@ fun MapRoute(
                 is MapDrawerIntent.Settings -> onSettingsClick()
                 is MapDrawerIntent.AboutTheApp -> onAboutAppClick()
                 is MapDrawerIntent.ContactUs -> onContactUsClick()
-                else -> {}
+                is MapDrawerIntent.BecomeADriver -> becomeDriverClick(intent.title, intent.url)
+                is MapDrawerIntent.InviteFriend -> inviteFriendClick(intent.title, intent.url)
             }
         },
         content = {

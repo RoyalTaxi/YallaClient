@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.ui.screens.about_app.AboutAppActionState
 import uz.ildam.technologies.yalla.android.ui.screens.about_app.AboutAppUIState
+import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 import uz.ildam.technologies.yalla.feature.settings.domain.usecase.GetConfigUseCase
 
 class ContactUsViewModel(
@@ -32,27 +33,28 @@ class ContactUsViewModel(
                         socialNetworks = listOf(
                             Triple(
                                 R.drawable.ic_telegram,
-                                result.setting.telegram,
+                                result.setting.supportTelegramNickname,
                                 R.string.telegram
                             ),
                             Triple(
                                 R.drawable.ic_instagram,
-                                result.setting.instagram,
+                                result.setting.supportTelegramNickname,
                                 R.string.instagram
                             ),
                             Triple(
-                                R.drawable.ic_youtube,
-                                result.setting.youtube,
-                                R.string.youtube
+                                R.drawable.ic_call,
+                                result.setting.supportPhone,
+                                R.string.contuct_us
                             ),
                             Triple(
-                                R.drawable.ic_facebook,
-                                result.setting.facebook,
-                                R.string.facebook
+                                R.drawable.ic_email,
+                                result.setting.supportEmail,
+                                R.string.email
                             )
                         )
                     )
                 }
+                AppPreferences.supportNumber = result.setting.supportPhone
                 _actionState.emit(ContactUsActionState.Success)
             }
             .onFailure {

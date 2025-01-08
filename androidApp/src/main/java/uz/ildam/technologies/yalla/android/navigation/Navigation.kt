@@ -115,7 +115,9 @@ fun Navigation(
                 onCancel = navController::navigateToCancelReasonScreen,
                 onAddNewCard = navController::navigateToAddCardScreen,
                 onAboutAppClick = navController::navigateToAboutAppScreen,
-                onContactUsClick = navController::navigateToContactUsScreen
+                onContactUsClick = navController::navigateToContactUsScreen,
+                becomeDriverClick = navController::navigateToWebScreen,
+                inviteFriendClick = navController::navigateToWebScreen
             )
 
             historyScreen(
@@ -168,7 +170,7 @@ fun Navigation(
 
             contactUsScreen(
                 onBack = navController::safePopBackStack,
-                onClickUrl = navController::navigateToWebScreen
+                onClickUrl = navController::navigateToWebScreen,
             )
 
             webScreen(

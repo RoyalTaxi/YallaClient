@@ -4,6 +4,8 @@ import AboutAppViewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import uz.ildam.technologies.yalla.android.activity.MainViewModel
+import uz.ildam.technologies.yalla.android.connectivity.AndroidConnectivityObserver
+import uz.ildam.technologies.yalla.android.connectivity.ConnectivityObserver
 import uz.ildam.technologies.yalla.android.ui.screens.add_card.AddCardViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.address.AddressViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.addresses.AddressesViewModel
@@ -23,6 +25,10 @@ import uz.ildam.technologies.yalla.android.ui.sheets.search_address.SearchByName
 import uz.ildam.technologies.yalla.android.ui.sheets.select_from_map.SelectFromMapBottomSheetViewModel
 
 object Navigation {
+
+    private val androidServices = module {
+        single<ConnectivityObserver> { AndroidConnectivityObserver(get()) }
+    }
 
     private val viewModelModule = module {
         viewModelOf(::LanguageViewModel)
@@ -48,5 +54,5 @@ object Navigation {
         viewModelOf(::SearchByNameBottomSheetViewModel)
     }
 
-    val modules = listOf(viewModelModule)
+    val modules = listOf(androidServices, viewModelModule)
 }

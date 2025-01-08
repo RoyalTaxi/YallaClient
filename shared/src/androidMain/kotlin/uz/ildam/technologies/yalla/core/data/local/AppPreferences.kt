@@ -125,4 +125,22 @@ object AppPreferences {
         set(value) {
             preferences.edit()?.putString(AppPreferences::supportNumber.name, value)?.apply()
         }
+
+    var referralLink: String
+        get() = preferences.getString(AppPreferences::referralLink.name, "") ?: ""
+        set(value) {
+            preferences.edit()?.putString(AppPreferences::referralLink.name, value)?.apply()
+        }
+
+    var becomeDrive: String
+        get() = preferences.getString(AppPreferences::becomeDrive.name, "") ?: ""
+        set(value) {
+            preferences.edit()?.putString(AppPreferences::becomeDrive.name, value)?.apply()
+        }
+
+    var inviteFriends: String
+        get() = preferences.getString(AppPreferences::inviteFriends.name, "") ?: ""
+        set(value) {
+            preferences.edit()?.putString(AppPreferences::inviteFriends.name, value)?.apply()
+        }
 }
