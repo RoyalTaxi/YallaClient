@@ -24,6 +24,7 @@ import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
+    uiState: SettingsUIState,
     onIntent: (SettingsIntent) -> Unit
 ) {
     Scaffold(
@@ -58,10 +59,8 @@ fun SettingsScreen(
 
                 SettingButton(
                     title = stringResource(R.string.app_language),
-                    description = stringResource(if (AppPreferences.locale == "uz") R.string.uzbek else R.string.russian),
-                    onClick = {
-
-                    }
+                    description = stringResource(uiState.selectedLanguage.stringResId),
+                    onClick = { onIntent(SettingsIntent.OnClickLanguage) }
                 )
             }
         }

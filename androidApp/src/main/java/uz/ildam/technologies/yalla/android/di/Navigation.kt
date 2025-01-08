@@ -18,6 +18,7 @@ import uz.ildam.technologies.yalla.android.ui.screens.history.HistoryViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.language.LanguageViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.login.LoginViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.map.MapViewModel
+import uz.ildam.technologies.yalla.android.ui.screens.settings.SettingsViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.verification.VerificationViewModel
 import uz.ildam.technologies.yalla.android.ui.sheets.search_address.SearchByNameBottomSheetViewModel
 import uz.ildam.technologies.yalla.android.ui.sheets.select_from_map.SelectFromMapBottomSheetViewModel
@@ -42,6 +43,7 @@ object Navigation {
         viewModelOf(::MainViewModel)
         viewModelOf(::AboutAppViewModel)
         viewModelOf(::ContactUsViewModel)
+        viewModelOf(::SettingsViewModel)
 
 
         viewModelOf(::SelectFromMapBottomSheetViewModel)
