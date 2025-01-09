@@ -105,7 +105,13 @@ class ConcreteGoogleMap : MapStrategy {
                 scrollGesturesEnabled = true,
                 scrollGesturesEnabledDuringRotateOrZoom = false,
                 tiltGesturesEnabled = false
-            )
+            ),
+            onMapLoaded = {
+                getCurrentLocation(context) { loc ->
+                    if (uiState.route.isEmpty()) animate(MapPoint(loc.latitude, loc.longitude))
+                    else animateToFitBounds(uiState.route)
+                }
+            }
         ) {
             if (
                 uiState.selectedDriver?.status == OrderStatus.Appointed &&

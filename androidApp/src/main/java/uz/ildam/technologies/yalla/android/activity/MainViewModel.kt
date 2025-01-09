@@ -30,6 +30,7 @@ class MainViewModel(
             .onSuccess {
                 AppPreferences.referralLink = it.setting.inviteLinkForFriend
                 AppPreferences.becomeDrive = it.setting.executorLink
+                AppPreferences.inviteFriends = it.setting.inviteLinkForFriend
             }
     }
 }

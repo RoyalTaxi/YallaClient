@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name" translatable="false">Yalla</string>
     <string name="russian" translatable="false">Русский</string>
     <string name="uzbek" translatable="false">O\'zbekcha</string>
     <string name="youtube" translatable="false">Youtube</string>
@@ -129,7 +130,6 @@
     <string name="repeat">ПОВТОРИТЬ</string>
     <string name="setting">Настройки</string>
     <string name="app_language">Язык приложения</string>
-    <string name="ildam">Ildam</string>
     <string name="user_agreement">Пользовательское соглашение</string>
     <string name="we_on_social_networks">Мы в соцсетях</string>
     <string name="email">Электронная почта</string>

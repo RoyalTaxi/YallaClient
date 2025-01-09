@@ -53,7 +53,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import kotlinx.coroutines.coroutineScope
 
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun YallaMarker(
     time: Int?,
@@ -210,11 +209,20 @@ fun YallaMarker(
                                 modifier = Modifier
                                     .size(24.dp)
                                     .graphicsLayer {
-                                        // rotationZ in degrees
                                         rotationZ = rotation.value
                                     }
                             )
                         }
+                    }
+
+                    if (time == null && isLoading.not()) {
+                        Box(
+                            modifier = modifier
+                                .size(24.dp)
+                                .clip(CircleShape)
+                                .background(YallaTheme.color.white)
+                                .graphicsLayer { clip = true }
+                        )
                     }
                 }
 
