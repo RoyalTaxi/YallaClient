@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -21,6 +23,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -80,12 +83,15 @@ fun AboutAppScreen(
                     modifier = Modifier.padding(vertical = 12.dp)
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.ic_ildam),
+                        painter = painterResource(id = R.drawable.ic_splash_logo),
+                        modifier = Modifier
+                            .size(100.dp)
+                            .clip(RoundedCornerShape(16.dp)),
                         contentDescription = null,
                         contentScale = ContentScale.Fit
                     )
                     Text(
-                        text = stringResource(R.string.ildam),
+                        text = stringResource(R.string.app_name),
                         style = YallaTheme.font.title,
                         color = YallaTheme.color.black,
                         textAlign = TextAlign.Center

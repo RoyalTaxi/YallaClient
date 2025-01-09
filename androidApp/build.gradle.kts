@@ -8,11 +8,11 @@ android {
     namespace = "uz.ildam.technologies.yalla.android"
     compileSdk = 34
     defaultConfig {
-        applicationId = "uz.lola.client"
+        applicationId = "uz.yalla.client"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 3
+        versionName = "0.2"
         resourceConfigurations.plus(listOf("uz", "ru"))
     }
     buildFeatures {
