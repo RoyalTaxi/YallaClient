@@ -169,9 +169,13 @@ class MapBottomSheetHandler(
                 TariffInfoBottomSheet(
                     sheetState = tariffState,
                     tariffs = it,
-                    selectedTariffIndex = uiState.tariffs.tariff.indexOf(uiState.selectedTariff),
+                    selectedTariffIndex = uiState.tariffs.tariff
+                        .indexOfFirst { tariff -> tariff.id == uiState.selectedTariff?.id.or0() }
+                        .takeIf { index -> index != -1 }
+                        ?: 0,
                     arrivingTime = uiState.timeout.or0(),
                     onDismissRequest = { showTariff(false) },
+                    uiState = uiState,
                     onSelect = { tariff -> viewModel.setSelectedTariff(tariff) }
                 )
             }
@@ -191,7 +195,8 @@ class MapBottomSheetHandler(
                     comment = uiState.comment,
                     onSave = { options -> viewModel.setSelectedOptions(options) },
                     onOrderComment = { showOrderComment(true) },
-                    onDismissRequest = { showOptions(false) }
+                    onDismissRequest = { showOptions(false) },
+                    uiState = uiState
                 )
             }
         }
