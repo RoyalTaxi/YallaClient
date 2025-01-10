@@ -31,11 +31,13 @@ import coil3.compose.AsyncImage
 import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
+import uz.ildam.technologies.yalla.android.ui.screens.map.MapUIState
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.tarrif.GetTariffsModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TariffInfoBottomSheet(
+    uiState: MapUIState,
     sheetState: SheetState,
     tariffs: GetTariffsModel,
     selectedTariffIndex: Int,
@@ -109,21 +111,32 @@ fun TariffInfoBottomSheet(
                             )
 
                             Text(
-                                text = stringResource(
-                                    id = R.string.starting_cost,
+                                text = if (uiState.destinations.isEmpty()) stringResource(
+                                    R.string.starting_cost,
                                     tariffs.tariff[index].cost
-                                ),
+                                ) else {
+                                    if (tariffs.tariff[index].fixedType) stringResource(
+                                        R.string.fixed_cost,
+                                        tariffs.tariff[index].fixedPrice
+                                    )
+                                    else stringResource(
+                                        R.string.fixed_cost,
+                                        "~${tariffs.tariff[index].fixedPrice}"
+                                    )
+                                },
                                 style = YallaTheme.font.label,
                                 color = YallaTheme.color.gray
                             )
                         }
 
-                        Text(
-                            text = stringResource(R.string.minute, arrivingTime.toString()),
-                            style = YallaTheme.font.label,
-                            color = YallaTheme.color.gray,
-                            textAlign = TextAlign.End
-                        )
+                        if (arrivingTime != 0) {
+                            Text(
+                                text = stringResource(R.string.minute, arrivingTime.toString()),
+                                style = YallaTheme.font.label,
+                                color = YallaTheme.color.gray,
+                                textAlign = TextAlign.End
+                            )
+                        }
                     }
                 }
 

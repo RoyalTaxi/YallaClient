@@ -58,9 +58,9 @@ fun OrderOptionsItem(
                     overflow = TextOverflow.Ellipsis
                 )
 
-                description?.let {
+                if (description?.isNotEmpty() == true)  {
                     Text(
-                        text = it,
+                        text = description,
                         color = YallaTheme.color.gray,
                         style = YallaTheme.font.bodySmall,
                         maxLines = 1,

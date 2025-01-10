@@ -14,14 +14,12 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
+import uz.ildam.technologies.yalla.feature.order.domain.model.response.tarrif.GetTariffsModel
 
 @Composable
 fun TariffItem(
-    tariff: String,
-    tariffImageUrl: String,
-    startingCost: Int,
-    fixedCost: Int,
-    fixedState: Boolean,
+    tariff: GetTariffsModel.Tariff,
+    isDestinationsEmpty: Boolean,
     selectedState: Boolean,
     onSelect: (Boolean) -> Unit
 ) {
@@ -39,7 +37,7 @@ fun TariffItem(
                 .padding(12.dp)
         ) {
             Text(
-                text = tariff,
+                text = tariff.name,
                 color = textColor,
                 style = YallaTheme.font.labelSemiBold
             )
@@ -47,8 +45,19 @@ fun TariffItem(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = if (fixedState) stringResource(R.string.fixed_cost, fixedCost)
-                else stringResource(R.string.starting_cost, startingCost),
+                text = if (isDestinationsEmpty) stringResource(
+                    R.string.starting_cost,
+                    tariff.cost
+                ) else {
+                    if (tariff.fixedType) stringResource(
+                        R.string.fixed_cost,
+                        tariff.fixedPrice
+                    )
+                    else stringResource(
+                        R.string.fixed_cost,
+                        "~${tariff.fixedPrice}"
+                    )
+                },
                 color = textColor,
                 style = YallaTheme.font.bodySmall
             )
@@ -56,7 +65,7 @@ fun TariffItem(
             Spacer(modifier = Modifier.height(8.dp))
 
             AsyncImage(
-                model = tariffImageUrl,
+                model = tariff.photo,
                 contentDescription = null,
                 error = painterResource(R.drawable.img_default_car),
                 modifier = Modifier.height(30.dp),

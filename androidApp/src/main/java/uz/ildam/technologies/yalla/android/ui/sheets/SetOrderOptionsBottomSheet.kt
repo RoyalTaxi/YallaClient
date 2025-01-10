@@ -25,11 +25,13 @@ import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
 import uz.ildam.technologies.yalla.android.ui.components.item.OptionsItem
 import uz.ildam.technologies.yalla.android.ui.components.item.OrderOptionsItem
+import uz.ildam.technologies.yalla.android.ui.screens.map.MapUIState
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.tarrif.GetTariffsModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SetOrderOptionsBottomSheet(
+    uiState: MapUIState,
     sheetState: SheetState,
     selectedTariff: GetTariffsModel.Tariff,
     options: List<GetTariffsModel.Tariff.Service>,
@@ -67,10 +69,19 @@ fun SetOrderOptionsBottomSheet(
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = if (selectedTariff.fixedType) stringResource(
-                        R.string.fixed_cost,
-                        selectedTariff.cost
-                    ) else stringResource(R.string.starting_cost, selectedTariff.fixedPrice),
+                    text = if (uiState.destinations.isEmpty()) {
+                        if (selectedTariff.fixedType) stringResource(
+                            R.string.fixed_cost,
+                            selectedTariff.cost
+                        )
+                        else stringResource(
+                            R.string.fixed_cost,
+                            "~${selectedTariff.cost}"
+                        )
+                    } else stringResource(
+                        R.string.starting_cost,
+                        selectedTariff.fixedPrice
+                    ),
                     color = YallaTheme.color.gray,
                     style = YallaTheme.font.label
                 )
@@ -87,9 +98,7 @@ fun SetOrderOptionsBottomSheet(
             ) {
                 OrderOptionsItem(
                     title = stringResource(R.string.comment_to_driver),
-                    description = if (comment.isEmpty()) {
-                        stringResource(R.string.systemic)
-                    } else { comment },
+                    description = comment,
                     onClick = {onOrderComment()}
                 )
             }

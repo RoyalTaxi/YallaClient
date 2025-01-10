@@ -259,7 +259,6 @@ class MapViewModel(
                 selectedOptions = emptyList()
             )
         }
-//        fetchTariffs()
     }
 
     fun setSelectedOptions(options: List<GetTariffsModel.Tariff.Service>) {

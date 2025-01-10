@@ -120,11 +120,8 @@ fun OrderTaxiBottomSheet(
                 if (uiState.tariffs?.tariff?.isNotEmpty() == true && isLoading.not()) {
                     items(uiState.tariffs.tariff) { tariff ->
                         TariffItem(
-                            tariff = tariff.name,
-                            tariffImageUrl = tariff.photo,
-                            startingCost = tariff.cost,
-                            fixedCost = tariff.fixedPrice,
-                            fixedState = tariff.fixedType,
+                            tariff = tariff,
+                            isDestinationsEmpty = uiState.destinations.isEmpty(),
                             selectedState = uiState.selectedTariff?.id == tariff.id,
                             onSelect = { wasSelected -> onSelectTariff(tariff, wasSelected) }
                         )
