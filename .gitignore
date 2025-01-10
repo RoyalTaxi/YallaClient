@@ -9,3 +9,4 @@ local.properties
 xcuserdata
 .gradle
 androidApp/release/*.apk
+androidApp/release/*.aab

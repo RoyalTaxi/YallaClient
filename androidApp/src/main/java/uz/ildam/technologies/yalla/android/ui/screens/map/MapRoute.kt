@@ -85,26 +85,30 @@ fun MapRoute(
         )
     )
 
-    val map: MapStrategy = remember {
-        when (AppPreferences.mapType) {
-            MapType.Google -> ConcreteGoogleMap()
-            MapType.Gis -> ConcreteGisMap()
-        }
+    val map: MapStrategy by remember {
+        mutableStateOf(
+            when (AppPreferences.mapType) {
+                MapType.Google -> ConcreteGoogleMap()
+                MapType.Gis -> ConcreteGisMap()
+            }
+        )
     }
 
-    val bottomSheetHandler = remember {
-        MapBottomSheetHandler(
-            context = context,
-            scope = scope,
-            searchLocationState = searchLocationState,
-            destinationsState = destinationsState,
-            tariffState = tariffState,
-            optionsState = optionsState,
-            confirmCancellationState = confirmCancellationState,
-            selectPaymentMethodState = selectPaymentMethodState,
-            orderCommentState = orderCommentState,
-            activeOrdersState = activeOrdersState,
-            viewModel = vm
+    val bottomSheetHandler by remember {
+        mutableStateOf(
+            MapBottomSheetHandler(
+                context = context,
+                scope = scope,
+                searchLocationState = searchLocationState,
+                destinationsState = destinationsState,
+                tariffState = tariffState,
+                optionsState = optionsState,
+                confirmCancellationState = confirmCancellationState,
+                selectPaymentMethodState = selectPaymentMethodState,
+                orderCommentState = orderCommentState,
+                activeOrdersState = activeOrdersState,
+                viewModel = vm
+            )
         )
     }
 

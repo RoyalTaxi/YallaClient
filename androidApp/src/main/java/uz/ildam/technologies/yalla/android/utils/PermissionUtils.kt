@@ -7,14 +7,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 
 @Composable
 fun rememberPermissionState(permissions: List<String>): State<Boolean> {
     val context = LocalContext.current
-    val arePermissionsGranted = remember {
+    val arePermissionsGranted = rememberSaveable {
         mutableStateOf(
             permissions.all { permission ->
                 ContextCompat.checkSelfPermission(
