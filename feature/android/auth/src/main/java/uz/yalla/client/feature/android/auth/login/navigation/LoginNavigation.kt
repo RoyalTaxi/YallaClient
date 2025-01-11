@@ -12,9 +12,9 @@ import uz.yalla.client.feature.android.auth.login.view.LoginRoute
 import uz.yalla.client.feature.core.navigation.safeNavigate
 
 
-const val LOGIN_ROUTE = "login_route"
+internal const val LOGIN_ROUTE = "login_route"
 
-fun NavGraphBuilder.loginScreen(
+internal fun NavGraphBuilder.loginScreen(
     onBack: () -> Unit,
     onNext: (String, Int) -> Unit,
 ) {
@@ -32,5 +32,5 @@ fun NavGraphBuilder.loginScreen(
     }
 }
 
-fun NavController.navigateToLoginScreen(navOptions: NavOptions? = null) =
+internal fun NavController.navigateToLoginScreen(navOptions: NavOptions? = null) =
     safeNavigate(LOGIN_ROUTE, navOptions)
