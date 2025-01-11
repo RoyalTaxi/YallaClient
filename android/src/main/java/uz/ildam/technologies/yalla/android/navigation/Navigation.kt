@@ -43,13 +43,11 @@ import uz.ildam.technologies.yalla.android.ui.screens.permission.navigateToPermi
 import uz.ildam.technologies.yalla.android.ui.screens.permission.permissionScreen
 import uz.ildam.technologies.yalla.android.ui.screens.settings.navigateToSettings
 import uz.ildam.technologies.yalla.android.ui.screens.settings.settingsScreen
-import uz.ildam.technologies.yalla.android.ui.screens.verification.navigateToVerificationScreen
-import uz.ildam.technologies.yalla.android.ui.screens.verification.verificationScreen
 import uz.ildam.technologies.yalla.android.ui.screens.web.navigateToWebScreen
 import uz.ildam.technologies.yalla.android.ui.screens.web.webScreen
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
-import uz.yalla.client.feature.android.auth.login.navigation.loginScreen
-import uz.yalla.client.feature.android.auth.login.navigation.navigateToLoginScreen
+import uz.yalla.client.feature.android.auth.authModule
+import uz.yalla.client.feature.android.auth.navigateToAuthModule
 
 @Composable
 fun Navigation(
@@ -78,15 +76,8 @@ fun Navigation(
 
             languageScreen(
                 onBack = navController::safePopBackStack,
-                onNext = navController::navigateToLoginScreen
+                onNext = navController::navigateToAuthModule
             )
-
-            loginScreen(
-                onBack = navController::safePopBackStack,
-                onNext = navController::navigateToVerificationScreen
-            )
-
-
 
             credentialsScreen(
                 onBack = navController::safePopBackStack,
@@ -94,17 +85,19 @@ fun Navigation(
                     navController.navigateToMapScreen(
                         navOptions { popUpTo(0) { inclusive = true } }
                     )
-                },
+                }
             )
 
-            verificationScreen(
-                onBack = navController::safePopBackStack,
+            authModule(
+                navController = navController,
+                onClientNotFound = navController::navigateToCredentialsScreen,
                 onClientFound = {
                     navController.navigateToMapScreen(
-                        navOptions { popUpTo(0) { inclusive = true } }
+                        navOptions {
+                            popUpTo(0) { inclusive = true }
+                        }
                     )
-                },
-                onClientNotFound = navController::navigateToCredentialsScreen
+                }
             )
 
             mapScreen(

@@ -3,4 +3,9 @@
     <string name="enter_phone_number">Telefon raqamingizni kiriting</string>
     <string name="next">Keyingi</string>
     <string name="we_send_code">Sizga tasdiqlash kodini yuboramiz</string>
+    <string name="error_message">Noto\'g\'ri kod kiritdingiz, iltimos qayta urinib ko\'ring</string>
+    <string name="enter_otp">Xavfsizlik kodini kiriting</string>
+    <string name="enter_otp_definition">Biz +998%s raqamiga yuborgan 5 xonali kodni kiriting</string>
+    <string name="resend_in">Kod\'ni %s dan so\'ng qayta yuborish</string>
+    <string name="resend">Kodni qayta yuborish</string>
 </resources>
