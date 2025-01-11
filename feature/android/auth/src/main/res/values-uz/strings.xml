@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="enter_phone_number">Telefon raqamingizni kiriting</string>
+    <string name="next">Keyingi</string>
+    <string name="we_send_code">Sizga tasdiqlash kodini yuboramiz</string>
+</resources>

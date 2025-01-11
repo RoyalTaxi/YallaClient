@@ -1,9 +1,11 @@
 [versions]
 advancedBottomsheetMaterial3 = "0.1.0"
 agp = "8.5.2"
+appUpdateKtx = "2.1.0"
 constraintlayoutCompose = "1.0.1"
 coreSplashscreen = "1.0.1"
 desugar_jdk_libs = "2.1.2"
+inappupdateKotlinLib = "8.0.2"
 inspektifyKtor2 = "1.0.0-beta01"
 kotlin = "2.0.0"
 compose = "1.7.2"
@@ -43,6 +45,10 @@ animationAndroid = "1.7.0"
 advanced-bottomsheet-material3 = { module = "io.morfly.compose:advanced-bottomsheet-material3", version.ref = "advancedBottomsheetMaterial3" }
 androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayoutCompose" }
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
+
+app-update-ktx = { module = "com.google.android.play:app-update-ktx", version.ref = "appUpdateKtx" }
+app-update = { module = "com.google.android.play:app-update", version.ref = "appUpdateKtx" }
+
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin-bom" }
 insert-koin-koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose" }
