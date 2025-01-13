@@ -53,4 +53,11 @@ dependencies {
     debugImplementation(libs.compose.ui.tooling)
 
     implementation(libs.androidx.navigation.compose)
+
+    // LocalDate
+    implementation(libs.threetenabp)
+
+    // DatePicker
+    implementation(libs.snapper)
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
 }

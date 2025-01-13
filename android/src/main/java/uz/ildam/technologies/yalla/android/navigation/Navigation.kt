@@ -24,23 +24,16 @@ import uz.ildam.technologies.yalla.android.ui.screens.card_verification.navigate
 import uz.ildam.technologies.yalla.android.ui.screens.contact_us.contactUsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.contact_us.navigateToContactUsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.credentials.credentialsScreen
-import uz.ildam.technologies.yalla.android.ui.screens.credentials.navigateToCredentialsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.details.detailsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.details.navigateToDetailsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.edit_profile.editProfileScreen
 import uz.ildam.technologies.yalla.android.ui.screens.edit_profile.navigateToEditProfileScreen
 import uz.ildam.technologies.yalla.android.ui.screens.history.historyScreen
 import uz.ildam.technologies.yalla.android.ui.screens.history.navigateToHistoryScreen
-import uz.ildam.technologies.yalla.android.ui.screens.language.languageScreen
-import uz.ildam.technologies.yalla.android.ui.screens.language.navigateToLanguageScreen
 import uz.ildam.technologies.yalla.android.ui.screens.map.MAP_ROUTE
 import uz.ildam.technologies.yalla.android.ui.screens.map.mapScreen
 import uz.ildam.technologies.yalla.android.ui.screens.map.navigateToMapScreen
 import uz.ildam.technologies.yalla.android.ui.screens.offline.OfflineScreen
-import uz.ildam.technologies.yalla.android.ui.screens.onboarding.ONBOARDING_ROUTE
-import uz.ildam.technologies.yalla.android.ui.screens.onboarding.onboardingScreen
-import uz.ildam.technologies.yalla.android.ui.screens.permission.navigateToPermissionScreen
-import uz.ildam.technologies.yalla.android.ui.screens.permission.permissionScreen
 import uz.ildam.technologies.yalla.android.ui.screens.settings.navigateToSettings
 import uz.ildam.technologies.yalla.android.ui.screens.settings.settingsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.web.navigateToWebScreen
@@ -48,6 +41,11 @@ import uz.ildam.technologies.yalla.android.ui.screens.web.webScreen
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 import uz.yalla.client.feature.android.auth.authModule
 import uz.yalla.client.feature.android.auth.navigateToAuthModule
+import uz.yalla.client.feature.android.intro.INTRO_ROUTE
+import uz.yalla.client.feature.android.intro.introModule
+import uz.yalla.client.feature.android.intro.navigateToIntroModel
+import uz.yalla.client.feature.android.registration.navigateToRegistrationModule
+import uz.yalla.client.feature.android.registration.registrationModule
 
 @Composable
 fun Navigation(
@@ -61,41 +59,31 @@ fun Navigation(
         NavHost(
             modifier = Modifier.fillMaxSize(),
             navController = navController,
-            startDestination = if (AppPreferences.isDeviceRegistered) MAP_ROUTE else ONBOARDING_ROUTE
+            startDestination = if (AppPreferences.isDeviceRegistered) MAP_ROUTE else INTRO_ROUTE
         ) {
-            onboardingScreen(
-                onNext = navController::navigateToPermissionScreen
-            )
 
-            permissionScreen(
-                onPermissionGranted = {
-                    if (AppPreferences.isDeviceRegistered) navController.navigateToMapScreen()
-                    else navController.navigateToLanguageScreen()
-                }
-            )
-
-            languageScreen(
-                onBack = navController::safePopBackStack,
-                onNext = navController::navigateToAuthModule
-            )
-
-            credentialsScreen(
-                onBack = navController::safePopBackStack,
-                onNext = {
-                    navController.navigateToMapScreen(
-                        navOptions { popUpTo(0) { inclusive = true } }
-                    )
-                }
+            introModule(
+                navController = navController,
+                onPermissionGranted = navController::navigateToAuthModule,
             )
 
             authModule(
                 navController = navController,
-                onClientNotFound = navController::navigateToCredentialsScreen,
+                onClientNotFound = navController::navigateToRegistrationModule,
                 onClientFound = {
                     navController.navigateToMapScreen(
                         navOptions {
                             popUpTo(0) { inclusive = true }
                         }
+                    )
+                }
+            )
+
+            registrationModule(
+                navController = navController,
+                onNext = {
+                    navController.navigateToMapScreen(
+                        navOptions { popUpTo(0) { inclusive = true } }
                     )
                 }
             )
@@ -106,7 +94,7 @@ fun Navigation(
                 onPaymentTypeClick = navController::navigateToCardListScreen,
                 onAddressesClick = navController::navigateToAddressesScreen,
                 onSettingsClick = navController::navigateToSettings,
-                onPermissionDenied = navController::navigateToPermissionScreen,
+                onPermissionDenied = navController::navigateToIntroModel,
                 onCancel = navController::navigateToCancelReasonScreen,
                 onAddNewCard = navController::navigateToAddCardScreen,
                 onAboutAppClick = navController::navigateToAboutAppScreen,
