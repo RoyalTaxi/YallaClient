@@ -22,6 +22,7 @@ import uz.ildam.technologies.yalla.android.ui.sheets.search_address.SearchByName
 import uz.ildam.technologies.yalla.android.ui.sheets.select_from_map.SelectFromMapBottomSheetViewModel
 import uz.yalla.client.feature.android.auth.di.AuthViewModel
 import uz.yalla.client.feature.android.intro.di.IntroViewModel
+import uz.yalla.client.feature.android.payment.di.PaymentViewModel
 import uz.yalla.client.feature.android.registration.di.RegistrationViewModel
 
 object Navigation {
@@ -56,6 +57,7 @@ object Navigation {
         viewModelModule,
         AuthViewModel.module,
         IntroViewModel.module,
-        RegistrationViewModel.module
+        RegistrationViewModel.module,
+        PaymentViewModel.module
     )
 }

@@ -23,7 +23,6 @@ import uz.ildam.technologies.yalla.android.ui.screens.card_verification.cardVeri
 import uz.ildam.technologies.yalla.android.ui.screens.card_verification.navigateToCardVerificationScreen
 import uz.ildam.technologies.yalla.android.ui.screens.contact_us.contactUsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.contact_us.navigateToContactUsScreen
-import uz.ildam.technologies.yalla.android.ui.screens.credentials.credentialsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.details.detailsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.details.navigateToDetailsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.edit_profile.editProfileScreen
@@ -44,6 +43,8 @@ import uz.yalla.client.feature.android.auth.navigateToAuthModule
 import uz.yalla.client.feature.android.intro.INTRO_ROUTE
 import uz.yalla.client.feature.android.intro.introModule
 import uz.yalla.client.feature.android.intro.navigateToIntroModel
+import uz.yalla.client.feature.android.payment.navigateToPaymentModule
+import uz.yalla.client.feature.android.payment.paymentModule
 import uz.yalla.client.feature.android.registration.navigateToRegistrationModule
 import uz.yalla.client.feature.android.registration.registrationModule
 
@@ -91,7 +92,7 @@ fun Navigation(
             mapScreen(
                 onProfileClick = navController::navigateToEditProfileScreen,
                 onOrderHistoryClick = navController::navigateToHistoryScreen,
-                onPaymentTypeClick = navController::navigateToCardListScreen,
+                onPaymentTypeClick = navController::navigateToPaymentModule,
                 onAddressesClick = navController::navigateToAddressesScreen,
                 onSettingsClick = navController::navigateToSettings,
                 onPermissionDenied = navController::navigateToIntroModel,
@@ -112,19 +113,23 @@ fun Navigation(
                 onNavigateBack = navController::safePopBackStack
             )
 
-            cardListScreen(
-                onNavigateBack = navController::safePopBackStack,
-                onAddNewCard = navController::navigateToAddCardScreen
+            paymentModule(
+                navController = navController
             )
 
-            addCardScreen(
-                onNavigateBack = navController::safePopBackStack,
-                onNavigateNext = navController::navigateToCardVerificationScreen
-            )
-
-            cardVerificationScreen(
-                onNavigateBack = navController::navigateToCardListScreen
-            )
+//            cardListScreen(
+//                onNavigateBack = navController::safePopBackStack,
+//                onAddNewCard = navController::navigateToAddCardScreen
+//            )
+//
+//            addCardScreen(
+//                onNavigateBack = navController::safePopBackStack,
+//                onNavigateNext = navController::navigateToCardVerificationScreen
+//            )
+//
+//            cardVerificationScreen(
+//                onNavigateBack = navController::navigateToCardListScreen
+//            )
 
             cancelReasonScreen(
                 onNavigateBack = navController::safePopBackStack
