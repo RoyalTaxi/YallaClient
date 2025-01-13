@@ -11,7 +11,7 @@ import uz.yalla.client.feature.android.auth.verification.navigation.verification
 import uz.yalla.client.feature.core.navigation.safeNavigate
 import uz.yalla.client.feature.core.navigation.safePopBackStack
 
-const val AUTH_ROUTE = "auth_route"
+internal const val AUTH_ROUTE = "auth_route"
 
 fun NavGraphBuilder.authModule(
     navController: NavHostController,

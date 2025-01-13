@@ -53,6 +53,8 @@ dependencies {
     implementation(projects.shared)
     implementation(projects.feature.android.dgis)
     implementation(projects.feature.android.auth)
+    implementation(projects.feature.android.intro)
+    implementation(projects.feature.android.registration)
 
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling.preview)
