@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.feature.addresses.domain.usecase.FindAllAddressesUseCase
 
-class AddressesViewModel(
+internal class AddressesViewModel(
     private val findAllAddressesUseCase: FindAllAddressesUseCase
 ) : ViewModel() {
 

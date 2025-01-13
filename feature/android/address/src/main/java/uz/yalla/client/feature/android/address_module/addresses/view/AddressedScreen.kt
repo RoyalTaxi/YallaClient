@@ -38,7 +38,7 @@ import uz.yalla.client.feature.core.design.theme.YallaTheme
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun AddressesScreen(
+internal fun AddressesScreen(
     uiState: AddressesUIState,
     onIntent: (AddressesIntent) -> Unit
 ) {

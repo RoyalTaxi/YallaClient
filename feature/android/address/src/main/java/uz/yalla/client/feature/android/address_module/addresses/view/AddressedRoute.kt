@@ -15,7 +15,7 @@ import uz.yalla.client.feature.android.address_module.addresses.model.AddressesV
 import uz.yalla.client.feature.core.dialogs.LoadingDialog
 
 @Composable
-fun AddressesRoute(
+internal fun AddressesRoute(
     onNavigateBack: () -> Unit,
     onClickAddress: (String, Int) -> Unit,
     onAddAddress: (String) -> Unit,
