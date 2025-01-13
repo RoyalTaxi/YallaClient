@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="choose_date">Sanani tanlang</string>
+    <string name="where_to_go">Qayerga boramiz?</string>
+    <string name="enter_the_address">Manzilni kiriting</string>
+    <string name="map">Xarita</string>
+    <string name="min">daq</string>
+    <string name="loading">Yuklanmoqda</string>
+    <string name="choose">Tanlash</string>
 </resources>

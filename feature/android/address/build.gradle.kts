@@ -5,8 +5,8 @@ plugins {
 }
 
 android {
-    namespace = "uz.yalla.client.feature.core"
-    compileSdk = 35
+    namespace = "uz.yalla.client.feature.android.address"
+    compileSdk = 34
 
     defaultConfig {
         minSdk = 24
@@ -31,14 +31,13 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
-    buildFeatures {
-        compose = true
-    }
 }
 
 dependencies {
 
+    implementation(projects.feature.android.core)
     implementation(projects.shared)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -53,35 +52,10 @@ dependencies {
     implementation(libs.androidx.animation.android)
     debugImplementation(libs.compose.ui.tooling)
 
-    implementation(libs.androidx.navigation.compose)
-
-    // LocalDate
-    implementation(libs.threetenabp)
-
-    // DatePicker
-    implementation(libs.snapper)
-    coreLibraryDesugaring(libs.desugar.jdk.libs)
-
-    // Koin
     implementation(project.dependencies.platform(libs.koin.bom))
     implementation(libs.koin.core)
     implementation(libs.koin.android)
     implementation(libs.insert.koin.koin.androidx.compose)
-    testImplementation(libs.koin.test.junit4)
 
-    // Location
-    implementation(libs.play.services.location)
-    
-    // Maps
-    implementation(libs.maps.compose)
-
-    // Lottie compose
-    implementation(libs.lottie.compose)
-
-    // ConstraintLayout
-    implementation(libs.androidx.constraintlayout.compose)
-
-    // Advanced BottomSheet
-    implementation(libs.advanced.bottomsheet.material3)
-
+    implementation(libs.androidx.navigation.compose)
 }

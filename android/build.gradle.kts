@@ -55,6 +55,7 @@ dependencies {
     implementation(projects.feature.android.auth)
     implementation(projects.feature.android.intro)
     implementation(projects.feature.android.registration)
+    implementation(projects.feature.android.address)
 
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling.preview)

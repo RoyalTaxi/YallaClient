@@ -23,7 +23,6 @@ import uz.ildam.technologies.yalla.android.ui.screens.card_verification.cardVeri
 import uz.ildam.technologies.yalla.android.ui.screens.card_verification.navigateToCardVerificationScreen
 import uz.ildam.technologies.yalla.android.ui.screens.contact_us.contactUsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.contact_us.navigateToContactUsScreen
-import uz.ildam.technologies.yalla.android.ui.screens.credentials.credentialsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.details.detailsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.details.navigateToDetailsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.edit_profile.editProfileScreen
@@ -39,6 +38,8 @@ import uz.ildam.technologies.yalla.android.ui.screens.settings.settingsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.web.navigateToWebScreen
 import uz.ildam.technologies.yalla.android.ui.screens.web.webScreen
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
+import uz.yalla.client.feature.android.address_module.addressModule
+import uz.yalla.client.feature.android.address_module.navigateToAddressModule
 import uz.yalla.client.feature.android.auth.authModule
 import uz.yalla.client.feature.android.auth.navigateToAuthModule
 import uz.yalla.client.feature.android.intro.INTRO_ROUTE
@@ -92,7 +93,7 @@ fun Navigation(
                 onProfileClick = navController::navigateToEditProfileScreen,
                 onOrderHistoryClick = navController::navigateToHistoryScreen,
                 onPaymentTypeClick = navController::navigateToCardListScreen,
-                onAddressesClick = navController::navigateToAddressesScreen,
+                onAddressesClick = navController::navigateToAddressModule,
                 onSettingsClick = navController::navigateToSettings,
                 onPermissionDenied = navController::navigateToIntroModel,
                 onCancel = navController::navigateToCancelReasonScreen,
@@ -130,15 +131,19 @@ fun Navigation(
                 onNavigateBack = navController::safePopBackStack
             )
 
-            addressesScreen(
-                onNavigateBack = navController::safePopBackStack,
-                onClickAddress = navController::navigateToAddressScreen,
-                onAddAddress = navController::navigateToAddressScreen
+            addressModule(
+                navController = navController
             )
 
-            addressScreen(
-                onNavigateBack = navController::safePopBackStack
-            )
+//            addressesScreen(
+//                onNavigateBack = navController::safePopBackStack,
+//                onClickAddress = navController::navigateToAddressScreen,
+//                onAddAddress = navController::navigateToAddressScreen
+//            )
+//
+//            addressScreen(
+//                onNavigateBack = navController::safePopBackStack
+//            )
 
             editProfileScreen(
                 onNavigateBack = navController::safePopBackStack
