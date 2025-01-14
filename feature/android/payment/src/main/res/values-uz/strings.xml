@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="new_card">Yangi karta</string>
+    <string name="link_card">Kartani bog\'lash</string>
+    <string name="payment_method">To\'lov usuli</string>
+    <string name="choose_payment_method">Qulay to\'lov usulini tanlang</string>
+    <string name="add_card">Karta qo\'shish</string>
+    <string name="card_number">Karta raqami</string>
+    <string name="mm_yy">OY/YIL</string>
+    <string name="cash">Naqd</string>
+    <string name="error_message">Noto\'g\'ri kod kiritdingiz, iltimos qayta urinib ko\'ring</string>
+    <string name="enter_otp">Xavfsizlik kodini kiriting</string>
+    <string name="enter_otp_definition">Biz +998%s raqamiga yuborgan 5 xonali kodni kiriting</string>
+    <string name="enter_otp_definition_6digits">Biz +998%s raqamiga yuborgan 6 xonali kodni kiriting</string>
+    <string name="resend_in">Kod\'ni %s dan so\'ng qayta yuborish</string>
+    <string name="resend">Kodni qayta yuborish</string>
+    <string name="next">Keyingi</string>
+</resources>

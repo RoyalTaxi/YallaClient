@@ -41,6 +41,8 @@ import uz.yalla.client.feature.android.auth.navigateToAuthModule
 import uz.yalla.client.feature.android.intro.INTRO_ROUTE
 import uz.yalla.client.feature.android.intro.introModule
 import uz.yalla.client.feature.android.intro.navigateToIntroModel
+import uz.yalla.client.feature.android.payment.navigateToPaymentModule
+import uz.yalla.client.feature.android.payment.paymentModule
 import uz.yalla.client.feature.android.registration.navigateToRegistrationModule
 import uz.yalla.client.feature.android.registration.registrationModule
 
@@ -88,7 +90,7 @@ fun Navigation(
             mapScreen(
                 onProfileClick = navController::navigateToEditProfileScreen,
                 onOrderHistoryClick = navController::navigateToHistoryScreen,
-                onPaymentTypeClick = navController::navigateToCardListScreen,
+                onPaymentTypeClick = navController::navigateToPaymentModule,
                 onAddressesClick = navController::navigateToAddressModule,
                 onSettingsClick = navController::navigateToSettings,
                 onPermissionDenied = navController::navigateToIntroModel,
@@ -109,18 +111,8 @@ fun Navigation(
                 onNavigateBack = navController::safePopBackStack
             )
 
-            cardListScreen(
-                onNavigateBack = navController::safePopBackStack,
-                onAddNewCard = navController::navigateToAddCardScreen
-            )
-
-            addCardScreen(
-                onNavigateBack = navController::safePopBackStack,
-                onNavigateNext = navController::navigateToCardVerificationScreen
-            )
-
-            cardVerificationScreen(
-                onNavigateBack = navController::navigateToCardListScreen
+            paymentModule(
+                navController = navController
             )
 
             cancelReasonScreen(
