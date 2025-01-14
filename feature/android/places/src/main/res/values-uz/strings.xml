@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="delete_selected_address">Siz haqiqatdan ham ushbu manzilni o\'chirmoqchimisiz?</string>
+    <string name="delete">O\'chirish</string>
+    <string name="cancel">Bekor qilish</string>
+    <string name="address_name">Nomi</string>
+    <string name="apartment">Xonadon</string>
+    <string name="entrance">Kirish</string>
+    <string name="floor">Qavat</string>
+    <string name="home">Uy</string>
+    <string name="work">Ish</string>
+    <string name="other">Boshqa</string>
+    <string name="enter_the_address">Manzilni kiriting</string>
+    <string name="comment">Izoh</string>
+    <string name="save">Saqlash</string>
+    <string name="my_places">Mening joylarim</string>
+    <string name="my_places_desc">Tez-tez boradigan manzillaringizni qo\'shing: uy, ish, sevimli kafe va boshqalar.</string>
+    <string name="add_home_address">Uy manzilini qo\'shing</string>
+    <string name="add_work_address">Ish manzilini qo\'shing</string>
+</resources>
