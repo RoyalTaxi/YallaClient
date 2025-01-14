@@ -117,20 +117,6 @@ fun Navigation(
                 navController = navController
             )
 
-//            cardListScreen(
-//                onNavigateBack = navController::safePopBackStack,
-//                onAddNewCard = navController::navigateToAddCardScreen
-//            )
-//
-//            addCardScreen(
-//                onNavigateBack = navController::safePopBackStack,
-//                onNavigateNext = navController::navigateToCardVerificationScreen
-//            )
-//
-//            cardVerificationScreen(
-//                onNavigateBack = navController::navigateToCardListScreen
-//            )
-
             cancelReasonScreen(
                 onNavigateBack = navController::safePopBackStack
             )
