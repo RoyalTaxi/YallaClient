@@ -24,11 +24,11 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
-import uz.ildam.technologies.yalla.core.domain.model.ClientModel
+import uz.ildam.technologies.yalla.core.domain.model.Client
 
 @Composable
 fun UserProfileCard(
-    clientModel: ClientModel,
+    client: Client,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
@@ -46,7 +46,7 @@ fun UserProfileCard(
                 .padding(20.dp)
         ) {
             AsyncImage(
-                model = clientModel.image,
+                model = client.image,
                 contentDescription = null,
                 error = painterResource(R.drawable.img_default_pfp),
                 placeholder = painterResource(R.drawable.img_default_pfp),
@@ -61,13 +61,13 @@ fun UserProfileCard(
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
                 Text(
-                    text = "${clientModel.givenNames} ${clientModel.surname}",
+                    text = "${client.givenNames} ${client.surname}",
                     color = YallaTheme.color.black,
                     style = YallaTheme.font.labelLarge
                 )
 
                 Text(
-                    text = clientModel.phone,
+                    text = client.phone,
                     color = YallaTheme.color.gray,
                     style = YallaTheme.font.body
                 )

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="orders_history">История поездок</string>
+    <string name="today">Сегодня</string>
+    <string name="yesterday">Вчера</string>
+</resources>

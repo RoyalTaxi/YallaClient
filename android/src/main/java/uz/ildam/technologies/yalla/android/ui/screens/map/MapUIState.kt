@@ -1,10 +1,7 @@
 package uz.ildam.technologies.yalla.android.ui.screens.map
 
-import com.google.maps.android.compose.MapProperties
-import com.google.maps.android.compose.MapType
-import com.google.maps.android.compose.MapUiSettings
 import uz.ildam.technologies.yalla.core.data.enums.PaymentType
-import uz.ildam.technologies.yalla.core.domain.model.ExecutorModel
+import uz.ildam.technologies.yalla.core.domain.model.Executor
 import uz.ildam.technologies.yalla.core.domain.model.MapPoint
 import uz.ildam.technologies.yalla.feature.map.domain.model.response.map.SearchForAddressItemModel
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.SettingModel
@@ -41,7 +38,7 @@ data class MapUIState(
     val paymentTypes: List<CardListItemModel> = emptyList(),
 
     // Driver-related properties
-    val drivers: List<ExecutorModel> = emptyList(),
+    val drivers: List<Executor> = emptyList(),
     val selectedDriver: ShowOrderModel? = null,
 
     // Setting-related properties

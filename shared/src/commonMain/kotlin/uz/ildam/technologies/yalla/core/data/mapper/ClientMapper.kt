@@ -1,12 +1,12 @@
 package uz.ildam.technologies.yalla.core.data.mapper
 
 import uz.ildam.technologies.yalla.core.data.response.ClientRemoteModel
-import uz.ildam.technologies.yalla.core.domain.model.ClientModel
+import uz.ildam.technologies.yalla.core.domain.model.Client
 
 object ClientMapper {
-    val clientMapper: Mapper<ClientRemoteModel?, ClientModel> =
+    val clientMapper: Mapper<ClientRemoteModel?, Client> =
         { client ->
-            ClientModel(
+            Client(
                 id = client?.id.or0(),
                 phone = client?.phone.orEmpty(),
                 givenNames = client?.given_names.orEmpty(),

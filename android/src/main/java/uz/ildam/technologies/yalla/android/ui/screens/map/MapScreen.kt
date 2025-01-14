@@ -68,10 +68,7 @@ fun MapScreen(
                     .fillMaxSize()
                     .padding(bottom = adjustedBottomPadding)
             ) {
-                map.Map(
-                    modifier = Modifier,
-                    uiState = uiState
-                )
+                map.Map(modifier = Modifier)
 
                 if (disabledStatuses.contains(uiState.selectedDriver?.status)) Box(
                     modifier = Modifier

@@ -1,7 +1,7 @@
 package uz.ildam.technologies.yalla.feature.profile.domain.model.response
 
-import uz.ildam.technologies.yalla.core.domain.model.ClientModel
+import uz.ildam.technologies.yalla.core.domain.model.Client
 
 data class GetMeModel(
-    val client: ClientModel
+    val client: Client
 )

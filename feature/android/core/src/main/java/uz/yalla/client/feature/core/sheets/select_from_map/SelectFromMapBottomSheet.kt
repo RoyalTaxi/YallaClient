@@ -34,6 +34,9 @@ import uz.yalla.client.feature.core.components.buttons.SelectCurrentLocationButt
 import uz.yalla.client.feature.core.components.buttons.YButton
 import uz.yalla.client.feature.core.components.marker.YallaMarker
 import uz.yalla.client.feature.core.design.theme.YallaTheme
+import uz.yalla.client.feature.core.map.ConcreteGisMap
+import uz.yalla.client.feature.core.map.ConcreteGoogleMap
+import uz.yalla.client.feature.core.map.MapStrategy
 
 @Composable
 fun SelectFromMapBottomSheet(

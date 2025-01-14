@@ -1,11 +1,11 @@
 package uz.ildam.technologies.yalla.core.data.mapper
 
 import uz.ildam.technologies.yalla.core.data.response.ExecutorRemoteModel
-import uz.ildam.technologies.yalla.core.domain.model.ExecutorModel
+import uz.ildam.technologies.yalla.core.domain.model.Executor
 
 object ExecutorMapper {
-    val mapper: Mapper<ExecutorRemoteModel?, ExecutorModel> = { remote ->
-        ExecutorModel(
+    val mapper: Mapper<ExecutorRemoteModel?, Executor> = { remote ->
+        Executor(
             id = remote?.id.or0(),
             lat = remote?.lat.or0(),
             lng = remote?.lng.or0(),

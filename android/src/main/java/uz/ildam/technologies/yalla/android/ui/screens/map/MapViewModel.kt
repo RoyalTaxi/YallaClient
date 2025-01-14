@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.core.data.enums.PaymentType
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 import uz.ildam.technologies.yalla.core.data.mapper.or0
-import uz.ildam.technologies.yalla.core.domain.model.ExecutorModel
+import uz.ildam.technologies.yalla.core.domain.model.Executor
 import uz.ildam.technologies.yalla.core.domain.model.MapPoint
 import uz.ildam.technologies.yalla.feature.map.domain.model.request.GetRoutingDtoItem
 import uz.ildam.technologies.yalla.feature.map.domain.model.response.map.PolygonRemoteItem
@@ -315,7 +315,7 @@ class MapViewModel(
         _uiState.update { it.copy(moveCameraButtonState = state) }
     }
 
-    fun setDrivers(drivers: List<ExecutorModel>) {
+    fun setDrivers(drivers: List<Executor>) {
         _uiState.update { it.copy(drivers = drivers) }
     }
 

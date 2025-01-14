@@ -22,6 +22,7 @@ import io.morfly.compose.bottomsheet.material3.rememberBottomSheetState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.yield
 import org.koin.androidx.compose.koinViewModel
 import uz.ildam.technologies.yalla.android.ui.dialogs.LoadingDialog
 import uz.ildam.technologies.yalla.android.ui.sheets.SheetValue
@@ -133,11 +134,10 @@ fun MapRoute(
             while (true) {
                 vm.getActiveOrders()
                 delay(5.seconds)
+                yield()
             }
         }
-    }
 
-    LaunchedEffect(Unit) {
         launch {
             vm.actionState.collectLatest { action ->
                 when (action) {
@@ -153,10 +153,25 @@ fun MapRoute(
 
     LaunchedEffect(uiState.route) {
         launch {
+            map.updateRoute(uiState.route)
             if (uiState.route.isEmpty()) map.animateToMyLocation()
             else map.animateToFitBounds(uiState.route)
         }
     }
+
+    LaunchedEffect(uiState.selectedLocation, uiState.destinations) {
+        launch {
+            val start = uiState.selectedLocation?.point?.let { MapPoint(it.lat, it.lng) }
+            val dest = uiState.destinations.mapNotNull {
+                it.point?.let { point -> MapPoint(point.lat, point.lng) }
+            }
+            val locations = listOfNotNull(start) + dest
+            map.updateLocations(locations)
+        }
+    }
+
+
+    LaunchedEffect(uiState.drivers) { launch { map.updateDrivers(uiState.drivers) } }
 
     LaunchedEffect(map.isMarkerMoving.value) {
         launch {
@@ -172,12 +187,14 @@ fun MapRoute(
             while (uiState.showingOrderId != null) {
                 vm.getShow()
                 delay(5.seconds)
+                yield()
             }
         }
     }
 
     LaunchedEffect(uiState.selectedDriver?.status) {
         launch {
+            uiState.selectedDriver?.status?.let { map.updateOrderStatus(it) }
             when (uiState.selectedDriver?.status) {
                 OrderStatus.Appointed -> sheetHandler.showClientWaiting()
                 OrderStatus.AtAddress -> sheetHandler.showDriverWaiting()

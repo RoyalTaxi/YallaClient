@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.core.sheets.select_from_map
+package uz.yalla.client.feature.core.map
 
 import android.content.Context
 import androidx.compose.runtime.Composable

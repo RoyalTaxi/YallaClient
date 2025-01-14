@@ -55,7 +55,7 @@ object Navigation {
         AuthViewModel.module,
         IntroViewModel.module,
         RegistrationViewModel.module,
-        PaymentViewModel.module
+        PaymentViewModel.module,
         AddressModuleViewModel.module
     )
 }

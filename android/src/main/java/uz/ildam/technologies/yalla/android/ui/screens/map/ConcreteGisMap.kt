@@ -5,10 +5,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -31,6 +34,7 @@ import uz.ildam.technologies.yalla.android2gis.imageFromResource
 import uz.ildam.technologies.yalla.android2gis.lat
 import uz.ildam.technologies.yalla.android2gis.lon
 import uz.ildam.technologies.yalla.android2gis.rememberCameraState
+import uz.ildam.technologies.yalla.core.domain.model.Executor
 import uz.ildam.technologies.yalla.core.domain.model.MapPoint
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.OrderStatus
 import uz.ildam.technologies.yalla.android2gis.CameraState as ComposableCameraState
@@ -38,15 +42,19 @@ import uz.ildam.technologies.yalla.android2gis.CameraState as ComposableCameraSt
 class ConcreteGisMap : MapStrategy {
     override val isMarkerMoving: MutableState<Boolean> = mutableStateOf(false)
     override val mapPoint: MutableState<MapPoint> = mutableStateOf(MapPoint(0.0, 0.0))
+
+    private var driver: State<Executor?> = mutableStateOf(null)
+    private val drivers: SnapshotStateList<Executor> = mutableStateListOf()
+    private val route: SnapshotStateList<MapPoint> = mutableStateListOf()
+    private val locations: SnapshotStateList<MapPoint> = mutableStateListOf()
+    private val orderStatus: MutableState<OrderStatus?> = mutableStateOf(null)
+
     private lateinit var context: Context
     private lateinit var coroutineScope: CoroutineScope
     private lateinit var cameraState: ComposableCameraState
 
     @Composable
-    override fun Map(
-        modifier: Modifier,
-        uiState: MapUIState
-    ) {
+    override fun Map(modifier: Modifier) {
         context = LocalContext.current
         coroutineScope = rememberCoroutineScope()
         cameraState = rememberCameraState(CameraPosition(GeoPoint(0.0, 0.0), Zoom(2.0f)))
@@ -64,57 +72,22 @@ class ConcreteGisMap : MapStrategy {
             cameraState = cameraState
         ) {
 
-            if (uiState.selectedDriver?.status == OrderStatus.Appointed) uiState.selectedLocation?.point?.let {
-                Marker(
-                    icon = imageFromResource(R.drawable.ic_origin_marker),
-                    position = GeoPoint(it.lat, it.lng)
-                )
-            }
+            if (
+                orderStatus.value == OrderStatus.Appointed ||
+                orderStatus.value == OrderStatus.AtAddress
+            ) Marker(
+                icon = imageFromResource(R.drawable.ic_origin_marker),
+                position = GeoPoint(locations.first().lat, locations.first().lng)
+            )
 
+            Markers(
+                route = route,
+                locations = locations
+            )
 
-            if (uiState.route.isNotEmpty()) {
-                Polyline(
-                    points = uiState.route.map { GeoPoint(it.lat, it.lng) },
-                    width = 4.dp
-                )
+            Driver(driver)
 
-                Marker(
-                    icon = imageFromResource(R.drawable.ic_origin_marker),
-                    position = GeoPoint(uiState.route.first().lat, uiState.route.first().lng)
-                )
-
-                uiState.destinations.dropLast(1).forEach { routePoint ->
-                    routePoint.point?.let {
-                        Marker(
-                            icon = imageFromResource(R.drawable.ic_middle_marker),
-                            position = GeoPoint(it.lat, it.lng)
-                        )
-                    }
-                }
-
-                Marker(
-                    icon = imageFromResource(R.drawable.ic_destination_marker),
-                    position = GeoPoint(uiState.route.last().lat, uiState.route.last().lng)
-                )
-            }
-
-            uiState.selectedDriver?.let {
-                Marker(
-                    icon = imageFromResource(R.drawable.img_car_marker),
-                    position = GeoPoint(
-                        it.executor.coords.lat,
-                        it.executor.coords.lng
-                    )
-                )
-            }
-
-            // Add car markers
-            uiState.drivers.take(20).forEach { driver ->
-                Marker(
-                    icon = imageFromResource(R.drawable.img_car_marker), // Use car marker icon
-                    position = GeoPoint(driver.lat, driver.lng), // Driver's position
-                )
-            }
+            Drivers(drivers)
         }
 
         DisposableEffect(cameraNode?.dgisCamera?.position) {
@@ -192,4 +165,75 @@ class ConcreteGisMap : MapStrategy {
             }
         }
     }
+
+    override fun updateDrivers(drivers: List<Executor>) {
+        this.drivers.clear()
+        this.drivers.addAll(drivers)
+    }
+
+    override fun updateRoute(route: List<MapPoint>) {
+        this.route.clear()
+        this.route.addAll(route)
+    }
+
+    override fun updateOrderStatus(status: OrderStatus) {
+        orderStatus.value = status
+    }
+
+    override fun updateLocations(locations: List<MapPoint>) {
+        this.locations.clear()
+        this.locations.addAll(locations)
+    }
+}
+
+@Composable
+private fun Driver(
+    driver: State<Executor?>
+) {
+    driver.value?.let {
+        Marker(
+            icon = imageFromResource(R.drawable.img_car_marker),
+            position = GeoPoint(it.lng, it.lng)
+        )
+    }
+}
+
+@Composable
+private fun Drivers(
+    drivers: SnapshotStateList<Executor>
+) {
+    drivers.take(20).forEach {
+        Marker(
+            icon = imageFromResource(R.drawable.img_car_marker),
+            position = GeoPoint(it.lat, it.lng)
+        )
+    }
+}
+
+@Composable
+private fun Markers(
+    route: List<MapPoint>,
+    locations: List<MapPoint>
+) {
+    if (route.isNotEmpty()) Polyline(
+        points = route.map { GeoPoint(it.lat, it.lng) },
+        width = 4.dp
+    )
+
+    if (locations.size > 1) Marker(
+        icon = imageFromResource(R.drawable.ic_origin_marker),
+        position = GeoPoint(locations.first().lat, locations.first().lng)
+    )
+
+    if (locations.size > 2) locations.dropLast(1).forEach {
+        Marker(
+            icon = imageFromResource(R.drawable.ic_middle_marker),
+            position = GeoPoint(it.lat, it.lng)
+        )
+    }
+
+    if (locations.size > 1) Marker(
+        icon = imageFromResource(R.drawable.ic_destination_marker),
+        position = GeoPoint(locations.last().lat, locations.last().lng)
+    )
 }

@@ -9,9 +9,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -41,37 +44,29 @@ import uz.ildam.technologies.yalla.android.utils.pxToDp
 import uz.ildam.technologies.yalla.android.utils.vectorToBitmapDescriptor
 import uz.ildam.technologies.yalla.android2gis.dpToPx
 import uz.ildam.technologies.yalla.core.data.mapper.or0
+import uz.ildam.technologies.yalla.core.domain.model.Executor
 import uz.ildam.technologies.yalla.core.domain.model.MapPoint
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.OrderStatus
 
 class ConcreteGoogleMap : MapStrategy {
     override val isMarkerMoving: MutableState<Boolean> = mutableStateOf(false)
     override val mapPoint: MutableState<MapPoint> = mutableStateOf(MapPoint(0.0, 0.0))
+
+    private var driver: State<Executor?> = mutableStateOf(null)
+    private val drivers: SnapshotStateList<Executor> = mutableStateListOf()
+    private val route: SnapshotStateList<MapPoint> = mutableStateListOf()
+    private val locations: SnapshotStateList<MapPoint> = mutableStateListOf()
+    private val orderStatus: MutableState<OrderStatus?> = mutableStateOf(null)
+
     private lateinit var context: Context
     private lateinit var coroutineScope: CoroutineScope
     private lateinit var cameraPositionState: CameraPositionState
 
     @Composable
-    override fun Map(
-        modifier: Modifier,
-        uiState: MapUIState
-    ) {
+    override fun Map(modifier: Modifier) {
         context = LocalContext.current
         coroutineScope = rememberCoroutineScope()
         cameraPositionState = rememberCameraPositionState()
-
-        val startMarkerIcon = remember {
-            vectorToBitmapDescriptor(context, R.drawable.ic_origin_marker)
-                ?: BitmapDescriptorFactory.defaultMarker()
-        }
-        val middleMarkerIcon = remember {
-            vectorToBitmapDescriptor(context, R.drawable.ic_middle_marker)
-                ?: BitmapDescriptorFactory.defaultMarker()
-        }
-        val endMarkerIcon = remember {
-            vectorToBitmapDescriptor(context, R.drawable.ic_destination_marker)
-                ?: BitmapDescriptorFactory.defaultMarker()
-        }
 
         LaunchedEffect(cameraPositionState.isMoving) {
             isMarkerMoving.value = cameraPositionState.isMoving
@@ -93,103 +88,53 @@ class ConcreteGoogleMap : MapStrategy {
             ),
             properties = MapProperties(
                 mapType = MapType.NORMAL,
-                isBuildingEnabled = true,
                 isMyLocationEnabled = true,
             ),
             uiSettings = MapUiSettings(
+                scrollGesturesEnabled = true,
                 compassEnabled = false,
                 mapToolbarEnabled = false,
                 zoomControlsEnabled = false,
                 myLocationButtonEnabled = false,
-                rotationGesturesEnabled = true,
-                scrollGesturesEnabled = true,
-                scrollGesturesEnabledDuringRotateOrZoom = false,
-                tiltGesturesEnabled = false
-            ),
-            onMapLoaded = {
-                getCurrentLocation(context) { loc ->
-                    if (uiState.route.isEmpty()) animate(MapPoint(loc.latitude, loc.longitude))
-                    else animateToFitBounds(uiState.route)
-                }
-            }
+                rotationGesturesEnabled = false,
+                tiltGesturesEnabled = false,
+                scrollGesturesEnabledDuringRotateOrZoom = false
+            )
         ) {
             if (
-                uiState.selectedDriver?.status == OrderStatus.Appointed &&
-                uiState.selectedDriver.status == OrderStatus.AtAddress
+                orderStatus.value == OrderStatus.Appointed &&
+                orderStatus.value == OrderStatus.AtAddress
             ) Marker(
-                icon = startMarkerIcon,
-                state = remember(uiState.selectedLocation) {
+                icon = remember {
+                    vectorToBitmapDescriptor(context, R.drawable.ic_origin_marker)
+                        ?: BitmapDescriptorFactory.defaultMarker()
+                },
+                state = remember(locations.first()) {
                     MarkerState(
                         LatLng(
-                            uiState.selectedLocation?.point?.lat.or0(),
-                            uiState.selectedLocation?.point?.lng.or0(),
+                            locations.first().lat.or0(),
+                            locations.first().lng.or0(),
                         )
                     )
                 }
             )
 
-            if (uiState.route.isNotEmpty()) {
-                Polyline(points = uiState.route.map { LatLng(it.lat, it.lng) })
+            Markers(
+                context = context,
+                route = route,
+                locations = locations
+            )
 
-                Marker(
-                    icon = startMarkerIcon,
-                    state = remember(uiState.route.first()) {
-                        MarkerState(LatLng(uiState.route.first().lat, uiState.route.first().lng))
-                    }
-                )
+            Driver(
+                driver = this.driver
+            )
 
-                uiState.destinations.dropLast(1).forEach { routePoint ->
-                    routePoint.point?.let {
-                        Marker(
-                            icon = middleMarkerIcon,
-                            state = remember(routePoint) {
-                                MarkerState(LatLng(it.lat, it.lng))
-                            }
-                        )
-                    }
-                }
-
-                Marker(
-                    icon = endMarkerIcon,
-                    state = remember(uiState.route.last()) {
-                        MarkerState(LatLng(uiState.route.last().lat, uiState.route.last().lng))
-                    }
-                )
-            }
-
-            uiState.selectedDriver?.let {
-                MarkerComposable(
-                    flat = true,
-                    rotation = it.executor.coords.heading.toFloat(),
-                    state = remember(it) {
-                        MarkerState(LatLng(it.executor.coords.lat, it.executor.coords.lng))
-                    }
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.img_car_marker),
-                        contentDescription = null,
-                        tint = Color.Unspecified,
-                        modifier = Modifier.size(48.dp)
-                    )
-                }
-            }
-
-            uiState.drivers.take(20).forEach { driver ->
-                MarkerComposable(
-                    flat = true,
-                    rotation = driver.heading.toFloat(),
-                    state = remember(driver) { MarkerState(LatLng(driver.lat, driver.lng)) }
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.img_car_marker),
-                        contentDescription = null,
-                        tint = Color.Unspecified,
-                        modifier = Modifier.size(48.dp)
-                    )
-                }
-            }
+            Drivers(
+                drivers = drivers
+            )
         }
     }
+
 
     override fun move(to: MapPoint) {
         if (::cameraPositionState.isInitialized) {
@@ -254,4 +199,108 @@ class ConcreteGoogleMap : MapStrategy {
             )
         }
     }
+
+    override fun updateDrivers(drivers: List<Executor>) {
+        this.drivers.clear()
+        this.drivers.addAll(drivers)
+    }
+
+    override fun updateRoute(route: List<MapPoint>) {
+        this.route.clear()
+        this.route.addAll(route)
+    }
+
+    override fun updateOrderStatus(status: OrderStatus) {
+        orderStatus.value = status
+    }
+
+    override fun updateLocations(locations: List<MapPoint>) {
+        this.locations.clear()
+        this.locations.addAll(locations)
+    }
+}
+
+@Composable
+private fun Driver(
+    driver: State<Executor?>
+) {
+    driver.value?.let {
+        MarkerComposable(
+            flat = true,
+            rotation = it.heading.toFloat(),
+            state = remember(it) { MarkerState(LatLng(it.lat, it.lng)) }
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.img_car_marker),
+                contentDescription = null,
+                tint = Color.Unspecified,
+                modifier = Modifier.size(48.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun Drivers(
+    drivers: SnapshotStateList<Executor>
+) {
+    drivers.take(20).forEach { driver ->
+        MarkerComposable(
+            flat = true,
+            rotation = driver.heading.toFloat(),
+            state = remember(driver) { MarkerState(LatLng(driver.lat, driver.lng)) }
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.img_car_marker),
+                contentDescription = null,
+                tint = Color.Unspecified,
+                modifier = Modifier.size(48.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun Markers(
+    context: Context,
+    route: List<MapPoint>,
+    locations: List<MapPoint>
+) {
+
+    val startMarkerIcon = remember {
+        vectorToBitmapDescriptor(context, R.drawable.ic_origin_marker)
+            ?: BitmapDescriptorFactory.defaultMarker()
+    }
+    val middleMarkerIcon = remember {
+        vectorToBitmapDescriptor(context, R.drawable.ic_middle_marker)
+            ?: BitmapDescriptorFactory.defaultMarker()
+    }
+    val endMarkerIcon = remember {
+        vectorToBitmapDescriptor(context, R.drawable.ic_destination_marker)
+            ?: BitmapDescriptorFactory.defaultMarker()
+    }
+
+    if (route.isNotEmpty())
+        Polyline(points = route.map { LatLng(it.lat, it.lng) })
+
+    if (locations.size > 1) Marker(
+        icon = startMarkerIcon,
+        state = remember(locations.first()) {
+            MarkerState(LatLng(locations.first().lat, locations.first().lng))
+        }
+    )
+
+    if (locations.size > 2) locations.dropLast(1).forEach { dest ->
+        Marker(
+            icon = middleMarkerIcon,
+            state = remember(dest) { MarkerState(LatLng(dest.lat, dest.lng)) }
+        )
+    }
+
+    if (locations.size > 1) Marker(
+        icon = endMarkerIcon,
+        state = remember(locations.last()) {
+            MarkerState(LatLng(locations.last().lat, locations.last().lng))
+        }
+    )
 }

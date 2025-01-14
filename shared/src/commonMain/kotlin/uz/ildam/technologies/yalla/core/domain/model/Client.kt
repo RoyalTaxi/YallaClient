@@ -1,6 +1,6 @@
 package uz.ildam.technologies.yalla.core.domain.model
 
-data class ClientModel(
+data class Client(
     val id: Long,
     val phone: String,
     val givenNames: String,

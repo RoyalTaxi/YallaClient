@@ -3,7 +3,7 @@ package uz.ildam.technologies.yalla.feature.profile.data.repository
 import uz.ildam.technologies.yalla.core.data.mapper.ClientMapper
 import uz.ildam.technologies.yalla.core.domain.error.DataError
 import uz.ildam.technologies.yalla.core.domain.error.Either
-import uz.ildam.technologies.yalla.core.domain.model.ClientModel
+import uz.ildam.technologies.yalla.core.domain.model.Client
 import uz.ildam.technologies.yalla.feature.profile.data.mapper.ProfileMapper
 import uz.ildam.technologies.yalla.feature.profile.data.request.UpdateMeRequest
 import uz.ildam.technologies.yalla.feature.profile.data.service.ProfileService
@@ -22,7 +22,7 @@ class ProfileRepositoryImpl(
         }
     }
 
-    override suspend fun updateMe(body: UpdateMeDto): Either<ClientModel, DataError.Network> {
+    override suspend fun updateMe(body: UpdateMeDto): Either<Client, DataError.Network> {
         return when (
             val result = service.updateMe(
                 body.let { dto ->

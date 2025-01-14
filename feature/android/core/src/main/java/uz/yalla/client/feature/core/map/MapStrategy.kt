@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.core.sheets.select_from_map
+package uz.yalla.client.feature.core.map
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -12,6 +12,7 @@ interface MapStrategy {
 
     @Composable
     fun Map(modifier: Modifier)
+
     fun move(to: MapPoint)
     fun animate(to: MapPoint, durationMillis: Int = 1000)
     fun moveToMyLocation()
