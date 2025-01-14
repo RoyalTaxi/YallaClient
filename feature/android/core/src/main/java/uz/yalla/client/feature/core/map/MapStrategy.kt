@@ -4,17 +4,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
+import uz.ildam.technologies.yalla.core.domain.model.Executor
 import uz.ildam.technologies.yalla.core.domain.model.MapPoint
+import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.OrderStatus
 
 interface MapStrategy {
-    val isMarkerMoving: State<Boolean>
     val mapPoint: MutableState<MapPoint>
+    val isMarkerMoving: State<Boolean>
 
     @Composable
-    fun Map(modifier: Modifier)
+    fun Map(
+        modifier: Modifier
+    )
 
     fun move(to: MapPoint)
     fun animate(to: MapPoint, durationMillis: Int = 1000)
     fun moveToMyLocation()
     fun animateToMyLocation(durationMillis: Int = 1000)
+    fun moveToFitBounds(routing: List<MapPoint>)
+    fun animateToFitBounds(routing: List<MapPoint>)
+    fun updateDrivers(drivers: List<Executor>)
+    fun updateRoute(route: List<MapPoint>)
+    fun updateOrderStatus(status: OrderStatus)
+    fun updateLocations(locations: List<MapPoint>)
 }

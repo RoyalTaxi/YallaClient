@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -53,7 +52,7 @@ internal fun LoginScreen(
             Column(
                 modifier = Modifier
                     .padding(paddingValues)
-                    .padding(20.dp)
+                    .padding(horizontal = 20.dp)
             ) {
                 Spacer(modifier = Modifier.height(40.dp))
 

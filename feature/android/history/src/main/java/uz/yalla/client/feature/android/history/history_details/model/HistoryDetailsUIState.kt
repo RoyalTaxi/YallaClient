@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.android.history.history_details
+package uz.yalla.client.feature.android.history.history_details.model
 
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType

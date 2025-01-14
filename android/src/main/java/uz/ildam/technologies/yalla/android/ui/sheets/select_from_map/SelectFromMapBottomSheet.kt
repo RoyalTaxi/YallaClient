@@ -34,6 +34,9 @@ import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
 import uz.ildam.technologies.yalla.android.ui.components.marker.YallaMarker
 import uz.ildam.technologies.yalla.core.data.enums.MapType
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
+import uz.yalla.client.feature.core.map.ConcreteGisMap
+import uz.yalla.client.feature.core.map.ConcreteGoogleMap
+import uz.yalla.client.feature.core.map.MapStrategy
 
 @Composable
 fun SelectFromMapBottomSheet(

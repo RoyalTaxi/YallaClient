@@ -45,7 +45,6 @@ internal fun VerificationScreen(
 
     Scaffold(
         containerColor = YallaTheme.color.white,
-        modifier = Modifier.imePadding(),
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(YallaTheme.color.white),
@@ -65,7 +64,7 @@ internal fun VerificationScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .padding(20.dp)
+                    .padding(horizontal = 20.dp)
             ) {
                 Spacer(modifier = Modifier.height(40.dp))
 
@@ -151,5 +150,4 @@ internal fun VerificationScreen(
             )
         }
     )
-
 }

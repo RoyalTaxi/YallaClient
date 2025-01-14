@@ -67,4 +67,11 @@ dependencies {
     // Kotlinx Date time
     implementation(libs.kotlinx.datetime)
 
+    // Advanced BottomSheet
+    implementation(libs.advanced.bottomsheet.material3)
+
+    // Maps
+    implementation(libs.maps.compose)
+
+
 }

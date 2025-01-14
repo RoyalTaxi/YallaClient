@@ -2,7 +2,6 @@ package uz.yalla.client.feature.android.intro.onboarding.view
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,9 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.verticalScroll
@@ -29,7 +26,6 @@ import uz.yalla.client.feature.android.intro.onboarding.components.DotIndicator
 import uz.yalla.client.feature.android.intro.onboarding.components.NextButton
 import uz.yalla.client.feature.core.design.theme.YallaTheme
 
-
 @Composable
 internal fun OnboardingScreen(
     scrollState: ScrollState,
@@ -37,17 +33,14 @@ internal fun OnboardingScreen(
     screenContents: List<Page>,
     onIntent: (OnboardingIntent) -> Unit
 ) {
-
     Scaffold(
         containerColor = YallaTheme.color.white,
-        modifier = Modifier.imePadding()
+        modifier = Modifier.fillMaxSize(),
     ) { paddingValues ->
-
         Column(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
-                .systemBarsPadding()
                 .verticalScroll(scrollState)
         ) {
             Spacer(modifier = Modifier.height(43.dp))
