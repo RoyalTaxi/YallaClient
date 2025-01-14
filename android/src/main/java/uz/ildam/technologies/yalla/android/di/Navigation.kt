@@ -7,8 +7,6 @@ import uz.ildam.technologies.yalla.android.activity.MainViewModel
 import uz.ildam.technologies.yalla.android.connectivity.AndroidConnectivityObserver
 import uz.ildam.technologies.yalla.android.connectivity.ConnectivityObserver
 import uz.ildam.technologies.yalla.android.ui.screens.add_card.AddCardViewModel
-import uz.ildam.technologies.yalla.android.ui.screens.address.AddressViewModel
-import uz.ildam.technologies.yalla.android.ui.screens.addresses.AddressesViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.cancel_reason.CancelReasonViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.card_list.CardListViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.card_verification.CardVerificationViewModel
@@ -20,6 +18,7 @@ import uz.ildam.technologies.yalla.android.ui.screens.map.MapViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.settings.SettingsViewModel
 import uz.ildam.technologies.yalla.android.ui.sheets.search_address.SearchByNameBottomSheetViewModel
 import uz.ildam.technologies.yalla.android.ui.sheets.select_from_map.SelectFromMapBottomSheetViewModel
+import uz.yalla.client.feature.android.places.di.AddressModuleViewModel
 import uz.yalla.client.feature.android.auth.di.AuthViewModel
 import uz.yalla.client.feature.android.intro.di.IntroViewModel
 import uz.yalla.client.feature.android.payment.di.PaymentViewModel
@@ -39,8 +38,6 @@ object Navigation {
         viewModelOf(::CardListViewModel)
         viewModelOf(::CardVerificationViewModel)
         viewModelOf(::CancelReasonViewModel)
-        viewModelOf(::AddressesViewModel)
-        viewModelOf(::AddressViewModel)
         viewModelOf(::EditProfileViewModel)
         viewModelOf(::MainViewModel)
         viewModelOf(::AboutAppViewModel)
@@ -59,5 +56,6 @@ object Navigation {
         IntroViewModel.module,
         RegistrationViewModel.module,
         PaymentViewModel.module
+        AddressModuleViewModel.module
     )
 }

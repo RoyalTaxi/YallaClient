@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="choose_date">Выберите дату</string>
+    <string name="where_to_go">Куда едем?</string>
+    <string name="enter_the_address">Введите адрес</string>
+    <string name="map">Карта</string>
+    <string name="min">мин</string>
+    <string name="loading">Загружается</string>
+    <string name="choose">Выбрать</string>
 </resources>
