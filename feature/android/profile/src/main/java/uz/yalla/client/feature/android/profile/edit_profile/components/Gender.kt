@@ -1,6 +1,6 @@
-package uz.ildam.technologies.yalla.android.ui.screens.edit_profile
+package uz.yalla.client.feature.android.profile.edit_profile.components
 
-sealed class Gender(val type: String) {
+internal sealed class Gender(val type: String) {
     data object Male : Gender("MALE")
     data object Female : Gender("FEMALE")
     data object NotSelected : Gender("NOT_SELECTED")

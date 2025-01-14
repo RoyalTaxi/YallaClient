@@ -1,4 +1,4 @@
-package uz.ildam.technologies.yalla.android.ui.screens.edit_profile
+package uz.yalla.client.feature.android.profile.edit_profile.model
 
 import android.content.Context
 import android.net.Uri
@@ -13,15 +13,16 @@ import kotlinx.coroutines.launch
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.format.DateTimeParseException
-import uz.ildam.technologies.yalla.android.utils.formatWithDotsDMY
-import uz.ildam.technologies.yalla.android.utils.uriToByteArray
 import uz.ildam.technologies.yalla.feature.profile.domain.model.request.UpdateMeDto
 import uz.ildam.technologies.yalla.feature.profile.domain.usecase.GetMeUseCase
 import uz.ildam.technologies.yalla.feature.profile.domain.usecase.UpdateAvatarUseCase
 import uz.ildam.technologies.yalla.feature.profile.domain.usecase.UpdateMeUseCase
+import uz.yalla.client.feature.android.profile.edit_profile.components.Gender
+import uz.yalla.client.feature.android.profile.edit_profile.components.uriToByteArray
+import uz.yalla.client.feature.core.utils.formatWithDotsDMY
 import java.util.Locale
 
-class EditProfileViewModel(
+internal class EditProfileViewModel(
     private val updateMeUseCase: UpdateMeUseCase,
     private val getMeUseCase: GetMeUseCase,
     private val updateAvatarUseCase: UpdateAvatarUseCase

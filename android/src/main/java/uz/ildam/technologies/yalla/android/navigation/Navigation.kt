@@ -16,8 +16,6 @@ import uz.ildam.technologies.yalla.android.ui.screens.contact_us.contactUsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.contact_us.navigateToContactUsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.details.detailsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.details.navigateToDetailsScreen
-import uz.ildam.technologies.yalla.android.ui.screens.edit_profile.editProfileScreen
-import uz.ildam.technologies.yalla.android.ui.screens.edit_profile.navigateToEditProfileScreen
 import uz.ildam.technologies.yalla.android.ui.screens.history.historyScreen
 import uz.ildam.technologies.yalla.android.ui.screens.history.navigateToHistoryScreen
 import uz.ildam.technologies.yalla.android.ui.screens.map.MAP_ROUTE
@@ -38,6 +36,8 @@ import uz.yalla.client.feature.android.payment.navigateToPaymentModule
 import uz.yalla.client.feature.android.payment.paymentModule
 import uz.yalla.client.feature.android.places.addressModule
 import uz.yalla.client.feature.android.places.navigateToAddressModule
+import uz.yalla.client.feature.android.profile.navigateToProfileModule
+import uz.yalla.client.feature.android.profile.profileModule
 import uz.yalla.client.feature.android.registration.navigateToRegistrationModule
 import uz.yalla.client.feature.android.registration.registrationModule
 
@@ -83,7 +83,7 @@ fun Navigation(
             )
 
             mapScreen(
-                onProfileClick = navController::navigateToEditProfileScreen,
+                onProfileClick = navController::navigateToProfileModule,
                 onOrderHistoryClick = navController::navigateToHistoryScreen,
                 onPaymentTypeClick = navController::navigateToPaymentModule,
                 onAddressesClick = navController::navigateToAddressModule,
@@ -118,8 +118,8 @@ fun Navigation(
                 navController = navController
             )
 
-            editProfileScreen(
-                onNavigateBack = navController::safePopBackStack
+            profileModule(
+                navController= navController
             )
 
             settingsScreen(onNavigateBack = navController::safePopBackStack)

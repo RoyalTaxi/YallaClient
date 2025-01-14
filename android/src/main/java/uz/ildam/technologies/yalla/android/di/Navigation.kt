@@ -12,16 +12,16 @@ import uz.ildam.technologies.yalla.android.ui.screens.card_list.CardListViewMode
 import uz.ildam.technologies.yalla.android.ui.screens.card_verification.CardVerificationViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.contact_us.ContactUsViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.details.DetailsViewModel
-import uz.ildam.technologies.yalla.android.ui.screens.edit_profile.EditProfileViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.history.HistoryViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.map.MapViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.settings.SettingsViewModel
 import uz.ildam.technologies.yalla.android.ui.sheets.search_address.SearchByNameBottomSheetViewModel
 import uz.ildam.technologies.yalla.android.ui.sheets.select_from_map.SelectFromMapBottomSheetViewModel
-import uz.yalla.client.feature.android.places.di.AddressModuleViewModel
 import uz.yalla.client.feature.android.auth.di.AuthViewModel
 import uz.yalla.client.feature.android.intro.di.IntroViewModel
 import uz.yalla.client.feature.android.payment.di.PaymentViewModel
+import uz.yalla.client.feature.android.places.di.AddressModuleViewModel
+import uz.yalla.client.feature.android.profile.di.ProfileViewModel
 import uz.yalla.client.feature.android.registration.di.RegistrationViewModel
 
 object Navigation {
@@ -38,7 +38,6 @@ object Navigation {
         viewModelOf(::CardListViewModel)
         viewModelOf(::CardVerificationViewModel)
         viewModelOf(::CancelReasonViewModel)
-        viewModelOf(::EditProfileViewModel)
         viewModelOf(::MainViewModel)
         viewModelOf(::AboutAppViewModel)
         viewModelOf(::ContactUsViewModel)
@@ -55,6 +54,7 @@ object Navigation {
         IntroViewModel.module,
         RegistrationViewModel.module,
         PaymentViewModel.module,
-        AddressModuleViewModel.module
+        AddressModuleViewModel.module,
+        ProfileViewModel.module
     )
 }
