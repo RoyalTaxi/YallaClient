@@ -26,7 +26,6 @@ import kotlinx.coroutines.yield
 import org.koin.androidx.compose.koinViewModel
 import uz.ildam.technologies.yalla.android.ui.dialogs.LoadingDialog
 import uz.ildam.technologies.yalla.android.ui.sheets.SheetValue
-import uz.ildam.technologies.yalla.android.utils.getCurrentLocation
 import uz.ildam.technologies.yalla.android.utils.rememberPermissionState
 import uz.ildam.technologies.yalla.core.data.enums.MapType
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
@@ -121,7 +120,10 @@ fun MapRoute(
     }
 
     BackHandler {
-        if (uiState.route.isNotEmpty()) {
+        if (drawerState.isOpen) scope.launch {
+            drawerState.close()
+        }
+        else if (uiState.route.isNotEmpty()) {
             vm.setDestinations(emptyList())
             uiState.selectedLocation?.point?.let { there -> map.animate(to = there) }
         } else if (uiState.selectedDriver == null) {
@@ -154,8 +156,8 @@ fun MapRoute(
     LaunchedEffect(uiState.route) {
         launch {
             map.updateRoute(uiState.route)
-            if (uiState.route.isEmpty()) map.animateToMyLocation()
-            else map.animateToFitBounds(uiState.route)
+            if (uiState.route.isEmpty()) map.moveToMyLocation()
+            else map.moveToFitBounds(uiState.route)
         }
     }
 
@@ -237,17 +239,6 @@ fun MapRoute(
                     )
                     map.animate(to = driverPosition)
                 }
-        }
-    }
-
-    LaunchedEffect(permissionsGranted) {
-        launch { vm.getMe() }
-
-        launch {
-            if (permissionsGranted) getCurrentLocation(context) { loc ->
-                if (uiState.route.isEmpty()) map.animate(MapPoint(loc.latitude, loc.longitude))
-                else map.animateToFitBounds(uiState.route)
-            }
         }
     }
 

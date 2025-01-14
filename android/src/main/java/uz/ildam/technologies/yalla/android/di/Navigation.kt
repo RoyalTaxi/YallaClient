@@ -44,7 +44,6 @@ object Navigation {
         viewModelOf(::ContactUsViewModel)
         viewModelOf(::SettingsViewModel)
 
-
         viewModelOf(::SelectFromMapBottomSheetViewModel)
         viewModelOf(::SearchByNameBottomSheetViewModel)
     }

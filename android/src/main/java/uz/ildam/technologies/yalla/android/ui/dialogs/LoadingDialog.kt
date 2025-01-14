@@ -21,7 +21,6 @@ import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 
 @Composable
 fun LoadingDialog(
-    isBackgroundEnabled: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     val transition = rememberInfiniteTransition("loading")
@@ -38,7 +37,7 @@ fun LoadingDialog(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .fillMaxSize()
-            .then(if (isBackgroundEnabled) Modifier.background(YallaTheme.color.black.copy(.6f)) else Modifier)
+            .background(YallaTheme.color.black.copy(.6f))
             .pointerInput(Unit) { }
     ) {
         Image(

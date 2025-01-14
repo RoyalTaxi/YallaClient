@@ -11,7 +11,7 @@ import SwiftUI
 struct OnboardingScreen: View {
 
     private struct Page {
-        let image: String // Name of the image asset
+        let image: String
         let title: String
         let description: String
     }
@@ -60,7 +60,6 @@ struct OnboardingScreen: View {
 
             Spacer().frame(height: 54)
 
-            // Custom page indicator and button
             HStack {
                 if currentPage < pages.count - 1 {
                     HStack {
@@ -89,7 +88,7 @@ struct OnboardingScreen: View {
                     }
                 } else {
                     Button(action: {
-                        // Handle the final action (e.g., request permissions)
+                        
                     }) {
                         Text("Get Started")
                             .padding(.horizontal, 20)

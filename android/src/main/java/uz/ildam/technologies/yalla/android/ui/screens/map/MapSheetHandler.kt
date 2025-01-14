@@ -150,7 +150,11 @@ class MapSheetHandler(
             }
         }
 
-        AnimatedVisibility(visible = driverWaitingVisibility) {
+        AnimatedVisibility(
+            visible = driverWaitingVisibility,
+            enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
+            exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
+        ) {
             uiState.selectedDriver?.executor?.let {
                 if (driverWaitingVisibility && uiState.selectedDriver.status == OrderStatus.AtAddress) {
                     DriverWaitingBottomSheet(
@@ -172,7 +176,9 @@ class MapSheetHandler(
         }
 
         AnimatedVisibility(
-            visible = onTheRideVisibility
+            visible = onTheRideVisibility,
+            enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
+            exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
         ) {
             uiState.selectedDriver?.executor?.let {
                 if (onTheRideVisibility && uiState.selectedDriver.status == OrderStatus.InFetters)
@@ -181,7 +187,9 @@ class MapSheetHandler(
         }
 
         AnimatedVisibility(
-            visible = feedBackVisibility
+            visible = feedBackVisibility,
+            enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
+            exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
         ) {
             uiState.selectedDriver?.executor?.let {
                 if (feedBackVisibility && uiState.selectedDriver.status == OrderStatus.Completed)

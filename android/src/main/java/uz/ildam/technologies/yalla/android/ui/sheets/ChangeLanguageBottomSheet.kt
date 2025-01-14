@@ -9,6 +9,7 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.ildam.technologies.yalla.android.R
@@ -58,6 +59,7 @@ fun ChangeLanguageBottomSheet(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .clip(RoundedCornerShape(30.dp))
                     .background(color = YallaTheme.color.white)
             ) {
                 languages.forEach { language ->

@@ -38,7 +38,7 @@ import uz.yalla.client.feature.android.registration.credentials.model.Credential
 import uz.yalla.client.feature.android.registration.credentials.model.Gender
 import uz.yalla.client.feature.core.components.buttons.GenderButton
 import uz.yalla.client.feature.core.components.buttons.YButton
-import uz.yalla.client.feature.core.components.text_field.YallaTextField
+import uz.yalla.client.feature.core.components.text_field.YTextField
 import uz.yalla.client.feature.core.design.theme.YallaTheme
 import uz.yalla.client.feature.core.sheets.DatePickerBottomSheet
 import uz.yalla.client.feature.core.utils.formatWithDotsDMY
@@ -95,7 +95,7 @@ internal fun CredentialsScreen(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                YallaTextField(
+                YTextField(
                     text = uiState.firstName,
                     onChangeText = { onIntent(CredentialsIntent.SetFirstName(it)) },
                     placeHolderText = stringResource(id = R.string.name),
@@ -106,7 +106,7 @@ internal fun CredentialsScreen(
                 Spacer(modifier = Modifier.height(10.dp))
 
 
-                YallaTextField(
+                YTextField(
                     text = uiState.lastName,
                     onChangeText = { onIntent(CredentialsIntent.SetLastName(it)) },
                     placeHolderText = stringResource(id = R.string.surname)
@@ -116,7 +116,7 @@ internal fun CredentialsScreen(
                 Spacer(modifier = Modifier.height(10.dp))
 
 
-                YallaTextField(
+                YTextField(
                     text = uiState.dateOfBirth?.formatWithDotsDMY() ?: "",
                     placeHolderText = stringResource(id = R.string.date_of_birth),
                     onChangeText = {},
@@ -149,6 +149,7 @@ internal fun CredentialsScreen(
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
+
                 Spacer(modifier = Modifier.height(20.dp))
 
                 YButton(

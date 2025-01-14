@@ -1,6 +1,5 @@
 package uz.ildam.technologies.yalla.android.ui.components.text_field
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -34,7 +33,7 @@ import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun YallaTextField(
+fun YTextField(
     text: String,
     placeHolderText: String,
     onChangeText: (String) -> Unit,
@@ -42,10 +41,6 @@ fun YallaTextField(
     trailingIcon: Painter? = null,
     onClick: () -> Unit = {}
 ) {
-
-    val focusedColor = YallaTheme.color.black
-    val unfocusedColor = YallaTheme.color.gray2
-    var borderColor by remember { mutableStateOf(unfocusedColor) }
 
     var isFocused by remember { mutableStateOf(false) }
 
@@ -57,9 +52,7 @@ fun YallaTextField(
         colors = CardDefaults.cardColors(
             containerColor = YallaTheme.color.gray2,
             disabledContainerColor = YallaTheme.color.gray2,
-        ),
-        border = if (isFocused || text.isNotBlank())
-            BorderStroke(1.dp, YallaTheme.color.black) else null
+        )
     ) {
 
         Row(
@@ -89,11 +82,7 @@ fun YallaTextField(
                     singleLine = true,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .onFocusChanged {
-                            isFocused = it.isFocused
-                            borderColor = if (it.isFocused) focusedColor
-                            else unfocusedColor
-                        },
+                        .onFocusChanged { isFocused = it.isFocused },
                     decorationBox = { innerTextField ->
                         TextFieldDefaults.DecorationBox(
                             value = text,

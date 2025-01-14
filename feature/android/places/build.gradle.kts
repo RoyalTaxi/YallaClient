@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "uz.yalla.client.feature.android.address"
+    namespace = "uz.yalla.client.feature.android.places"
     compileSdk = 34
 
     defaultConfig {

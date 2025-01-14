@@ -28,7 +28,7 @@ fun DetailsRoute(
 
     LaunchedEffect(uiState.orderDetails) {
         if (uiState.orderDetails?.taxi?.routes?.size == 1) {
-            cameraPositionState.animate(
+            cameraPositionState.move(
                 update = CameraUpdateFactory.newCameraPosition(
                     CameraPosition(
                         LatLng(
@@ -45,7 +45,7 @@ fun DetailsRoute(
             }
             val bounds = boundsBuilder.build()
 
-            cameraPositionState.animate(update = CameraUpdateFactory.newLatLngBounds(bounds, 100))
+            cameraPositionState.move(update = CameraUpdateFactory.newLatLngBounds(bounds, 100))
         }
     }
 

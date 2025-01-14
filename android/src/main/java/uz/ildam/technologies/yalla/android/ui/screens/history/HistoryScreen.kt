@@ -117,8 +117,6 @@ fun HistoryScreen(
                     }
                 }
             }
-
-            if (loading) LoadingDialog(false)
         }
     )
 }

@@ -215,25 +215,27 @@ private fun Markers(
     route: List<MapPoint>,
     locations: List<MapPoint>
 ) {
-    if (route.isNotEmpty()) Polyline(
-        points = route.map { GeoPoint(it.lat, it.lng) },
-        width = 4.dp
-    )
+    if (route.isNotEmpty()) {
+        Polyline(
+            points = route.map { GeoPoint(it.lat, it.lng) },
+            width = 4.dp
+        )
 
-    if (locations.size > 1) Marker(
-        icon = imageFromResource(R.drawable.ic_origin_marker),
-        position = GeoPoint(locations.first().lat, locations.first().lng)
-    )
-
-    if (locations.size > 2) locations.dropLast(1).forEach {
         Marker(
-            icon = imageFromResource(R.drawable.ic_middle_marker),
-            position = GeoPoint(it.lat, it.lng)
+            icon = imageFromResource(R.drawable.ic_origin_marker),
+            position = GeoPoint(route.first().lat, route.first().lng)
+        )
+
+        if (locations.size > 2) locations.dropLast(1).forEach {
+            Marker(
+                icon = imageFromResource(R.drawable.ic_middle_marker),
+                position = GeoPoint(it.lat, it.lng)
+            )
+        }
+
+        Marker(
+            icon = imageFromResource(R.drawable.ic_destination_marker),
+            position = GeoPoint(route.last().lat, route.last().lng)
         )
     }
-
-    if (locations.size > 1) Marker(
-        icon = imageFromResource(R.drawable.ic_destination_marker),
-        position = GeoPoint(locations.last().lat, locations.last().lng)
-    )
 }

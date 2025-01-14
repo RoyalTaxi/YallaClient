@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
@@ -38,12 +39,14 @@ fun MapScreen(
     onIntent: (MapIntent) -> Unit,
     onCreateOrder: () -> Unit,
 ) {
-    val disabledStatuses = listOf(
-        OrderStatus.New,
-        OrderStatus.NonStopSending,
-        OrderStatus.UserSending,
-        OrderStatus.Sending
-    )
+    val disabledStatuses = remember {
+        mutableStateListOf(
+            OrderStatus.New,
+            OrderStatus.NonStopSending,
+            OrderStatus.UserSending,
+            OrderStatus.Sending
+        )
+    }
 
     BottomSheetScaffold(
         scaffoldState = scaffoldState,

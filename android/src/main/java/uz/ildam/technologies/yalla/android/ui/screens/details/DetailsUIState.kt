@@ -13,7 +13,13 @@ data class DetailsUIState(
         compassEnabled = false,
         mapToolbarEnabled = false,
         zoomControlsEnabled = false,
-        myLocationButtonEnabled = false
+        myLocationButtonEnabled = false,
+        zoomGesturesEnabled = false,
+        scrollGesturesEnabled = false,
+        tiltGesturesEnabled = false,
+        rotationGesturesEnabled = false,
+        scrollGesturesEnabledDuringRotateOrZoom = false,
+        indoorLevelPickerEnabled = false
     ),
     val properties: MapProperties = MapProperties(
         mapType = MapType.NORMAL,

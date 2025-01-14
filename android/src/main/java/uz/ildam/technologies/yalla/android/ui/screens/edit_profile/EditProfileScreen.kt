@@ -15,9 +15,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -50,7 +52,7 @@ import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 import uz.ildam.technologies.yalla.android.ui.components.button.GenderButton
 import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
-import uz.ildam.technologies.yalla.android.ui.components.text_field.YallaTextField
+import uz.ildam.technologies.yalla.android.ui.components.text_field.YTextField
 import uz.ildam.technologies.yalla.android.utils.formatWithDotsDMY
 import java.io.ByteArrayInputStream
 
@@ -61,6 +63,7 @@ fun EditProfileScreen(
     uiState: EditProfileUIState,
     onIntent: (EditProfileIntent) -> Unit
 ) {
+    val scrollState = rememberScrollState()
 
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
@@ -70,29 +73,46 @@ fun EditProfileScreen(
         containerColor = YallaTheme.color.white,
         sheetContainerColor = YallaTheme.color.gray2,
         modifier = Modifier.fillMaxSize(),
+        topBar = {
+            CenterAlignedTopAppBar(
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
+                navigationIcon = {
+                    IconButton(onClick = { onIntent(EditProfileIntent.OnNavigateBack) }) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_arrow_back),
+                            contentDescription = null
+                        )
+                    }
+                },
+                title = {
+                    Text(
+                        text = stringResource(R.string.edit_profile),
+                        color = YallaTheme.color.black,
+                        style = YallaTheme.font.labelLarge
+                    )
+                }
+            )
+        },
         sheetContent = {
-            if (uiState.isDatePickerVisible) {
-                DatePickerBottomSheet(
-                    startDate = uiState.birthday ?: LocalDate.now(),
-                    onSelectDate = { onIntent(EditProfileIntent.OnChangeBirthday(it)) },
-                    onDismissRequest = { onIntent(EditProfileIntent.CloseDateBottomSheet) }
-                )
-            } else {
-                Spacer(modifier = Modifier.height(1.dp))
-            }
+            if (uiState.isDatePickerVisible) DatePickerBottomSheet(
+                startDate = uiState.birthday ?: LocalDate.now(),
+                onSelectDate = { onIntent(EditProfileIntent.OnChangeBirthday(it)) },
+                onDismissRequest = { onIntent(EditProfileIntent.CloseDateBottomSheet) }
+            )
         }
     ) { paddingValues ->
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box {
             ProfileContent(
                 uiState = uiState,
                 onIntent = onIntent,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .verticalScroll(rememberScrollState())
+                    .consumeWindowInsets(paddingValues)
+                    .imePadding()
+                    .verticalScroll(scrollState)
             )
 
-            // Dim overlay when the bottom sheet is visible
             AnimatedVisibility(
                 visible = scaffoldState.bottomSheetState.isVisible,
                 enter = fadeIn(initialAlpha = 0.3f),
@@ -123,7 +143,6 @@ fun ProfileContent(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        TopAppBar(onNavigateBack = { onIntent(EditProfileIntent.OnNavigateBack) })
         Spacer(modifier = Modifier.height(40.dp))
         ProfileImage(uiState = uiState, onIntent = onIntent)
         Spacer(modifier = Modifier.height(20.dp))
@@ -131,29 +150,6 @@ fun ProfileContent(
         Spacer(modifier = Modifier.weight(1f))
         SaveButton(onClick = { onIntent(EditProfileIntent.OnSave) })
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun TopAppBar(onNavigateBack: () -> Unit) {
-    CenterAlignedTopAppBar(
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
-        navigationIcon = {
-            IconButton(onClick = onNavigateBack) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_arrow_back),
-                    contentDescription = null
-                )
-            }
-        },
-        title = {
-            Text(
-                text = stringResource(R.string.edit_profile),
-                color = YallaTheme.color.black,
-                style = YallaTheme.font.labelLarge
-            )
-        }
-    )
 }
 
 @Composable
@@ -205,21 +201,21 @@ fun ProfileForm(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.padding(horizontal = 20.dp)
     ) {
-        YallaTextField(
+        YTextField(
             text = uiState.name,
             onChangeText = { onIntent(EditProfileIntent.OnChangeName(it)) },
             placeHolderText = stringResource(id = R.string.name),
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(10.dp))
-        YallaTextField(
+        YTextField(
             text = uiState.surname,
             onChangeText = { onIntent(EditProfileIntent.OnChangeSurname(it)) },
             placeHolderText = stringResource(id = R.string.surname),
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(10.dp))
-        YallaTextField(
+        YTextField(
             text = uiState.birthday?.formatWithDotsDMY() ?: "",
             placeHolderText = stringResource(id = R.string.date_of_birth),
             onChangeText = {},
@@ -262,7 +258,9 @@ fun GenderSelection(
 fun SaveButton(onClick: () -> Unit) {
     YallaButton(
         text = stringResource(R.string.save),
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp),
         contentPadding = PaddingValues(vertical = 16.dp),
         onClick = onClick
     )

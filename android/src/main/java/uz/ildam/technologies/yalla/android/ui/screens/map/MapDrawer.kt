@@ -42,6 +42,7 @@ fun MapDrawer(
                 drawerShape = RoundedCornerShape(topEnd = 30.dp, bottomEnd = 30.dp),
                 drawerContainerColor = YallaTheme.color.gray2,
                 modifier = Modifier
+                    .fillMaxWidth(.8f)
                     .fillMaxHeight()
                     .verticalScroll(rememberScrollState())
             ) {

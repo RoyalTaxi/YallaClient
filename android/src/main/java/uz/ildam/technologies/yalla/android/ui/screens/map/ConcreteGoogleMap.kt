@@ -280,27 +280,35 @@ private fun Markers(
             ?: BitmapDescriptorFactory.defaultMarker()
     }
 
-    if (route.isNotEmpty())
+    if (route.isNotEmpty()) {
         Polyline(points = route.map { LatLng(it.lat, it.lng) })
 
-    if (locations.size > 1) Marker(
-        icon = startMarkerIcon,
-        state = remember(locations.first()) {
-            MarkerState(LatLng(locations.first().lat, locations.first().lng))
-        }
-    )
-
-    if (locations.size > 2) locations.dropLast(1).forEach { dest ->
         Marker(
-            icon = middleMarkerIcon,
-            state = remember(dest) { MarkerState(LatLng(dest.lat, dest.lng)) }
+            icon = startMarkerIcon,
+            state = remember(route.first()) {
+                MarkerState(LatLng(route.first().lat, route.first().lng))
+            }
+        )
+
+        if (locations.size > 2) for (dest in 1 until locations.lastIndex) {
+            Marker(
+                icon = middleMarkerIcon,
+                state = remember(dest) {
+                    MarkerState(
+                        LatLng(
+                            locations[dest].lat,
+                            locations[dest].lng
+                        )
+                    )
+                }
+            )
+        }
+
+        Marker(
+            icon = endMarkerIcon,
+            state = remember(route.last()) {
+                MarkerState(LatLng(route.last().lat, route.last().lng))
+            }
         )
     }
-
-    if (locations.size > 1) Marker(
-        icon = endMarkerIcon,
-        state = remember(locations.last()) {
-            MarkerState(LatLng(locations.last().lat, locations.last().lng))
-        }
-    )
 }

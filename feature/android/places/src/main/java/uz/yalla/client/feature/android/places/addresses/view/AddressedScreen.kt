@@ -31,7 +31,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.ildam.technologies.yalla.feature.addresses.domain.model.response.AddressType
-import uz.yalla.client.feature.android.address.R
+import uz.yalla.client.feature.android.places.R
 import uz.yalla.client.feature.android.places.addresses.model.AddressesUIState
 import uz.yalla.client.feature.core.components.items.OrderOptionsItem
 import uz.yalla.client.feature.core.design.theme.YallaTheme

@@ -23,12 +23,12 @@ import uz.ildam.technologies.yalla.feature.history.domain.model.OrderHistoryMode
 
 @Composable
 fun OrderDetailsBottomSheet(
-    order: OrderHistoryModel
+    order: OrderHistoryModel,
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier
-            .fillMaxHeight(.9f)
+            .fillMaxHeight()
             .background(YallaTheme.color.gray2)
     ) {
         Column(

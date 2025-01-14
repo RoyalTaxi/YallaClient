@@ -24,7 +24,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import uz.ildam.technologies.yalla.feature.addresses.domain.model.response.AddressType
-import uz.yalla.client.feature.android.address.R
+import uz.yalla.client.feature.android.places.R
 import uz.yalla.client.feature.android.places.address.model.AddressActionState
 import uz.yalla.client.feature.android.places.address.model.AddressUIState
 import uz.yalla.client.feature.android.places.address.model.AddressViewModel
