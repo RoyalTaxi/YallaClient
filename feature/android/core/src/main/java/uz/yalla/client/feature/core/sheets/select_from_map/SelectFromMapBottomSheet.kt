@@ -48,7 +48,7 @@ fun SelectFromMapBottomSheet(
     val map: MapStrategy = remember {
         when (AppPreferences.mapType) {
             MapType.Google -> ConcreteGoogleMap()
-            MapType.Gis -> ConcreteGoogleMap()
+            MapType.Gis -> ConcreteGisMap()
         }
     }
 

@@ -39,6 +39,7 @@ android {
 dependencies {
 
     implementation(projects.shared)
+    implementation(projects.feature.android.dgis)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

@@ -11,10 +11,6 @@ import uz.ildam.technologies.yalla.android.ui.screens.about_app.aboutAppScreen
 import uz.ildam.technologies.yalla.android.ui.screens.about_app.navigateToAboutAppScreen
 import uz.ildam.technologies.yalla.android.ui.screens.add_card.addCardScreen
 import uz.ildam.technologies.yalla.android.ui.screens.add_card.navigateToAddCardScreen
-import uz.ildam.technologies.yalla.android.ui.screens.address.addressScreen
-import uz.ildam.technologies.yalla.android.ui.screens.address.navigateToAddressScreen
-import uz.ildam.technologies.yalla.android.ui.screens.addresses.addressesScreen
-import uz.ildam.technologies.yalla.android.ui.screens.addresses.navigateToAddressesScreen
 import uz.ildam.technologies.yalla.android.ui.screens.cancel_reason.cancelReasonScreen
 import uz.ildam.technologies.yalla.android.ui.screens.cancel_reason.navigateToCancelReasonScreen
 import uz.ildam.technologies.yalla.android.ui.screens.card_list.cardListScreen
@@ -38,8 +34,8 @@ import uz.ildam.technologies.yalla.android.ui.screens.settings.settingsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.web.navigateToWebScreen
 import uz.ildam.technologies.yalla.android.ui.screens.web.webScreen
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
-import uz.yalla.client.feature.android.address_module.addressModule
-import uz.yalla.client.feature.android.address_module.navigateToAddressModule
+import uz.yalla.client.feature.android.places.addressModule
+import uz.yalla.client.feature.android.places.navigateToAddressModule
 import uz.yalla.client.feature.android.auth.authModule
 import uz.yalla.client.feature.android.auth.navigateToAuthModule
 import uz.yalla.client.feature.android.intro.INTRO_ROUTE
@@ -134,16 +130,6 @@ fun Navigation(
             addressModule(
                 navController = navController
             )
-
-//            addressesScreen(
-//                onNavigateBack = navController::safePopBackStack,
-//                onClickAddress = navController::navigateToAddressScreen,
-//                onAddAddress = navController::navigateToAddressScreen
-//            )
-//
-//            addressScreen(
-//                onNavigateBack = navController::safePopBackStack
-//            )
 
             editProfileScreen(
                 onNavigateBack = navController::safePopBackStack
