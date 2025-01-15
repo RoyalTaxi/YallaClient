@@ -1,9 +1,11 @@
-package uz.ildam.technologies.yalla.android.ui.screens.settings
+package uz.yalla.client.feature.android.setting.settings.model
 
-import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
+import uz.yalla.client.feature.android.setting.settings.components.Language
+import uz.yalla.client.feature.android.setting.settings.components.LanguageType
+import uz.yalla.client.feature.android.settings.R
 
-data class SettingsUIState(
+internal data class SettingsUIState(
     val selectedLanguage: Language = when (AppPreferences.locale) {
         "uz" -> Language(R.string.uzbek, "uz")
         else -> Language(R.string.russian, "ru")

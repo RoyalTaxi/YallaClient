@@ -1,9 +1,11 @@
-package uz.ildam.technologies.yalla.android.ui.screens.settings
+package uz.yalla.client.feature.android.setting.settings.view
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -13,17 +15,16 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import uz.ildam.technologies.yalla.android.R
-import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
-import uz.ildam.technologies.yalla.android.ui.components.button.SettingButton
-import uz.ildam.technologies.yalla.core.data.local.AppPreferences
+import uz.yalla.client.feature.android.setting.settings.components.SettingButton
+import uz.yalla.client.feature.android.setting.settings.model.SettingsUIState
+import uz.yalla.client.feature.android.settings.R
+import uz.yalla.client.feature.core.design.theme.YallaTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(
+internal fun SettingsScreen(
     uiState: SettingsUIState,
     onIntent: (SettingsIntent) -> Unit
 ) {
@@ -37,7 +38,7 @@ fun SettingsScreen(
                         onClick = { onIntent(SettingsIntent.OnNavigateBack) }
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.ic_arrow_back),
+                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
                             contentDescription = null
                         )
                     }
