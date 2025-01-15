@@ -51,6 +51,7 @@ android {
 
 dependencies {
     implementation(projects.shared)
+    implementation(projects.feature.android.core)
     implementation(projects.feature.android.dgis)
     implementation(projects.feature.android.auth)
     implementation(projects.feature.android.intro)
@@ -60,15 +61,13 @@ dependencies {
     implementation(projects.feature.android.profile)
     implementation(projects.feature.android.history)
     implementation(projects.feature.android.info)
-    implementation(projects.feature.android.settings)
-
+    implementation(projects.feature.android.setting)
 
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling.preview)
     implementation(libs.compose.material3)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.animation.android)
-    implementation(project(":feature:android:core"))
     debugImplementation(libs.compose.ui.tooling)
 
     // Navigation

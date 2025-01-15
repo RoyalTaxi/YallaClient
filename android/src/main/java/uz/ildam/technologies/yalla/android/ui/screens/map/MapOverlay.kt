@@ -61,10 +61,10 @@ fun MapOverlay(
         if (uiState.selectedDriver?.status !in disabledStatuses) {
             MapButton(
                 painter = painterResource(
-                    if (uiState.moveCameraButtonState == MoveCameraButtonState.MyLocationView)
-                        R.drawable.ic_location
-                    else
+                    if (uiState.moveCameraButtonState == MoveCameraButtonState.MyRouteView)
                         R.drawable.ic_route
+                    else
+                        R.drawable.ic_location
                 ),
                 modifier = Modifier.align(Alignment.BottomEnd),
                 onClick = {
@@ -76,7 +76,6 @@ fun MapOverlay(
                 }
             )
 
-            // Drawer or discard order button
             MapButton(
                 painter = painterResource(
                     if (uiState.discardOrderButtonState == DiscardOrderButtonState.OpenDrawer)
