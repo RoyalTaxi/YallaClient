@@ -1,5 +1,6 @@
-package uz.ildam.technologies.yalla.android.ui.screens.settings
+package uz.yalla.client.feature.android.settings.settings.view
 
+import android.app.Activity
 import android.app.LocaleManager
 import android.os.Build
 import android.os.LocaleList
@@ -12,12 +13,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.os.LocaleListCompat
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import uz.ildam.technologies.yalla.android.activity.MainActivity
-import uz.ildam.technologies.yalla.android.ui.sheets.ChangeLanguageBottomSheet
+import uz.yalla.client.feature.android.settings.settings.components.ChangeLanguageBottomSheet
+import uz.yalla.client.feature.android.settings.settings.model.SettingsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsRoute(
+internal fun SettingsRoute(
     onNavigateBack: () -> Unit,
     viewModel: SettingsViewModel = koinViewModel()
 ) {
@@ -25,7 +26,7 @@ fun SettingsRoute(
     val changeLanguageSheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
     val uiState by viewModel.uiState.collectAsState()
-    val context = LocalContext.current as MainActivity
+    val context = LocalContext.current as Activity
 
     SettingsScreen(
         uiState = uiState,

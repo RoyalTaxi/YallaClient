@@ -21,7 +21,6 @@ import uz.ildam.technologies.yalla.android.ui.screens.map.mapScreen
 import uz.ildam.technologies.yalla.android.ui.screens.map.navigateToMapScreen
 import uz.ildam.technologies.yalla.android.ui.screens.offline.OfflineScreen
 import uz.ildam.technologies.yalla.android.ui.screens.settings.navigateToSettings
-import uz.ildam.technologies.yalla.android.ui.screens.settings.settingsScreen
 import uz.ildam.technologies.yalla.android.ui.screens.web.navigateToWebScreen
 import uz.ildam.technologies.yalla.android.ui.screens.web.webScreen
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
@@ -38,6 +37,7 @@ import uz.yalla.client.feature.android.places.addressModule
 import uz.yalla.client.feature.android.places.navigateToAddressModule
 import uz.yalla.client.feature.android.registration.navigateToRegistrationModule
 import uz.yalla.client.feature.android.registration.registrationModule
+import uz.yalla.client.feature.android.settings.settingsModule
 
 @Composable
 fun Navigation(
@@ -115,7 +115,9 @@ fun Navigation(
                 onNavigateBack = navController::safePopBackStack
             )
 
-            settingsScreen(onNavigateBack = navController::safePopBackStack)
+            settingsModule(
+                navController = navController
+            )
 
             aboutAppScreen(
                 onBack = navController::safePopBackStack,
