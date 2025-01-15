@@ -1,6 +1,5 @@
-package uz.ildam.technologies.yalla.android.ui.screens.about_app
+package uz.yalla.client.feature.android.info.about_app.view
 
-import AboutAppViewModel
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -12,10 +11,12 @@ import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import uz.ildam.technologies.yalla.android.ui.dialogs.LoadingDialog
+import uz.yalla.client.feature.android.info.about_app.model.AboutAppActionState
+import uz.yalla.client.feature.android.info.about_app.model.AboutAppViewModel
+import uz.yalla.client.feature.core.dialogs.LoadingDialog
 
 @Composable
-fun AboutAppRoute(
+internal fun AboutAppRoute(
     onNavigateBack: () -> Unit,
     onClickUrl: (String, String) -> Unit,
     viewModel: AboutAppViewModel = koinViewModel()
@@ -44,6 +45,7 @@ fun AboutAppRoute(
             when (intent) {
                 is AboutAppIntent.OnNavigateBack -> onNavigateBack()
                 is AboutAppIntent.OnClickUrl -> onClickUrl(context.getString(intent.title), intent.url)
+                else -> {}
             }
         }
     )

@@ -1,4 +1,4 @@
-package uz.ildam.technologies.yalla.android.ui.screens.about_app
+package uz.yalla.client.feature.android.info.about_app.view
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -7,11 +7,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,24 +31,24 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import uz.ildam.technologies.yalla.android.BuildConfig
-import uz.ildam.technologies.yalla.android.R
-import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
-import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
-import uz.ildam.technologies.yalla.android.ui.components.item.OrderOptionsItem
-import uz.ildam.technologies.yalla.android.utils.openPlayMarket
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
+import uz.yalla.client.feature.android.info.R
+import uz.yalla.client.feature.android.info.about_app.model.AboutAppUIState
+import uz.yalla.client.feature.core.components.buttons.YButton
+import uz.yalla.client.feature.core.components.items.OrderOptionsItem
+import uz.yalla.client.feature.core.design.theme.YallaTheme
+import uz.yalla.client.feature.core.utils.openPlayMarket
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AboutAppScreen(
+internal fun AboutAppScreen(
     uiState: AboutAppUIState,
     onIntent: (AboutAppIntent) -> Unit
 ) {
     val context = LocalContext.current
     Scaffold(
         containerColor = YallaTheme.color.white,
-        modifier = Modifier.imePadding(),
+        modifier = Modifier,
         topBar = {
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
@@ -62,7 +62,7 @@ fun AboutAppScreen(
                 navigationIcon = {
                     IconButton(onClick = { onIntent(AboutAppIntent.OnNavigateBack) }) {
                         Icon(
-                            painter = painterResource(R.drawable.ic_arrow_back),
+                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
                             contentDescription = null
                         )
                     }
@@ -97,7 +97,7 @@ fun AboutAppScreen(
                         textAlign = TextAlign.Center
                     )
                     Text(
-                        text = stringResource(R.string.version_x, BuildConfig.VERSION_NAME),
+                        text = stringResource(R.string.version_x), //todo: Version need to add
                         style = YallaTheme.font.label,
                         color = YallaTheme.color.gray,
                         textAlign = TextAlign.Center
@@ -150,7 +150,7 @@ fun AboutAppScreen(
                     }
                 }
 
-                YallaButton(
+                YButton(
                     text = stringResource(id = R.string.rate),
                     onClick = { openPlayMarket(context) },
                     modifier = Modifier

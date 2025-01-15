@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">Yalla</string>
+    <string name="youtube" translatable="false">Youtube</string>
+    <string name="telegram" translatable="false">Telegram</string>
+    <string name="facebook" translatable="false">Faceboook</string>
+    <string name="instagram" translatable="false">Instagram</string>
+
+    <string name="user_agreement">Пользовательское соглашение</string>
+    <string name="about_app">О приложении</string>
+    <string name="version_x">Версия %s</string>
+    <string name="we_on_social_networks">Мы в соцсетях</string>
+    <string name="rate">Оценить</string>
+</resources>

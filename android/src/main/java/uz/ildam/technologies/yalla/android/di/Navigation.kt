@@ -21,7 +21,10 @@ import uz.yalla.client.feature.android.payment.di.PaymentViewModel
 import uz.yalla.client.feature.android.places.di.AddressModuleViewModel
 import uz.yalla.client.feature.android.profile.di.ProfileViewModel
 import uz.yalla.client.feature.android.registration.di.RegistrationViewModel
+import uz.yalla.client.feature.android.history.di.HistoryViewModel
+import uz.yalla.client.feature.android.info.di.InfoViewModel
 import uz.yalla.client.feature.android.setting.di.SettingViewModel
+
 
 object Navigation {
 
@@ -51,7 +54,9 @@ object Navigation {
         RegistrationViewModel.module,
         PaymentViewModel.module,
         AddressModuleViewModel.module,
+        ProfileViewModel.module,
         HistoryViewModel.module,
+        InfoViewModel.module
         SettingViewModel.module
         ProfileViewModel.module
         HistoryViewModel.module
