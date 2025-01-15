@@ -1,6 +1,6 @@
-package uz.ildam.technologies.yalla.android.ui.screens.edit_profile
+package uz.yalla.client.feature.android.profile.edit_profile.model
 
-sealed interface EditProfileActionState {
+internal sealed interface EditProfileActionState {
     data object Loading : EditProfileActionState
     data object Error : EditProfileActionState
     data object GetSuccess : EditProfileActionState

@@ -1,4 +1,4 @@
-package uz.ildam.technologies.yalla.android.ui.screens.edit_profile
+package uz.yalla.client.feature.android.profile.edit_profile.navigation
 
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -7,11 +7,12 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import uz.ildam.technologies.yalla.android.navigation.safeNavigate
+import uz.yalla.client.feature.android.profile.edit_profile.view.EditProfileRoute
+import uz.yalla.client.feature.core.navigation.safeNavigate
 
-const val EDIT_PROFILE_ROUTE = "edit_profile_route"
+internal const val EDIT_PROFILE_ROUTE = "edit_profile_route"
 
-fun NavGraphBuilder.editProfileScreen(
+internal fun NavGraphBuilder.editProfileScreen(
     onNavigateBack: () -> Unit
 ) {
     composable(
