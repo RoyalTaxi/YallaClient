@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="russian" translatable="false">Русский</string>
+    <string name="uzbek" translatable="false">O\'zbekcha</string>
+
+    <string name="app_language">Язык приложения</string>
+    <string name="setting">Настройки</string>
+</resources>
