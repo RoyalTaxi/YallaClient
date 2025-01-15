@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.android.settings.settings.view
+package uz.yalla.client.feature.android.setting.settings.view
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -17,9 +17,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import uz.yalla.client.feature.android.setting.settings.components.SettingButton
+import uz.yalla.client.feature.android.setting.settings.model.SettingsUIState
 import uz.yalla.client.feature.android.settings.R
-import uz.yalla.client.feature.android.settings.settings.components.SettingButton
-import uz.yalla.client.feature.android.settings.settings.model.SettingsUIState
 import uz.yalla.client.feature.core.design.theme.YallaTheme
 
 @OptIn(ExperimentalMaterial3Api::class)

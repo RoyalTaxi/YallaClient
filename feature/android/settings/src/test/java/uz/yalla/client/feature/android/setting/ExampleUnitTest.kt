@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.android.settings
+package uz.yalla.client.feature.android.setting
 
 import org.junit.Test
 

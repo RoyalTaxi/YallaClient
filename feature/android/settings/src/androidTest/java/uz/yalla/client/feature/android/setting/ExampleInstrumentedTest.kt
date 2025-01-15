@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.android.settings
+package uz.yalla.client.feature.android.setting
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

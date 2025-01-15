@@ -1,9 +1,9 @@
-package uz.yalla.client.feature.android.settings.settings.model
+package uz.yalla.client.feature.android.setting.settings.model
 
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
+import uz.yalla.client.feature.android.setting.settings.components.Language
+import uz.yalla.client.feature.android.setting.settings.components.LanguageType
 import uz.yalla.client.feature.android.settings.R
-import uz.yalla.client.feature.android.settings.settings.components.Language
-import uz.yalla.client.feature.android.settings.settings.components.LanguageType
 
 internal data class SettingsUIState(
     val selectedLanguage: Language = when (AppPreferences.locale) {

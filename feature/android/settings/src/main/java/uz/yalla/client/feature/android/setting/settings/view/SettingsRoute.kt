@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.android.settings.settings.view
+package uz.yalla.client.feature.android.setting.settings.view
 
 import android.app.Activity
 import android.app.LocaleManager
@@ -13,8 +13,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.os.LocaleListCompat
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import uz.yalla.client.feature.android.settings.settings.components.ChangeLanguageBottomSheet
-import uz.yalla.client.feature.android.settings.settings.model.SettingsViewModel
+import uz.yalla.client.feature.android.setting.settings.components.ChangeLanguageBottomSheet
+import uz.yalla.client.feature.android.setting.settings.model.SettingsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

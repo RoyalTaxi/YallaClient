@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.android.settings.settings.navigation
+package uz.yalla.client.feature.android.setting.settings.navigation
 
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -7,7 +7,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import uz.yalla.client.feature.android.settings.settings.view.SettingsRoute
+import uz.yalla.client.feature.android.setting.settings.view.SettingsRoute
 import uz.yalla.client.feature.core.navigation.safeNavigate
 
 internal const val SETTINGS_ROUTE = "settings_route"
