@@ -1,4 +1,4 @@
-package uz.ildam.technologies.yalla.android.ui.screens.contact_us
+package uz.yalla.client.feature.android.contact.contact_us.model
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,11 +8,11 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 import uz.ildam.technologies.yalla.feature.settings.domain.usecase.GetConfigUseCase
+import uz.yalla.client.feature.android.contact.R
 
-class ContactUsViewModel(
+internal class ContactUsViewModel(
     private val getConfigUseCase: GetConfigUseCase
 ) : ViewModel() {
 

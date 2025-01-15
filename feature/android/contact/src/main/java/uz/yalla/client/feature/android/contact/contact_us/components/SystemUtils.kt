@@ -1,4 +1,4 @@
-package uz.ildam.technologies.yalla.android.utils
+package uz.yalla.client.feature.android.contact.contact_us.components
 
 import android.app.Activity
 import android.content.ActivityNotFoundException
@@ -7,7 +7,7 @@ import android.net.Uri
 import android.widget.Toast
 
 
-fun Activity.openBrowser(url: String) {
+internal fun Activity.openBrowser(url: String) {
     try {
         val browserIntent = Intent(Intent.ACTION_VIEW)
         browserIntent.data = Uri.parse(url)

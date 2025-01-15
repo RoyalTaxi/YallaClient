@@ -6,11 +6,11 @@ import uz.ildam.technologies.yalla.android.activity.MainViewModel
 import uz.ildam.technologies.yalla.android.connectivity.AndroidConnectivityObserver
 import uz.ildam.technologies.yalla.android.connectivity.ConnectivityObserver
 import uz.ildam.technologies.yalla.android.ui.screens.cancel_reason.CancelReasonViewModel
-import uz.ildam.technologies.yalla.android.ui.screens.contact_us.ContactUsViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.map.MapViewModel
 import uz.ildam.technologies.yalla.android.ui.sheets.search_address.SearchByNameBottomSheetViewModel
 import uz.ildam.technologies.yalla.android.ui.sheets.select_from_map.SelectFromMapBottomSheetViewModel
 import uz.yalla.client.feature.android.auth.di.AuthViewModel
+import uz.yalla.client.feature.android.contact.di.ContactViewModel
 import uz.yalla.client.feature.android.history.di.HistoryViewModel
 import uz.yalla.client.feature.android.info.di.InfoViewModel
 import uz.yalla.client.feature.android.intro.di.IntroViewModel
@@ -30,7 +30,6 @@ object Navigation {
         viewModelOf(::MapViewModel)
         viewModelOf(::CancelReasonViewModel)
         viewModelOf(::MainViewModel)
-        viewModelOf(::ContactUsViewModel)
 
         viewModelOf(::SelectFromMapBottomSheetViewModel)
         viewModelOf(::SearchByNameBottomSheetViewModel)
@@ -49,6 +48,7 @@ object Navigation {
         InfoViewModel.module,
         SettingViewModel.module,
         ProfileViewModel.module,
-        HistoryViewModel.module
+        HistoryViewModel.module,
+        ContactViewModel.module
     )
 }
