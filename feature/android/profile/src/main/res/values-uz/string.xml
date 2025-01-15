@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="edit_profile">Profilni tahrirlash</string>
+    <string name="name">Ism</string>
+    <string name="surname">Familiya</string>
+    <string name="date_of_birth">Tug\'ilgan sana</string>
+    <string name="gender_m">Erkak</string>
+    <string name="gender_f">Ayol</string>
+    <string name="save">Saqlash</string>
+</resources>

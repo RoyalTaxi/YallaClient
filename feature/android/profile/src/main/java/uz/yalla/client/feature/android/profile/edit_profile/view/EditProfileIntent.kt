@@ -1,8 +1,9 @@
-package uz.ildam.technologies.yalla.android.ui.screens.edit_profile
+package uz.yalla.client.feature.android.profile.edit_profile.view
 
 import org.threeten.bp.LocalDate
+import uz.yalla.client.feature.android.profile.edit_profile.components.Gender
 
-sealed interface EditProfileIntent {
+internal sealed interface EditProfileIntent {
     data object OnNavigateBack : EditProfileIntent
     data object OnUpdateImage : EditProfileIntent
     data object OnSave : EditProfileIntent

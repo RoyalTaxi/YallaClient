@@ -1,4 +1,4 @@
-package uz.ildam.technologies.yalla.android.ui.screens.edit_profile
+package uz.yalla.client.feature.android.profile.edit_profile.view
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -17,11 +17,13 @@ import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import uz.ildam.technologies.yalla.android.ui.dialogs.LoadingDialog
+import uz.yalla.client.feature.android.profile.edit_profile.model.EditProfileActionState
+import uz.yalla.client.feature.android.profile.edit_profile.model.EditProfileViewModel
+import uz.yalla.client.feature.core.dialogs.LoadingDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditProfileRoute(
+internal fun EditProfileRoute(
     onNavigateBack: () -> Unit,
     viewModel: EditProfileViewModel = koinViewModel()
 ) {

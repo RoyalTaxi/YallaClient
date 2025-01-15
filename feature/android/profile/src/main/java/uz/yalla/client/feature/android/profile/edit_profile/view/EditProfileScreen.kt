@@ -1,6 +1,5 @@
-package uz.ildam.technologies.yalla.android.ui.screens.edit_profile
+package uz.yalla.client.feature.android.profile.edit_profile.view
 
-import DatePickerBottomSheet
 import android.graphics.BitmapFactory
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -26,6 +25,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -48,17 +49,20 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import org.threeten.bp.LocalDate
-import uz.ildam.technologies.yalla.android.R
-import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
-import uz.ildam.technologies.yalla.android.ui.components.button.GenderButton
-import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
-import uz.ildam.technologies.yalla.android.ui.components.text_field.YTextField
-import uz.ildam.technologies.yalla.android.utils.formatWithDotsDMY
+import uz.yalla.client.feature.android.cancel.R
+import uz.yalla.client.feature.android.profile.edit_profile.components.Gender
+import uz.yalla.client.feature.android.profile.edit_profile.model.EditProfileUIState
+import uz.yalla.client.feature.core.components.buttons.GenderButton
+import uz.yalla.client.feature.core.components.buttons.YButton
+import uz.yalla.client.feature.core.components.text_field.YTextField
+import uz.yalla.client.feature.core.design.theme.YallaTheme
+import uz.yalla.client.feature.core.sheets.DatePickerBottomSheet
+import uz.yalla.client.feature.core.utils.formatWithDotsDMY
 import java.io.ByteArrayInputStream
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditProfileScreen(
+internal fun EditProfileScreen(
     scaffoldState: BottomSheetScaffoldState,
     uiState: EditProfileUIState,
     onIntent: (EditProfileIntent) -> Unit
@@ -79,7 +83,7 @@ fun EditProfileScreen(
                 navigationIcon = {
                     IconButton(onClick = { onIntent(EditProfileIntent.OnNavigateBack) }) {
                         Icon(
-                            painter = painterResource(R.drawable.ic_arrow_back),
+                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
                             contentDescription = null
                         )
                     }
@@ -134,7 +138,7 @@ fun EditProfileScreen(
 }
 
 @Composable
-fun ProfileContent(
+internal fun ProfileContent(
     uiState: EditProfileUIState,
     onIntent: (EditProfileIntent) -> Unit,
     modifier: Modifier = Modifier
@@ -153,7 +157,7 @@ fun ProfileContent(
 }
 
 @Composable
-fun ProfileImage(
+internal fun ProfileImage(
     uiState: EditProfileUIState,
     onIntent: (EditProfileIntent) -> Unit
 ) {
@@ -193,7 +197,7 @@ fun ProfileImage(
 }
 
 @Composable
-fun ProfileForm(
+internal fun ProfileForm(
     uiState: EditProfileUIState,
     onIntent: (EditProfileIntent) -> Unit
 ) {
@@ -230,7 +234,7 @@ fun ProfileForm(
 }
 
 @Composable
-fun GenderSelection(
+internal fun GenderSelection(
     uiState: EditProfileUIState,
     onIntent: (EditProfileIntent) -> Unit
 ) {
@@ -255,8 +259,8 @@ fun GenderSelection(
 }
 
 @Composable
-fun SaveButton(onClick: () -> Unit) {
-    YallaButton(
+internal fun SaveButton(onClick: () -> Unit) {
+    YButton(
         text = stringResource(R.string.save),
         modifier = Modifier
             .fillMaxWidth()
