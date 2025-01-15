@@ -5,9 +5,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -37,7 +35,6 @@ internal fun LanguageScreen(
 ) {
     Scaffold(
         containerColor = YallaTheme.color.white,
-        modifier = Modifier.imePadding(),
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(YallaTheme.color.white),
@@ -58,10 +55,8 @@ internal fun LanguageScreen(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
-                .systemBarsPadding()
                 .verticalScroll(rememberScrollState())
         ) {
-
             Spacer(modifier = Modifier.height(40.dp))
 
             Text(

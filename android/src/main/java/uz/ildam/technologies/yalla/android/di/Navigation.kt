@@ -11,8 +11,6 @@ import uz.ildam.technologies.yalla.android.ui.screens.cancel_reason.CancelReason
 import uz.ildam.technologies.yalla.android.ui.screens.card_list.CardListViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.card_verification.CardVerificationViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.contact_us.ContactUsViewModel
-import uz.ildam.technologies.yalla.android.ui.screens.details.DetailsViewModel
-import uz.ildam.technologies.yalla.android.ui.screens.history.HistoryViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.map.MapViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.settings.SettingsViewModel
 import uz.ildam.technologies.yalla.android.ui.sheets.search_address.SearchByNameBottomSheetViewModel
@@ -23,6 +21,7 @@ import uz.yalla.client.feature.android.payment.di.PaymentViewModel
 import uz.yalla.client.feature.android.places.di.AddressModuleViewModel
 import uz.yalla.client.feature.android.profile.di.ProfileViewModel
 import uz.yalla.client.feature.android.registration.di.RegistrationViewModel
+import uz.yalla.client.feature.android.history.di.HistoryViewModel
 
 object Navigation {
 
@@ -32,8 +31,6 @@ object Navigation {
 
     private val viewModelModule = module {
         viewModelOf(::MapViewModel)
-        viewModelOf(::HistoryViewModel)
-        viewModelOf(::DetailsViewModel)
         viewModelOf(::AddCardViewModel)
         viewModelOf(::CardListViewModel)
         viewModelOf(::CardVerificationViewModel)
@@ -56,5 +53,6 @@ object Navigation {
         PaymentViewModel.module,
         AddressModuleViewModel.module,
         ProfileViewModel.module
+        HistoryViewModel.module
     )
 }

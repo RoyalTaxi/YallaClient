@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.android.history.history_details
+package uz.yalla.client.feature.android.history.history_details.navigation
 
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -10,6 +10,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import uz.yalla.client.feature.android.history.history_details.view.HistoryDetailsRoute
 import uz.yalla.client.feature.core.navigation.safeNavigate
 
 internal const val ID = "id"

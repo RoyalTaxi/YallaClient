@@ -30,6 +30,7 @@ import uz.ildam.technologies.yalla.android.ui.sheets.select_from_map.SelectFromM
 import uz.ildam.technologies.yalla.android.utils.getCurrentLocation
 import uz.ildam.technologies.yalla.core.data.mapper.or0
 import uz.ildam.technologies.yalla.core.domain.model.MapPoint
+import uz.yalla.client.feature.core.map.MapStrategy
 
 @OptIn(ExperimentalMaterial3Api::class)
 class MapBottomSheetHandler(

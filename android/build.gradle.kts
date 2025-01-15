@@ -58,12 +58,14 @@ dependencies {
     implementation(projects.feature.android.payment)
     implementation(projects.feature.android.places)
     implementation(projects.feature.android.profile)
+    implementation(projects.feature.android.history)
 
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling.preview)
     implementation(libs.compose.material3)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.animation.android)
+    implementation(project(":feature:android:core"))
     debugImplementation(libs.compose.ui.tooling)
 
     // Navigation

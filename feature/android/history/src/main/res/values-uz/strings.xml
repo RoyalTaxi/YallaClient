@@ -3,4 +3,12 @@
     <string name="orders_history">Safarlar tarixi</string>
     <string name="today">Bugun</string>
     <string name="yesterday">Kecha</string>
+    <string name="order_details">Buyurtma tafsilotlari</string>
+    <string name="date_and_time">Sana va vaqt</string>
+    <string name="status">Holat</string>
+    <string name="payment">To\'lov</string>
+    <string name="car">Avtomobil</string>
+    <string name="cash">Naqd</string>
+    <string name="fixed_cost">%s so\'m</string>
+    <string name="tariff">Tarif</string>
 </resources>

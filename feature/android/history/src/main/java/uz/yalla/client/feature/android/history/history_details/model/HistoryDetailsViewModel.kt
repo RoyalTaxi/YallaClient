@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.android.history.history_details
+package uz.yalla.client.feature.android.history.history_details.model
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
