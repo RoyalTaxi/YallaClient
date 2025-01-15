@@ -1,4 +1,4 @@
-package uz.ildam.technologies.yalla.android.ui.screens.about_app
+package uz.yalla.client.feature.android.info.about_app.navigation
 
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -7,12 +7,13 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import uz.ildam.technologies.yalla.android.navigation.safeNavigate
+import uz.yalla.client.feature.android.info.about_app.view.AboutAppRoute
+import uz.yalla.client.feature.core.navigation.safeNavigate
 
 
-const val ABOUT_APP_ROUTE = "about_app_route"
+internal const val ABOUT_APP_ROUTE = "about_app_route"
 
-fun NavGraphBuilder.aboutAppScreen(
+internal fun NavGraphBuilder.aboutAppScreen(
     onBack: () -> Unit,
     onClickUrl: (String, String) -> Unit
 ) {

@@ -59,6 +59,7 @@ dependencies {
     implementation(projects.feature.android.places)
     implementation(projects.feature.android.profile)
     implementation(projects.feature.android.history)
+    implementation(projects.feature.android.info)
 
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling.preview)

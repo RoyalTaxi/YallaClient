@@ -1,3 +1,5 @@
+package uz.yalla.client.feature.android.info.about_app.model
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -6,13 +8,11 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import uz.ildam.technologies.yalla.android.R
-import uz.ildam.technologies.yalla.android.ui.screens.about_app.AboutAppActionState
-import uz.ildam.technologies.yalla.android.ui.screens.about_app.AboutAppUIState
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 import uz.ildam.technologies.yalla.feature.settings.domain.usecase.GetConfigUseCase
+import uz.yalla.client.feature.android.info.R
 
-class AboutAppViewModel(
+internal class AboutAppViewModel(
     private val getConfigUseCase: GetConfigUseCase
 ) : ViewModel() {
 

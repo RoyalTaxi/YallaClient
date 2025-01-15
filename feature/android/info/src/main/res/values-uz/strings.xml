@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="user_agreement">Foydalanuvchi shartnomasi</string>
+    <string name="about_app">Ilova haqida</string>
+    <string name="version_x">Versiya %s</string>
+    <string name="we_on_social_networks">Biz ijtimoiy tarmoqlardamiz</string>
+    <string name="rate">Baholash</string>
+</resources>
