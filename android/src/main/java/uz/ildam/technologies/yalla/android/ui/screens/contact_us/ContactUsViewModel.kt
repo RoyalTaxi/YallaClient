@@ -9,8 +9,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.android.R
-import uz.ildam.technologies.yalla.android.ui.screens.about_app.AboutAppActionState
-import uz.ildam.technologies.yalla.android.ui.screens.about_app.AboutAppUIState
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 import uz.ildam.technologies.yalla.feature.settings.domain.usecase.GetConfigUseCase
 

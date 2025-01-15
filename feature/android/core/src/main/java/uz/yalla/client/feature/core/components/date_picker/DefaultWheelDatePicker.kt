@@ -38,9 +38,11 @@ internal fun DefaultWheelDatePicker(
 
     var dayOfMonths = calculateDayOfMonths(snappedDate.month.value, snappedDate.year)
 
+    val shortMonthNames = DateFormatSymbols.getInstance().shortMonths
+
     val months = (1..12).map {
         Month(
-            text = it.toString(),  // Use ordinal number instead of the month name
+            text = shortMonthNames[it - 1],
             value = it,
             index = it - 1
         )

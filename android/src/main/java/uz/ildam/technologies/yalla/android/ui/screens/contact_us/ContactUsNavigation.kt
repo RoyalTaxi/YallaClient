@@ -8,7 +8,6 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import uz.ildam.technologies.yalla.android.navigation.safeNavigate
-import uz.ildam.technologies.yalla.android.ui.screens.about_app.AboutAppRoute
 
 const val CONTACT_US_ROUTE = "contact_us_route"
 

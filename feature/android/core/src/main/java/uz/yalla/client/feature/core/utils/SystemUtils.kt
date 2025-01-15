@@ -17,12 +17,12 @@ fun pxToDp(context: Context, px: Int): Int {
 
 fun openPlayMarket(context: Context) {
     try {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.yestms.driver"))
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=uz.yalla.client"))
         context.startActivity(intent)
     } catch (e: Exception) {
         val intent = Intent(
             Intent.ACTION_VIEW,
-            Uri.parse("https://play.google.com/store/apps/details?id=uz.lola.client")
+            Uri.parse("https://play.google.com/store/apps/details?id=uz.yalla.client")
         )
         context.startActivity(intent)
     }

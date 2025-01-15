@@ -5,7 +5,7 @@ import org.koin.dsl.module
 import uz.yalla.client.feature.android.places.address.model.AddressViewModel
 import uz.yalla.client.feature.android.places.addresses.model.AddressesViewModel
 
-object AddressModuleViewModel {
+object PlacesViewModel {
     var module = module {
         viewModelOf(::AddressViewModel)
         viewModelOf(::AddressesViewModel)

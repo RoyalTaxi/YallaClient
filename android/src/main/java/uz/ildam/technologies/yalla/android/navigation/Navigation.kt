@@ -7,7 +7,6 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
-import uz.ildam.technologies.yalla.android.ui.screens.add_card.navigateToAddCardScreen
 import uz.ildam.technologies.yalla.android.ui.screens.cancel_reason.cancelReasonScreen
 import uz.ildam.technologies.yalla.android.ui.screens.cancel_reason.navigateToCancelReasonScreen
 import uz.ildam.technologies.yalla.android.ui.screens.contact_us.contactUsScreen
@@ -88,7 +87,7 @@ fun Navigation(
                 onSettingsClick = navController::navigateToSettingModule,
                 onPermissionDenied = navController::navigateToIntroModel,
                 onCancel = navController::navigateToCancelReasonScreen,
-                onAddNewCard = navController::navigateToAddCardScreen,
+                onAddNewCard = navController::navigateToPaymentModule,
                 onAboutAppClick = navController::navigateToInfoModule,
                 onContactUsClick = navController::navigateToContactUsScreen,
                 becomeDriverClick = navController::navigateToWebScreen,
@@ -112,7 +111,7 @@ fun Navigation(
             )
 
             profileModule(
-                navController= navController
+                navController = navController
             )
 
             settingsModule(
