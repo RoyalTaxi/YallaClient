@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -58,17 +57,17 @@ fun SearchLocationField(
             if (isForDestination) Box(
                 modifier = Modifier
                     .size(8.dp)
-                    .background(
-                        color = YallaTheme.color.primary,
-                        shape = CircleShape
-                    )
-            ) else Box(
-                modifier = Modifier
-                    .size(8.dp)
                     .border(
                         shape = CircleShape,
                         width = 1.dp,
                         color = YallaTheme.color.gray
+                    )
+            ) else Box(
+                modifier = Modifier
+                    .size(8.dp)
+                    .background(
+                        color = YallaTheme.color.primary,
+                        shape = CircleShape
                     )
             )
 

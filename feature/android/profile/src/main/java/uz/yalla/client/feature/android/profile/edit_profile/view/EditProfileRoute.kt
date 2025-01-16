@@ -4,6 +4,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
@@ -12,15 +14,19 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import uz.yalla.client.feature.android.cancel.R
 import uz.yalla.client.feature.android.profile.edit_profile.model.EditProfileActionState
 import uz.yalla.client.feature.android.profile.edit_profile.model.EditProfileViewModel
 import uz.yalla.client.feature.core.dialogs.LoadingDialog
+import uz.yalla.client.feature.core.utils.isFileSizeTooLarge
+import uz.yalla.client.feature.core.utils.isImageDimensionTooLarge
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,6 +38,8 @@ internal fun EditProfileRoute(
     var loading by remember { mutableStateOf(true) }
     val uiState by viewModel.uiState.collectAsState()
     val focusManager = LocalFocusManager.current
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberStandardBottomSheetState(
@@ -42,7 +50,17 @@ internal fun EditProfileRoute(
     val imagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { uri ->
-            if (uri != null) viewModel.setNewImage(uri, context)
+            if (uri != null) scope.launch {
+                if (
+                    isFileSizeTooLarge(context, uri, 4194304).not() ||
+                    isImageDimensionTooLarge(context, uri, 1080, 1080).not()
+                ) viewModel.setNewImage(uri, context)
+                else snackbarHostState.showSnackbar(
+                    message = context.getString(R.string.error_size),
+                    withDismissAction = true,
+                    duration = SnackbarDuration.Short
+                )
+            }
         }
     )
 
@@ -78,6 +96,7 @@ internal fun EditProfileRoute(
     EditProfileScreen(
         scaffoldState = bottomSheetScaffoldState,
         uiState = uiState,
+        snackbarHostState = snackbarHostState,
         onIntent = { intent ->
             when (intent) {
                 is EditProfileIntent.OnNavigateBack -> onNavigateBack()

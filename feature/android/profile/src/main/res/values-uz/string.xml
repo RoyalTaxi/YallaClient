@@ -7,4 +7,5 @@
     <string name="gender_m">Erkak</string>
     <string name="gender_f">Ayol</string>
     <string name="save">Saqlash</string>
+    <string name="error_size">Rasm hajmi juda katta</string>
 </resources>

@@ -1,9 +1,9 @@
-package uz.ildam.technologies.yalla.android.ui.screens.web
+package uz.yalla.client.feature.android.web
 
 import androidx.compose.runtime.Composable
 
 @Composable
-fun WebRoute(
+internal fun WebRoute(
     title: String,
     url: String,
     onNavigateBack: () -> Unit

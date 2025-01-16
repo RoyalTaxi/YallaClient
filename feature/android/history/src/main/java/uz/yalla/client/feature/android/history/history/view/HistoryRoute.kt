@@ -2,9 +2,15 @@ package uz.yalla.client.feature.android.history.history.view
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.paging.LoadState
 import app.cash.paging.compose.collectAsLazyPagingItems
 import org.koin.androidx.compose.koinViewModel
 import uz.yalla.client.feature.android.history.history.model.HistoryViewModel
+import uz.yalla.client.feature.core.dialogs.LoadingDialog
 
 @Composable
 internal fun HistoryRoute(
@@ -14,8 +20,14 @@ internal fun HistoryRoute(
 ) {
 
     val orders = vm.orders.collectAsLazyPagingItems()
+    var loading by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) { vm.getOrders() }
+
+    loading = when (orders.loadState.refresh) {
+        LoadState.Loading -> true
+        else -> false
+    }
 
     HistoryScreen(
         orders = orders,
@@ -26,4 +38,6 @@ internal fun HistoryRoute(
             }
         }
     )
+
+    if (loading) LoadingDialog()
 }

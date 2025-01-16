@@ -96,6 +96,8 @@ internal fun OnboardingScreen(
                     onClick = { onIntent(OnboardingIntent.Swipe) }
                 )
             }
+
+            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }

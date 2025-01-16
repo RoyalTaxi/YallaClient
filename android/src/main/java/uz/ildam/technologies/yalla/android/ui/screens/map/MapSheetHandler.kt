@@ -97,6 +97,12 @@ class MapSheetHandler(
                         show = true
                     )
                 },
+                onAddNewDestinationClick = {
+                    bottomSheetHandler.showSearchLocation(
+                        show = true,
+                        forDest = true
+                    )
+                },
                 onSetOptionsClick = {
                     bottomSheetHandler.showOptions(
                         show = true

@@ -15,22 +15,16 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import uz.ildam.technologies.yalla.feature.history.domain.model.OrdersHistory
 import uz.yalla.client.feature.android.history.R
 import uz.yalla.client.feature.android.history.history.components.getRelativeDate
 import uz.yalla.client.feature.core.components.items.HistoryOrderItem
 import uz.yalla.client.feature.core.design.theme.YallaTheme
-import uz.yalla.client.feature.core.dialogs.LoadingDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,12 +33,6 @@ internal fun HistoryScreen(
     onIntent: (HistoryIntent) -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-    var loading by remember { mutableStateOf(true) }
-
-    loading = when (orders.loadState.refresh) {
-        is LoadState.Loading -> true
-        else -> false
-    }
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -112,9 +100,6 @@ internal fun HistoryScreen(
                     }
                 }
             }
-
-            if (loading) LoadingDialog(false)
         }
     )
 }
-

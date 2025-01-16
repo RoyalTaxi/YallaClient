@@ -7,4 +7,5 @@
     <string name="gender_m">Мужчина</string>
     <string name="gender_f">Женщина</string>
     <string name="save">Сохранить</string>
+    <string name="error_size">Размер изображения слишком большой</string>
 </resources>

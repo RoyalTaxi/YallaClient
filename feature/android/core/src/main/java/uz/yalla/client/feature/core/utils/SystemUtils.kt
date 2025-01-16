@@ -4,8 +4,11 @@ import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.widget.Toast
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 fun dpToPx(context: Context, dp: Int): Int {
     return (dp * context.resources.displayMetrics.density).toInt()
@@ -35,5 +38,36 @@ fun Activity.openBrowser(url: String) {
         startActivity(browserIntent)
     } catch (e: ActivityNotFoundException) {
         Toast.makeText(this, "Error", Toast.LENGTH_LONG).show()
+    }
+}
+
+suspend fun isFileSizeTooLarge(
+    context: Context,
+    uri: Uri,
+    maxFileSizeInBytes: Long
+): Boolean {
+    return withContext(Dispatchers.IO) {
+        val size = context.contentResolver.openAssetFileDescriptor(uri, "r")?.use { descriptor ->
+            descriptor.length
+        } ?: 0
+        return@withContext size > maxFileSizeInBytes
+    }
+}
+
+suspend fun isImageDimensionTooLarge(
+    context: Context,
+    uri: Uri,
+    maxWidth: Int,
+    maxHeight: Int
+): Boolean {
+    return withContext(Dispatchers.IO) {
+        val options = BitmapFactory.Options().apply {
+            inJustDecodeBounds = true
+        }
+        context.contentResolver.openInputStream(uri)?.use { stream ->
+            BitmapFactory.decodeStream(stream, null, options)
+        }
+        val (width, height) = options.outWidth to options.outHeight
+        return@withContext (width > maxWidth || height > maxHeight)
     }
 }

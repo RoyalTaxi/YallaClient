@@ -14,11 +14,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -33,6 +36,10 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarData
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -43,11 +50,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.allowHardware
+import coil3.request.crossfade
 import org.threeten.bp.LocalDate
 import uz.yalla.client.feature.android.cancel.R
 import uz.yalla.client.feature.android.profile.edit_profile.components.Gender
@@ -65,6 +76,7 @@ import java.io.ByteArrayInputStream
 internal fun EditProfileScreen(
     scaffoldState: BottomSheetScaffoldState,
     uiState: EditProfileUIState,
+    snackbarHostState: SnackbarHostState,
     onIntent: (EditProfileIntent) -> Unit
 ) {
     val scrollState = rememberScrollState()
@@ -102,6 +114,22 @@ internal fun EditProfileScreen(
                 startDate = uiState.birthday ?: LocalDate.now(),
                 onSelectDate = { onIntent(EditProfileIntent.OnChangeBirthday(it)) },
                 onDismissRequest = { onIntent(EditProfileIntent.CloseDateBottomSheet) }
+            )
+        },
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier
+                    .imePadding()
+                    .padding(WindowInsets.navigationBars.asPaddingValues())
+                    .consumeWindowInsets(WindowInsets.navigationBars.asPaddingValues()),
+                snackbar = { snackbarData: SnackbarData ->
+                    Snackbar(
+                        snackbarData = snackbarData,
+                        containerColor = YallaTheme.color.red,
+                        contentColor = YallaTheme.color.white
+                    )
+                }
             )
         }
     ) { paddingValues ->
@@ -186,7 +214,12 @@ internal fun ProfileImage(
         )
     } else {
         AsyncImage(
-            model = uiState.imageUrl,
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(uiState.imageUrl)
+                .size(1080)
+                .allowHardware(false)
+                .crossfade(true)
+                .build(),
             contentDescription = null,
             error = painterResource(R.drawable.img_default_pfp),
             placeholder = painterResource(R.drawable.img_default_pfp),

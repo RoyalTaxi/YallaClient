@@ -11,8 +11,8 @@ android {
         applicationId = "uz.yalla.client"
         minSdk = 24
         targetSdk = 35
-        versionCode = 3
-        versionName = "0.2"
+        versionCode = 11
+        versionName = "1.1"
         resourceConfigurations.plus(listOf("uz", "ru"))
     }
     buildFeatures {
@@ -62,10 +62,12 @@ dependencies {
     implementation(projects.feature.android.history)
     implementation(projects.feature.android.info)
     implementation(projects.feature.android.setting)
+    implementation(projects.feature.android.web)
     implementation(projects.feature.android.contact)
 
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling.preview)
+    implementation(libs.compose.material)
     implementation(libs.compose.material3)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.animation.android)

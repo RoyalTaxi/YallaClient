@@ -71,7 +71,7 @@ internal fun PermissionScreen(
                 onClick = { onIntent(PermissionIntent.GrantPermission) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
+                    .padding(20.dp)
             )
         }
     }

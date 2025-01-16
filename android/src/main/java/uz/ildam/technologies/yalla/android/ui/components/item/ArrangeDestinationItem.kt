@@ -26,8 +26,6 @@ import uz.ildam.technologies.yalla.android.ui.screens.map.MapUIState
 
 @Composable
 fun ArrangeDestinationItem(
-    isFirstElement: Boolean,
-    isLastElement: Boolean,
     destination: MapUIState.Destination,
     modifier: Modifier = Modifier,
     onDelete: () -> Unit
@@ -43,23 +41,13 @@ fun ArrangeDestinationItem(
     ) {
         Box(
             modifier = Modifier
-                .background(
-                    color = when {
-                        isLastElement -> YallaTheme.color.primary
-                        isFirstElement -> YallaTheme.color.gray2
-                        else -> YallaTheme.color.gray
-                    },
+                .size(8.dp)
+                .border(
+                    width = 1.dp,
+                    color = YallaTheme.color.gray,
                     shape = CircleShape
                 )
-                .size(8.dp)
-                .then(
-                    if (isFirstElement && !isLastElement) Modifier.border(
-                        width = 1.dp,
-                        color = YallaTheme.color.gray,
-                        shape = CircleShape
-                    )
-                    else Modifier
-                )
+
         )
 
         Spacer(modifier = Modifier.width(8.dp))

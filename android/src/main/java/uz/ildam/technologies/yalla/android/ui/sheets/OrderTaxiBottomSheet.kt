@@ -51,6 +51,7 @@ fun OrderTaxiBottomSheet(
     onSelectTariff: (GetTariffsModel.Tariff, Boolean) -> Unit,
     onCurrentLocationClick: () -> Unit,
     onDestinationClick: () -> Unit,
+    onAddNewDestinationClick: () -> Unit,
     onSetOptionsClick: () -> Unit,
     onSelectPaymentMethodClick: () -> Unit,
     onCreateOrder: () -> Unit
@@ -98,10 +99,9 @@ fun OrderTaxiBottomSheet(
                     Box(
                         modifier = Modifier
                             .size(8.dp)
-                            .border(
-                                shape = CircleShape,
-                                width = 1.dp,
-                                color = YallaTheme.color.gray
+                            .background(
+                                color = YallaTheme.color.primary,
+                                shape = CircleShape
                             )
                     )
                 }
@@ -110,7 +110,8 @@ fun OrderTaxiBottomSheet(
             SelectDestinationButton(
                 destinations = uiState.destinations,
                 modifier = Modifier.padding(horizontal = 20.dp),
-                onClick = onDestinationClick
+                onClick = onDestinationClick,
+                onAddNewLocation = onAddNewDestinationClick
             )
 
             val snappingBehavior = rememberSnapFlingBehavior(lazyListState = listState)

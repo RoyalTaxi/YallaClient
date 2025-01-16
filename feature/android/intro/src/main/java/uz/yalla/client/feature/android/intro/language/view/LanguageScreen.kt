@@ -50,7 +50,6 @@ internal fun LanguageScreen(
             )
         },
     ) { paddingValues ->
-
         Column(
             modifier = Modifier
                 .padding(paddingValues)
@@ -93,7 +92,7 @@ internal fun LanguageScreen(
                 onClick = { onIntent(LanguageIntent.NavigateNext) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp),
+                    .padding(20.dp),
             )
         }
     }

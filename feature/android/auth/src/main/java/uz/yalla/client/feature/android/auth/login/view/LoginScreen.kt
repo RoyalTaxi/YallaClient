@@ -52,9 +52,9 @@ internal fun LoginScreen(
             Column(
                 modifier = Modifier
                     .padding(paddingValues)
-                    .padding(horizontal = 20.dp)
+                    .padding(20.dp)
             ) {
-                Spacer(modifier = Modifier.height(40.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
                 Text(
                     text = stringResource(id = R.string.enter_phone_number),

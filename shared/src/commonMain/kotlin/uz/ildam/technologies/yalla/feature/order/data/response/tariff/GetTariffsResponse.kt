@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class GetTariffsResponse(
     val map: Map?,
-    val tariff: List<Tariff>?
+    val tariff: List<Tariff?>?
 ) {
     @Serializable
     data class Map(
