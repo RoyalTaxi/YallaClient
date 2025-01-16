@@ -62,6 +62,7 @@ dependencies {
     implementation(projects.feature.android.history)
     implementation(projects.feature.android.info)
     implementation(projects.feature.android.setting)
+    implementation(projects.feature.android.web)
     implementation(projects.feature.android.contact)
 
     implementation(libs.compose.ui)

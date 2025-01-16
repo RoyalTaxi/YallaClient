@@ -1,4 +1,4 @@
-package uz.ildam.technologies.yalla.android.ui.screens.web
+package uz.yalla.client.feature.android.web
 
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -9,7 +9,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import uz.ildam.technologies.yalla.android.navigation.safeNavigate
+import uz.yalla.client.feature.core.navigation.safeNavigate
 
 
 const val TITLE = "title"
