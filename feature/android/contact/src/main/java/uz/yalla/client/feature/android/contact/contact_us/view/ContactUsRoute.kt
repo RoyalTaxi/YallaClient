@@ -1,5 +1,6 @@
-package uz.ildam.technologies.yalla.android.ui.screens.contact_us
+package uz.yalla.client.feature.android.contact.contact_us.view
 
+import android.app.Activity
 import android.content.Intent
 import android.content.Intent.ACTION_DIAL
 import android.net.Uri
@@ -10,24 +11,24 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import uz.ildam.technologies.yalla.android.activity.MainActivity
-import uz.ildam.technologies.yalla.android.ui.dialogs.LoadingDialog
-import uz.ildam.technologies.yalla.android.utils.openBrowser
+import uz.yalla.client.feature.android.contact.contact_us.components.openBrowser
+import uz.yalla.client.feature.android.contact.contact_us.model.ContactUsActionState
+import uz.yalla.client.feature.android.contact.contact_us.model.ContactUsViewModel
+import uz.yalla.client.feature.core.dialogs.LoadingDialog
 
 @Composable
-fun ContactUsRoute(
+internal fun ContactUsRoute(
     onNavigateBack: () -> Unit,
     onClickUrl: (String, String) -> Unit,
     viewModel: ContactUsViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var loading by remember { mutableStateOf(true) }
-    val context = LocalContext.current as MainActivity
+    val context = LocalContext.current as Activity
 
     LaunchedEffect(Unit) {
         launch { viewModel.getConfig() }

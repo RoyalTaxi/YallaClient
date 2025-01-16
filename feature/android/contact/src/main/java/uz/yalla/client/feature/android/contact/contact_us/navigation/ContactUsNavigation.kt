@@ -1,4 +1,4 @@
-package uz.ildam.technologies.yalla.android.ui.screens.contact_us
+package uz.yalla.client.feature.android.contact.contact_us.navigation
 
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -7,11 +7,12 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import uz.ildam.technologies.yalla.android.navigation.safeNavigate
+import uz.yalla.client.feature.android.contact.contact_us.view.ContactUsRoute
+import uz.yalla.client.feature.core.navigation.safeNavigate
 
-const val CONTACT_US_ROUTE = "contact_us_route"
+internal const val CONTACT_US_ROUTE = "contact_us_route"
 
-fun NavGraphBuilder.contactUsScreen(
+internal fun NavGraphBuilder.contactUsScreen(
     onBack: () -> Unit,
     onClickUrl: (String, String) -> Unit
 ) {

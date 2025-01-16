@@ -1,6 +1,6 @@
-package uz.ildam.technologies.yalla.android.ui.screens.contact_us
+package uz.yalla.client.feature.android.contact.contact_us.view
 
-sealed interface ContactUsIntent {
+internal sealed interface ContactUsIntent {
     data object OnNavigateBack : ContactUsIntent
     data class OnClickUrl(val title: Int, val url: String) : ContactUsIntent
     data class OnClickEmail(val email: String) : ContactUsIntent
