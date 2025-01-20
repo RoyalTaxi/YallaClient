@@ -25,12 +25,12 @@ import uz.ildam.technologies.yalla.android.ui.sheets.OrderCommentBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.PaymentMethodBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.SetOrderOptionsBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.TariffInfoBottomSheet
-import uz.ildam.technologies.yalla.android.ui.sheets.search_address.SearchByNameBottomSheet
-import uz.ildam.technologies.yalla.android.ui.sheets.select_from_map.SelectFromMapBottomSheet
 import uz.ildam.technologies.yalla.android.utils.getCurrentLocation
 import uz.ildam.technologies.yalla.core.data.mapper.or0
 import uz.ildam.technologies.yalla.core.domain.model.MapPoint
 import uz.yalla.client.feature.core.map.MapStrategy
+import uz.yalla.client.feature.core.sheets.search_address.SearchByNameBottomSheet
+import uz.yalla.client.feature.core.sheets.select_from_map.SelectFromMapBottomSheet
 
 @OptIn(ExperimentalMaterial3Api::class)
 class MapBottomSheetHandler(
@@ -277,13 +277,9 @@ class MapBottomSheetHandler(
         forDest: Boolean = false
     ) {
         if (show) {
-            if (forDest) {
-                searchLocationVisibility = SearchLocationVisibility.END
-                scope.launch { searchLocationState.show() }
-            } else {
-                searchLocationVisibility = SearchLocationVisibility.START
-                scope.launch { searchLocationState.show() }
-            }
+            if (forDest) searchLocationVisibility = SearchLocationVisibility.END
+            else searchLocationVisibility = SearchLocationVisibility.START
+            scope.launch { searchLocationState.show() }
         } else {
             searchLocationVisibility = SearchLocationVisibility.INVISIBLE
             scope.launch { searchLocationState.hide() }

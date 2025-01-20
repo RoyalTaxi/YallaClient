@@ -1,8 +1,12 @@
 package uz.yalla.client.feature.android.web
 
+import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
 import android.view.ViewGroup
+import android.webkit.WebResourceRequest
 import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -53,17 +57,35 @@ internal fun WebScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues),
-                factory = {
-                    WebView(it).apply {
+                factory = { context ->
+                    WebView(context).apply {
                         layoutParams = ViewGroup.LayoutParams(
                             ViewGroup.LayoutParams.MATCH_PARENT,
                             ViewGroup.LayoutParams.MATCH_PARENT
                         )
                         setBackgroundColor(Color.WHITE)
+                        webViewClient = object : WebViewClient() {
+                            override fun shouldOverrideUrlLoading(
+                                view: WebView?,
+                                request: WebResourceRequest?
+                            ): Boolean {
+                                val newUrl = request?.url?.toString()
+                                if (newUrl != null) {
+                                    try {
+                                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(newUrl))
+                                        onNavigateBack()
+                                        context.startActivity(intent)
+                                    } catch (_: Exception) {
+                                    }
+                                    return true
+                                }
+                                return false
+                            }
+                        }
                     }
                 },
                 update = {
-                    it.loadUrl(url)
+                    it.loadUrl(url) // Load the initial URL
                 }
             )
         }

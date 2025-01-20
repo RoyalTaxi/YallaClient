@@ -65,7 +65,7 @@ internal fun OrderDetailsBottomSheet(
                 .fillMaxWidth()
                 .background(
                     color = YallaTheme.color.white,
-                    shape = RoundedCornerShape(30.dp)
+                    shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
                 )
                 .padding(10.dp)
         ) {

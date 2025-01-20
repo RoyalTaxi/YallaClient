@@ -1,6 +1,7 @@
 package uz.yalla.client.feature.core.map
 
 import android.content.Context
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -54,7 +55,10 @@ class ConcreteGisMap : MapStrategy {
     private lateinit var cameraState: ComposableCameraState
 
     @Composable
-    override fun Map(modifier: Modifier) {
+    override fun Map(
+        modifier: Modifier,
+        contentPadding: PaddingValues
+    ) {
         context = LocalContext.current
         coroutineScope = rememberCoroutineScope()
         cameraState = rememberCameraState(CameraPosition(GeoPoint(0.0, 0.0), Zoom(2.0f)))

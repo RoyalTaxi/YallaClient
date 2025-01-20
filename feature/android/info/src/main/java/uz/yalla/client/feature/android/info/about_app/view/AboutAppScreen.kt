@@ -97,7 +97,14 @@ internal fun AboutAppScreen(
                         textAlign = TextAlign.Center
                     )
                     Text(
-                        text = stringResource(R.string.version_x), //todo: Version need to add
+                        text = stringResource(
+                            R.string.version_x,
+                            context
+                                .packageManager
+                                .getPackageInfo(context.packageName, 0)
+                                .versionName
+                                .orEmpty()
+                        ),
                         style = YallaTheme.font.label,
                         color = YallaTheme.color.gray,
                         textAlign = TextAlign.Center

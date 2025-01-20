@@ -1,5 +1,6 @@
 package uz.yalla.client.feature.core.map
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
@@ -14,7 +15,8 @@ interface MapStrategy {
 
     @Composable
     fun Map(
-        modifier: Modifier
+        modifier: Modifier,
+        contentPadding: PaddingValues
     )
 
     fun move(to: MapPoint)

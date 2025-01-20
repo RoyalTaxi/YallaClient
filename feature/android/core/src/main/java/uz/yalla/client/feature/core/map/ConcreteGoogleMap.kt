@@ -63,7 +63,10 @@ class ConcreteGoogleMap : MapStrategy {
     private lateinit var cameraPositionState: CameraPositionState
 
     @Composable
-    override fun Map(modifier: Modifier) {
+    override fun Map(
+        modifier: Modifier,
+        contentPadding: PaddingValues
+    ) {
         context = LocalContext.current
         coroutineScope = rememberCoroutineScope()
         cameraPositionState = rememberCameraPositionState()
@@ -82,10 +85,7 @@ class ConcreteGoogleMap : MapStrategy {
         GoogleMap(
             modifier = modifier,
             cameraPositionState = cameraPositionState,
-            contentPadding = PaddingValues(
-                top = pxToDp(context, WindowInsets.statusBars.getTop(LocalDensity.current)).dp,
-                bottom = 20.dp
-            ),
+            contentPadding = contentPadding,
             properties = MapProperties(
                 mapType = MapType.NORMAL,
                 isMyLocationEnabled = true,

@@ -16,8 +16,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
-import uz.ildam.technologies.yalla.android.ui.sheets.search_address.SearchableAddress
 import uz.ildam.technologies.yalla.feature.addresses.domain.model.response.AddressType
+import uz.yalla.client.feature.core.sheets.search_address.SearchableAddress
 
 @Composable
 fun FoundAddressItem(

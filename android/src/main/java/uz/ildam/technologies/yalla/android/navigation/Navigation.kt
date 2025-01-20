@@ -125,7 +125,7 @@ fun Navigation(
         )
 
         webScreen(
-            onNavigateBack = navController::safePopBackStack
+            onNavigateBack = navController::popBackStack
         )
 
     }

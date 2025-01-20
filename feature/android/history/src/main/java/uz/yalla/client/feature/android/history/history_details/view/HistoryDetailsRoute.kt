@@ -16,6 +16,7 @@ import uz.ildam.technologies.yalla.core.domain.model.MapPoint
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.OrderStatus
 import uz.yalla.client.feature.android.history.history_details.model.HistoryDetailsActionState
 import uz.yalla.client.feature.android.history.history_details.model.HistoryDetailsViewModel
+import uz.yalla.client.feature.core.dialogs.LoadingDialog
 import uz.yalla.client.feature.core.map.ConcreteGisMap
 import uz.yalla.client.feature.core.map.ConcreteGoogleMap
 import uz.yalla.client.feature.core.map.MapStrategy
@@ -77,4 +78,6 @@ internal fun HistoryDetailsRoute(
             }
         }
     )
+
+    if (loading) LoadingDialog()
 }

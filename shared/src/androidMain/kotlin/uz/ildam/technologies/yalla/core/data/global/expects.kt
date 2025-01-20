@@ -12,7 +12,7 @@ import sp.bvantur.inspektify.ktor.InspektifyKtor
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 
 actual fun provideHttpClientForApi1() = HttpClient(Android) {
-//    install(InspektifyKtor)
+    install(InspektifyKtor)
     defaultRequest {
         url(Constants.BASE_URL)
         header("lang", AppPreferences.locale)
@@ -40,7 +40,7 @@ actual fun provideHttpClientForApi1() = HttpClient(Android) {
 }
 
 actual fun provideHttpClientForApi2() = HttpClient(Android) {
-//    install(InspektifyKtor)
+    install(InspektifyKtor)
     defaultRequest {
         url(Constants.BASE_URL_2)
         header("lang", AppPreferences.locale)

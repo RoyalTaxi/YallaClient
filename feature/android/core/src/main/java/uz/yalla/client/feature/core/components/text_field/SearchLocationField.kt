@@ -57,17 +57,17 @@ fun SearchLocationField(
             if (isForDestination) Box(
                 modifier = Modifier
                     .size(8.dp)
-                    .background(
-                        color = YallaTheme.color.primary,
-                        shape = CircleShape
-                    )
-            ) else Box(
-                modifier = Modifier
-                    .size(8.dp)
                     .border(
                         shape = CircleShape,
                         width = 1.dp,
                         color = YallaTheme.color.gray
+                    )
+            ) else Box(
+                modifier = Modifier
+                    .size(8.dp)
+                    .background(
+                        color = YallaTheme.color.primary,
+                        shape = CircleShape
                     )
             )
 

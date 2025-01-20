@@ -36,7 +36,7 @@ internal class ContactUsViewModel(
                             ),
                             Triple(
                                 R.drawable.ic_instagram,
-                                result.setting.supportTelegramNickname,
+                                result.setting.supportInstagramNickname,
                                 R.string.instagram
                             ),
                             Triple(

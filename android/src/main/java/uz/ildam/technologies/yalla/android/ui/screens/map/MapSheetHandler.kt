@@ -75,12 +75,8 @@ class MapSheetHandler(
                 uiState = uiState,
                 listState = listState,
                 onSelectTariff = { tariff, wasSelected ->
-                    if (wasSelected) bottomSheetHandler.showTariff(
-                        show = true
-                    )
-                    else viewModel.setSelectedTariff(
-                        tariff = tariff
-                    )
+                    if (wasSelected) bottomSheetHandler.showTariff(show = true)
+                    else viewModel.setSelectedTariff(tariff = tariff)
                 },
                 onCurrentLocationClick = {
                     bottomSheetHandler.showSearchLocation(

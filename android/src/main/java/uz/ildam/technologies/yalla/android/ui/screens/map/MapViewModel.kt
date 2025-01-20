@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import uz.ildam.technologies.yalla.android.utils.getCurrentLocation
 import uz.ildam.technologies.yalla.core.data.enums.PaymentType
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 import uz.ildam.technologies.yalla.core.data.mapper.or0
@@ -353,6 +352,7 @@ class MapViewModel(
 
     fun setPaymentType(paymentType: PaymentType) {
         _uiState.update { it.copy(selectedPaymentType = paymentType) }
+        AppPreferences.paymentType = paymentType
     }
 
     fun setSetting(setting: SettingModel?) {

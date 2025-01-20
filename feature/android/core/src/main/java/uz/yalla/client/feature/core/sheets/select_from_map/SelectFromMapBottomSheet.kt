@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -76,7 +77,10 @@ fun SelectFromMapBottomSheet(
                 .weight(1f)
         ) {
 
-            map.Map(modifier = Modifier.matchParentSize())
+            map.Map(
+                modifier = Modifier.matchParentSize(),
+                contentPadding = PaddingValues(0.dp)
+            )
 
             Box(
                 modifier = Modifier

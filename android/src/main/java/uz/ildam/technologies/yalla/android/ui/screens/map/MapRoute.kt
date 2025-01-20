@@ -154,6 +154,14 @@ fun MapRoute(
                 }
             }
         }
+
+        launch {
+            vm.getMe()
+        }
+
+        launch {
+            vm.setPaymentType(AppPreferences.paymentType)
+        }
     }
 
     LaunchedEffect(uiState.route) {

@@ -1,38 +1,35 @@
 package uz.yalla.client.feature.android.history.history_details.view
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
-import io.morfly.compose.bottomsheet.material3.BottomSheetScaffold
-import io.morfly.compose.bottomsheet.material3.rememberBottomSheetScaffoldState
-import io.morfly.compose.bottomsheet.material3.rememberBottomSheetState
-import io.morfly.compose.bottomsheet.material3.requireSheetVisibleHeightDp
+import androidx.compose.ui.unit.dp
 import uz.yalla.client.feature.android.history.R
 import uz.yalla.client.feature.android.history.history_details.components.OrderDetailsBottomSheet
 import uz.yalla.client.feature.android.history.history_details.model.HistoryDetailsUIState
 import uz.yalla.client.feature.core.design.theme.YallaTheme
 import uz.yalla.client.feature.core.map.MapStrategy
-import uz.yalla.client.feature.core.sheets.SheetValue
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun HistoryDetailsScreen(
     uiState: HistoryDetailsUIState,
@@ -40,25 +37,7 @@ internal fun HistoryDetailsScreen(
     map: MapStrategy,
     onIntent: (HistoryDetailsIntent) -> Unit
 ) {
-    val sheetState = rememberBottomSheetState(
-        initialValue = SheetValue.PartiallyExpanded,
-        defineValues = {
-            SheetValue.Collapsed at offset(50)
-            SheetValue.PartiallyExpanded at offset(50)
-            SheetValue.Expanded at contentHeight
-        }
-    )
-    val scaffoldState = rememberBottomSheetScaffoldState(sheetState = sheetState)
-    val bottomPadding by remember {
-        derivedStateOf { scaffoldState.sheetState.requireSheetVisibleHeightDp() }
-    }
-
-    BottomSheetScaffold(
-        scaffoldState = scaffoldState,
-        sheetShape = RectangleShape,
-        sheetContainerColor = YallaTheme.color.white,
-        sheetDragHandle = null,
-        modifier = Modifier.fillMaxSize(),
+    Scaffold(
         containerColor = YallaTheme.color.white,
         topBar = {
             CenterAlignedTopAppBar(
@@ -81,23 +60,24 @@ internal fun HistoryDetailsScreen(
             )
         },
         content = { paddingValues ->
-            Box(modifier = Modifier.padding(paddingValues)) {
+            Column(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+            ) {
                 if (loading.not()) map.Map(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(bottom = bottomPadding)
+                        .fillMaxWidth()
+                        .aspectRatio(1f)
+                        .pointerInput(Unit) { detectTapGestures { } },
+                    contentPadding = PaddingValues(0.dp)
                 )
 
-                Box(
-                    modifier = Modifier
-                        .pointerInput(Unit) { detectTapGestures { } }
-                        .matchParentSize()
-                )
+                uiState.orderDetails?.let {
+                    OrderDetailsBottomSheet(order = it)
+                }
             }
-
-        },
-        sheetContent = {
-            uiState.orderDetails?.let { OrderDetailsBottomSheet(order = it) }
         }
     )
 }

@@ -1,6 +1,7 @@
 package uz.ildam.technologies.yalla.android.ui.screens.map
 
 import uz.ildam.technologies.yalla.core.data.enums.PaymentType
+import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 import uz.ildam.technologies.yalla.core.domain.model.Executor
 import uz.ildam.technologies.yalla.core.domain.model.MapPoint
 import uz.ildam.technologies.yalla.feature.map.domain.model.response.map.SearchForAddressItemModel
@@ -34,7 +35,7 @@ data class MapUIState(
     val showingOrderId: Int? = null,
 
     // Payment-related properties
-    val selectedPaymentType: PaymentType = PaymentType.CASH,
+    val selectedPaymentType: PaymentType = AppPreferences.paymentType,
     val paymentTypes: List<CardListItemModel> = emptyList(),
 
     // Driver-related properties

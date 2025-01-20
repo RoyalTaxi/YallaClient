@@ -7,8 +7,6 @@ import uz.ildam.technologies.yalla.android.connectivity.AndroidConnectivityObser
 import uz.ildam.technologies.yalla.android.connectivity.ConnectivityObserver
 import uz.ildam.technologies.yalla.android.ui.screens.cancel_reason.CancelReasonViewModel
 import uz.ildam.technologies.yalla.android.ui.screens.map.MapViewModel
-import uz.ildam.technologies.yalla.android.ui.sheets.search_address.SearchByNameBottomSheetViewModel
-import uz.ildam.technologies.yalla.android.ui.sheets.select_from_map.SelectFromMapBottomSheetViewModel
 import uz.yalla.client.feature.android.auth.di.AuthViewModel
 import uz.yalla.client.feature.android.contact.di.ContactViewModel
 import uz.yalla.client.feature.android.history.di.HistoryViewModel
@@ -19,6 +17,7 @@ import uz.yalla.client.feature.android.places.di.PlacesViewModel
 import uz.yalla.client.feature.android.profile.di.ProfileViewModel
 import uz.yalla.client.feature.android.registration.di.RegistrationViewModel
 import uz.yalla.client.feature.android.setting.di.SettingViewModel
+import uz.yalla.client.feature.core.di.Core
 
 object Navigation {
 
@@ -30,14 +29,12 @@ object Navigation {
         viewModelOf(::MapViewModel)
         viewModelOf(::CancelReasonViewModel)
         viewModelOf(::MainViewModel)
-
-        viewModelOf(::SelectFromMapBottomSheetViewModel)
-        viewModelOf(::SearchByNameBottomSheetViewModel)
     }
 
     val modules = listOf(
         androidServices,
         viewModelModule,
+        Core.module,
         AuthViewModel.module,
         IntroViewModel.module,
         RegistrationViewModel.module,
