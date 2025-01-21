@@ -1,13 +1,10 @@
 package uz.ildam.technologies.yalla.android.ui.components.marker
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -25,8 +22,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,6 +34,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.airbnb.lottie.compose.LottieAnimation
@@ -48,9 +46,6 @@ import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 import uz.ildam.technologies.yalla.android.ui.components.shape.squareSize
-import androidx.compose.animation.with
-import androidx.compose.ui.text.style.TextOverflow
-import kotlinx.coroutines.coroutineScope
 
 
 @Composable
@@ -123,24 +118,28 @@ fun YallaMarker(
         contentAlignment = Alignment.Center,
         modifier = Modifier.fillMaxSize()
     ) {
-        if (isSearching || isSending) {
-            LottieAnimation(
-                composition = composition,
-                progress = { progress },
-                modifier = Modifier
-                    .fillMaxSize(.8f)
-                    .alpha(.5f)
-            )
-        }
-
         if (
             (isRouteEmpty || isSearching || isSending) &&
             !isAppointed && !isAtAddress && !isInFetters && !isCompleted
         ) {
             ConstraintLayout(modifier = modifier) {
-                val (circle, stick, indicator, addressName) = createRefs()
+                val (circle, stick, indicator, addressName, lottie) = createRefs()
 
-                Box(
+                if (isSearching || isSending) {
+                    LottieAnimation(
+                        composition = composition,
+                        progress = { progress },
+                        modifier = Modifier
+                            .fillMaxSize(.8f)
+                            .alpha(.5f)
+                            .constrainAs(lottie) {
+                                linkTo(start = circle.start, end = circle.end)
+                                linkTo(top = circle.top, bottom = circle.bottom)
+                            }
+                    )
+                }
+
+                if (isSearching.not()) Box(
                     modifier = Modifier
                         .height(6.dp)
                         .width(8.dp)
@@ -152,7 +151,7 @@ fun YallaMarker(
                         }
                 )
 
-                Box(
+                if (isSearching.not()) Box(
                     modifier = Modifier
                         .height(20.dp)
                         .width(2.dp)
@@ -174,8 +173,13 @@ fun YallaMarker(
                         .height(IntrinsicSize.Min)
                         .width(IntrinsicSize.Min)
                         .constrainAs(circle) {
-                            bottom.linkTo(stick.top)
-                            linkTo(start = indicator.start, end = indicator.end)
+                            if (isSearching.not()) {
+                                bottom.linkTo(stick.top)
+                                linkTo(start = indicator.start, end = indicator.end)
+                            } else {
+                                linkTo(start = parent.start, end = parent.end)
+                                linkTo(top = parent.top, bottom = parent.bottom)
+                            }
                         }
                 ) {
                     Column(
@@ -230,8 +234,13 @@ fun YallaMarker(
                     color = YallaTheme.color.black,
                     shape = RoundedCornerShape(25.dp),
                     modifier = Modifier.constrainAs(addressName) {
-                        bottom.linkTo(indicator.top, margin = 96.dp)
-                        linkTo(start = indicator.start, end = indicator.end)
+                        if (isSearching.not()) {
+                            bottom.linkTo(indicator.top, margin = 96.dp)
+                            linkTo(start = indicator.start, end = indicator.end)
+                        } else {
+                            bottom.linkTo(circle.top, margin = 96.dp)
+                            linkTo(start = parent.start, end = parent.end)
+                        }
                     }
                 ) {
                     AnimatedContent(

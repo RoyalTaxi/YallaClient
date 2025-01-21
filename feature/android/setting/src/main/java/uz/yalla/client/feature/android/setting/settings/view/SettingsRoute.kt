@@ -7,13 +7,17 @@ import android.os.LocaleList
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.os.LocaleListCompat
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import uz.yalla.client.feature.android.setting.settings.components.ChangeLanguageBottomSheet
 import uz.yalla.client.feature.android.setting.settings.model.SettingsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,6 +34,12 @@ internal fun SettingsRoute(
 
     SettingsScreen(
         uiState = uiState,
+        changeLanguageSheetVisibility = changeLanguageVisibility,
+        changeLanguageSheetState = changeLanguageSheetState,
+        onDismissRequest = {
+            changeLanguageVisibility = false
+            scope.launch { changeLanguageSheetState.hide() }
+        },
         onIntent = { intent ->
             when (intent) {
                 SettingsIntent.OnNavigateBack -> onNavigateBack()
@@ -37,33 +47,23 @@ internal fun SettingsRoute(
                     changeLanguageVisibility = true
                     scope.launch { changeLanguageSheetState.show() }
                 }
+
+                is SettingsIntent.OnUpdateLanguage -> {
+                    viewModel.setSelectedLanguageType(intent.language)
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        context.getSystemService(LocaleManager::class.java)
+                            ?.applicationLocales =
+                            LocaleList.forLanguageTags(intent.language.languageTag)
+                    } else {
+                        AppCompatDelegate.setApplicationLocales(
+                            LocaleListCompat.forLanguageTags(intent.language.languageTag)
+                        )
+                    }
+
+                    viewModel.notifyLanguageChange(intent.language)
+                }
             }
         }
     )
-
-    if (changeLanguageVisibility) {
-        ChangeLanguageBottomSheet(
-            languages = uiState.languages,
-            sheetState = changeLanguageSheetState,
-            currentLanguage = uiState.selectedLanguage,
-            onLanguageSelected = { language ->
-                viewModel.setSelectedLanguageType(language)
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    context.getSystemService(LocaleManager::class.java)
-                        ?.applicationLocales = LocaleList.forLanguageTags(language.languageTag)
-                } else {
-                    AppCompatDelegate.setApplicationLocales(
-                        LocaleListCompat.forLanguageTags(language.languageTag)
-                    )
-                }
-
-                viewModel.notifyLanguageChange(language)
-            },
-            onDismissRequest = {
-                changeLanguageVisibility = false
-                scope.launch { changeLanguageSheetState.hide() }
-            }
-        )
-    }
 }
