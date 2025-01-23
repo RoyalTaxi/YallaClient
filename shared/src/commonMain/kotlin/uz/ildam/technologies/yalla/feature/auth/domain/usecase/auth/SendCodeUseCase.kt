@@ -12,9 +12,9 @@ class SendCodeUseCase(
     private val repository: AuthRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    suspend operator fun invoke(number: String): Result<SendAuthCodeModel> {
+    suspend operator fun invoke(number: String, hash: String?): Result<SendAuthCodeModel> {
         return withContext(dispatcher) {
-            when (val result = repository.sendAuthCode(number)) {
+            when (val result = repository.sendAuthCode(number, hash)) {
                 is Either.Error -> Result.failure(Exception(result.error.name))
                 is Either.Success -> Result.success(result.data)
             }

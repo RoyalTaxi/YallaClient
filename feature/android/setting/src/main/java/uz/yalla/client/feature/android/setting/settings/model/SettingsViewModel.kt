@@ -24,5 +24,6 @@ internal class SettingsViewModel : ViewModel() {
 
     fun notifyLanguageChange(language: Language) {
         _uiState.update { it.copy(selectedLanguage = language) }
+        AppPreferences.locale = language.languageTag
     }
 }

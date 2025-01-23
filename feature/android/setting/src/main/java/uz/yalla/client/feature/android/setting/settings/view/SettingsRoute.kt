@@ -53,8 +53,7 @@ internal fun SettingsRoute(
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         context.getSystemService(LocaleManager::class.java)
-                            ?.applicationLocales =
-                            LocaleList.forLanguageTags(intent.language.languageTag)
+                            .applicationLocales = LocaleList.forLanguageTags(intent.language.languageTag)
                     } else {
                         AppCompatDelegate.setApplicationLocales(
                             LocaleListCompat.forLanguageTags(intent.language.languageTag)

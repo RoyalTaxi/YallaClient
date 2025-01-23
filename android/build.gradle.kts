@@ -71,6 +71,7 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.animation.android)
+    implementation(libs.play.services.auth.api.phone)
     debugImplementation(libs.compose.ui.tooling)
 
     // Navigation

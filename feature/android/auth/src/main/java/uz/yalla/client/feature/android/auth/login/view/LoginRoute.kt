@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -14,6 +15,7 @@ import org.koin.androidx.compose.koinViewModel
 import uz.yalla.client.feature.android.auth.login.model.LoginActionState
 import uz.yalla.client.feature.android.auth.login.model.LoginViewModel
 import uz.yalla.client.feature.core.dialogs.LoadingDialog
+import uz.yalla.client.feature.core.utils.SignatureHelper
 
 @Composable
 internal fun LoginRoute(
@@ -24,6 +26,7 @@ internal fun LoginRoute(
     val focusManager = LocalFocusManager.current
     val uiState by vm.uiState.collectAsState()
     var loading by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         launch {
@@ -55,7 +58,7 @@ internal fun LoginRoute(
             when (intent) {
                 is LoginIntent.ClearFocus -> focusManager.clearFocus(true)
                 is LoginIntent.NavigateBack -> onBack()
-                is LoginIntent.SendCode -> vm.sendAuthCode()
+                is LoginIntent.SendCode -> vm.sendAuthCode(SignatureHelper.get(context))
                 is LoginIntent.SetNumber -> vm.setNumber(number = intent.number)
             }
         }

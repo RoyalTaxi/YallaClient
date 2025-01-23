@@ -7,7 +7,10 @@ import uz.ildam.technologies.yalla.feature.auth.domain.model.auth.VerifyAuthCode
 
 interface AuthRepository {
 
-    suspend fun sendAuthCode(number: String): Either<SendAuthCodeModel, DataError.Network>
+    suspend fun sendAuthCode(
+        number: String,
+        hash: String?
+    ): Either<SendAuthCodeModel, DataError.Network>
 
     suspend fun validateAuthCode(
         number: String,

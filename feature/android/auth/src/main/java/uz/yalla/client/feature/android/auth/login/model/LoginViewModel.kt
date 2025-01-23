@@ -30,9 +30,12 @@ internal class LoginViewModel(
     }
 
 
-    fun sendAuthCode() = viewModelScope.launch {
+    fun sendAuthCode(hash: String?) = viewModelScope.launch {
         _actionFlow.emit(LoginActionState.Loading)
-        sendCodeUseCase(uiState.value.getFormattedNumber())
+        sendCodeUseCase(
+            number = uiState.value.getFormattedNumber(),
+            hash = hash
+        )
             .onSuccess { result -> _actionFlow.emit(LoginActionState.Success(result)) }
             .onFailure { _actionFlow.emit(LoginActionState.Error) }
     }

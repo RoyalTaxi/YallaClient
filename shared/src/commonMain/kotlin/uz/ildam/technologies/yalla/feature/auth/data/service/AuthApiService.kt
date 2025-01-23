@@ -17,7 +17,6 @@ import uz.ildam.technologies.yalla.feature.auth.data.url.AuthUrl
 class AuthApiService(
     private val ktor: HttpClient
 ) {
-
     suspend fun sendAuthCode(
         body: SendAuthCodeRequest
     ): Either<ApiResponseWrapper<SendAuthCodeResponse>, DataError.Network> = safeApiCall {

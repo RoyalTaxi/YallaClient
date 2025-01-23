@@ -72,10 +72,10 @@ class VerificationViewModel(
         }
     }
 
-    fun resendAuthCode() = viewModelScope.launch {
+    fun resendAuthCode(hash: String?) = viewModelScope.launch {
         _uiState.value.apply {
             _actionFlow.emit(VerificationActionState.Loading)
-            sendCodeUseCase(getFormattedNumber())
+            sendCodeUseCase(getFormattedNumber(), hash)
                 .onSuccess { result ->
                     _actionFlow.emit(
                         VerificationActionState.SendSMSSuccess(result)

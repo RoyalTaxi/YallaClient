@@ -1,7 +1,5 @@
 package uz.ildam.technologies.yalla.android.activity
 
-import android.content.Context
-import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -15,6 +13,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import com.google.android.gms.auth.api.phone.SmsRetriever
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.appupdate.AppUpdateOptions
@@ -23,8 +22,6 @@ import com.google.android.play.core.install.model.UpdateAvailability
 import org.koin.androidx.compose.koinViewModel
 import uz.ildam.technologies.yalla.android.BuildConfig
 import uz.ildam.technologies.yalla.android.navigation.Navigation
-import uz.ildam.technologies.yalla.core.data.local.AppPreferences
-import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
     private lateinit var updateFlowLauncher: ActivityResultLauncher<IntentSenderRequest>
@@ -59,18 +56,9 @@ class MainActivity : AppCompatActivity() {
 
             checkForImmediateUpdate()
         }
-    }
 
-    override fun attachBaseContext(newBase: Context) {
-        val lang = AppPreferences.locale
-        val locale = Locale(lang)
-        Locale.setDefault(locale)
-
-        val config = Configuration(newBase.resources.configuration)
-        config.setLocale(locale)
-
-        val localizedContext = newBase.createConfigurationContext(config)
-        super.attachBaseContext(localizedContext)
+        val client = SmsRetriever.getClient(this)
+        client.startSmsRetriever()
     }
 
     private fun checkForImmediateUpdate() {

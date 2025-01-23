@@ -4,5 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class SendAuthCodeRequest(
-    val phone: String
+    val phone: String,
+    val signature: String?
 )

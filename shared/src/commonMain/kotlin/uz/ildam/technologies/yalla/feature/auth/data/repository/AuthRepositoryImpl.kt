@@ -13,11 +13,11 @@ import uz.ildam.technologies.yalla.feature.auth.domain.repository.AuthRepository
 class AuthRepositoryImpl(
     private val service: AuthApiService
 ) : AuthRepository {
-
     override suspend fun sendAuthCode(
-        number: String
+        number: String,
+        hash: String?
     ): Either<SendAuthCodeModel, DataError.Network> {
-        return when (val result = service.sendAuthCode(SendAuthCodeRequest(number))) {
+        return when (val result = service.sendAuthCode(SendAuthCodeRequest(number, hash))) {
             is Either.Error -> Either.Error(result.error)
             is Either.Success -> Either.Success(result.data.result.let(AuthMapper.sendAuthCodeMapper))
         }
