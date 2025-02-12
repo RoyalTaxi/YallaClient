@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.android.payment.add_employee
+package uz.yalla.client.feature.android.payment.add_employee.view
 
 internal sealed interface AddEmployeeIntent {
     data object OnNavigateBack: AddEmployeeIntent

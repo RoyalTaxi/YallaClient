@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.android.payment.employee
+package uz.yalla.client.feature.android.payment.employee.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

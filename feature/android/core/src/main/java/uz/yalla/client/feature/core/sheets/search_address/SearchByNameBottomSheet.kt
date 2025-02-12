@@ -1,6 +1,7 @@
 package uz.yalla.client.feature.core.sheets.search_address
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -35,10 +36,12 @@ import uz.yalla.client.feature.core.utils.getCurrentLocation
 @Composable
 fun SearchByNameBottomSheet(
     initialAddress: String? = null,
+    initialDestination: String? = null,
     sheetState: SheetState,
     onAddressSelected: (String, Double, Double, Int) -> Unit,
+    onDestinationSelected: ((String, Double, Double, Int) -> Unit)? = null,
     onDismissRequest: () -> Unit,
-    onClickMap: () -> Unit,
+    onClickMap: (forDestination: Boolean) -> Unit,
     isForDestination: Boolean,
     viewModel: SearchByNameBottomSheetViewModel = koinViewModel()
 ) {
@@ -47,7 +50,8 @@ fun SearchByNameBottomSheet(
 
     LaunchedEffect(Unit) {
         launch { viewModel.findAllMapAddresses() }
-        launch { if (isForDestination.not()) initialAddress?.let { viewModel.setQuery(it) } }
+        launch { initialAddress?.let { viewModel.setQuery(it) } }
+        launch { initialDestination?.let { viewModel.setDestinationQuery(it) } }
         launch { viewModel.fetchPolygons() }
         getCurrentLocation(context) { location ->
             viewModel.setCurrentLocation(location.latitude, location.longitude)
@@ -61,29 +65,41 @@ fun SearchByNameBottomSheet(
         dragHandle = null,
         onDismissRequest = {
             viewModel.setQuery("")
+            viewModel.setDestinationQuery("")
             viewModel.setFoundAddresses(emptyList())
             onDismissRequest()
         }
     ) {
         Column(
+            verticalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier
                 .background(
                     color = YallaTheme.color.white,
                     shape = RoundedCornerShape(30.dp)
                 )
                 .imePadding()
+                .padding(20.dp)
         ) {
+
             SearchLocationField(
                 value = uiState.query,
                 isForDestination = isForDestination,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp),
+                modifier = Modifier.fillMaxWidth(),
                 onClickMap = {
-                    onClickMap()
+                    onClickMap(false)
                     onDismissRequest()
                 },
                 onValueChange = viewModel::setQuery
+            )
+            SearchLocationField(
+                value = uiState.destinationQuery,
+                isForDestination = true,
+                modifier = Modifier.fillMaxWidth(),
+                onClickMap = {
+                    onClickMap(true)
+                    onDismissRequest()
+                },
+                onValueChange = viewModel::setDestinationQuery
             )
         }
 
@@ -96,28 +112,32 @@ fun SearchByNameBottomSheet(
                 .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
                 .background(YallaTheme.color.white)
         ) {
-            if (uiState.query.isBlank()) items(uiState.savedAddresses) { foundAddress ->
-                FoundAddressItem(
-                    foundAddress = foundAddress,
-                    onClick = {
-                        onAddressSelected(it.name, it.lat, it.lng, it.addressId.or0())
-                        viewModel.setQuery("")
-                        viewModel.setFoundAddresses(emptyList())
-                        onDismissRequest()
-                    }
-                )
+            if (uiState.query.isBlank()) {
+                items(uiState.foundAddresses) { foundAddress ->
+                    FoundAddressItem(
+                        foundAddress = foundAddress,
+                        onClick = {
+                            onAddressSelected(it.name, it.lat, it.lng, it.addressId.or0())
+                            viewModel.setQuery("")
+                            viewModel.setFoundAddresses(emptyList())
+                            onDismissRequest()
+                        }
+                    )
+                }
             }
 
-            items(uiState.foundAddresses) { foundAddress ->
-                FoundAddressItem(
-                    foundAddress = foundAddress,
-                    onClick = {
-                        onAddressSelected(it.name, it.lat, it.lng, it.addressId.or0())
-                        viewModel.setQuery("")
-                        viewModel.setFoundAddresses(emptyList())
-                        onDismissRequest()
-                    }
-                )
+            if (uiState.destinationQuery.isBlank()) {
+                items(uiState.foundAddresses) { foundAddress ->
+                    FoundAddressItem(
+                        foundAddress = foundAddress,
+                        onClick = {
+                            onDestinationSelected?.invoke(it.name, it.lat, it.lng, it.addressId.or0())
+                            viewModel.setDestinationQuery("")
+                            viewModel.setFoundAddresses(emptyList())
+                            onDismissRequest()
+                        }
+                    )
+                }
             }
         }
     }

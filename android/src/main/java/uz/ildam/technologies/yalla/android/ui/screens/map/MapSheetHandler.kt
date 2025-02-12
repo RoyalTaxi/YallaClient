@@ -85,18 +85,17 @@ class MapSheetHandler(
                     )
                 },
                 onDestinationClick = {
-                    if (uiState.destinations.isEmpty()) bottomSheetHandler.showSearchLocation(
+                    if (uiState.destinations.size < 2) bottomSheetHandler.showSearchLocation(
                         show = true,
-                        forDest = true
+                        forDest = false
                     )
                     else bottomSheetHandler.showDestinations(
                         show = true
                     )
                 },
                 onAddNewDestinationClick = {
-                    bottomSheetHandler.showSearchLocation(
+                    bottomSheetHandler.addDestination(
                         show = true,
-                        forDest = true
                     )
                 },
                 onSetOptionsClick = {

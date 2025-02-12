@@ -1,4 +1,4 @@
-package uz.ildam.technologies.yalla.android.ui.sheets
+package uz.yalla.client.feature.core.sheets
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -20,14 +20,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import uz.ildam.technologies.yalla.android.ui.components.item.FoundAddressItem
-import uz.ildam.technologies.yalla.android.ui.components.text_field.SearchLocationField
-import uz.ildam.technologies.yalla.android.utils.getCurrentLocation
 import uz.ildam.technologies.yalla.core.data.mapper.or0
+import uz.yalla.client.feature.core.components.items.FoundAddressItem
+import uz.yalla.client.feature.core.components.text_field.SearchLocationField
 import uz.yalla.client.feature.core.design.theme.YallaTheme
 import uz.yalla.client.feature.core.sheets.search_address.SearchByNameBottomSheetViewModel
 

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="number_prefix" translatable="false">+998\u00A0</string>
+    <string name="number_example" translatable="false">91 123 45 67</string>
     <string name="choose_date">Выберите дату</string>
     <string name="where_to_go">Куда едем?</string>
     <string name="enter_the_address">Введите адрес</string>

@@ -43,6 +43,7 @@ import uz.yalla.client.feature.core.map.MapStrategy
 fun SelectFromMapBottomSheet(
     modifier: Modifier = Modifier,
     isForDestination: Boolean,
+    isForNewDestination: Boolean,
     onSelectLocation: (String, Double, Double, Boolean) -> Unit,
     onDismissRequest: () -> Unit,
     viewModel: SelectFromMapBottomSheetViewModel = koinViewModel()
@@ -162,7 +163,7 @@ fun SelectFromMapBottomSheet(
                             uiState.name!!,
                             uiState.latLng!!.lat,
                             uiState.latLng!!.lng,
-                            isForDestination
+                            isForDestination || isForNewDestination
                         )
                         onDismissRequest()
                     }

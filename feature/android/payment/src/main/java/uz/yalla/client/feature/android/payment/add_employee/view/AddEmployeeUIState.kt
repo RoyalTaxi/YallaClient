@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.android.payment.add_employee
+package uz.yalla.client.feature.android.payment.add_employee.view
 
 internal data class AddEmployeeUIState(
     val number: String = "",

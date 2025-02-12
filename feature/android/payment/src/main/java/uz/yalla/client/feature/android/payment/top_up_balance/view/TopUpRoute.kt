@@ -1,4 +1,25 @@
 package uz.yalla.client.feature.android.payment.top_up_balance.view
 
-class TopUpRoute {
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import org.koin.androidx.compose.koinViewModel
+import uz.yalla.client.feature.android.payment.top_up_balance.model.TopUpViewModel
+
+@Composable
+internal fun TopUpRoute(
+    onNavigateBack: () -> Unit,
+    viewModel: TopUpViewModel = koinViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    TopUpScreen(
+        uiState = uiState,
+        onIntent = { intent ->
+            when (intent) {
+                is TopUpIntent.OnNavigateBack -> onNavigateBack()
+                is TopUpIntent.SetValue -> viewModel.updateBalance(intent.value)
+            }
+        }
+    )
 }

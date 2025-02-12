@@ -1,9 +1,9 @@
-package uz.yalla.client.feature.android.payment.add_employee
+package uz.yalla.client.feature.android.payment.add_employee.model
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import uz.yalla.client.feature.android.payment.top_up_balance.model.TopUpUIState
+import uz.yalla.client.feature.android.payment.add_employee.view.AddEmployeeUIState
 
 internal class AddEmployeeViewModel() : ViewModel() {
 

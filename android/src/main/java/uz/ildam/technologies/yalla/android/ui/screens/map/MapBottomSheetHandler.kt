@@ -29,6 +29,7 @@ import uz.ildam.technologies.yalla.android.utils.getCurrentLocation
 import uz.ildam.technologies.yalla.core.data.mapper.or0
 import uz.ildam.technologies.yalla.core.domain.model.MapPoint
 import uz.yalla.client.feature.core.map.MapStrategy
+import uz.yalla.client.feature.core.sheets.AddDestinationBottomSheet
 import uz.yalla.client.feature.core.sheets.search_address.SearchByNameBottomSheet
 import uz.yalla.client.feature.core.sheets.select_from_map.SelectFromMapBottomSheet
 
@@ -44,6 +45,7 @@ class MapBottomSheetHandler(
     private val selectPaymentMethodState: SheetState,
     private val orderCommentState: SheetState,
     private val activeOrdersState: SheetState,
+    private val addDestinationState: SheetState,
     private val viewModel: MapViewModel
 ) {
     private var openMapVisibility by mutableStateOf(OpenMapVisibility.INVISIBLE)
@@ -55,6 +57,7 @@ class MapBottomSheetHandler(
     private var selectPaymentMethodVisibility by mutableStateOf(false)
     private var orderCommentVisibility by mutableStateOf(false)
     private var activeOrdersVisibility by mutableStateOf(false)
+    private var addDestinationVisibility by mutableStateOf(false)
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
@@ -71,6 +74,7 @@ class MapBottomSheetHandler(
         ) {
             if (searchLocationVisibility != SearchLocationVisibility.INVISIBLE) SearchByNameBottomSheet(
                 initialAddress = uiState.selectedLocation?.name,
+                initialDestination = uiState.destinations.getOrNull(0)?.name ?: "",
                 sheetState = searchLocationState,
                 isForDestination = searchLocationVisibility == SearchLocationVisibility.END,
                 onAddressSelected = { name, lat, lng, addressId ->
@@ -98,12 +102,24 @@ class MapBottomSheetHandler(
                         viewModel.setDestinations(destinations)
                     }
                 },
-                onClickMap = {
+                onDestinationSelected = { name, lat, lng, addressId ->
+                    val destinations = uiState.destinations.toMutableList()
+                    val newDestination = MapUIState.Destination(name, MapPoint(lat, lng))
+
+                    if (destinations.isEmpty()) {
+                        destinations.add(newDestination)
+                    } else {
+                        destinations[0] = newDestination
+                    }
+
+                    viewModel.setDestinations(destinations)
+                },
+                onClickMap = { forDestination ->
                     openMapVisibility =
-                        if (searchLocationVisibility == SearchLocationVisibility.START) {
+                        if (!forDestination) {
                             OpenMapVisibility.START
                         } else {
-                            OpenMapVisibility.END
+                            OpenMapVisibility.MIDDLE
                         }
                 },
                 onDismissRequest = {
@@ -113,11 +129,19 @@ class MapBottomSheetHandler(
             )
         }
 
-
-        if (openMapVisibility != OpenMapVisibility.INVISIBLE) SelectFromMapBottomSheet(
-            isForDestination = openMapVisibility == OpenMapVisibility.END,
-            onSelectLocation = { name, lat, lng, isForDestination ->
-                if (isForDestination) {
+        AnimatedVisibility(
+            visible = addDestinationVisibility,
+            enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
+            exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
+        ) {
+            if (addDestinationVisibility) AddDestinationBottomSheet(
+                sheetState = addDestinationState,
+                onClickMap = { openMapVisibility = OpenMapVisibility.END },
+                onDismissRequest = {
+                    addDestination(false)
+                    viewModel.setFoundAddresses(addresses = emptyList())
+                },
+                onAddressSelected = { name, lat, lng, addressId ->
                     val destinations = uiState.destinations.toMutableList()
                     destinations.add(
                         MapUIState.Destination(
@@ -126,6 +150,37 @@ class MapBottomSheetHandler(
                         )
                     )
                     viewModel.setDestinations(destinations)
+                }
+            )
+        }
+
+
+        if (openMapVisibility != OpenMapVisibility.INVISIBLE) SelectFromMapBottomSheet(
+            isForDestination = openMapVisibility == OpenMapVisibility.MIDDLE,
+            isForNewDestination = openMapVisibility == OpenMapVisibility.END,
+            onSelectLocation = { name, lat, lng, isForDestination ->
+                if (isForDestination) {
+                    if (openMapVisibility == OpenMapVisibility.END) {
+                        val destinations = uiState.destinations.toMutableList()
+                        destinations.add(
+                            MapUIState.Destination(
+                                name,
+                                MapPoint(lat, lng)
+                            )
+                        )
+                        viewModel.setDestinations(destinations)
+
+                    } else {
+                        val destinations = uiState.destinations.toMutableList()
+                        val newDestination = MapUIState.Destination(name, MapPoint(lat, lng))
+
+                        if (destinations.isEmpty()) {
+                            destinations.add(newDestination)
+                        } else {
+                            destinations[0] = newDestination
+                        }
+                        viewModel.setDestinations(destinations)
+                    }
                 } else {
                     when (uiState.moveCameraButtonState) {
                         MoveCameraButtonState.MyLocationView -> {
@@ -291,6 +346,13 @@ class MapBottomSheetHandler(
     ) {
         destinationsVisibility = show
         scope.launch { if (show) destinationsState.show() else destinationsState.hide() }
+    }
+
+    fun addDestination(
+        show: Boolean
+    ) {
+        addDestinationVisibility = show
+        scope.launch { if (show) searchLocationState.show() else searchLocationState.hide() }
     }
 
     fun showOptions(

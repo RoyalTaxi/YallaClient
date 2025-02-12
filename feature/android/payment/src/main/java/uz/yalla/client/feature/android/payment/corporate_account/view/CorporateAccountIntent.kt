@@ -1,11 +1,19 @@
 package uz.yalla.client.feature.android.payment.corporate_account.view
 
-internal sealed interface AddCompanyIntent {
-    data class setCompanyName(val name: String) : AddCompanyIntent
-    data class setCity(val city: String) : AddCompanyIntent
-    data class setPersen(val person: String) : AddCompanyIntent
-    data class setEmail(val email: String) : AddCompanyIntent
-    data class setNumber(val number: String) : AddCompanyIntent
-    data object sendData: AddCompanyIntent
-    data object onNavigateBack: AddCompanyIntent
+internal sealed interface CorporateAccountIntent {
+    data class SetCompanyName(val name: String) : CorporateAccountIntent
+    data class SetCity(val city: String) : CorporateAccountIntent
+    data class SetPerson(val person: String) : CorporateAccountIntent
+    data class SetEmail(val email: String) : CorporateAccountIntent
+    data class SetNumber(val number: String) : CorporateAccountIntent
+
+    data class SetIndex(val index: String) : CorporateAccountIntent
+    data class SetStreet(val street: String) : CorporateAccountIntent
+    data class SetHomeOffice(val homeOffice: String) : CorporateAccountIntent
+
+    data class SetBankName(val bankName: String) : CorporateAccountIntent
+    data class SetCurrentAccount(val currentAccount: String) : CorporateAccountIntent
+    data class SetMFO(val mfo: String) : CorporateAccountIntent
+
+    data object sendData: CorporateAccountIntent
 }

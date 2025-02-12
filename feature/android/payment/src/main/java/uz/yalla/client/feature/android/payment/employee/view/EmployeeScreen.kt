@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.android.payment.employee
+package uz.yalla.client.feature.android.payment.employee.view
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,6 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.feature.android.payment.R
 import uz.yalla.client.feature.android.payment.business_account.components.EmployeeItem
+import uz.yalla.client.feature.android.payment.employee.component.BalanceCard
 import uz.yalla.client.feature.core.components.items.HistoryOrderItem
 import uz.yalla.client.feature.core.design.theme.YallaTheme
 
@@ -29,7 +30,6 @@ internal fun EmployeeScreen(
 ) {
     Scaffold(
         containerColor = YallaTheme.color.white,
-        modifier = Modifier.imePadding(),
         topBar = {
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
@@ -68,7 +68,7 @@ internal fun EmployeeScreen(
 
                 BalanceCard(
                     balance = "24 000 so'm",
-                    addBalance = {},
+                    addBalance = { onIntent(EmployeeIntent.AddBalance) },
                 )
 
                 Text(
@@ -82,7 +82,7 @@ internal fun EmployeeScreen(
                     firstAddress = "Ул. Сайлгох 124",
                     secondAddress = "ул. Мустакиллик 124",
                     time = "15:00",
-                    totalPrice = "16 000 сум",
+                    totalPrice = "16 000",
                     status = "",
                     onClick = {}
                 )

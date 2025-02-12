@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.android.payment.add_employee
+package uz.yalla.client.feature.android.payment.add_employee.navigation
 
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -7,6 +7,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import uz.yalla.client.feature.android.payment.add_employee.model.AddEmployeeRoute
 import uz.yalla.client.feature.core.navigation.safeNavigate
 
 internal const val ADD_EMPLOYEE_ROUTE = "add_employee_route"

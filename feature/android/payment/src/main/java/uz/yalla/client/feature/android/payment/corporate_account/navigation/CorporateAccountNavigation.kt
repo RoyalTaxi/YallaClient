@@ -10,14 +10,14 @@ import androidx.navigation.compose.composable
 import uz.yalla.client.feature.android.payment.corporate_account.view.AddCompanyRoute
 import uz.yalla.client.feature.core.navigation.safeNavigate
 
-internal const val ADD_COMPANY_ROUTE = "add_company_route"
+internal const val ADD_CORPORATE_ACCOUNT_ROUTE = "add_corporate_account_route"
 
-internal fun NavGraphBuilder.addCompanyScreen(
+internal fun NavGraphBuilder.corporateAccountScreen(
     onNavigateBack:() -> Unit,
 
 ) {
     composable(
-        route = ADD_COMPANY_ROUTE,
+        route = ADD_CORPORATE_ACCOUNT_ROUTE,
         enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
         popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) + fadeIn() },
         exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) + fadeOut() },
@@ -29,4 +29,5 @@ internal fun NavGraphBuilder.addCompanyScreen(
     }
 }
 
-internal fun NavController.navigateToAddCompanyScreen() = safeNavigate(ADD_COMPANY_ROUTE)
+internal fun NavController.navigateToCorporateAccountScreen() = safeNavigate(
+    ADD_CORPORATE_ACCOUNT_ROUTE)

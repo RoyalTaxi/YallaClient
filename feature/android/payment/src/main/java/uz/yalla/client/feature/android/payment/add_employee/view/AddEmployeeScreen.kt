@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.android.payment.add_employee
+package uz.yalla.client.feature.android.payment.add_employee.view
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.feature.android.payment.R
-import uz.yalla.client.feature.android.payment.corporate_account.view.CorporateAccountIntent
 import uz.yalla.client.feature.core.components.buttons.YButton
 import uz.yalla.client.feature.core.components.text_field.LoginNumberField
 import uz.yalla.client.feature.core.components.text_field.YTextField

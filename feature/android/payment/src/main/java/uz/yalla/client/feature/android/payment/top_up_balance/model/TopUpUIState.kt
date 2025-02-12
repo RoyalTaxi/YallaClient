@@ -1,7 +1,7 @@
-package uz.yalla.client.feature.android.payment.top_up_balance
+package uz.yalla.client.feature.android.payment.top_up_balance.model
 
 internal data class TopUpUIState(
-    val value: String = ""
-){
-
+    val topUpAmount: String = ""
+) {
+    val isPayButtonValid: Boolean get() = topUpAmount.isNotBlank()
 }

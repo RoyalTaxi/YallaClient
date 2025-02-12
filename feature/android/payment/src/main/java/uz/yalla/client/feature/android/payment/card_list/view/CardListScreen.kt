@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.android.payment.card_list.view
+ package uz.yalla.client.feature.android.payment.card_list.view
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Spacer
@@ -126,6 +126,22 @@ internal fun CardListScreen(
                         painter = painterResource(R.drawable.ic_add),
                         text = stringResource(R.string.add_card),
                         onSelect = { onIntent(CardListIntent.AddNewCard) },
+                    )
+
+                    SelectPaymentTypeItem(
+                        isSelected = false,
+                        tint = YallaTheme.color.gray,
+                        painter = painterResource(R.drawable.ic_add),
+                        text = stringResource(R.string.add_corporate_account),
+                        onSelect = { onIntent(CardListIntent.AddCorporateAccount) },
+                    )
+
+                    SelectPaymentTypeItem(
+                        isSelected = false,
+                        tint = YallaTheme.color.gray,
+                        painter = painterResource(R.drawable.ic_add),
+                        text = stringResource(R.string.business_account),
+                        onSelect = { onIntent(CardListIntent.AddBusinessAccount) },
                     )
                 }
             }

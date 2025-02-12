@@ -1,11 +1,14 @@
-package uz.ildam.technologies.yalla.android.ui.components.transformation
+package uz.yalla.client.feature.android.payment.top_up_balance.components.transformation
 
+import android.content.Context
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
+import uz.yalla.client.feature.android.payment.R
 
-class TopUpBalanceVisualTransformation : VisualTransformation {
+class TopUpBalanceVisualTransformation(private val context: Context) : VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {
         val formattedText = formatAmount(text.text)
         return TransformedText(
