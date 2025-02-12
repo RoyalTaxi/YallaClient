@@ -3,7 +3,6 @@ package uz.yalla.client.feature.android.payment.corporate_account.pages
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -19,7 +18,6 @@ import uz.yalla.client.feature.android.payment.corporate_account.components.Busi
 import uz.yalla.client.feature.android.payment.corporate_account.model.CorporateAccountUIState
 import uz.yalla.client.feature.android.payment.corporate_account.view.CorporateAccountIntent
 import uz.yalla.client.feature.core.components.text_field.LoginNumberField
-import uz.yalla.client.feature.core.components.text_field.YTextField
 import uz.yalla.client.feature.core.design.theme.YallaTheme
 
 @Composable

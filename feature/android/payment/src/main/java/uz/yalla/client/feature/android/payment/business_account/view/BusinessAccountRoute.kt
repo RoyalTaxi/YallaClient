@@ -7,10 +7,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
-import uz.yalla.client.feature.android.payment.add_card.model.AddCardViewModel
 import uz.yalla.client.feature.android.payment.business_account.model.BusinessAccountActionState
 import uz.yalla.client.feature.android.payment.business_account.model.BusinessAccountViewModel
 import uz.yalla.client.feature.core.dialogs.LoadingDialog

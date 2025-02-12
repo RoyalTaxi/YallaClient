@@ -17,7 +17,6 @@ import uz.yalla.client.feature.android.payment.R
 import uz.yalla.client.feature.android.payment.corporate_account.components.BusinessAccountTextField
 import uz.yalla.client.feature.android.payment.corporate_account.model.CorporateAccountUIState
 import uz.yalla.client.feature.android.payment.corporate_account.view.CorporateAccountIntent
-import uz.yalla.client.feature.core.components.text_field.YTextField
 import uz.yalla.client.feature.core.design.theme.YallaTheme
 
 @Composable

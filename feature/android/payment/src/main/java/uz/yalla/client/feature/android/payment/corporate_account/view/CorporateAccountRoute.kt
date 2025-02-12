@@ -1,6 +1,5 @@
 package uz.yalla.client.feature.android.payment.corporate_account.view
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -8,12 +7,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
 import uz.yalla.client.feature.android.payment.corporate_account.model.CorporateAccountActionState
-import uz.yalla.client.feature.android.payment.corporate_account.model.CorporateAccountUIState
 import uz.yalla.client.feature.android.payment.corporate_account.model.CorporateAccountViewModel
 import uz.yalla.client.feature.core.dialogs.LoadingDialog
 
@@ -24,7 +21,7 @@ internal fun AddCompanyRoute(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var loading by remember { mutableStateOf(false) }
-    val pagerState = rememberPagerState{ 3 } // State to manage page transitions
+    val pagerState = rememberPagerState{ 3 }
 
     LaunchedEffect(Unit) {
         viewModel.actionState.collectLatest { action ->

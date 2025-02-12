@@ -43,7 +43,6 @@ fun AddDestinationBottomSheet(
     LaunchedEffect(Unit) {
         launch { viewModel.findAllMapAddresses() }
         launch { viewModel.setQuery("") }
-//        launch { viewModel.fetchPolygons() }
     }
 
     ModalBottomSheet(
