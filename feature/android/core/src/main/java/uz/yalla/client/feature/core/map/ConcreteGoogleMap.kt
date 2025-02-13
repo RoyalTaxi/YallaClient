@@ -2,9 +2,7 @@ package uz.yalla.client.feature.core.map
 
 import android.content.Context
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -18,7 +16,6 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -39,20 +36,26 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.android2gis.dpToPx
+import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 import uz.ildam.technologies.yalla.core.data.mapper.or0
 import uz.ildam.technologies.yalla.core.domain.model.Executor
 import uz.ildam.technologies.yalla.core.domain.model.MapPoint
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.OrderStatus
+import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.ShowOrderModel
 import uz.yalla.client.feature.core.R
 import uz.yalla.client.feature.core.utils.getCurrentLocation
-import uz.yalla.client.feature.core.utils.pxToDp
 import uz.yalla.client.feature.core.utils.vectorToBitmapDescriptor
 
 class ConcreteGoogleMap : MapStrategy {
     override val isMarkerMoving: MutableState<Boolean> = mutableStateOf(false)
-    override val mapPoint: MutableState<MapPoint> = mutableStateOf(MapPoint(0.0, 0.0))
+    override val mapPoint: MutableState<MapPoint> = mutableStateOf(
+        MapPoint(
+            lat = AppPreferences.entryLocation.first,
+            lng = AppPreferences.entryLocation.second
+        )
+    )
 
-    private var driver: State<Executor?> = mutableStateOf(null)
+    private var driver: MutableState<Executor?> = mutableStateOf(null)
     private val drivers: SnapshotStateList<Executor> = mutableStateListOf()
     private val route: SnapshotStateList<MapPoint> = mutableStateListOf()
     private val locations: SnapshotStateList<MapPoint> = mutableStateListOf()
@@ -69,7 +72,12 @@ class ConcreteGoogleMap : MapStrategy {
     ) {
         context = LocalContext.current
         coroutineScope = rememberCoroutineScope()
-        cameraPositionState = rememberCameraPositionState()
+        cameraPositionState = rememberCameraPositionState {
+            position = CameraPosition.fromLatLngZoom(
+                LatLng(mapPoint.value.lat, mapPoint.value.lng),
+                15f
+            )
+        }
 
         LaunchedEffect(cameraPositionState.isMoving) {
             isMarkerMoving.value = cameraPositionState.isMoving
@@ -88,7 +96,7 @@ class ConcreteGoogleMap : MapStrategy {
             contentPadding = contentPadding,
             properties = MapProperties(
                 mapType = MapType.NORMAL,
-                isMyLocationEnabled = true,
+                isMyLocationEnabled = true
             ),
             uiSettings = MapUiSettings(
                 scrollGesturesEnabled = true,
@@ -96,13 +104,12 @@ class ConcreteGoogleMap : MapStrategy {
                 mapToolbarEnabled = false,
                 zoomControlsEnabled = false,
                 myLocationButtonEnabled = false,
-                rotationGesturesEnabled = false,
                 tiltGesturesEnabled = false,
                 scrollGesturesEnabledDuringRotateOrZoom = false
             )
         ) {
             if (
-                orderStatus.value == OrderStatus.Appointed &&
+                orderStatus.value == OrderStatus.Appointed ||
                 orderStatus.value == OrderStatus.AtAddress
             ) Marker(
                 icon = remember {
@@ -119,19 +126,11 @@ class ConcreteGoogleMap : MapStrategy {
                 }
             )
 
-            Markers(
-                context = context,
-                route = route,
-                locations = locations
-            )
+            Markers(route = route, locations = locations)
 
-            Driver(
-                driver = this.driver
-            )
+            Driver(driver = driver)
 
-            Drivers(
-                drivers = drivers
-            )
+            Drivers(drivers = drivers)
         }
     }
 
@@ -200,6 +199,18 @@ class ConcreteGoogleMap : MapStrategy {
         }
     }
 
+    override fun updateDriver(driver: ShowOrderModel.Executor) {
+        this.driver.value = driver.let { show ->
+            Executor(
+                id = show.id,
+                lat = show.coords.lat,
+                lng = show.coords.lng,
+                heading = show.coords.heading,
+                distance = 0.0
+            )
+        }
+    }
+
     override fun updateDrivers(drivers: List<Executor>) {
         this.drivers.clear()
         this.drivers.addAll(drivers)
@@ -228,7 +239,7 @@ private fun Driver(
         MarkerComposable(
             flat = true,
             rotation = it.heading.toFloat(),
-            state = remember(it) { MarkerState(LatLng(it.lat, it.lng)) }
+            state = remember { MarkerState(LatLng(it.lat, it.lng)) }
         ) {
             Icon(
                 painter = painterResource(R.drawable.img_car_marker),
@@ -262,10 +273,10 @@ private fun Drivers(
 
 @Composable
 private fun Markers(
-    context: Context,
     route: List<MapPoint>,
     locations: List<MapPoint>
 ) {
+    val context = LocalContext.current
     val startMarkerIcon = remember {
         vectorToBitmapDescriptor(context, R.drawable.ic_origin_marker)
             ?: BitmapDescriptorFactory.defaultMarker()
@@ -292,7 +303,7 @@ private fun Markers(
         if (locations.size > 2) for (dest in 1 until locations.lastIndex) {
             Marker(
                 icon = middleMarkerIcon,
-                state = remember(dest) {
+                state = remember(locations[dest]) {
                     MarkerState(
                         LatLng(
                             locations[dest].lat,

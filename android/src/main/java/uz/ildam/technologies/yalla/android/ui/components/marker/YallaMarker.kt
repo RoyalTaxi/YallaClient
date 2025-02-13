@@ -44,8 +44,8 @@ import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.android.R
-import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 import uz.ildam.technologies.yalla.android.ui.components.shape.squareSize
+import uz.yalla.client.feature.core.design.theme.YallaTheme
 
 
 @Composable
@@ -159,7 +159,6 @@ fun YallaMarker(
                         .background(YallaTheme.color.black)
                         .constrainAs(stick) {
                             linkTo(start = indicator.start, end = indicator.end)
-                            // animate the bottom margin from 3..9..17 dp
                             bottom.linkTo(indicator.bottom, margin = jumpOffset.value.dp)
                         }
                 )

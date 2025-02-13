@@ -26,7 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import uz.ildam.technologies.yalla.android.R
-import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
+import uz.yalla.client.feature.core.design.theme.YallaTheme
 
 @Composable
 fun HistoryOrderItem(

@@ -86,13 +86,13 @@ object AppPreferences {
             preferences.edit()?.putString(AppPreferences::dateOfBirth.name, value)?.apply()
         }
 
-    var cardId: String
+    private var cardId: String
         get() = preferences.getString(AppPreferences::cardId.name, "") ?: ""
         set(value) {
             preferences.edit()?.putString(AppPreferences::cardId.name, value)?.apply()
         }
 
-    var cardNumber: String
+    private var cardNumber: String
         get() = preferences.getString(AppPreferences::cardNumber.name, "") ?: ""
         set(value) {
             preferences.edit()?.putString(AppPreferences::cardNumber.name, value)?.apply()
@@ -143,4 +143,26 @@ object AppPreferences {
         set(value) {
             preferences.edit()?.putString(AppPreferences::inviteFriends.name, value)?.apply()
         }
+
+    var entryLocation: Pair<Double, Double>
+        get() {
+            val stringValue = preferences.getString(AppPreferences::entryLocation.name, "") ?: ""
+            if (stringValue.isNotEmpty()) {
+                val parts = stringValue.split(",", limit = 2)
+                val lat = parts.getOrNull(0)?.toDoubleOrNull()
+                val lng = parts.getOrNull(1)?.toDoubleOrNull()
+
+                if (lat != null && lng != null) {
+                    return lat to lng
+                }
+            }
+            return 0.0 to 0.0
+        }
+        set(value) {
+            val stringValue = "${value.first},${value.second}"
+            preferences.edit()
+                .putString(AppPreferences::entryLocation.name, stringValue)
+                .apply()
+        }
+
 }

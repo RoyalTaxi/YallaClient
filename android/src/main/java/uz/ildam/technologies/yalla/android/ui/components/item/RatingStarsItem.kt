@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
+import uz.yalla.client.feature.core.design.theme.YallaTheme
 
 @Composable
 fun RatingStarsItem(
@@ -41,15 +41,4 @@ fun RatingStarsItem(
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun Preview() {
-    RatingStarsItem(
-        currentRating = 4,
-        maxRating = 5,
-        starSize = 40.dp,
-        onRatingChange = {}
-    )
 }

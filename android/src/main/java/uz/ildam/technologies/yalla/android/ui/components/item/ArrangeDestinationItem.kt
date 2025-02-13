@@ -21,8 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import uz.ildam.technologies.yalla.android.R
-import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 import uz.ildam.technologies.yalla.android.ui.screens.map.MapUIState
+import uz.yalla.client.feature.core.design.theme.YallaTheme
 
 @Composable
 fun ArrangeDestinationItem(

@@ -3,6 +3,7 @@ package uz.yalla.client.feature.android.intro.onboarding.view
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -37,18 +38,16 @@ internal fun OnboardingScreen(
         containerColor = YallaTheme.color.white,
         modifier = Modifier.fillMaxSize(),
     ) { paddingValues ->
-        Column(
+        Box(
             modifier = Modifier
-                .padding(paddingValues)
                 .fillMaxSize()
                 .verticalScroll(scrollState)
+                .padding(paddingValues)
         ) {
-            Spacer(modifier = Modifier.height(43.dp))
-
             HorizontalPager(
                 state = pagerState,
                 verticalAlignment = Alignment.Top,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.matchParentSize()
             ) { page ->
                 Column {
                     Image(
@@ -77,27 +76,27 @@ internal fun OnboardingScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.weight(1f))
-
-            Spacer(modifier = Modifier.height(56.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                modifier = Modifier.align(Alignment.BottomCenter)
             ) {
-                DotIndicator(
-                    pageCount = pagerState.pageCount,
-                    pagerState = pagerState
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    DotIndicator(
+                        pageCount = pagerState.pageCount,
+                        pagerState = pagerState
+                    )
 
-                NextButton(
-                    modifier = Modifier.padding(horizontal = 20.dp),
-                    onClick = { onIntent(OnboardingIntent.Swipe) }
-                )
+                    NextButton(
+                        modifier = Modifier.padding(horizontal = 20.dp),
+                        onClick = { onIntent(OnboardingIntent.Swipe) }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
             }
-
-            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }

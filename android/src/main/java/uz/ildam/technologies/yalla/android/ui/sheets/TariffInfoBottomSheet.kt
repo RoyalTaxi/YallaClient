@@ -1,193 +1,202 @@
 package uz.ildam.technologies.yalla.android.ui.sheets
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import uz.ildam.technologies.yalla.android.R
-import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
-import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
+import uz.ildam.technologies.yalla.android.ui.components.button.ProvideDescriptionButton
+import uz.ildam.technologies.yalla.android.ui.components.item.OptionsItem
 import uz.ildam.technologies.yalla.android.ui.screens.map.MapUIState
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.tarrif.GetTariffsModel
+import uz.yalla.client.feature.core.design.theme.YallaTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
+private typealias Options = List<GetTariffsModel.Tariff.Service>
+private typealias Tariff = GetTariffsModel.Tariff
+
+sealed interface TariffInfoAction {
+    data object OnClickComment : TariffInfoAction
+}
+
 @Composable
 fun TariffInfoBottomSheet(
     uiState: MapUIState,
-    sheetState: SheetState,
-    tariffs: GetTariffsModel,
-    selectedTariffIndex: Int,
-    arrivingTime: Int,
-    onDismissRequest: () -> Unit,
-    onSelect: (GetTariffsModel.Tariff) -> Unit
+    onOptionsChange: (Options) -> Unit,
+    onAction: (TariffInfoAction) -> Unit
 ) {
-    val pagerState = rememberPagerState(initialPage = selectedTariffIndex) { tariffs.tariff.size }
-
-    ModalBottomSheet(
-        shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
-        containerColor = YallaTheme.color.gray2,
-        sheetState = sheetState,
-        dragHandle = null,
-        onDismissRequest = onDismissRequest
-    ) {
-        HorizontalPager(
-            state = pagerState,
-            modifier = Modifier.fillMaxWidth()
-        ) { index ->
-            Column(
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier
-                    .background(YallaTheme.color.gray2)
-                    .navigationBarsPadding()
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.Start,
-                    verticalArrangement = Arrangement.Top,
-                    modifier = Modifier
-                        .background(
-                            color = YallaTheme.color.white,
-                            shape = RoundedCornerShape(bottomStart = 30.dp, bottomEnd = 30.dp)
-                        )
-                        .padding(20.dp)
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        AsyncImage(
-                            model = tariffs.tariff[index].photo,
-                            contentDescription = null,
-                            modifier = Modifier.width(200.dp),
-                            placeholder = painterResource(R.drawable.img_default_car),
-                            error = painterResource(R.drawable.img_default_car)
-                        )
-
-                        Image(
-                            modifier = Modifier.size(width = 60.dp, height = 60.dp),
-                            painter = painterResource(R.drawable.img_flash),
-                            contentDescription = null,
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.padding(4.dp))
-
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.Bottom,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Column(
-                            horizontalAlignment = Alignment.Start,
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Text(
-                                text = tariffs.tariff[index].name,
-                                style = YallaTheme.font.title,
-                                color = YallaTheme.color.black
-                            )
-
-                            Text(
-                                text = if (uiState.destinations.isEmpty()) stringResource(
-                                    R.string.starting_cost,
-                                    tariffs.tariff[index].cost
-                                ) else {
-                                    if (tariffs.tariff[index].fixedType) stringResource(
-                                        R.string.fixed_cost,
-                                        tariffs.tariff[index].fixedPrice
-                                    )
-                                    else stringResource(
-                                        R.string.fixed_cost,
-                                        "~${tariffs.tariff[index].fixedPrice}"
-                                    )
-                                },
-                                style = YallaTheme.font.label,
-                                color = YallaTheme.color.gray
-                            )
-                        }
-
-                        if (arrivingTime != 0) {
-                            Text(
-                                text = stringResource(R.string.minute, arrivingTime.toString()),
-                                style = YallaTheme.font.label,
-                                color = YallaTheme.color.gray,
-                                textAlign = TextAlign.End
-                            )
-                        }
-                    }
-                }
-
-                if (tariffs.tariff[index].description.isNotEmpty()) Column(
-                    horizontalAlignment = Alignment.Start,
-                    verticalArrangement = Arrangement.Top,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(
-                            color = YallaTheme.color.white,
-                            shape = RoundedCornerShape(30.dp)
-                        )
-                        .padding(20.dp)
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.tariff_title),
-                        style = YallaTheme.font.title,
-                        color = YallaTheme.color.black
-                    )
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    Text(
-                        text = tariffs.tariff[index].description,
-                        color = YallaTheme.color.black,
-                        style = YallaTheme.font.label
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    color = YallaTheme.color.white,
-                    shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
-                )
+    uiState.selectedTariff?.let { tariff ->
+        Column(
+            verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            YallaButton(
-                text = stringResource(R.string.select_tariff),
-                onClick = {
-                    onSelect(tariffs.tariff[pagerState.currentPage])
-                    onDismissRequest()
-                },
-                modifier = Modifier
-                    .padding(20.dp)
-                    .fillMaxWidth()
+            TariffInfoSection(
+                tariff = tariff,
+                isDestinationsEmpty = uiState.destinations.isEmpty()
+            )
+
+            InfoProvidersSection(
+                info = uiState.comment,
+                onClick = { onAction(TariffInfoAction.OnClickComment) }
+            )
+
+            OptionsSection(
+                options = uiState.options,
+                selectedOptions = uiState.selectedOptions,
+                onOptionsChange = onOptionsChange
             )
         }
     }
+}
+
+@Composable
+private fun TariffSectionBackground(
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(30.dp),
+        colors = CardDefaults.cardColors(YallaTheme.color.white)
+    ) {
+        Column { content() }
+    }
+}
+
+@Composable
+private fun TariffInfoSection(
+    tariff: Tariff,
+    isDestinationsEmpty: Boolean
+) {
+    TariffSectionBackground {
+        Column(
+            modifier = Modifier.padding(horizontal = 20.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .width(30.dp)
+                    .height(4.dp)
+                    .padding(top = 4.dp, bottom = 2.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(YallaTheme.color.gray2)
+                    .align(Alignment.CenterHorizontally)
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Text(
+                text = tariff.name,
+                color = YallaTheme.color.black,
+                style = YallaTheme.font.title,
+            )
+
+            if (tariff.description.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Text(
+                    text = tariff.description,
+                    color = YallaTheme.color.black,
+                    style = YallaTheme.font.label,
+                )
+            }
+
+            AsyncImage(
+                model = tariff.photo,
+                contentDescription = null,
+                placeholder = painterResource(R.drawable.img_default_car),
+                error = painterResource(R.drawable.img_default_car),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp)
+            )
+
+            Text(
+                style = YallaTheme.font.labelSemiBold,
+                color = YallaTheme.color.black,
+                modifier = Modifier.padding(vertical = 10.dp),
+                text = when {
+                    isDestinationsEmpty -> stringResource(R.string.starting_cost, tariff.cost)
+                    tariff.fixedType -> stringResource(R.string.fixed_cost, tariff.fixedPrice)
+                    else -> stringResource(R.string.fixed_cost, "~${tariff.fixedPrice}")
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun InfoProvidersSection(
+    info: String,
+    onClick: () -> Unit
+) {
+    TariffSectionBackground(
+        modifier = Modifier.height(IntrinsicSize.Min)
+    ) {
+        ProvideDescriptionButton(
+            modifier = Modifier.fillMaxHeight(),
+            title = stringResource(R.string.comment_to_driver),
+            description = info,
+            onClick = onClick,
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
+                    contentDescription = null,
+                    tint = YallaTheme.color.gray
+                )
+            }
+        )
+    }
+}
+
+@Composable
+private fun OptionsSection(
+    options: Options,
+    selectedOptions: Options,
+    onOptionsChange: (Options) -> Unit
+) {
+    val newSelectedOptions = remember { mutableStateListOf(*selectedOptions.toTypedArray()) }
+
+    if (options.isNotEmpty()) TariffSectionBackground {
+        LazyColumn {
+            itemsIndexed(options) { index, option ->
+                OptionsItem(
+                    option = option,
+                    isSelected = newSelectedOptions.contains(option),
+                    onChecked = { isSelected ->
+                        newSelectedOptions.toggle(option, isSelected)
+                        onOptionsChange(newSelectedOptions)
+                    }
+                )
+            }
+        }
+    }
+}
+
+private fun <T> MutableList<T>.toggle(item: T, add: Boolean) {
+    if (add) add(item) else remove(item)
 }

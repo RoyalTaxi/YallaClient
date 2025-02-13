@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import uz.ildam.technologies.yalla.core.domain.model.Executor
 import uz.ildam.technologies.yalla.core.domain.model.MapPoint
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.OrderStatus
+import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.ShowOrderModel
 
 interface MapStrategy {
     val mapPoint: MutableState<MapPoint>
@@ -25,6 +26,7 @@ interface MapStrategy {
     fun animateToMyLocation(durationMillis: Int = 1000)
     fun moveToFitBounds(routing: List<MapPoint>)
     fun animateToFitBounds(routing: List<MapPoint>)
+    fun updateDriver(driver: ShowOrderModel.Executor)
     fun updateDrivers(drivers: List<Executor>)
     fun updateRoute(route: List<MapPoint>)
     fun updateOrderStatus(status: OrderStatus)

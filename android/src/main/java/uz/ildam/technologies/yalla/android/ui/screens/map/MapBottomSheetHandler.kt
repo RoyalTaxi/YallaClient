@@ -23,10 +23,7 @@ import uz.ildam.technologies.yalla.android.ui.sheets.ArrangeDestinationsBottomSh
 import uz.ildam.technologies.yalla.android.ui.sheets.ConfirmationBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.OrderCommentBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.PaymentMethodBottomSheet
-import uz.ildam.technologies.yalla.android.ui.sheets.SetOrderOptionsBottomSheet
-import uz.ildam.technologies.yalla.android.ui.sheets.TariffInfoBottomSheet
 import uz.ildam.technologies.yalla.android.utils.getCurrentLocation
-import uz.ildam.technologies.yalla.core.data.mapper.or0
 import uz.ildam.technologies.yalla.core.domain.model.MapPoint
 import uz.yalla.client.feature.core.map.MapStrategy
 import uz.yalla.client.feature.core.sheets.AddDestinationBottomSheet
@@ -39,8 +36,6 @@ class MapBottomSheetHandler(
     private val scope: CoroutineScope,
     private val searchLocationState: SheetState,
     private val destinationsState: SheetState,
-    private val tariffState: SheetState,
-    private val optionsState: SheetState,
     private val confirmCancellationState: SheetState,
     private val selectPaymentMethodState: SheetState,
     private val orderCommentState: SheetState,
@@ -51,8 +46,6 @@ class MapBottomSheetHandler(
     private var openMapVisibility by mutableStateOf(OpenMapVisibility.INVISIBLE)
     private var searchLocationVisibility by mutableStateOf(SearchLocationVisibility.INVISIBLE)
     private var destinationsVisibility by mutableStateOf(false)
-    private var tariffVisibility by mutableStateOf(false)
-    private var optionsVisibility by mutableStateOf(false)
     private var confirmCancellationVisibility by mutableStateOf(false)
     private var selectPaymentMethodVisibility by mutableStateOf(false)
     private var orderCommentVisibility by mutableStateOf(false)
@@ -217,47 +210,6 @@ class MapBottomSheetHandler(
         }
 
         AnimatedVisibility(
-            visible = tariffVisibility,
-            enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
-            exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
-        ) {
-            if (tariffVisibility) uiState.tariffs?.let {
-                TariffInfoBottomSheet(
-                    sheetState = tariffState,
-                    tariffs = it,
-                    selectedTariffIndex = uiState.tariffs.tariff
-                        .indexOfFirst { tariff -> tariff.id == uiState.selectedTariff?.id.or0() }
-                        .takeIf { index -> index != -1 }
-                        ?: 0,
-                    arrivingTime = uiState.timeout.or0(),
-                    onDismissRequest = { showTariff(false) },
-                    uiState = uiState,
-                    onSelect = { tariff -> viewModel.setSelectedTariff(tariff) }
-                )
-            }
-        }
-
-        AnimatedVisibility(
-            visible = optionsVisibility,
-            enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
-            exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
-        ) {
-            uiState.selectedTariff?.let { selectedTariff ->
-                if (optionsVisibility) SetOrderOptionsBottomSheet(
-                    sheetState = optionsState,
-                    selectedTariff = selectedTariff,
-                    options = uiState.options,
-                    selectedOptions = uiState.selectedOptions,
-                    comment = uiState.comment,
-                    onSave = { options -> viewModel.setSelectedOptions(options) },
-                    onOrderComment = { showOrderComment(true) },
-                    onDismissRequest = { showOptions(false) },
-                    uiState = uiState
-                )
-            }
-        }
-
-        AnimatedVisibility(
             visible = confirmCancellationVisibility,
             enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
             exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
@@ -320,20 +272,13 @@ class MapBottomSheetHandler(
         }
     }
 
-    fun showTariff(
-        show: Boolean
-    ) {
-        tariffVisibility = show
-        scope.launch { if (show) tariffState.show() else tariffState.hide() }
-    }
-
     fun showSearchLocation(
         show: Boolean,
         forDest: Boolean = false
     ) {
         if (show) {
-            if (forDest) searchLocationVisibility = SearchLocationVisibility.END
-            else searchLocationVisibility = SearchLocationVisibility.START
+            searchLocationVisibility = if (forDest) SearchLocationVisibility.END
+            else SearchLocationVisibility.START
             scope.launch { searchLocationState.show() }
         } else {
             searchLocationVisibility = SearchLocationVisibility.INVISIBLE
@@ -353,13 +298,6 @@ class MapBottomSheetHandler(
     ) {
         addDestinationVisibility = show
         scope.launch { if (show) searchLocationState.show() else searchLocationState.hide() }
-    }
-
-    fun showOptions(
-        show: Boolean
-    ) {
-        optionsVisibility = show
-        scope.launch { if (show) optionsState.show() else optionsState.hide() }
     }
 
     fun showConfirmCancellation(

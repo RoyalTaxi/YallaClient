@@ -1,7 +1,7 @@
 package uz.ildam.technologies.yalla.android.ui.screens.map
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -19,7 +19,8 @@ import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.Ord
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MapOverlay(
+fun BoxScope.MapOverlay(
+    modifier: Modifier,
     uiState: MapUIState,
     activeOrdersState: SheetState,
     isLoading: Boolean,
@@ -33,10 +34,9 @@ fun MapOverlay(
         OrderStatus.NonStopSending
     )
     Box(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = modifier
+            .matchParentSize()
             .padding(20.dp)
-            .padding(bottom = 24.dp)
     ) {
         YallaMarker(
             time = uiState.timeout,

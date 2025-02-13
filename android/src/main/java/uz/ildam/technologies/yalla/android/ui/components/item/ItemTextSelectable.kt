@@ -17,7 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
+import uz.yalla.client.feature.core.design.theme.YallaTheme
 
 @Composable
 fun ItemTextSelectable(

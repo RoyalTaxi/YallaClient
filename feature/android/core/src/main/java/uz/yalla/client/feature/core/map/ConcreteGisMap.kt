@@ -36,6 +36,7 @@ import uz.ildam.technologies.yalla.android2gis.rememberCameraState
 import uz.ildam.technologies.yalla.core.domain.model.Executor
 import uz.ildam.technologies.yalla.core.domain.model.MapPoint
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.OrderStatus
+import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.ShowOrderModel
 import uz.yalla.client.feature.core.R
 import uz.yalla.client.feature.core.utils.getCurrentLocation
 import uz.ildam.technologies.yalla.android2gis.CameraState as ComposableCameraState
@@ -44,7 +45,7 @@ class ConcreteGisMap : MapStrategy {
     override val isMarkerMoving: MutableState<Boolean> = mutableStateOf(false)
     override val mapPoint: MutableState<MapPoint> = mutableStateOf(MapPoint(0.0, 0.0))
 
-    private var driver: State<Executor?> = mutableStateOf(null)
+    private var driver: MutableState<Executor?> = mutableStateOf(null)
     private val drivers: SnapshotStateList<Executor> = mutableStateListOf()
     private val route: SnapshotStateList<MapPoint> = mutableStateListOf()
     private val locations: SnapshotStateList<MapPoint> = mutableStateListOf()
@@ -166,6 +167,18 @@ class ConcreteGisMap : MapStrategy {
                     duration = Duration.ofMilliseconds(1000L)
                 )
             }
+        }
+    }
+
+    override fun updateDriver(driver: ShowOrderModel.Executor) {
+        this.driver.value = driver.let { show ->
+            Executor(
+                id = show.id,
+                lat = show.coords.lat,
+                lng = show.coords.lng,
+                heading = show.coords.heading,
+                distance = 0.0
+            )
         }
     }
 

@@ -42,9 +42,9 @@ internal fun VerificationScreen(
     snackbarHostState: SnackbarHostState,
     onIntent: (VerificationIntent) -> Unit,
 ) {
-
     Scaffold(
         containerColor = YallaTheme.color.white,
+        modifier = Modifier.imePadding(),
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(YallaTheme.color.white),

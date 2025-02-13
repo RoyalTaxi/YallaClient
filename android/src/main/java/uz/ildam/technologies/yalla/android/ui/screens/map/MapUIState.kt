@@ -1,5 +1,7 @@
 package uz.ildam.technologies.yalla.android.ui.screens.map
 
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import uz.ildam.technologies.yalla.core.data.enums.PaymentType
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 import uz.ildam.technologies.yalla.core.domain.model.Executor
@@ -49,6 +51,9 @@ data class MapUIState(
     // UI State-related properties
     val moveCameraButtonState: MoveCameraButtonState = MoveCameraButtonState.MyLocationView,
     val discardOrderButtonState: DiscardOrderButtonState = DiscardOrderButtonState.OpenDrawer,
+
+    val primarySheetHeight: Dp = 300.dp,
+    val footerHeight: Dp = 200.dp
 ) {
     data class SelectedLocation(
         val name: String?,

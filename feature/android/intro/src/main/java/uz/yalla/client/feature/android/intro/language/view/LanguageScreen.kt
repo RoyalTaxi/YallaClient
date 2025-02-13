@@ -48,7 +48,7 @@ internal fun LanguageScreen(
                     }
                 }
             )
-        },
+        }
     ) { paddingValues ->
         Column(
             modifier = Modifier

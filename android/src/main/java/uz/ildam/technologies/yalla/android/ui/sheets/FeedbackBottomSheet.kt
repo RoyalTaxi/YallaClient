@@ -15,13 +15,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import uz.ildam.technologies.yalla.android.R
-import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
 import uz.ildam.technologies.yalla.android.ui.components.item.RatingStarsItem
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.ShowOrderModel
+import uz.yalla.client.feature.core.design.theme.YallaTheme
 
 @Composable
 fun FeedbackBottomSheet(
@@ -30,7 +33,9 @@ fun FeedbackBottomSheet(
     onRatingChange: (Int) -> Unit,
     onRate: () -> Unit,
     onDismissRequest: () -> Unit,
+    onAppear: (Dp) -> Unit
 ) {
+    val density = LocalDensity.current
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier
@@ -39,6 +44,9 @@ fun FeedbackBottomSheet(
                 color = YallaTheme.color.gray2,
                 shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
             )
+            .onSizeChanged { size ->
+                with(density) { onAppear(size.height.toDp()) }
+            }
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(4.dp),

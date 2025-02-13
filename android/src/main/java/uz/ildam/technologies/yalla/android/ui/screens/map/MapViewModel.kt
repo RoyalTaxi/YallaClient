@@ -1,6 +1,8 @@
 package uz.ildam.technologies.yalla.android.ui.screens.map
 
 import android.util.Log
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.currentCoroutineContext
@@ -470,6 +472,14 @@ class MapViewModel(
 
     fun setMoveCameraButtonState(state: MoveCameraButtonState) {
         _uiState.update { it.copy(moveCameraButtonState = state) }
+    }
+
+    fun setPrimarySheetHeight(height: Dp) = _uiState.update {
+        it.copy(primarySheetHeight = height)
+    }
+
+    fun setFooterHeight(height: Dp) = _uiState.update {
+        it.copy(footerHeight = height)
     }
 
     fun getRouting(list: List<MapPoint>) = viewModelScope.launch {

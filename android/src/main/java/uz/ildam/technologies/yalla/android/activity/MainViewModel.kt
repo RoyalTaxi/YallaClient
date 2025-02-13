@@ -1,13 +1,17 @@
 package uz.ildam.technologies.yalla.android.activity
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.android.connectivity.ConnectivityObserver
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 import uz.ildam.technologies.yalla.feature.settings.domain.usecase.GetConfigUseCase
+import uz.yalla.client.feature.core.utils.getCurrentLocation
 
 class MainViewModel(
     connectivityObserver: ConnectivityObserver,
@@ -21,16 +25,25 @@ class MainViewModel(
             true
         )
 
+    private val _isReady = MutableStateFlow(false)
+    val isReady = _isReady.asStateFlow()
+
     init {
         getConfig()
     }
 
     private fun getConfig() = viewModelScope.launch {
-        getConfigUseCase()
-            .onSuccess {
-                AppPreferences.referralLink = it.setting.inviteLinkForFriend
-                AppPreferences.becomeDrive = it.setting.executorLink
-                AppPreferences.inviteFriends = it.setting.inviteLinkForFriend
-            }
+        getConfigUseCase().onSuccess {
+            AppPreferences.referralLink = it.setting.inviteLinkForFriend
+            AppPreferences.becomeDrive = it.setting.executorLink
+            AppPreferences.inviteFriends = it.setting.inviteLinkForFriend
+        }
+    }
+
+    fun getLocationAndSave(context: Context) = viewModelScope.launch {
+        getCurrentLocation(context) { location ->
+            AppPreferences.entryLocation = Pair(location.latitude, location.longitude)
+        }
+        _isReady.emit(true)
     }
 }

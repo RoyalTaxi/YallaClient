@@ -1,6 +1,8 @@
 package uz.ildam.technologies.yalla.android.activity
 
 import android.os.Bundle
+import android.view.View
+import android.view.ViewTreeObserver
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -19,16 +21,19 @@ import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.appupdate.AppUpdateOptions
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
-import org.koin.androidx.compose.koinViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import uz.ildam.technologies.yalla.android.BuildConfig
 import uz.ildam.technologies.yalla.android.navigation.Navigation
 
 class MainActivity : AppCompatActivity() {
     private lateinit var updateFlowLauncher: ActivityResultLauncher<IntentSenderRequest>
     private val appUpdateManager: AppUpdateManager by lazy { AppUpdateManagerFactory.create(this) }
+    private val viewModel: MainViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        viewModel.getLocationAndSave(this)
 
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.light(
@@ -41,8 +46,19 @@ class MainActivity : AppCompatActivity() {
             )
         )
 
+        val content: View = findViewById(android.R.id.content)
+        content.viewTreeObserver.addOnPreDrawListener(
+            object : ViewTreeObserver.OnPreDrawListener {
+                override fun onPreDraw(): Boolean {
+                    return if (viewModel.isReady.value) {
+                        content.viewTreeObserver.removeOnPreDrawListener(this)
+                        true
+                    } else false
+                }
+            }
+        )
+
         setContent {
-            val viewModel: MainViewModel = koinViewModel()
             val isConnected by viewModel.isConnected.collectAsState()
             Navigation(isConnected)
         }
@@ -58,7 +74,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         val client = SmsRetriever.getClient(this)
-        client.startSmsRetriever()
+        client.startSmsUserConsent(null)
     }
 
     private fun checkForImmediateUpdate() {

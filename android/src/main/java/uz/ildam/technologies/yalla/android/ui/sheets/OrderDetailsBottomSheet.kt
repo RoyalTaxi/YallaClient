@@ -15,11 +15,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.ildam.technologies.yalla.android.R
-import uz.ildam.technologies.yalla.android.design.theme.YallaTheme
 import uz.ildam.technologies.yalla.android.ui.components.item.CarNumberItem
 import uz.ildam.technologies.yalla.android.ui.components.item.LocationItem
 import uz.ildam.technologies.yalla.core.domain.utils.Formation.toFormattedPrice
 import uz.ildam.technologies.yalla.feature.history.domain.model.OrderHistoryModel
+import uz.yalla.client.feature.core.design.theme.YallaTheme
 
 @Composable
 fun OrderDetailsBottomSheet(

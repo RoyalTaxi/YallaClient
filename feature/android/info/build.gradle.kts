@@ -57,10 +57,10 @@ dependencies {
     implementation(libs.androidx.animation.android)
     debugImplementation(libs.compose.ui.tooling)
 
-    implementation(project.dependencies.platform(libs.koin.bom))
     implementation(libs.koin.core)
     implementation(libs.koin.android)
     implementation(libs.insert.koin.koin.androidx.compose)
+    implementation(project.dependencies.platform(libs.koin.bom))
 
     implementation(libs.androidx.navigation.compose)
 }

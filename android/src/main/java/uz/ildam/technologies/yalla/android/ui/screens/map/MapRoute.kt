@@ -19,13 +19,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import io.morfly.compose.bottomsheet.material3.rememberBottomSheetScaffoldState
 import io.morfly.compose.bottomsheet.material3.rememberBottomSheetState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import org.koin.androidx.compose.koinViewModel
 import uz.ildam.technologies.yalla.android.ui.dialogs.LoadingDialog
-import uz.ildam.technologies.yalla.android.ui.sheets.SheetValue
 import uz.ildam.technologies.yalla.android.utils.rememberPermissionState
 import uz.ildam.technologies.yalla.core.data.enums.MapType
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
@@ -34,6 +34,7 @@ import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.Ord
 import uz.yalla.client.feature.core.map.ConcreteGisMap
 import uz.yalla.client.feature.core.map.ConcreteGoogleMap
 import uz.yalla.client.feature.core.map.MapStrategy
+import uz.yalla.client.feature.core.sheets.SheetValue
 import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -62,32 +63,11 @@ fun MapRoute(
     val searchLocationState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val destinationsState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val addDestinationState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val tariffState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val optionsState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val confirmCancellationState = rememberModalBottomSheetState(confirmValueChange = { false })
     val selectPaymentMethodState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val orderCommentState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val activeOrdersState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-
-    val scaffoldState = rememberBottomSheetScaffoldState(
-        sheetState = rememberBottomSheetState(
-            confirmValueChange = { false },
-            initialValue = SheetValue.Expanded,
-            defineValues = {
-                SheetValue.Collapsed at contentHeight
-                SheetValue.PartiallyExpanded at contentHeight
-                SheetValue.Expanded at contentHeight
-            }
-        )
-    )
-
-    val permissionsGranted by rememberPermissionState(
-        permissions = listOf(
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        )
-    )
 
     val map: MapStrategy by remember {
         mutableStateOf(
@@ -98,6 +78,27 @@ fun MapRoute(
         )
     }
 
+    val sheetState = rememberBottomSheetState(
+        initialValue = SheetValue.PartiallyExpanded,
+        defineValues = {
+            SheetValue.PartiallyExpanded at height(uiState.primarySheetHeight + uiState.footerHeight)
+            SheetValue.Expanded at contentHeight
+        }
+    )
+
+    LaunchedEffect(uiState.primarySheetHeight, uiState.footerHeight) {
+        sheetState.refreshValues()
+    }
+
+    val scaffoldState = rememberBottomSheetScaffoldState(sheetState = sheetState)
+
+    val permissionsGranted by rememberPermissionState(
+        permissions = listOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        )
+    )
+
     val bottomSheetHandler by remember {
         mutableStateOf(
             MapBottomSheetHandler(
@@ -105,13 +106,11 @@ fun MapRoute(
                 scope = scope,
                 searchLocationState = searchLocationState,
                 destinationsState = destinationsState,
-                tariffState = tariffState,
-                optionsState = optionsState,
+                addDestinationState = addDestinationState,
                 confirmCancellationState = confirmCancellationState,
                 selectPaymentMethodState = selectPaymentMethodState,
                 orderCommentState = orderCommentState,
                 activeOrdersState = activeOrdersState,
-                addDestinationState = addDestinationState,
                 viewModel = vm
             )
         )
@@ -120,14 +119,13 @@ fun MapRoute(
     val sheetHandler = remember {
         MapSheetHandler(
             viewModel = vm,
-            bottomSheetHandler = bottomSheetHandler
+            bottomSheetHandler = bottomSheetHandler,
+            scaffoldState = scaffoldState
         )
     }
 
     BackHandler {
-        if (drawerState.isOpen) scope.launch {
-            drawerState.close()
-        }
+        if (drawerState.isOpen) scope.launch { drawerState.close() }
         else if (uiState.route.isNotEmpty()) {
             vm.setDestinations(emptyList())
             uiState.selectedLocation?.point?.let { there -> map.animate(to = there) }
@@ -149,7 +147,6 @@ fun MapRoute(
             vm.actionState.collectLatest { action ->
                 when (action) {
                     is MapActionState.AddressIdLoaded -> vm.fetchTariffs(action.id.toInt())
-                    is MapActionState.PolygonLoaded -> vm.getAddressDetails(map.mapPoint.value)
                     is MapActionState.TariffsLoaded -> vm.getTimeout(map.mapPoint.value)
                     is MapActionState.AddressNameLoaded -> vm.setSelectedLocation(name = action.name)
                     else -> {}
@@ -166,11 +163,20 @@ fun MapRoute(
         }
     }
 
+    LaunchedEffect(Unit) {
+        launch(Dispatchers.IO) {
+            while (uiState.selectedLocation == null && map.isMarkerMoving.value.not()) {
+                vm.getAddressDetails(map.mapPoint.value)
+                delay(1.seconds)
+            }
+        }
+    }
+
     LaunchedEffect(uiState.route) {
         launch {
             map.updateRoute(uiState.route)
-            if (uiState.route.isEmpty()) map.moveToMyLocation()
-            else map.moveToFitBounds(uiState.route)
+            if (uiState.route.isEmpty()) map.animateToMyLocation()
+            else map.animateToFitBounds(uiState.route)
         }
     }
 
@@ -188,9 +194,11 @@ fun MapRoute(
 
     LaunchedEffect(uiState.drivers) { launch { map.updateDrivers(uiState.drivers) } }
 
+    LaunchedEffect(uiState.selectedDriver) { uiState.selectedDriver?.let { map.updateDriver(it.executor) } }
+
     LaunchedEffect(map.isMarkerMoving.value) {
         launch {
-            if (uiState.route.isEmpty() && uiState.selectedDriver?.status != OrderStatus.Appointed) {
+            if (uiState.route.isEmpty() && uiState.selectedDriver?.status == null) {
                 if (map.isMarkerMoving.value) vm.setNotFoundState()
                 else vm.getAddressDetails(map.mapPoint.value)
             }
@@ -292,9 +300,13 @@ fun MapRoute(
                 scaffoldState = scaffoldState,
                 mapSheetHandler = sheetHandler,
                 currentLatLng = map.mapPoint,
-                onCreateOrder = { loading = true },
+                onCreateOrder = {
+                    loading = true
+                    vm.orderTaxi()
+                },
                 mapBottomSheetHandler = bottomSheetHandler,
                 activeOrdersState = activeOrdersState,
+                onAppear = vm::setFooterHeight,
                 onIntent = { intent ->
                     when (intent) {
                         is MapIntent.MoveToMyLocation -> map.animateToMyLocation()
