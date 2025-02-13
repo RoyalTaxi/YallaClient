@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.feature.android.payment.R
+import uz.yalla.client.feature.android.payment.corporate_account.components.BusinessAccountTextField
 import uz.yalla.client.feature.core.components.buttons.YButton
 import uz.yalla.client.feature.core.components.text_field.LoginNumberField
 import uz.yalla.client.feature.core.components.text_field.YTextField
@@ -68,7 +69,7 @@ internal fun AddEmployeeScreen(
                     onUpdateNumber = { number -> onIntent(AddEmployeeIntent.SetNumber(number)) }
                 )
 
-                YTextField(
+                BusinessAccountTextField(
                     text = uiState.fullName,
                     onChangeText = { onIntent(AddEmployeeIntent.SetFullName(it)) },
                     placeHolderText = stringResource(id = R.string.full_name),

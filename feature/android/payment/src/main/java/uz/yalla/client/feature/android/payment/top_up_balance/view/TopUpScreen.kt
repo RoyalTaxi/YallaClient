@@ -15,7 +15,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.feature.android.payment.R
@@ -30,6 +32,9 @@ internal fun TopUpScreen(
     onIntent: (TopUpIntent) -> Unit,
     uiState: TopUpUIState
 ) {
+
+    val focusRequester = remember { FocusRequester() }
+
     Scaffold(
         containerColor = YallaTheme.color.white,
         modifier = Modifier.imePadding(),
@@ -63,7 +68,8 @@ internal fun TopUpScreen(
 
                 BalanceInputField(
                     balance = uiState.topUpAmount,
-                    onBalanceChange = { value -> onIntent(TopUpIntent.SetValue(value)) }
+                    onBalanceChange = { value -> onIntent(TopUpIntent.SetValue(value)) },
+                    focusRequester = focusRequester
                 )
 
                 Text(

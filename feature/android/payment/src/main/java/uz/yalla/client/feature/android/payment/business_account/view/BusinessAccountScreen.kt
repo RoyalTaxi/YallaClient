@@ -26,6 +26,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.feature.android.payment.R
+import uz.yalla.client.feature.android.payment.business_account.components.BusinessAccountItem
 import uz.yalla.client.feature.android.payment.business_account.components.EmployeeItem
 import uz.yalla.client.feature.android.payment.business_account.model.BusinessAccountUIState
 import uz.yalla.client.feature.core.design.theme.YallaTheme
@@ -64,41 +65,11 @@ internal fun BusinessAccountScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(paddingValues)
-                    .padding(20.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(
-                            color = YallaTheme.color.primary,
-                            shape = RoundedCornerShape(16.dp)
-                        )
-                        .padding(20.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.overall_balance),
-                        color = YallaTheme.color.white,
-                        style = YallaTheme.font.label
-                    )
-
-                    Text(
-                        text = uiState.overallBalance,
-                        color = YallaTheme.color.white,
-                        style = YallaTheme.font.title
-                    )
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    Text(
-                        text = stringResource(R.string.employees),
-                        color = YallaTheme.color.white,
-                        style = YallaTheme.font.label
-                    )
-
-                    Text(
-                        text = uiState.employeeCount,
-                        color = YallaTheme.color.white,
-                        style = YallaTheme.font.title
+                Column(modifier = Modifier.padding(20.dp)) {
+                    BusinessAccountItem(
+                        overallBalance = uiState.overallBalance,
+                        employeeCount = uiState.employeeCount
                     )
                 }
 
@@ -106,7 +77,7 @@ internal fun BusinessAccountScreen(
                     text = stringResource(R.string.employees),
                     color = YallaTheme.color.black,
                     style = YallaTheme.font.title2,
-                    modifier = Modifier.padding(vertical = 20.dp)
+                    modifier = Modifier.padding(20.dp)
                 )
 
                 uiState.employees.forEach { employee ->

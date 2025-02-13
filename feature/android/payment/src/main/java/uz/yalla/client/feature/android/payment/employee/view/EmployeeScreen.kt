@@ -54,7 +54,6 @@ internal fun EmployeeScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(paddingValues)
-                    .padding(20.dp)
             ) {
 
                 EmployeeItem(
@@ -65,26 +64,28 @@ internal fun EmployeeScreen(
                     isSelected = true
                 )
 
-                BalanceCard(
-                    balance = "24 000 so'm",
-                    addBalance = { onIntent(EmployeeIntent.AddBalance) },
-                )
+                Column(modifier = Modifier.padding(20.dp)) {
+                    BalanceCard(
+                        balance = "24 000 so'm",
+                        addBalance = { onIntent(EmployeeIntent.AddBalance) },
+                    )
 
-                Text(
-                    text = stringResource(R.string.today),
-                    color = YallaTheme.color.black,
-                    style = YallaTheme.font.title2,
-                    modifier = Modifier.padding(vertical = 20.dp)
-                )
+                    Text(
+                        text = stringResource(R.string.today),
+                        color = YallaTheme.color.black,
+                        style = YallaTheme.font.title2,
+                        modifier = Modifier.padding(vertical = 20.dp)
+                    )
 
-                HistoryOrderItem(
-                    firstAddress = "Ул. Сайлгох 124",
-                    secondAddress = "ул. Мустакиллик 124",
-                    time = "15:00",
-                    totalPrice = "16 000",
-                    status = "",
-                    onClick = {}
-                )
+                    HistoryOrderItem(
+                        firstAddress = "Ул. Сайлгох 124",
+                        secondAddress = "ул. Мустакиллик 124",
+                        time = "15:00",
+                        totalPrice = "16 000",
+                        status = "",
+                        onClick = {}
+                    )
+                }
             }
         }
     )

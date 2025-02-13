@@ -10,14 +10,21 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 import uz.yalla.client.feature.android.payment.R
 import uz.yalla.client.feature.android.payment.top_up_balance.components.transformation.TopUpBalanceVisualTransformation
 import uz.yalla.client.feature.core.design.theme.YallaTheme
@@ -27,9 +34,15 @@ import uz.yalla.client.feature.core.design.theme.YallaTheme
 internal fun BalanceInputField(
     balance: String,
     modifier: Modifier = Modifier,
-    onBalanceChange: (String) -> Unit
+    onBalanceChange: (String) -> Unit,
+    focusRequester: FocusRequester
 ) {
     val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        delay(300)
+        focusRequester.requestFocus()
+    }
 
     Row(
         verticalAlignment = Alignment.CenterVertically
@@ -37,9 +50,17 @@ internal fun BalanceInputField(
         BasicTextField(
             modifier = modifier
                 .weight(1f, false)
-                .width(IntrinsicSize.Min),
+                .width(IntrinsicSize.Min)
+                .focusRequester(focusRequester)
+                .onFocusChanged { focusState ->
+                    if (!focusState.isFocused && balance.isEmpty()) {
+                        focusRequester.requestFocus()
+                    } },
             value = balance,
-            onValueChange = onBalanceChange,
+            onValueChange = { newValue ->
+                val filteredValue = newValue.filter { it.isDigit() }
+                onBalanceChange(filteredValue)
+            },
             singleLine = true,
             visualTransformation = TopUpBalanceVisualTransformation(context),
             textStyle = YallaTheme.font.headline.copy(color = YallaTheme.color.black),
@@ -59,8 +80,24 @@ internal fun BalanceInputField(
                     isError = false,
                     label = null,
                     placeholder = {
+                        Text(
+                            text = stringResource(R.string.enter_balance),
+                            color = YallaTheme.color.gray,
+                            style = YallaTheme.font.headline,
+                            maxLines = 1,
+                            modifier = Modifier.width(100.dp)
+                        )
+                    },
+                    contentPadding = TextFieldDefaults.contentPaddingWithoutLabel(0.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        disabledContainerColor = Color.Transparent,
+                        errorContainerColor = Color.Transparent,
 
-                    }
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    )
                 )
             }
         )
