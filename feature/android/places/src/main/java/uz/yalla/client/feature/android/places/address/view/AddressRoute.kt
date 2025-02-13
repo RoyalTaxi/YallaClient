@@ -29,6 +29,7 @@ import uz.yalla.client.feature.android.places.address.model.AddressActionState
 import uz.yalla.client.feature.android.places.address.model.AddressUIState
 import uz.yalla.client.feature.android.places.address.model.AddressViewModel
 import uz.yalla.client.feature.core.dialogs.LoadingDialog
+import uz.yalla.client.feature.core.sheets.AddDestinationBottomSheet
 import uz.yalla.client.feature.core.sheets.ConfirmationBottomSheet
 import uz.yalla.client.feature.core.sheets.search_address.SearchByNameBottomSheet
 import uz.yalla.client.feature.core.sheets.select_from_map.SelectFromMapBottomSheet
@@ -122,10 +123,8 @@ internal fun AddressRoute(
         enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
         exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
     ) {
-        if (searchLocationVisibility) SearchByNameBottomSheet(
-            initialAddress = uiState.selectedAddress?.name,
+        if (searchLocationVisibility) AddDestinationBottomSheet(
             sheetState = searchLocationState,
-            isForDestination = false,
             onAddressSelected = { name, lat, lng, _ ->
                 searchLocationVisibility = false
                 viewModel.updateSelectedAddress(
@@ -137,12 +136,13 @@ internal fun AddressRoute(
                 )
             },
             onClickMap = { openMapVisibility = true },
-            onDismissRequest = { searchLocationVisibility = false }
+            onDismissRequest = { searchLocationVisibility = false },
         )
     }
 
     if (openMapVisibility) SelectFromMapBottomSheet(
         isForDestination = false,
+        isForNewDestination = false,
         onSelectLocation = { name, lat, lng, _ ->
             viewModel.updateSelectedAddress(
                 AddressUIState.Location(

@@ -14,7 +14,9 @@ internal const val CARD_LIST_ROUTE = "card_list_route"
 
 internal fun NavGraphBuilder.cardListScreen(
     onNavigateBack: () -> Unit,
-    onAddNewCard: () -> Unit
+    onAddNewCard: () -> Unit,
+    onAddCompany: () -> Unit,
+    onAddBusinessAccount: () -> Unit
 ) {
     composable(
         route = CARD_LIST_ROUTE,
@@ -25,7 +27,9 @@ internal fun NavGraphBuilder.cardListScreen(
     ) {
         CardListRoute(
             onNavigateBack = onNavigateBack,
-            onAddNewCard = onAddNewCard
+            onAddNewCard = onAddNewCard,
+            onAddCompany = onAddCompany,
+            onAddBusinessAccount = onAddBusinessAccount
         )
     }
 }

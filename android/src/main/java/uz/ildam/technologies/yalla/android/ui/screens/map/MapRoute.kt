@@ -61,6 +61,7 @@ fun MapRoute(
 
     val searchLocationState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val destinationsState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val addDestinationState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val tariffState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val optionsState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val confirmCancellationState = rememberModalBottomSheetState(confirmValueChange = { false })
@@ -110,6 +111,7 @@ fun MapRoute(
                 selectPaymentMethodState = selectPaymentMethodState,
                 orderCommentState = orderCommentState,
                 activeOrdersState = activeOrdersState,
+                addDestinationState = addDestinationState,
                 viewModel = vm
             )
         )

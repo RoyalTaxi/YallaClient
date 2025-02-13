@@ -54,7 +54,6 @@ fun YTextField(
             disabledContainerColor = YallaTheme.color.gray2,
         )
     ) {
-
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(horizontal = 16.dp)
@@ -63,7 +62,7 @@ fun YTextField(
                 modifier = Modifier
                     .weight(1f)
                     .padding(
-                        vertical = if (isFocused || text.isNotBlank()) 10.dp else 20.dp,
+                        vertical = 16.dp,
                     )
             ) {
                 if ((isFocused || text.isNotBlank()) || (trailingIcon != null && text.isNotBlank()))

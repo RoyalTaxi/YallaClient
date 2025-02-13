@@ -18,6 +18,8 @@ import uz.yalla.client.feature.core.dialogs.LoadingDialog
 internal fun CardListRoute(
     onNavigateBack: () -> Unit,
     onAddNewCard: () -> Unit,
+    onAddCompany: () -> Unit,
+    onAddBusinessAccount: () -> Unit,
     viewModel: CardListViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -46,6 +48,8 @@ internal fun CardListRoute(
             when (intent) {
                 is CardListIntent.AddNewCard -> onAddNewCard()
                 is CardListIntent.OnNavigateBack -> onNavigateBack()
+                is CardListIntent.AddCorporateAccount -> onAddCompany()
+                is CardListIntent.AddBusinessAccount -> onAddBusinessAccount()
             }
         }
     )

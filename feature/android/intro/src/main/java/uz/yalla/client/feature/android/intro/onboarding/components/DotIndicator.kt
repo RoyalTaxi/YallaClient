@@ -49,9 +49,6 @@ internal fun DotIndicator(
             }
         )
 
-        val primary = YallaTheme.color.black
-        val secondary = YallaTheme.color.gray2
-
         LazyRow(
             state = indicatorScrollState,
             modifier = Modifier.width(((6 + 16) * 2 + 3 * (10 + 16)).dp),
@@ -59,7 +56,6 @@ internal fun DotIndicator(
             verticalAlignment = Alignment.CenterVertically
         ) {
             repeat(pageCount) { iteration ->
-                val color = if (pagerState.currentPage == iteration) primary else secondary
                 item(key = "item$iteration") {
                     val currentPage = pagerState.currentPage
                     val size by animateDpAsState(
@@ -72,7 +68,11 @@ internal fun DotIndicator(
                     Box(
                         modifier = Modifier
                             .padding(horizontal = 4.dp)
-                            .background(color, CircleShape)
+                            .background(
+                                if (pagerState.currentPage == iteration) YallaTheme.color.black
+                                else YallaTheme.color.gray2,
+                                CircleShape
+                            )
                             .size(size)
                     )
                 }

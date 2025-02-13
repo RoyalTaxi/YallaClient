@@ -20,9 +20,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.feature.android.auth.R
-import uz.yalla.client.feature.android.auth.login.components.LoginNumberField
 import uz.yalla.client.feature.android.auth.login.model.LoginUIState
 import uz.yalla.client.feature.core.components.buttons.YButton
+import uz.yalla.client.feature.core.components.text_field.LoginNumberField
 import uz.yalla.client.feature.core.design.theme.YallaTheme
 
 @OptIn(ExperimentalMaterial3Api::class)

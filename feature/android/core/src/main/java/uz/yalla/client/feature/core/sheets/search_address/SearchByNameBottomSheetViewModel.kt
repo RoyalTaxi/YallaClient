@@ -89,6 +89,15 @@ class SearchByNameBottomSheetViewModel(
         if (query.isBlank()) setFoundAddresses(emptyList())
     }
 
+    fun setDestinationQuery(query: String) {
+        _uiState.update { it.copy(destinationQuery = query) }
+        uiState.value.apply {
+            if (currentLat != null && currentLng != null)
+                searchForAddress(currentLat, currentLng, query)
+        }
+        if (query.isBlank()) setFoundAddresses(emptyList())
+    }
+
     fun setCurrentLocation(lat: Double, lng: Double) = _uiState.update {
         it.copy(
             currentLat = lat,
