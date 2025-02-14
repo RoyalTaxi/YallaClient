@@ -19,11 +19,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.location.LocationManagerCompat.getCurrentLocation
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import uz.ildam.technologies.yalla.core.data.mapper.or0
@@ -39,14 +43,19 @@ fun SearchByNameBottomSheet(
     initialDestination: String? = null,
     sheetState: SheetState,
     onAddressSelected: (String, Double, Double, Int) -> Unit,
-    onDestinationSelected: ((String, Double, Double, Int) -> Unit)? = null,
+    onDestinationSelected: ((String, Double, Double, Int) -> Unit) = { _, _, _, _ -> },
     onDismissRequest: () -> Unit,
     onClickMap: (forDestination: Boolean) -> Unit,
     isForDestination: Boolean,
+    deleteDestination: (String) -> Unit,
     viewModel: SearchByNameBottomSheetViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
+
+    val addressFocusRequester = remember { FocusRequester() }
+    val destinationFocusRequester = remember { FocusRequester() }
+    var lastFocusedForDestination by remember { mutableStateOf(isForDestination) }
 
     LaunchedEffect(Unit) {
         launch { viewModel.findAllMapAddresses() }
@@ -55,6 +64,14 @@ fun SearchByNameBottomSheet(
         launch { viewModel.fetchPolygons() }
         getCurrentLocation(context) { location ->
             viewModel.setCurrentLocation(location.latitude, location.longitude)
+        }
+    }
+
+    LaunchedEffect(isForDestination) {
+        if (isForDestination) {
+            destinationFocusRequester.requestFocus()
+        } else {
+            addressFocusRequester.requestFocus()
         }
     }
 
@@ -81,25 +98,48 @@ fun SearchByNameBottomSheet(
                 .padding(20.dp)
         ) {
 
+            val (focusedField, setFocusedField) = remember { mutableStateOf<String?>(if (isForDestination) "destination" else "current") }
+
             SearchLocationField(
                 value = uiState.query,
-                isForDestination = isForDestination,
-                modifier = Modifier.fillMaxWidth(),
+                isForDestination = false,
+                isFocused = focusedField == "current",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(addressFocusRequester),
                 onClickMap = {
                     onClickMap(false)
                     onDismissRequest()
                 },
-                onValueChange = viewModel::setQuery
+                onValueChange = {
+                    viewModel.setQuery(it)
+                    lastFocusedForDestination = false
+                },
+                clearDestination = {},
+                onFocusChange = { isFocused ->
+                    if (isFocused) setFocusedField("current")
+                }
             )
+
             SearchLocationField(
                 value = uiState.destinationQuery,
                 isForDestination = true,
-                modifier = Modifier.fillMaxWidth(),
+                isFocused = focusedField == "destination",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(destinationFocusRequester),
                 onClickMap = {
                     onClickMap(true)
                     onDismissRequest()
                 },
-                onValueChange = viewModel::setDestinationQuery
+                onValueChange = {
+                    viewModel.setDestinationQuery(it)
+                    lastFocusedForDestination = true
+                },
+                clearDestination = { deleteDestination(uiState.destinationQuery) },
+                onFocusChange = { isFocused ->
+                    if (isFocused) setFocusedField("destination")
+                }
             )
         }
 
@@ -112,32 +152,18 @@ fun SearchByNameBottomSheet(
                 .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
                 .background(YallaTheme.color.white)
         ) {
-            if (uiState.query.isBlank()) {
-                items(uiState.foundAddresses) { foundAddress ->
-                    FoundAddressItem(
-                        foundAddress = foundAddress,
-                        onClick = {
+            items(uiState.foundAddresses) { foundAddress ->
+                FoundAddressItem(
+                    foundAddress = foundAddress,
+                    onClick = {
+                        if (lastFocusedForDestination)
+                            onDestinationSelected(it.name, it.lat, it.lng, it.addressId.or0())
+                        else
                             onAddressSelected(it.name, it.lat, it.lng, it.addressId.or0())
-                            viewModel.setQuery("")
-                            viewModel.setFoundAddresses(emptyList())
-                            onDismissRequest()
-                        }
-                    )
-                }
-            }
-
-            if (uiState.destinationQuery.isBlank()) {
-                items(uiState.foundAddresses) { foundAddress ->
-                    FoundAddressItem(
-                        foundAddress = foundAddress,
-                        onClick = {
-                            onDestinationSelected?.invoke(it.name, it.lat, it.lng, it.addressId.or0())
-                            viewModel.setDestinationQuery("")
-                            viewModel.setFoundAddresses(emptyList())
-                            onDismissRequest()
-                        }
-                    )
-                }
+                        viewModel.setFoundAddresses(emptyList())
+                        onDismissRequest()
+                    }
+                )
             }
         }
     }

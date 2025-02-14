@@ -18,8 +18,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -39,10 +42,12 @@ fun AddDestinationBottomSheet(
     viewModel: SearchByNameBottomSheetViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
         launch { viewModel.findAllMapAddresses() }
         launch { viewModel.setQuery("") }
+        focusRequester.requestFocus()
     }
 
     ModalBottomSheet(
@@ -68,14 +73,18 @@ fun AddDestinationBottomSheet(
             SearchLocationField(
                 value = uiState.query,
                 isForDestination = true,
+                isFocused = false,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .focusRequester(focusRequester)
                     .padding(20.dp),
                 onClickMap = {
                     onClickMap()
                     onDismissRequest()
                 },
-                onValueChange = viewModel::setQuery
+                onValueChange = viewModel::setQuery,
+                clearDestination = {},
+                onFocusChange = {}
             )
         }
 

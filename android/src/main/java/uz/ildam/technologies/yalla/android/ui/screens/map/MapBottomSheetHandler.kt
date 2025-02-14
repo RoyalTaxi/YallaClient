@@ -118,6 +118,10 @@ class MapBottomSheetHandler(
                 onDismissRequest = {
                     showSearchLocation(false)
                     viewModel.setFoundAddresses(addresses = emptyList())
+                },
+                deleteDestination = { name ->
+                    val updatedDestinations = viewModel.uiState.value.destinations.filterNot { it.name == name }
+                    viewModel.setDestinations(updatedDestinations)
                 }
             )
         }
@@ -196,8 +200,7 @@ class MapBottomSheetHandler(
                 destinations = uiState.destinations,
                 sheetState = destinationsState,
                 onAddNewDestinationClick = {
-                    searchLocationVisibility = SearchLocationVisibility.END
-                    scope.launch { searchLocationState.show() }
+                    scope.launch { addDestination(true) }
                 },
                 onDismissRequest = { orderedDestinations ->
                     showDestinations(false)
@@ -323,3 +326,4 @@ class MapBottomSheetHandler(
         scope.launch { if (show) activeOrdersState.show() else activeOrdersState.hide() }
     }
 }
+

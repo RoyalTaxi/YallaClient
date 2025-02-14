@@ -175,7 +175,7 @@ fun MapRoute(
     LaunchedEffect(uiState.route) {
         launch {
             map.updateRoute(uiState.route)
-            if (uiState.route.isEmpty()) map.animateToMyLocation()
+            if (uiState.route.isEmpty()) uiState.selectedLocation?.point?.let { map.animate(it) }
             else map.animateToFitBounds(uiState.route)
         }
     }
