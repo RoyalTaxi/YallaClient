@@ -16,6 +16,7 @@ interface MapStrategy {
 
     @Composable
     fun Map(
+        startingPoint: MapPoint?,
         modifier: Modifier,
         contentPadding: PaddingValues
     )

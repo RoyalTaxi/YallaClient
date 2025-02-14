@@ -20,13 +20,13 @@ import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.ui.sheets.ActiveOrdersBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.ArrangeDestinationsBottomSheet
-import uz.ildam.technologies.yalla.android.ui.sheets.ConfirmationBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.OrderCommentBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.PaymentMethodBottomSheet
 import uz.ildam.technologies.yalla.android.utils.getCurrentLocation
 import uz.ildam.technologies.yalla.core.domain.model.MapPoint
 import uz.yalla.client.feature.core.map.MapStrategy
 import uz.yalla.client.feature.core.sheets.AddDestinationBottomSheet
+import uz.yalla.client.feature.core.sheets.ConfirmationBottomSheet
 import uz.yalla.client.feature.core.sheets.search_address.SearchByNameBottomSheet
 import uz.yalla.client.feature.core.sheets.select_from_map.SelectFromMapBottomSheet
 
@@ -120,7 +120,8 @@ class MapBottomSheetHandler(
                     viewModel.setFoundAddresses(addresses = emptyList())
                 },
                 deleteDestination = { name ->
-                    val updatedDestinations = viewModel.uiState.value.destinations.filterNot { it.name == name }
+                    val updatedDestinations =
+                        viewModel.uiState.value.destinations.filterNot { it.name == name }
                     viewModel.setDestinations(updatedDestinations)
                 }
             )
@@ -153,6 +154,11 @@ class MapBottomSheetHandler(
 
 
         if (openMapVisibility != OpenMapVisibility.INVISIBLE) SelectFromMapBottomSheet(
+            startingPoint = when (openMapVisibility) {
+                OpenMapVisibility.START -> uiState.selectedLocation?.point
+                OpenMapVisibility.MIDDLE -> uiState.destinations.firstOrNull()?.point
+                else -> null
+            },
             isForDestination = openMapVisibility == OpenMapVisibility.MIDDLE,
             isForNewDestination = openMapVisibility == OpenMapVisibility.END,
             onSelectLocation = { name, lat, lng, isForDestination ->
@@ -200,7 +206,8 @@ class MapBottomSheetHandler(
                 destinations = uiState.destinations,
                 sheetState = destinationsState,
                 onAddNewDestinationClick = {
-                    scope.launch { addDestination(true) }
+                    searchLocationVisibility = SearchLocationVisibility.END
+                    scope.launch { searchLocationState.show() }
                 },
                 onDismissRequest = { orderedDestinations ->
                     showDestinations(false)
@@ -326,4 +333,3 @@ class MapBottomSheetHandler(
         scope.launch { if (show) activeOrdersState.show() else activeOrdersState.hide() }
     }
 }
-

@@ -96,19 +96,17 @@ fun AddDestinationBottomSheet(
                 .fillMaxHeight(.8f)
                 .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
                 .background(YallaTheme.color.white)
-        ){
-            if (uiState.query.isBlank()) {
-                items(uiState.foundAddresses){ foundAddress ->
-                    FoundAddressItem(
-                        foundAddress = foundAddress,
-                        onClick = {
-                            onAddressSelected(it.name, it.lng, it.lat, it.addressId.or0())
-                            viewModel.setQuery("")
-                            viewModel.setFoundAddresses(emptyList())
-                            onDismissRequest()
-                        }
-                    )
-                }
+        ) {
+            items(uiState.foundAddresses) { foundAddress ->
+                FoundAddressItem(
+                    foundAddress = foundAddress,
+                    onClick = {
+                        onAddressSelected(it.name, it.lng, it.lat, it.addressId.or0())
+                        viewModel.setQuery("")
+                        viewModel.setFoundAddresses(emptyList())
+                        onDismissRequest()
+                    }
+                )
             }
         }
     }

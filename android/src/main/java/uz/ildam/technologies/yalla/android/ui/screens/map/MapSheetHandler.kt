@@ -31,6 +31,7 @@ import uz.ildam.technologies.yalla.android.ui.sheets.TariffInfoAction
 import uz.ildam.technologies.yalla.android.ui.sheets.TariffInfoBottomSheet
 import uz.ildam.technologies.yalla.core.domain.model.MapPoint
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.OrderStatus
+import uz.yalla.client.feature.core.map.MapStrategy
 import uz.yalla.client.feature.core.sheets.SheetValue
 import java.util.Locale
 

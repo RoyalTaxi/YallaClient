@@ -67,6 +67,7 @@ internal fun HistoryDetailsScreen(
                     .verticalScroll(rememberScrollState())
             ) {
                 if (loading.not()) map.Map(
+                    startingPoint = null,
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(1f)

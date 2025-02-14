@@ -52,8 +52,8 @@ data class MapUIState(
     val moveCameraButtonState: MoveCameraButtonState = MoveCameraButtonState.MyLocationView,
     val discardOrderButtonState: DiscardOrderButtonState = DiscardOrderButtonState.OpenDrawer,
 
-    val primarySheetHeight: Dp = 300.dp,
-    val footerHeight: Dp = 200.dp
+    val primarySheetHeight: Dp = 0.dp,
+    val footerHeight: Dp = 0.dp
 ) {
     data class SelectedLocation(
         val name: String?,

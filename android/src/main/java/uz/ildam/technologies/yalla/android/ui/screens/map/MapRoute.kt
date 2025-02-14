@@ -90,6 +90,11 @@ fun MapRoute(
         sheetState.refreshValues()
     }
 
+    LaunchedEffect(uiState.primarySheetHeight) {
+        if (uiState.selectedDriver == null)
+            map.moveToMyLocation()
+    }
+
     val scaffoldState = rememberBottomSheetScaffoldState(sheetState = sheetState)
 
     val permissionsGranted by rememberPermissionState(

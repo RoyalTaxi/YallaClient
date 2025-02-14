@@ -20,15 +20,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.koin.androidx.compose.koinViewModel
 import uz.ildam.technologies.yalla.core.data.enums.MapType
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
+import uz.ildam.technologies.yalla.core.domain.model.MapPoint
 import uz.yalla.client.feature.core.R
 import uz.yalla.client.feature.core.components.buttons.MapButton
 import uz.yalla.client.feature.core.components.buttons.SelectCurrentLocationButton
@@ -37,138 +43,158 @@ import uz.yalla.client.feature.core.components.marker.YallaMarker
 import uz.yalla.client.feature.core.design.theme.YallaTheme
 import uz.yalla.client.feature.core.map.ConcreteGisMap
 import uz.yalla.client.feature.core.map.ConcreteGoogleMap
-import uz.yalla.client.feature.core.map.MapStrategy
 
 @Composable
 fun SelectFromMapBottomSheet(
-    modifier: Modifier = Modifier,
+    startingPoint: MapPoint?,
     isForDestination: Boolean,
     isForNewDestination: Boolean,
     onSelectLocation: (String, Double, Double, Boolean) -> Unit,
     onDismissRequest: () -> Unit,
     viewModel: SelectFromMapBottomSheetViewModel = koinViewModel()
 ) {
+    val density = LocalDensity.current
     val uiState by viewModel.uiState.collectAsState()
+    var mapBottomPadding by remember { mutableStateOf(0.dp) }
 
-    val map: MapStrategy = remember {
-        when (AppPreferences.mapType) {
-            MapType.Google -> ConcreteGoogleMap()
-            MapType.Gis -> ConcreteGisMap()
-        }
+    val map by remember(AppPreferences.mapType) {
+        mutableStateOf(
+            when (AppPreferences.mapType) {
+                MapType.Google -> ConcreteGoogleMap()
+                MapType.Gis -> ConcreteGisMap()
+            }
+        )
     }
 
     BackHandler(onBack = onDismissRequest)
 
-    LaunchedEffect(map.isMarkerMoving.value) {
-        if (map.isMarkerMoving.value) viewModel.changeStateToNotFound()
-        else viewModel.getAddressDetails(map.mapPoint.value)
+    // Fetch address details when the bottom sheet opens
+    LaunchedEffect(startingPoint) {
+        startingPoint?.let { viewModel.getAddressDetails(it) }
     }
 
-    LaunchedEffect(Unit) { map.moveToMyLocation() }
+    // Track marker movement and update address accordingly
+    LaunchedEffect(map.isMarkerMoving.value) {
+        if (map.isMarkerMoving.value) {
+            viewModel.changeStateToNotFound()
+        } else {
+            viewModel.getAddressDetails(map.mapPoint.value)
+        }
+    }
 
-    Column(
-        modifier = modifier
+    // Move the map when bottom sheet padding updates
+    LaunchedEffect(mapBottomPadding) {
+        when {
+            startingPoint == null -> map.moveToMyLocation()
+            map.mapPoint.value != MapPoint.Zero -> map.move(map.mapPoint.value)
+            else -> map.move(startingPoint)
+        }
+    }
+
+    Box(
+        modifier = Modifier
             .fillMaxSize()
-            .navigationBarsPadding()
             .background(YallaTheme.color.gray2)
     ) {
+        map.Map(
+            startingPoint = startingPoint,
+            modifier = Modifier.matchParentSize(),
+            contentPadding = PaddingValues(bottom = mapBottomPadding)
+        )
+
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
+                .matchParentSize()
+                .padding(20.dp)
+                .padding(bottom = if (startingPoint == null) mapBottomPadding else 0.dp)
         ) {
-
-            map.Map(
-                modifier = Modifier.matchParentSize(),
-                contentPadding = PaddingValues(0.dp)
+            MapButton(
+                painter = painterResource(R.drawable.ic_location),
+                modifier = Modifier.align(Alignment.BottomEnd),
+                onClick = map::animateToMyLocation
             )
 
-            Box(
+            YallaMarker(
+                time = uiState.timeout,
+                isLoading = map.isMarkerMoving.value,
+                color = YallaTheme.color.black,
+                selectedAddressName = uiState.name ?: stringResource(R.string.loading),
                 modifier = Modifier
                     .matchParentSize()
-                    .padding(20.dp)
-            ) {
-                YallaMarker(
-                    time = uiState.timeout,
-                    isLoading = map.isMarkerMoving.value,
-                    color = YallaTheme.color.black,
-                    selectedAddressName = uiState.name,
-                    modifier = Modifier.align(Alignment.Center)
-                )
+                    .align(Alignment.Center)
+            )
 
-                MapButton(
-                    painter = painterResource(R.drawable.ic_location),
-                    modifier = Modifier.align(Alignment.BottomEnd),
-                    onClick = map::animateToMyLocation
-                )
-
-                MapButton(
-                    onClick = onDismissRequest,
-                    painter = painterResource(R.drawable.ic_arrow_back),
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .statusBarsPadding()
-                )
-            }
-        }
-
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    color = YallaTheme.color.white,
-                    shape = RoundedCornerShape(bottomStart = 30.dp, bottomEnd = 30.dp)
-                )
-        ) {
-            SelectCurrentLocationButton(
-                modifier = Modifier.padding(vertical = 10.dp, horizontal = 20.dp),
-                text = if (map.isMarkerMoving.value.not() && uiState.name != null) uiState.name!!
-                else stringResource(R.string.loading),
-                leadingIcon = {
-                    Box(
-                        modifier = Modifier
-                            .size(8.dp)
-                            .border(
-                                shape = CircleShape,
-                                width = 1.dp,
-                                color = YallaTheme.color.gray
-                            )
-                    )
-                },
-                onClick = { }
+            MapButton(
+                onClick = onDismissRequest,
+                painter = painterResource(R.drawable.ic_arrow_back),
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .statusBarsPadding()
             )
         }
 
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Box(
-            contentAlignment = Alignment.Center,
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    color = YallaTheme.color.white,
-                    shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
-                )
+                .align(Alignment.BottomCenter)
+                .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
+                .background(YallaTheme.color.gray2)
+                .onSizeChanged { mapBottomPadding = with(density) { it.height.toDp() } }
         ) {
-            YButton(
+            Box(
+                contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 10.dp, horizontal = 20.dp),
-                enabled = !map.isMarkerMoving.value && if (isForDestination) true else uiState.addressId != null,
-                text = stringResource(R.string.choose),
-                onClick = {
-                    if (uiState.latLng != null && uiState.name != null) {
-                        onSelectLocation(
-                            uiState.name!!,
-                            uiState.latLng!!.lat,
-                            uiState.latLng!!.lng,
-                            isForDestination || isForNewDestination
+                    .background(
+                        color = YallaTheme.color.white,
+                        shape = RoundedCornerShape(bottomStart = 30.dp, bottomEnd = 30.dp)
+                    )
+            ) {
+                SelectCurrentLocationButton(
+                    modifier = Modifier.padding(10.dp),
+                    text = uiState.name ?: stringResource(R.string.loading),
+                    leadingIcon = {
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .border(
+                                    shape = CircleShape,
+                                    width = 1.dp,
+                                    color = YallaTheme.color.gray
+                                )
                         )
-                        onDismissRequest()
+                    },
+                    onClick = { }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        color = YallaTheme.color.white,
+                        shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
+                    )
+                    .navigationBarsPadding()
+            ) {
+                YButton(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    enabled = !map.isMarkerMoving.value && (isForDestination || (uiState.addressId != null && uiState.name != null)),
+                    text = stringResource(R.string.choose),
+                    onClick = {
+                        uiState.latLng?.let { latLng ->
+                            uiState.name?.let { name ->
+                                onSelectLocation(name, latLng.lat, latLng.lng, isForDestination || isForNewDestination)
+                                onDismissRequest()
+                            }
+                        }
                     }
-                }
-            )
+                )
+            }
         }
     }
 }

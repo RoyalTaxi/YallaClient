@@ -57,6 +57,7 @@ class ConcreteGisMap : MapStrategy {
 
     @Composable
     override fun Map(
+        startingPoint: MapPoint?,
         modifier: Modifier,
         contentPadding: PaddingValues
     ) {

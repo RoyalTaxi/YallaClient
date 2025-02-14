@@ -75,6 +75,7 @@ fun MapScreen(
             }
         ) {
             map.Map(
+                startingPoint = null,
                 modifier = Modifier,
                 contentPadding = with(density) {
                     PaddingValues(

@@ -141,6 +141,7 @@ internal fun AddressRoute(
     }
 
     if (openMapVisibility) SelectFromMapBottomSheet(
+        startingPoint = null,
         isForDestination = false,
         isForNewDestination = false,
         onSelectLocation = { name, lat, lng, _ ->

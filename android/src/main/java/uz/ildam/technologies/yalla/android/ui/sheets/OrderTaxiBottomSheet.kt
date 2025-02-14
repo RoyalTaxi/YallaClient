@@ -68,7 +68,10 @@ fun OrderTaxiBottomSheet(
                 shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
             )
             .onSizeChanged { size ->
-                with(density) { onAppear(size.height.toDp()) }
+                with(density) {
+                    if (size.height.toDp() != uiState.primarySheetHeight)
+                        onAppear(size.height.toDp())
+                }
             }
     ) {
         Column(

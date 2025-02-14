@@ -67,17 +67,13 @@ class ConcreteGoogleMap : MapStrategy {
 
     @Composable
     override fun Map(
+        startingPoint: MapPoint?,
         modifier: Modifier,
         contentPadding: PaddingValues
     ) {
         context = LocalContext.current
         coroutineScope = rememberCoroutineScope()
-        cameraPositionState = rememberCameraPositionState {
-            position = CameraPosition.fromLatLngZoom(
-                LatLng(mapPoint.value.lat, mapPoint.value.lng),
-                15f
-            )
-        }
+        cameraPositionState = rememberCameraPositionState()
 
         LaunchedEffect(cameraPositionState.isMoving) {
             isMarkerMoving.value = cameraPositionState.isMoving
@@ -91,6 +87,7 @@ class ConcreteGoogleMap : MapStrategy {
         }
 
         GoogleMap(
+            mergeDescendants = true,
             modifier = modifier,
             cameraPositionState = cameraPositionState,
             contentPadding = contentPadding,
@@ -133,7 +130,6 @@ class ConcreteGoogleMap : MapStrategy {
             Drivers(drivers = drivers)
         }
     }
-
 
     override fun move(to: MapPoint) {
         if (::cameraPositionState.isInitialized) {
