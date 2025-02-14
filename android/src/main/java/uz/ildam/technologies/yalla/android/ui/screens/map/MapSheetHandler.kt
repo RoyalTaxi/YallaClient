@@ -89,7 +89,7 @@ class MapSheetHandler(
                         onDestinationClick = {
                             if (uiState.destinations.size < 2) bottomSheetHandler.showSearchLocation(
                                 show = true,
-                                forDest = false
+                                forDest = true
                             )
                             else bottomSheetHandler.showDestinations(true)
                         },

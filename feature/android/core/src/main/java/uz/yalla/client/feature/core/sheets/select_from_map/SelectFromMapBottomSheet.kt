@@ -122,7 +122,7 @@ fun SelectFromMapBottomSheet(
                 )
         ) {
             SelectCurrentLocationButton(
-                modifier = Modifier.padding(10.dp),
+                modifier = Modifier.padding(vertical = 10.dp, horizontal = 20.dp),
                 text = if (map.isMarkerMoving.value.not() && uiState.name != null) uiState.name!!
                 else stringResource(R.string.loading),
                 leadingIcon = {
@@ -154,7 +154,7 @@ fun SelectFromMapBottomSheet(
             YButton(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(10.dp),
+                    .padding(vertical = 10.dp, horizontal = 20.dp),
                 enabled = !map.isMarkerMoving.value && if (isForDestination) true else uiState.addressId != null,
                 text = stringResource(R.string.choose),
                 onClick = {

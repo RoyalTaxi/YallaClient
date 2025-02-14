@@ -69,7 +69,50 @@ fun SelectDestinationButton(
 
             val canFitInOneRow = remember { mutableStateOf(true) }
 
-            if (destinations.isNotEmpty()) Layout(
+            if (destinations.size > 2 ) {
+                Row(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.destination_count, destinations.size),
+                        color = YallaTheme.color.black,
+                        style = YallaTheme.font.labelLarge,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            } else if (destinations.size == 2) {
+                Row(modifier = Modifier.weight(1f)) {
+                    Row(verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(0.5f)) {
+                        Text(
+                            text = destinations[0].name.orEmpty(),
+                            color = YallaTheme.color.black,
+                            style = YallaTheme.font.labelLarge,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Row(verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(0.5f)) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                            tint = YallaTheme.color.primary,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = destinations[1].name.orEmpty(),
+                            color = YallaTheme.color.black,
+                            style = YallaTheme.font.labelLarge,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+            } else if (destinations.isNotEmpty()) Layout(
                 content = {
                     Row(modifier = Modifier) {
                         destinations.takeIf { it.isNotEmpty() }
@@ -124,7 +167,7 @@ fun SelectDestinationButton(
 
             Spacer(modifier = Modifier.width(10.dp))
 
-            if (destinations.isNotEmpty()) Icon(
+            if (destinations.isNotEmpty() && destinations.size < 4) Icon(
                 imageVector = Icons.Default.Add,
                 contentDescription = null,
                 tint = YallaTheme.color.gray,

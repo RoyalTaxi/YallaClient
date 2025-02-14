@@ -59,7 +59,13 @@ internal fun BalanceInputField(
             value = balance,
             onValueChange = { newValue ->
                 val filteredValue = newValue.filter { it.isDigit() }
-                onBalanceChange(filteredValue)
+
+                val maxAmount = 99_999_999
+                val newAmount = filteredValue.take(8).toIntOrNull() ?: 0
+
+                if (newAmount <= maxAmount) {
+                    onBalanceChange(newAmount.toString())
+                }
             },
             singleLine = true,
             visualTransformation = TopUpBalanceVisualTransformation(context),

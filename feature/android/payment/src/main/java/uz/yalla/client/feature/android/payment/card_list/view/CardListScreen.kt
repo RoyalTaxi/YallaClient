@@ -128,21 +128,21 @@ internal fun CardListScreen(
                         onSelect = { onIntent(CardListIntent.AddNewCard) },
                     )
 
-                    SelectPaymentTypeItem(
-                        isSelected = false,
-                        tint = YallaTheme.color.gray,
-                        painter = painterResource(R.drawable.ic_add),
-                        text = stringResource(R.string.add_corporate_account),
-                        onSelect = { onIntent(CardListIntent.AddCorporateAccount) },
-                    )
-
-                    SelectPaymentTypeItem(
-                        isSelected = false,
-                        tint = YallaTheme.color.gray,
-                        painter = painterResource(R.drawable.ic_add),
-                        text = stringResource(R.string.business_account),
-                        onSelect = { onIntent(CardListIntent.AddBusinessAccount) },
-                    )
+//                    SelectPaymentTypeItem(
+//                        isSelected = false,
+//                        tint = YallaTheme.color.gray,
+//                        painter = painterResource(R.drawable.ic_add),
+//                        text = stringResource(R.string.add_corporate_account),
+//                        onSelect = { onIntent(CardListIntent.AddCorporateAccount) },
+//                    )
+//
+//                    SelectPaymentTypeItem(
+//                        isSelected = false,
+//                        tint = YallaTheme.color.gray,
+//                        painter = painterResource(R.drawable.ic_add),
+//                        text = stringResource(R.string.business_account),
+//                        onSelect = { onIntent(CardListIntent.AddBusinessAccount) },
+//                    )
                 }
             }
         }
