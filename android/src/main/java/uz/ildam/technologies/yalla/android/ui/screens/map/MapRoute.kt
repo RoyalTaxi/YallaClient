@@ -168,6 +168,11 @@ fun MapRoute(
         }
     }
 
+    LaunchedEffect(uiState.outOfService) {
+        if (uiState.outOfService == true) sheetHandler.showNoService()
+        else sheetHandler.showOrderTaxi()
+    }
+
     LaunchedEffect(Unit) {
         launch(Dispatchers.IO) {
             while (uiState.selectedLocation == null && map.isMarkerMoving.value.not()) {
@@ -312,6 +317,7 @@ fun MapRoute(
                 mapBottomSheetHandler = bottomSheetHandler,
                 activeOrdersState = activeOrdersState,
                 onAppear = vm::setFooterHeight,
+                onClearOptions = vm::clearOptions,
                 onIntent = { intent ->
                     when (intent) {
                         is MapIntent.MoveToMyLocation -> map.animateToMyLocation()

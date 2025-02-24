@@ -130,11 +130,11 @@ fun SearchForCarsBottomSheet(
                 onClick = onClickCancel
             )
 
-//            SearchCarItem(
-//                text = stringResource(R.string.order_details),
-//                imageVector = Icons.Outlined.Info,
-//                onClick = onClickDetails
-//            )
+            SearchCarItem(
+                text = stringResource(R.string.order_details),
+                imageVector = Icons.Outlined.Info,
+                onClick = onClickDetails
+            )
         }
     }
 }

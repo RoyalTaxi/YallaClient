@@ -2,7 +2,6 @@ package uz.ildam.technologies.yalla.android.ui.screens.map
 
 import android.util.Log
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.currentCoroutineContext
@@ -91,16 +90,19 @@ class MapViewModel(
     fun getAddressDetails(point: MapPoint) = viewModelScope.launch {
         if (point.lat == 0.0 || point.lng == 0.0) return@launch
         _actionState.emit(MapActionState.LoadingAddressId)
-        if (addresses.isEmpty()) fetchPolygons()
+        if (addresses.isEmpty()) {
+            fetchPolygons()
+            return@launch
+        }
 
         var addressId: Int? = null
         addresses.firstOrNull {
             val (inside, id) = isPointInsidePolygon(point)
-            if (inside) {
-                addressId = id
-            }
+            if (inside) addressId = id
             inside
         }
+
+        _uiState.update { it.copy(outOfService = addressId == null) }
 
         setSelectedLocation(
             addressId = addressId,
@@ -255,13 +257,37 @@ class MapViewModel(
     }
 
     fun setSelectedTariff(tariff: GetTariffsModel.Tariff) = viewModelScope.launch {
+
         _uiState.update {
             it.copy(
                 selectedTariff = tariff,
                 options = tariff.services,
-                selectedOptions = emptyList()
             )
         }
+    }
+
+    fun tariffContainsSelectedOptions() {
+        val selectedOptions = uiState.value.selectedOptions
+        val tariffOptions = uiState.value.options
+
+        if(selectedOptions.isNotEmpty()){
+            _uiState.update {
+                it.copy(
+                    isTariffValidWithOptions = selectedOptions.all { selected ->
+                        tariffOptions.any { tariff ->
+                            selected.cost == tariff.cost && selected.name == tariff.name
+                        }
+                    }
+                )
+            }
+        }
+    }
+
+    fun clearOptions() {
+        _uiState.update { it.copy(
+            selectedOptions = emptyList(),
+            isTariffValidWithOptions = null
+        ) }
     }
 
     fun setSelectedOptions(options: List<GetTariffsModel.Tariff.Service>) {

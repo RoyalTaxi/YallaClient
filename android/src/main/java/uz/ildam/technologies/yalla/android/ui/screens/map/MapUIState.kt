@@ -21,6 +21,7 @@ data class MapUIState(
     val destinations: List<Destination> = emptyList(),
     val foundAddresses: List<SearchForAddressItemModel> = emptyList(),
     val route: List<MapPoint> = emptyList(),
+    val outOfService: Boolean? = null,
 
     // Tariff-related properties
     val tariffs: GetTariffsModel? = null,
@@ -28,6 +29,7 @@ data class MapUIState(
     val options: List<GetTariffsModel.Tariff.Service> = emptyList(),
     val selectedOptions: List<GetTariffsModel.Tariff.Service> = emptyList(),
     val comment: String = "",
+    val isTariffValidWithOptions: Boolean? = null,
 
     // Order-related properties
     val timeout: Int? = null,
@@ -53,7 +55,8 @@ data class MapUIState(
     val discardOrderButtonState: DiscardOrderButtonState = DiscardOrderButtonState.OpenDrawer,
 
     val primarySheetHeight: Dp = 0.dp,
-    val footerHeight: Dp = 0.dp
+    val footerHeight: Dp = 0.dp,
+    val outOfServicePadding: Dp = 0.dp,
 ) {
     data class SelectedLocation(
         val name: String?,

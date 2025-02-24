@@ -4,7 +4,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
@@ -71,13 +70,17 @@ fun BottomSheetFooter(
         )
 
         YButton(
-            text = stringResource(R.string.lets_go),
-            enabled = isLoading.not() && uiState.selectedTariff != null && uiState.selectedLocation?.name?.isNotBlank() == true,
-            contentPadding = PaddingValues(vertical = 20.dp),
+            text =  getButtonText(
+                isValidTariff,
+                selectedTariff?.secondAddress == true,
+                uiState.destinations.isEmpty()
+            ),
+            enabled = !isLoading && selectedTariff != null && isValidTariff && !(selectedTariff.secondAddress && uiState.destinations.isEmpty()),
             onClick = onCreateOrder,
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight()
+                .height(56.dp)
         )
 
         OptionsButton(
@@ -94,6 +97,47 @@ fun BottomSheetFooter(
             }
         )
     }
+}
+
+private fun getPaymentIcon(paymentType: PaymentType?): Int {
+    return when (paymentType) {
+        is PaymentType.CARD -> when (paymentType.cardId.length) {
+            16 -> R.drawable.img_logo_humo
+            32 -> R.drawable.img_logo_uzcard
+            else -> R.drawable.img_money
+        }
+        else -> R.drawable.img_money
+    }
+}
+
+@Composable
+private fun getButtonText(isValidTariff: Boolean, selectedTariff: Boolean, hasDestinations: Boolean): String {
+    return when {
+        !isValidTariff -> stringResource(R.string.options_not_valid)
+        selectedTariff && hasDestinations -> stringResource(R.string.required_second_address)
+        else -> stringResource(R.string.lets_go)
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+private fun getOptionsIcon(sheetState: BottomSheetState<SheetValue>, isValidTariff: Boolean): Int {
+    return when {
+        !isValidTariff -> R.drawable.ic_x
+        sheetState.targetValue == SheetValue.Expanded -> R.drawable.ic_arrow_vertical
+        else -> R.drawable.img_options
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+private fun handleOptionsClick(
+    isValidTariff: Boolean,
+    sheetState: BottomSheetState<SheetValue>,
+    uiState: MapUIState,
+    cleanOptions: () -> Unit,
+    showOptions: (Boolean) -> Unit
+) {
+    if (!isValidTariff) cleanOptions()
+    else if (!uiState.tariffs?.tariff.isNullOrEmpty()) showOptions(sheetState.targetValue != SheetValue.Expanded)
 }
 
 private fun determineBadgeText(uiState: MapUIState): String? {

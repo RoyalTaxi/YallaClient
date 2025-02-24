@@ -127,5 +127,10 @@
     <string name="we_on_social_networks">Biz ijtimoiy tarmoqlardamiz</string>
     <string name="email">Elektron pochta</string>
     <string name="version_x">Versiya %s</string>
-    <string name="x_min">%s daq</string>
+    <string name="no_service_massage">Afsuski, biz hozirda bu hududda ishlaymiz</string>
+    <string name="new_address">Yangi manzil</string>
+    <string name="options_not_valid">Tanlangan variantlar ushbu tarifda mavjud emas</string>
+    <string name="required_second_address">Ushbu tarif uchun ikkinchi manzil talab qilinadi.</string>
+    <string name="invalid_options">Ba\'zi variantlar ushbu tarifda amal qilmaydi</string>
+    <string name="driver">Haydovchi</string>
 </resources>

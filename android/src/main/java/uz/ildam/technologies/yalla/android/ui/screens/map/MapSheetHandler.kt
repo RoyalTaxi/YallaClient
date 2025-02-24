@@ -19,10 +19,12 @@ import androidx.core.net.toUri
 import io.morfly.compose.bottomsheet.material3.BottomSheetScaffoldState
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import uz.ildam.technologies.yalla.android.ui.sheets.ActiveOrderDetailsBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.ClientWaitingBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.DriverWaitingBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.FeedbackBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.MainBottomSheet
+import uz.ildam.technologies.yalla.android.ui.sheets.NoServiceBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.OnTheRideBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.OrderTaxiBottomSheet
 import uz.ildam.technologies.yalla.android.ui.sheets.SearchForCarsBottomSheet
@@ -76,8 +78,13 @@ class MapSheetHandler(
                         listState = listState,
                         onSelectTariff = { tariff, wasSelected ->
                             scope.launch {
-                                if (wasSelected) scaffoldState.sheetState.animateTo(SheetValue.Expanded)
-                                else viewModel.setSelectedTariff(tariff = tariff)
+                                if (wasSelected) scaffoldState.sheetState.animateTo(
+                                    SheetValue.Expanded
+                                )
+                                else {
+                                    viewModel.setSelectedTariff(tariff = tariff)
+                                    viewModel.tariffContainsSelectedOptions()
+                                }
                             }
                         },
                         onCurrentLocationClick = {
@@ -100,6 +107,7 @@ class MapSheetHandler(
                 tariffInfo = {
                     TariffInfoBottomSheet(
                         uiState = uiState,
+                        clearOptions = viewModel::clearOptions,
                         onOptionsChange = viewModel::setSelectedOptions
                     ) {
                         if (it == TariffInfoAction.OnClickComment) bottomSheetHandler.showOrderComment(
@@ -114,7 +122,7 @@ class MapSheetHandler(
                 uiState = uiState,
                 viewModel = viewModel,
                 onClickCancel = { bottomSheetHandler.showConfirmCancellation(true) },
-                onClickDetails = {},
+                onClickDetails = { showActiveOrderDetails() },
                 onAppear = viewModel::setPrimarySheetHeight
             )
 
@@ -136,7 +144,7 @@ class MapSheetHandler(
                     timer = timer,
                     onCancel = { bottomSheetHandler.showConfirmCancellation(true) },
                     onClickCall = createDialIntent(context),
-                    onOptionsClick = {},
+                    onClickDetails = { showActiveOrderDetails() },
                     onAppear = viewModel::setPrimarySheetHeight
                 )
             }
@@ -171,7 +179,25 @@ class MapSheetHandler(
                 )
             }
 
-            else -> {}
+            SheetType.ActiveOrderDetails -> ActiveOrderDetailsBottomSheet(
+                uiState = uiState,
+                onClose = { showSearchCars() }
+            )
+
+            SheetType.NoService -> {
+                NoServiceBottomSheet(
+                    setCurrentLocation = {
+                        bottomSheetHandler.showSearchLocation(
+                            show = true,
+                            forDest = false
+                        )
+                    }
+                )
+            }
+
+            else -> {
+
+            }
         }
     }
 
@@ -199,6 +225,14 @@ class MapSheetHandler(
         visibleSheet = SheetType.Feedback
     }
 
+    fun showActiveOrderDetails() {
+        visibleSheet = SheetType.ActiveOrderDetails
+    }
+
+    fun showNoService() {
+        visibleSheet = SheetType.NoService
+    }
+
     private fun createDialIntent(context: android.content.Context): (String) -> Unit = { number ->
         val intent = Intent(ACTION_DIAL).apply { data = "tel:$number".toUri() }
         if (intent.resolveActivity(context.packageManager) != null) context.startActivity(intent)
@@ -206,5 +240,5 @@ class MapSheetHandler(
 }
 
 enum class SheetType {
-    OrderTaxi, SearchCars, ClientWaiting, DriverWaiting, OnTheRide, Feedback
+    OrderTaxi, SearchCars, ClientWaiting, DriverWaiting, OnTheRide, Feedback, NoService, ActiveOrderDetails
 }
