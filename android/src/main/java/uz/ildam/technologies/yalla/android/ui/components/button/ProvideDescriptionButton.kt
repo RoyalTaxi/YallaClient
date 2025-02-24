@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -25,6 +26,7 @@ fun ProvideDescriptionButton(
     description: String? = null,
     leadingIcon: (@Composable () -> Unit)? = null,
     trailingIcon: (@Composable () -> Unit)? = null,
+    textColor: Color = YallaTheme.color.black,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
@@ -42,7 +44,7 @@ fun ProvideDescriptionButton(
                 .fillMaxHeight()
                 .padding(
                     horizontal = 20.dp,
-                    vertical = (if (description == null) 20 else 10).dp
+                    vertical = 10.dp
                 )
         ) {
             leadingIcon?.let { it() }
@@ -53,7 +55,7 @@ fun ProvideDescriptionButton(
             ) {
                 Text(
                     text = title,
-                    color = YallaTheme.color.black,
+                    color = textColor,
                     style = YallaTheme.font.labelSemiBold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis

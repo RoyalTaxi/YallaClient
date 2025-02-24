@@ -25,7 +25,7 @@ actual fun provideHttpClientForApi1() = HttpClient(Android) {
             "${Constants.MAJOR}.${Constants.MINOR}.${Constants.INC}"
         )
         header("Device", "client")
-        header("secret-key", "227da29a-b4b0-4682-a74f-492466836b6e")
+        header("secret-key", "2f52434c-3068-460d-8dbc-5c80599f2db4")
         header("Authorization", AppPreferences.tokenType + AppPreferences.accessToken)
     }
 
@@ -53,7 +53,7 @@ actual fun provideHttpClientForApi2() = HttpClient(Android) {
             "${Constants.MAJOR}.${Constants.MINOR}.${Constants.INC}"
         )
         header("Device", "client")
-        header("secret-key", "227da29a-b4b0-4682-a74f-492466836b6e")
+        header("secret-key", "2f52434c-3068-460d-8dbc-5c80599f2db4")
         header("Authorization", AppPreferences.tokenType + AppPreferences.accessToken)
     }
 

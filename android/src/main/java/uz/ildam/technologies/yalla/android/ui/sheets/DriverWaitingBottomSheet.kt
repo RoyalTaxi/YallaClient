@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -35,7 +36,7 @@ fun DriverWaitingBottomSheet(
     timer: String,
     onCancel: () -> Unit,
     onClickCall: (String) -> Unit,
-    onOptionsClick: () -> Unit,
+    onClickDetails: () -> Unit,
     onAppear: (Dp) -> Unit
 ) {
     val density = LocalDensity.current
@@ -94,6 +95,12 @@ fun DriverWaitingBottomSheet(
                 )
             }
         }
+
+        SearchCarItem(
+            text = stringResource(R.string.order_details),
+            imageVector = Icons.Outlined.Info,
+            onClick = onClickDetails
+        )
 
         SearchCarItem(
             modifier = Modifier.clip(RoundedCornerShape(30.dp)),

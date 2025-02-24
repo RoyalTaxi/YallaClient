@@ -17,11 +17,13 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -49,6 +51,7 @@ sealed interface TariffInfoAction {
 fun TariffInfoBottomSheet(
     uiState: MapUIState,
     onOptionsChange: (Options) -> Unit,
+    clearOptions: () -> Unit,
     onAction: (TariffInfoAction) -> Unit
 ) {
     uiState.selectedTariff?.let { tariff ->
@@ -62,13 +65,16 @@ fun TariffInfoBottomSheet(
 
             InfoProvidersSection(
                 info = uiState.comment,
-                onClick = { onAction(TariffInfoAction.OnClickComment) }
+                onClick = { onAction(TariffInfoAction.OnClickComment) },
+                isOptionsValid = uiState.isTariffValidWithOptions ?: true,
+                clearOptions = clearOptions
             )
 
             OptionsSection(
                 options = uiState.options,
                 selectedOptions = uiState.selectedOptions,
-                onOptionsChange = onOptionsChange
+                onOptionsChange = onOptionsChange,
+                isOptionsValid = uiState.isTariffValidWithOptions ?: true
             )
         }
     }
@@ -152,6 +158,8 @@ private fun TariffInfoSection(
 @Composable
 private fun InfoProvidersSection(
     info: String,
+    isOptionsValid: Boolean,
+    clearOptions: () -> Unit,
     onClick: () -> Unit
 ) {
     TariffSectionBackground(
@@ -171,22 +179,58 @@ private fun InfoProvidersSection(
             }
         )
     }
+
+    if (!isOptionsValid) {
+        TariffSectionBackground(
+            modifier = Modifier.height(IntrinsicSize.Min)
+        ){
+            ProvideDescriptionButton(
+                modifier = Modifier.fillMaxHeight(),
+                title = stringResource(R.string.invalid_options),
+                textColor = YallaTheme.color.red,
+                trailingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Clear,
+                        contentDescription = null,
+                        tint = YallaTheme.color.red
+                    )
+                },
+                onClick = clearOptions
+            )
+        }
+    }
 }
 
 @Composable
 private fun OptionsSection(
     options: Options,
     selectedOptions: Options,
+    isOptionsValid: Boolean,
     onOptionsChange: (Options) -> Unit
 ) {
     val newSelectedOptions = remember { mutableStateListOf(*selectedOptions.toTypedArray()) }
+
+    LaunchedEffect(selectedOptions, isOptionsValid) {
+        if (isOptionsValid) {
+            val validOptions = selectedOptions.filter { selected ->
+                options.any { option ->
+                    option.name == selected.name && option.cost == selected.cost
+                }
+            }
+
+            if (newSelectedOptions != validOptions) {
+                newSelectedOptions.clear()
+                newSelectedOptions.addAll(validOptions)
+            }
+        }
+    }
 
     if (options.isNotEmpty()) TariffSectionBackground {
         LazyColumn {
             itemsIndexed(options) { index, option ->
                 OptionsItem(
                     option = option,
-                    isSelected = newSelectedOptions.contains(option),
+                    isSelected = newSelectedOptions.any { it.name == option.name && it.cost == option.cost },
                     onChecked = { isSelected ->
                         newSelectedOptions.toggle(option, isSelected)
                         onOptionsChange(newSelectedOptions)
@@ -197,6 +241,20 @@ private fun OptionsSection(
     }
 }
 
-private fun <T> MutableList<T>.toggle(item: T, add: Boolean) {
-    if (add) add(item) else remove(item)
+
+private fun MutableList<GetTariffsModel.Tariff.Service>.toggle(item: GetTariffsModel.Tariff.Service, shouldAdd: Boolean) {
+    if (shouldAdd) {
+        if (none { it.name == item.name && it.cost == item.cost }) add(item)
+    } else {
+        removeIf { it.name == item.name && it.cost == item.cost }
+    }
+}
+
+private fun <T> MutableList<T>.removeIf(predicate: (T) -> Boolean) {
+    val iterator = iterator()
+    while (iterator.hasNext()) {
+        if (predicate(iterator.next())) {
+            iterator.remove()
+        }
+    }
 }
