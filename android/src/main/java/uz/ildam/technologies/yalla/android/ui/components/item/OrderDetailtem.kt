@@ -43,7 +43,7 @@ fun OrderDetailItem(
             }
         }
 
-        if (carNumber != null) CarNumberItem(
+        if (carNumber != null && carNumber.length > 7) CarNumberItem(
             code = carNumber.slice(0..<2),
             number = "(\\d+|[A-Za-z]+)"
                 .toRegex()

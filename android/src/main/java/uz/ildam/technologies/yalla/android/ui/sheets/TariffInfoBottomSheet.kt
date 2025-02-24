@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -55,11 +54,29 @@ fun TariffInfoBottomSheet(
     clearOptions: () -> Unit,
     onAction: (TariffInfoAction) -> Unit
 ) {
+    val newSelectedOptions = remember(uiState.selectedOptions) {
+        mutableStateListOf(*uiState.selectedOptions.toTypedArray())
+    }
+
+    LaunchedEffect(uiState.selectedOptions, uiState.isTariffValidWithOptions) {
+        if (uiState.isTariffValidWithOptions == true) {
+            val validOptions = uiState.selectedOptions.filter { selected ->
+                uiState.options.any { option ->
+                    option.name == selected.name && option.cost == selected.cost
+                }
+            }
+
+            if (newSelectedOptions != validOptions) {
+                newSelectedOptions.clear()
+                newSelectedOptions.addAll(validOptions)
+            }
+        }
+    }
+
     uiState.selectedTariff?.let { tariff ->
         LazyColumn(
             modifier = Modifier.padding(bottom = uiState.footerHeight)
         ) {
-
             item {
                 TariffInfoSection(
                     tariff = tariff,
@@ -73,21 +90,34 @@ fun TariffInfoBottomSheet(
                 InfoProvidersSection(
                     info = uiState.comment,
                     onClick = { onAction(TariffInfoAction.OnClickComment) },
-                    isOptionsValid = uiState.isTariffValidWithOptions ?: true,
-                    clearOptions = clearOptions
-                )
+
+                    )
             }
+
+            if (uiState.isTariffValidWithOptions == false) {
+                item { Spacer(modifier = Modifier.height(10.dp)) }
+
+                item { InvalidOptionsSection(clearOptions = clearOptions) }
+            }
+
+            item { Spacer(modifier = Modifier.height(10.dp)) }
+
 
             item {
                 Column(modifier = Modifier.clip(RoundedCornerShape(30.dp))) {
                     uiState.options.forEach { service ->
                         OptionsItem(
-                    options = service,
-                            isSelected = uiState.selectedOptions.contains(service),
-                    selectedOptions = uiState.selectedOptions,
-                    onOptionsChange = onOptionsChange,
-                    isOptionsValid = uiState.isTariffValidWithOptions ?: true
-                )
+                            option = service,
+                            isSelected = newSelectedOptions.any {
+                                it.name == service.name && it.cost == service.cost
+                            },
+                            onChecked = { isSelected ->
+                                newSelectedOptions.toggle(service, isSelected)
+                                onOptionsChange(newSelectedOptions)
+                            }
+                        )
+                    }
+                }
             }
         }
     }
@@ -163,8 +193,16 @@ private fun TariffInfoSection(
                 color = YallaTheme.color.black,
                 modifier = Modifier.padding(vertical = 10.dp),
                 text = when {
-                    isDestinationsEmpty -> stringResource(R.string.starting_cost, tariff.cost)
-                    tariff.fixedType -> stringResource(R.string.fixed_cost, tariff.fixedPrice)
+                    isDestinationsEmpty -> stringResource(
+                        R.string.starting_cost,
+                        tariff.cost
+                    )
+
+                    tariff.fixedType -> stringResource(
+                        R.string.fixed_cost,
+                        tariff.fixedPrice
+                    )
+
                     else -> stringResource(R.string.fixed_cost, "~${tariff.fixedPrice}")
                 }
             )
@@ -175,10 +213,9 @@ private fun TariffInfoSection(
 @Composable
 private fun InfoProvidersSection(
     info: String,
-    isOptionsValid: Boolean,
-    clearOptions: () -> Unit,
     onClick: () -> Unit
 ) {
+
     TariffSectionBackground(
         modifier = Modifier.height(IntrinsicSize.Min)
     ) {
@@ -196,68 +233,31 @@ private fun InfoProvidersSection(
             }
         )
     }
-
-    if (!isOptionsValid) {
-        TariffSectionBackground(
-            modifier = Modifier.height(IntrinsicSize.Min)
-        ) {
-            ProvideDescriptionButton(
-                modifier = Modifier.fillMaxHeight(),
-                title = stringResource(R.string.invalid_options),
-                textColor = YallaTheme.color.red,
-                trailingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Clear,
-                        contentDescription = null,
-                        tint = YallaTheme.color.red
-                    )
-                },
-                onClick = clearOptions
-            )
-        }
-    }
 }
 
 @Composable
-private fun OptionsSection(
-    options: Options,
-    selectedOptions: Options,
-    isOptionsValid: Boolean,
-    onOptionsChange: (Options) -> Unit
+fun InvalidOptionsSection(
+    clearOptions: () -> Unit,
 ) {
-    val newSelectedOptions = remember { mutableStateListOf(*selectedOptions.toTypedArray()) }
-
-    LaunchedEffect(selectedOptions, isOptionsValid) {
-        if (isOptionsValid) {
-            val validOptions = selectedOptions.filter { selected ->
-                options.any { option ->
-                    option.name == selected.name && option.cost == selected.cost
-                }
-            }
-
-            if (newSelectedOptions != validOptions) {
-                newSelectedOptions.clear()
-                newSelectedOptions.addAll(validOptions)
-            }
-        }
-    }
-
-    if (options.isNotEmpty()) TariffSectionBackground {
-        LazyColumn {
-            itemsIndexed(options) { index, option ->
-                OptionsItem(
-                    option = option,
-                    isSelected = newSelectedOptions.any { it.name == option.name && it.cost == option.cost },
-                    onChecked = { isSelected ->
-                        newSelectedOptions.toggle(option, isSelected)
-                        onOptionsChange(newSelectedOptions)
-                    }
+    TariffSectionBackground(
+        modifier = Modifier.height(IntrinsicSize.Min)
+    ) {
+        ProvideDescriptionButton(
+            modifier = Modifier.fillMaxHeight(),
+            title = stringResource(R.string.invalid_options),
+            textColor = YallaTheme.color.red,
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Clear,
+                    contentDescription = null,
+                    tint = YallaTheme.color.red
                 )
-            }
-        }
+            },
+            onClick = clearOptions
+        )
     }
-}
 
+}
 
 private fun MutableList<GetTariffsModel.Tariff.Service>.toggle(
     item: GetTariffsModel.Tariff.Service,
@@ -267,14 +267,5 @@ private fun MutableList<GetTariffsModel.Tariff.Service>.toggle(
         if (none { it.name == item.name && it.cost == item.cost }) add(item)
     } else {
         removeIf { it.name == item.name && it.cost == item.cost }
-    }
-}
-
-private fun <T> MutableList<T>.removeIf(predicate: (T) -> Boolean) {
-    val iterator = iterator()
-    while (iterator.hasNext()) {
-        if (predicate(iterator.next())) {
-            iterator.remove()
-        }
     }
 }

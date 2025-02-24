@@ -9,10 +9,15 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.feature.core.design.theme.YallaTheme
 
@@ -29,12 +34,20 @@ fun YButton(
     itemArrangement: Arrangement.Horizontal = Arrangement.spacedBy(6.dp),
     onClick: () -> Unit,
 ) {
+
+    val adjustedContentPadding by remember(text) {
+        mutableStateOf(
+            if (text.length > 20) PaddingValues(vertical = 6.dp, horizontal = 8.dp)
+            else contentPadding
+        )
+    }
+
     Button(
         onClick = onClick,
         shape = RoundedCornerShape(16.dp),
         modifier = modifier,
         enabled = enabled,
-        contentPadding = contentPadding,
+        contentPadding = adjustedContentPadding,
         colors = ButtonDefaults.buttonColors(
             containerColor = containerColor,
             disabledContainerColor = YallaTheme.color.gray2,
@@ -57,7 +70,10 @@ fun YButton(
             Text(
                 text = text,
                 color = if (enabled) contentColor else YallaTheme.color.gray,
-                style = YallaTheme.font.labelLarge
+                style = YallaTheme.font.labelLarge,
+                textAlign = TextAlign.Center,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
 
             trailingIcon?.let { icon ->

@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.ildam.technologies.yalla.android.R
-import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
+import uz.yalla.client.feature.core.components.buttons.YButton
 import uz.yalla.client.feature.core.design.theme.YallaTheme
 
 @Composable
@@ -51,7 +51,7 @@ fun NoServiceBottomSheet(
                 shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
             )
         ) {
-            YallaButton(
+            YButton(
                 text = stringResource(R.string.new_address),
                 onClick = setCurrentLocation,
                 modifier = Modifier

@@ -270,7 +270,7 @@ class MapViewModel(
         val selectedOptions = uiState.value.selectedOptions
         val tariffOptions = uiState.value.options
 
-        if(selectedOptions.isNotEmpty()){
+        if (selectedOptions.isNotEmpty()) {
             _uiState.update {
                 it.copy(
                     isTariffValidWithOptions = selectedOptions.all { selected ->
@@ -284,10 +284,12 @@ class MapViewModel(
     }
 
     fun clearOptions() {
-        _uiState.update { it.copy(
-            selectedOptions = emptyList(),
-            isTariffValidWithOptions = null
-        ) }
+        _uiState.update {
+            it.copy(
+                selectedOptions = emptyList(),
+                isTariffValidWithOptions = null
+            )
+        }
     }
 
     fun setSelectedOptions(options: List<GetTariffsModel.Tariff.Service>) {

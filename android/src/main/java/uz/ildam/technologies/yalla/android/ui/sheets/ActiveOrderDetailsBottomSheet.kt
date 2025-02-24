@@ -5,8 +5,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -14,10 +14,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.ildam.technologies.yalla.android.R
-import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
 import uz.ildam.technologies.yalla.android.ui.components.item.LocationItem
 import uz.ildam.technologies.yalla.android.ui.components.item.OrderDetailItem
 import uz.ildam.technologies.yalla.android.ui.screens.map.MapUIState
+import uz.yalla.client.feature.core.components.buttons.YButton
 import uz.yalla.client.feature.core.design.theme.YallaTheme
 
 @Composable
@@ -26,10 +26,8 @@ fun ActiveOrderDetailsBottomSheet(
     onClose: () -> Unit
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier
             .background(YallaTheme.color.white)
-            .fillMaxHeight()
             .padding(20.dp)
     ) {
         LocationItem(
@@ -86,15 +84,13 @@ fun ActiveOrderDetailsBottomSheet(
             )
         }
 
-        Spacer(modifier = Modifier.weight(1f))
-
         Box(
             modifier = Modifier.background(
                 color = YallaTheme.color.white,
                 shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
             )
         ) {
-            YallaButton(
+            YButton(
                 text = stringResource(R.string.close),
                 onClick = onClose,
                 modifier = Modifier
