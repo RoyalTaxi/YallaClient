@@ -46,7 +46,8 @@ fun MapScreen(
     mapBottomSheetHandler: MapBottomSheetHandler,
     onIntent: (MapIntent) -> Unit,
     onCreateOrder: () -> Unit,
-    onAppear: (Dp) -> Unit
+    onAppear: (Dp) -> Unit,
+    onClearOptions: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
@@ -79,7 +80,8 @@ fun MapScreen(
                 contentPadding = with(density) {
                     PaddingValues(
                         top = WindowInsets.statusBars.getTop(density).toDp(),
-                        bottom = uiState.primarySheetHeight + if (uiState.selectedDriver == null) uiState.footerHeight else 0.dp
+                        bottom = uiState.primarySheetHeight + uiState.footerHeight -
+                                if (uiState.outOfService == true) uiState.outOfServicePadding else 0.dp
                     )
                 }
             )
@@ -92,7 +94,8 @@ fun MapScreen(
 
             if (scaffoldState.sheetState.targetValue != SheetValue.Expanded) MapOverlay(
                 modifier = Modifier.padding(
-                    bottom = uiState.primarySheetHeight + if (uiState.selectedDriver == null) uiState.footerHeight else 0.dp
+                    bottom = uiState.primarySheetHeight + uiState.footerHeight -
+                            if (uiState.outOfService == true) uiState.outOfServicePadding else 0.dp
                 ),
                 uiState = uiState,
                 isLoading = isLoading,
@@ -106,7 +109,7 @@ fun MapScreen(
             )
         }
 
-        if (uiState.selectedDriver == null) BottomSheetFooter(
+        if (uiState.selectedDriver == null && uiState.outOfService != true) BottomSheetFooter(
             uiState = uiState,
             isLoading = isLoading,
             sheetState = scaffoldState.sheetState,
@@ -123,7 +126,8 @@ fun MapScreen(
             },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .onSizeChanged { onAppear(with(density) { it.height.toDp() }) }
+                .onSizeChanged { onAppear(with(density) { it.height.toDp() }) },
+            cleanOptions = onClearOptions
         )
     }
 }

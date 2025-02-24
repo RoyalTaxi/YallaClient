@@ -13,13 +13,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import uz.ildam.technologies.yalla.android.R
 import uz.yalla.client.feature.core.design.theme.YallaTheme
 
 @Composable
 fun LocationItem(
-    location: String,
+    location: String? = null,
     isFirst: Boolean,
     isLast: Boolean,
     modifier: Modifier = Modifier
@@ -65,8 +67,8 @@ fun LocationItem(
         }
 
         Text(
-            text = location,
-            color = YallaTheme.color.black,
+            text = location ?: stringResource(R.string.enter_the_address),
+            color = if (location.isNullOrEmpty()) YallaTheme.color.gray else YallaTheme.color.black,
             style = YallaTheme.font.labelSemiBold,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis

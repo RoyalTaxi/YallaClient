@@ -3,7 +3,7 @@ package uz.ildam.technologies.yalla.android.ui.components.button
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -52,17 +53,24 @@ fun OptionsButton(
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
-                        .size(14.dp)
-                        .clip(CircleShape)
-                        .background(YallaTheme.color.red)
-                        .aspectRatio(1f)
+                        .offset(x = (8).dp, y = (-8).dp)
                         .align(Alignment.TopEnd)
                 ) {
-                    Text(
-                        text = badgeText,
-                        style = YallaTheme.font.bodySmall.copy(fontSize = 8.sp),
-                        color = YallaTheme.color.white
-                    )
+                    Box(
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .background(YallaTheme.color.red)
+                            .size(14.dp)
+                            .align(Alignment.Center)
+                    ) {
+                        Text(
+                            text = badgeText,
+                            style = YallaTheme.font.bodySmall.copy(fontSize = 8.sp),
+                            color = YallaTheme.color.white,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
                 }
             }
         }
