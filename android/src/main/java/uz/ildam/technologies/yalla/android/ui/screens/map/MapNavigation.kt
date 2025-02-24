@@ -27,11 +27,7 @@ fun NavGraphBuilder.mapScreen(
     inviteFriendClick: (String, String) -> Unit
 ) {
     composable(
-        route = MAP_ROUTE,
-        enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-        popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) + fadeIn() },
-        exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) + fadeOut() },
-        popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() }
+        route = MAP_ROUTE
     ) {
         MapRoute(
             onProfileClick = onProfileClick,

@@ -35,7 +35,7 @@ fun LoginNumberField(
     modifier: Modifier = Modifier,
     onUpdateNumber: (String) -> Unit
 ) {
-    val focusedColor = YallaTheme.color.black
+    val focusedColor = YallaTheme.color.primary
     val unfocusedColor = YallaTheme.color.gray2
     var borderColor by remember { mutableStateOf(unfocusedColor) }
 

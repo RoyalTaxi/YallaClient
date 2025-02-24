@@ -1,7 +1,6 @@
 package uz.ildam.technologies.yalla.android.ui.sheets
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -11,9 +10,10 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -22,8 +22,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,24 +50,44 @@ fun TariffInfoBottomSheet(
     onAction: (TariffInfoAction) -> Unit
 ) {
     uiState.selectedTariff?.let { tariff ->
-        Column(
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+        LazyColumn(
+            modifier = Modifier.padding(bottom = uiState.footerHeight)
         ) {
-            TariffInfoSection(
-                tariff = tariff,
-                isDestinationsEmpty = uiState.destinations.isEmpty()
-            )
+            item {
+                TariffInfoSection(
+                    tariff = tariff,
+                    isDestinationsEmpty = uiState.destinations.isEmpty()
+                )
+            }
 
-            InfoProvidersSection(
-                info = uiState.comment,
-                onClick = { onAction(TariffInfoAction.OnClickComment) }
-            )
+            item { Spacer(modifier = Modifier.height(10.dp)) }
 
-            OptionsSection(
-                options = uiState.options,
-                selectedOptions = uiState.selectedOptions,
-                onOptionsChange = onOptionsChange
-            )
+            item {
+                InfoProvidersSection(
+                    info = uiState.comment,
+                    onClick = { onAction(TariffInfoAction.OnClickComment) }
+                )
+            }
+
+            item { Spacer(modifier = Modifier.height(10.dp)) }
+
+            item {
+                Column(modifier = Modifier.clip(RoundedCornerShape(30.dp))) {
+                    uiState.options.forEach { service ->
+                        OptionsItem(
+                            option = service,
+                            isSelected = uiState.selectedOptions.contains(service),
+                            onChecked = { isSelected ->
+                                val updatedOptions = uiState.selectedOptions.toMutableList()
+                                updatedOptions.toggle(service, isSelected)
+                                onOptionsChange(updatedOptions)
+                            }
+                        )
+                    }
+                }
+            }
+
+            item { Spacer(modifier = Modifier.height(10.dp)) }
         }
     }
 }
@@ -95,7 +113,9 @@ private fun TariffInfoSection(
 ) {
     TariffSectionBackground {
         Column(
-            modifier = Modifier.padding(horizontal = 20.dp)
+            modifier = Modifier
+                .padding(horizontal = 20.dp)
+                .statusBarsPadding()
         ) {
             Box(
                 modifier = Modifier
@@ -130,8 +150,10 @@ private fun TariffInfoSection(
                 contentDescription = null,
                 placeholder = painterResource(R.drawable.img_default_car),
                 error = painterResource(R.drawable.img_default_car),
+                contentScale = androidx.compose.ui.layout.ContentScale.FillWidth,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .wrapContentHeight()
                     .padding(20.dp)
             )
 
@@ -170,30 +192,6 @@ private fun InfoProvidersSection(
                 )
             }
         )
-    }
-}
-
-@Composable
-private fun OptionsSection(
-    options: Options,
-    selectedOptions: Options,
-    onOptionsChange: (Options) -> Unit
-) {
-    val newSelectedOptions = remember { mutableStateListOf(*selectedOptions.toTypedArray()) }
-
-    if (options.isNotEmpty()) TariffSectionBackground {
-        LazyColumn {
-            itemsIndexed(options) { index, option ->
-                OptionsItem(
-                    option = option,
-                    isSelected = newSelectedOptions.contains(option),
-                    onChecked = { isSelected ->
-                        newSelectedOptions.toggle(option, isSelected)
-                        onOptionsChange(newSelectedOptions)
-                    }
-                )
-            }
-        }
     }
 }
 

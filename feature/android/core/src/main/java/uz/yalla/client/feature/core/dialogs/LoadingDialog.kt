@@ -38,7 +38,7 @@ fun LoadingDialog(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .fillMaxSize()
-            .then(if (isBackgroundEnabled) Modifier.background(YallaTheme.color.black.copy(.6f)) else Modifier)
+            .background(YallaTheme.color.white)
             .pointerInput(Unit) { }
     ) {
         Image(

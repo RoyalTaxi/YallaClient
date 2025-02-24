@@ -19,10 +19,6 @@ internal fun NavGraphBuilder.addressesScreen(
 ) {
     composable(
         route = ADDRESSES_ROUTE,
-        enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-        popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) + fadeIn() },
-        exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) + fadeOut() },
-        popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
     ) {
         AddressesRoute(
             onNavigateBack = onNavigateBack,

@@ -17,11 +17,7 @@ internal fun NavGraphBuilder.addEmployeeScreen(
 ) {
 
     composable(
-        route = ADD_EMPLOYEE_ROUTE,
-        enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-        popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) + fadeIn() },
-        exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) + fadeOut() },
-        popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() }
+        route = ADD_EMPLOYEE_ROUTE
     ) {
 
         AddEmployeeRoute(

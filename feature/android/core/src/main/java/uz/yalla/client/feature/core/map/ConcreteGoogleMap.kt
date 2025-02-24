@@ -33,7 +33,9 @@ import com.google.maps.android.compose.MarkerComposable
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.google.maps.android.compose.rememberMarkerState
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.android2gis.dpToPx
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
@@ -45,6 +47,7 @@ import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.Sho
 import uz.yalla.client.feature.core.R
 import uz.yalla.client.feature.core.utils.getCurrentLocation
 import uz.yalla.client.feature.core.utils.vectorToBitmapDescriptor
+import kotlin.properties.Delegates
 
 class ConcreteGoogleMap : MapStrategy {
     override val isMarkerMoving: MutableState<Boolean> = mutableStateOf(false)
@@ -65,6 +68,8 @@ class ConcreteGoogleMap : MapStrategy {
     private lateinit var coroutineScope: CoroutineScope
     private lateinit var cameraPositionState: CameraPositionState
 
+    private var mapPadding by Delegates.notNull<Int>()
+
     @Composable
     override fun Map(
         startingPoint: MapPoint?,
@@ -72,8 +77,14 @@ class ConcreteGoogleMap : MapStrategy {
         contentPadding: PaddingValues
     ) {
         context = LocalContext.current
+        mapPadding = dpToPx(context, 100)
         coroutineScope = rememberCoroutineScope()
         cameraPositionState = rememberCameraPositionState()
+
+        LaunchedEffect(cameraPositionState) {
+            awaitFrame()
+            startingPoint?.let { mapPoint.value = it }
+        }
 
         LaunchedEffect(cameraPositionState.isMoving) {
             isMarkerMoving.value = cameraPositionState.isMoving
@@ -113,11 +124,11 @@ class ConcreteGoogleMap : MapStrategy {
                     vectorToBitmapDescriptor(context, R.drawable.ic_origin_marker)
                         ?: BitmapDescriptorFactory.defaultMarker()
                 },
-                state = remember(locations.first()) {
+                state = remember(locations.firstOrNull()) {
                     MarkerState(
                         LatLng(
-                            locations.first().lat.or0(),
-                            locations.first().lng.or0(),
+                            locations.firstOrNull()?.lat.or0(),
+                            locations.firstOrNull()?.lng.or0(),
                         )
                     )
                 }
@@ -174,7 +185,7 @@ class ConcreteGoogleMap : MapStrategy {
             cameraPositionState.move(
                 update = CameraUpdateFactory.newLatLngBounds(
                     bounds,
-                    dpToPx(context, 100)
+                    mapPadding
                 )
             )
         }
@@ -189,7 +200,7 @@ class ConcreteGoogleMap : MapStrategy {
                 durationMs = 1000,
                 update = CameraUpdateFactory.newLatLngBounds(
                     bounds,
-                    dpToPx(context, 100)
+                    mapPadding
                 )
             )
         }
@@ -235,7 +246,7 @@ private fun Driver(
         MarkerComposable(
             flat = true,
             rotation = it.heading.toFloat(),
-            state = remember { MarkerState(LatLng(it.lat, it.lng)) }
+            state = rememberMarkerState(position = LatLng(it.lat, it.lng))
         ) {
             Icon(
                 painter = painterResource(R.drawable.img_car_marker),

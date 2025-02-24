@@ -18,11 +18,7 @@ fun NavGraphBuilder.historyScreen(
     onClickItem: (Int) -> Unit,
 ) {
     composable(
-        route = HISTORY_ROUTE,
-        enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-        popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) + fadeIn() },
-        exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) + fadeOut() },
-        popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() }
+        route = HISTORY_ROUTE
     ) {
         HistoryRoute(
             onBack = onBack,

@@ -26,10 +26,6 @@ fun NavGraphBuilder.verificationScreen(
 ) {
     composable(
         route = VERIFICATION_ROUTE,
-        enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-        popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) + fadeIn() },
-        exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) + fadeOut() },
-        popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
         arguments = listOf(
             navArgument(NUMBER) { type = NavType.StringType },
             navArgument(EXPIRES_IN) { type = NavType.IntType }

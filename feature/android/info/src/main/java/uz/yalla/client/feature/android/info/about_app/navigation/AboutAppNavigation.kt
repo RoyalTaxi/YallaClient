@@ -18,11 +18,7 @@ internal fun NavGraphBuilder.aboutAppScreen(
     onClickUrl: (String, String) -> Unit
 ) {
     composable(
-        route = ABOUT_APP_ROUTE,
-        enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-        popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) + fadeIn() },
-        exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) + fadeOut() },
-        popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() }
+        route = ABOUT_APP_ROUTE
     ) {
         AboutAppRoute(
             onClickUrl = onClickUrl,

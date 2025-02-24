@@ -230,17 +230,15 @@ fun YallaMarker(
                     }
                 ) {
                     AnimatedContent(
+                        contentAlignment = Alignment.Center,
                         targetState = if (!isLoading && selectedAddressName != null) {
                             selectedAddressName
                         } else {
                             stringResource(R.string.loading)
                         },
                         transitionSpec = {
-                            fadeIn(
-                                animationSpec = tween(durationMillis = 500)
-                            ) togetherWith fadeOut(
-                                animationSpec = tween(durationMillis = 500)
-                            )
+                            fadeIn(animationSpec = tween(durationMillis = 500)) togetherWith
+                                    fadeOut(animationSpec = tween(durationMillis = 500))
                         }, label = "textAnimation"
                     ) { targetText ->
                         Text(

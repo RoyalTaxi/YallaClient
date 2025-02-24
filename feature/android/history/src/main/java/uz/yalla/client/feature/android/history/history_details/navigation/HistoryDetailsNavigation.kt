@@ -22,10 +22,6 @@ internal fun NavGraphBuilder.historyDetailsScreen(
 ) {
     composable(
         route = DETAILS_ROUTE,
-        enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-        popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) + fadeIn() },
-        exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) + fadeOut() },
-        popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
         arguments = listOf(navArgument(ID) { type = NavType.IntType })
     ) { backStackEntry ->
         HistoryDetailsRoute(

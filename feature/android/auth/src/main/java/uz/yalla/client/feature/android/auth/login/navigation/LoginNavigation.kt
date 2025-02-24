@@ -19,11 +19,7 @@ internal fun NavGraphBuilder.loginScreen(
     onNext: (String, Int) -> Unit,
 ) {
     composable(
-        route = LOGIN_ROUTE,
-        enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-        popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) + fadeIn() },
-        exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) + fadeOut() },
-        popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() }
+        route = LOGIN_ROUTE
     ) {
         LoginRoute(
             onBack = onBack,

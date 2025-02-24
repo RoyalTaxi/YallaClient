@@ -23,8 +23,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.ui.components.button.OptionsButton
-import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.ShowOrderModel
+import uz.yalla.client.feature.core.components.buttons.YButton
 import uz.yalla.client.feature.core.design.theme.YallaTheme
 
 @Composable
@@ -95,7 +95,7 @@ fun OnTheRideBottomSheet(
                 onClick = {}
             )
 
-            YallaButton(
+            YButton(
                 text = stringResource(R.string.lets_go),
                 contentPadding = PaddingValues(vertical = 20.dp),
                 onClick = { },

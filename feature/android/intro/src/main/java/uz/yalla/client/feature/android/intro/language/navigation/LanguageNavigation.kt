@@ -18,11 +18,7 @@ internal fun NavGraphBuilder.languageScreen(
     onNext: () -> Unit
 ) {
     composable(
-        route = LANGUAGE_ROUTE,
-        enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-        popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) + fadeIn() },
-        exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) + fadeOut() },
-        popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() }
+        route = LANGUAGE_ROUTE
     ) {
         LanguageRoute(
             onBack = onBack,

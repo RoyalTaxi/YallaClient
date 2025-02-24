@@ -3,6 +3,7 @@ package uz.yalla.client.feature.core.sheets.select_from_map
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -26,11 +27,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.android.awaitFrame
 import org.koin.androidx.compose.koinViewModel
 import uz.ildam.technologies.yalla.core.data.enums.MapType
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
@@ -68,12 +71,6 @@ fun SelectFromMapBottomSheet(
 
     BackHandler(onBack = onDismissRequest)
 
-    // Fetch address details when the bottom sheet opens
-    LaunchedEffect(startingPoint) {
-        startingPoint?.let { viewModel.getAddressDetails(it) }
-    }
-
-    // Track marker movement and update address accordingly
     LaunchedEffect(map.isMarkerMoving.value) {
         if (map.isMarkerMoving.value) {
             viewModel.changeStateToNotFound()
@@ -82,12 +79,16 @@ fun SelectFromMapBottomSheet(
         }
     }
 
-    // Move the map when bottom sheet padding updates
     LaunchedEffect(mapBottomPadding) {
-        when {
-            startingPoint == null -> map.moveToMyLocation()
-            map.mapPoint.value != MapPoint.Zero -> map.move(map.mapPoint.value)
-            else -> map.move(startingPoint)
+        if (mapBottomPadding > 0.dp) {
+            awaitFrame()
+            when {
+                startingPoint == null -> map.moveToMyLocation()
+                map.mapPoint.value != MapPoint.Zero -> {
+                    map.move(map.mapPoint.value)
+                    viewModel.getAddressDetails(map.mapPoint.value)
+                }
+            }
         }
     }
 
@@ -106,7 +107,7 @@ fun SelectFromMapBottomSheet(
             modifier = Modifier
                 .matchParentSize()
                 .padding(20.dp)
-                .padding(bottom = if (startingPoint == null) mapBottomPadding else 0.dp)
+                .padding(bottom = mapBottomPadding)
         ) {
             MapButton(
                 painter = painterResource(R.drawable.ic_location),
@@ -118,7 +119,7 @@ fun SelectFromMapBottomSheet(
                 time = uiState.timeout,
                 isLoading = map.isMarkerMoving.value,
                 color = YallaTheme.color.black,
-                selectedAddressName = uiState.name ?: stringResource(R.string.loading),
+                selectedAddressName = uiState.name,
                 modifier = Modifier
                     .matchParentSize()
                     .align(Alignment.Center)

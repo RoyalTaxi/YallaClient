@@ -17,11 +17,7 @@ internal fun NavGraphBuilder.contactUsScreen(
     onClickUrl: (String, String) -> Unit
 ) {
     composable(
-        route = CONTACT_US_ROUTE,
-        enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-        popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) + fadeIn() },
-        exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) + fadeOut() },
-        popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() }
+        route = CONTACT_US_ROUTE
     ) {
         ContactUsRoute(
             onClickUrl = onClickUrl,

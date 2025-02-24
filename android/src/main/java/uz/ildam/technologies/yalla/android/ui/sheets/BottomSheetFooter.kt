@@ -20,9 +20,9 @@ import androidx.compose.ui.unit.dp
 import io.morfly.compose.bottomsheet.material3.BottomSheetState
 import uz.ildam.technologies.yalla.android.R
 import uz.ildam.technologies.yalla.android.ui.components.button.OptionsButton
-import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
 import uz.ildam.technologies.yalla.android.ui.screens.map.MapUIState
 import uz.ildam.technologies.yalla.core.data.enums.PaymentType
+import uz.yalla.client.feature.core.components.buttons.YButton
 import uz.yalla.client.feature.core.design.theme.YallaTheme
 import uz.yalla.client.feature.core.sheets.SheetValue
 
@@ -70,9 +70,9 @@ fun BottomSheetFooter(
             onClick = onSelectPaymentMethodClick
         )
 
-        YallaButton(
+        YButton(
             text = stringResource(R.string.lets_go),
-            enabled = isLoading.not() && uiState.selectedTariff != null,
+            enabled = isLoading.not() && uiState.selectedTariff != null && uiState.selectedLocation?.name?.isNotBlank() == true,
             contentPadding = PaddingValues(vertical = 20.dp),
             onClick = onCreateOrder,
             modifier = Modifier

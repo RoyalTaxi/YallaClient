@@ -29,8 +29,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import uz.ildam.technologies.yalla.android.R
-import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
+import uz.yalla.client.feature.core.components.buttons.YButton
 import uz.yalla.client.feature.core.design.theme.YallaTheme
 
 @Composable
@@ -92,7 +92,7 @@ fun OfflineScreen() {
 
         Spacer(modifier = Modifier.weight(1f))
 
-        YallaButton(
+        YButton(
             text = stringResource(R.string.call),
             containerColor = YallaTheme.color.primary,
             modifier = Modifier.fillMaxWidth(),

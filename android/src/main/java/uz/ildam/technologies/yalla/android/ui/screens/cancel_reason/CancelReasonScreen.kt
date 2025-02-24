@@ -21,8 +21,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.ildam.technologies.yalla.android.R
-import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
 import uz.ildam.technologies.yalla.android.ui.components.item.ItemTextSelectable
+import uz.yalla.client.feature.core.components.buttons.YButton
 import uz.yalla.client.feature.core.design.theme.YallaTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -88,8 +88,7 @@ fun CancelReasonScreen(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-
-                YallaButton(
+                YButton(
                     text = stringResource(R.string.choose),
                     enabled = uiState.selectedReason != null,
                     contentPadding = PaddingValues(vertical = 16.dp),

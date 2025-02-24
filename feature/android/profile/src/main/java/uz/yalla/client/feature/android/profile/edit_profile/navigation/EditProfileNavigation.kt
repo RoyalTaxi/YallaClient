@@ -13,16 +13,14 @@ import uz.yalla.client.feature.core.navigation.safeNavigate
 internal const val EDIT_PROFILE_ROUTE = "edit_profile_route"
 
 internal fun NavGraphBuilder.editProfileScreen(
+    onNavigateToStart: () -> Unit,
     onNavigateBack: () -> Unit
 ) {
     composable(
         route = EDIT_PROFILE_ROUTE,
-        enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-        popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) + fadeIn() },
-        exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) + fadeOut() },
-        popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
     ) {
         EditProfileRoute(
+            onNavigateToStart = onNavigateToStart,
             onNavigateBack = onNavigateBack
         )
     }

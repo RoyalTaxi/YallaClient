@@ -17,11 +17,7 @@ internal fun NavGraphBuilder.addCardScreen(
     onNavigateNext: (key: String, cardNumber: String, cardExpiry: String) -> Unit
 ) {
     composable(
-        route = ADD_CARD_ROUTE,
-        enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-        popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) + fadeIn() },
-        exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) + fadeOut() },
-        popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() }
+        route = ADD_CARD_ROUTE
     ) {
         AddCardRoute(
             onNavigateBack = onNavigateBack,

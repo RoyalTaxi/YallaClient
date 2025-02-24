@@ -7,6 +7,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -18,19 +19,23 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 import uz.yalla.client.feature.android.cancel.R
 import uz.yalla.client.feature.android.profile.edit_profile.model.EditProfileActionState
 import uz.yalla.client.feature.android.profile.edit_profile.model.EditProfileViewModel
 import uz.yalla.client.feature.core.dialogs.LoadingDialog
+import uz.yalla.client.feature.core.sheets.ConfirmationBottomSheet
 import uz.yalla.client.feature.core.utils.isFileSizeTooLarge
 import uz.yalla.client.feature.core.utils.isImageDimensionTooLarge
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun EditProfileRoute(
+    onNavigateToStart: () -> Unit,
     onNavigateBack: () -> Unit,
     viewModel: EditProfileViewModel = koinViewModel()
 ) {
@@ -40,6 +45,8 @@ internal fun EditProfileRoute(
     val focusManager = LocalFocusManager.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    val sheetState = rememberModalBottomSheetState(true)
+    var sheetVisibility by remember { mutableStateOf(false) }
 
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberStandardBottomSheetState(
@@ -100,6 +107,10 @@ internal fun EditProfileRoute(
         onIntent = { intent ->
             when (intent) {
                 is EditProfileIntent.OnNavigateBack -> onNavigateBack()
+                is EditProfileIntent.OnDelete -> {
+                    sheetVisibility = true
+                    scope.launch { sheetState.show() }
+                }
 
                 is EditProfileIntent.OnChangeGender -> viewModel.changeGender(intent.gender)
                 is EditProfileIntent.OnChangeName -> viewModel.changeName(intent.name)
@@ -110,20 +121,36 @@ internal fun EditProfileRoute(
                     imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                 }
 
-                EditProfileIntent.OnSave -> {
+                is EditProfileIntent.OnSave -> {
                     focusManager.clearFocus(force = true)
                     if (uiState.newImage != null) viewModel.updateAvatar()
                     else viewModel.postMe()
                 }
 
-                EditProfileIntent.OpenDateBottomSheet -> {
+                is EditProfileIntent.OpenDateBottomSheet -> {
                     viewModel.setDatePickerVisible(true)
                 }
 
-                EditProfileIntent.CloseDateBottomSheet -> {
+                is EditProfileIntent.CloseDateBottomSheet -> {
                     viewModel.setDatePickerVisible(false)
                 }
             }
+        }
+    )
+
+    if (sheetVisibility) ConfirmationBottomSheet(
+        sheetState = sheetState,
+        title = stringResource(R.string.delete_profile_title),
+        description = stringResource(R.string.delete_profile_desc),
+        actionText = stringResource(R.string.delete),
+        dismissText = stringResource(R.string.stay),
+        onDismissRequest = {
+            sheetVisibility = false
+            scope.launch { sheetState.hide() }
+        },
+        onConfirm = {
+            AppPreferences.clear()
+            onNavigateToStart()
         }
     )
 

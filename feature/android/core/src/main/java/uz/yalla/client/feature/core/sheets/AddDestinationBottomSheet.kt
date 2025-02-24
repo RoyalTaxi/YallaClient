@@ -101,7 +101,7 @@ fun AddDestinationBottomSheet(
                 FoundAddressItem(
                     foundAddress = foundAddress,
                     onClick = {
-                        onAddressSelected(it.name, it.lng, it.lat, it.addressId.or0())
+                        onAddressSelected(it.name, it.lat, it.lng, it.addressId.or0())
                         viewModel.setQuery("")
                         viewModel.setFoundAddresses(emptyList())
                         onDismissRequest()

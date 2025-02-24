@@ -23,10 +23,6 @@ internal fun NavGraphBuilder.addressScreen(
 ) {
     composable(
         route = ADDRESS_ROUTE,
-        enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-        popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) + fadeIn() },
-        exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) + fadeOut() },
-        popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
         arguments = listOf(
             navArgument(ID) {
                 type = NavType.StringType // Use StringType to allow null

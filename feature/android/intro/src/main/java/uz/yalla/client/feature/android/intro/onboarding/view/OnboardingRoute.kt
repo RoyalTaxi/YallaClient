@@ -1,5 +1,6 @@
 package uz.yalla.client.feature.android.intro.onboarding.view
 
+import android.Manifest
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.pager.rememberPagerState
@@ -10,6 +11,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import kotlinx.coroutines.launch
 import uz.yalla.client.feature.android.intro.R
 
@@ -21,8 +24,18 @@ internal data class Page(
 
 @Composable
 internal fun OnboardingRoute(
-    onNext: () -> Unit
+    onNext: () -> Unit,
+    onJumpNext: () -> Unit
 ) {
+    val context = LocalContext.current
+    val isPermissionGranted by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        )
+    }
     val screenContents by remember {
         mutableStateOf(
             listOf(
@@ -48,6 +61,8 @@ internal fun OnboardingRoute(
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
 
+    val nextNavigation = if (isPermissionGranted) onJumpNext else onNext
+
     LaunchedEffect(Unit) { scope.launch { scrollState.animateScrollTo(scrollState.maxValue) } }
 
     OnboardingScreen(
@@ -57,7 +72,7 @@ internal fun OnboardingRoute(
         onIntent = { intent ->
             when (intent) {
                 OnboardingIntent.Swipe -> scope.launch {
-                    if (pagerState.currentPage == 2) onNext()
+                    if (pagerState.currentPage == 2) nextNavigation()
                     else pagerState.animateScrollToPage(pagerState.currentPage + 1)
                 }
             }

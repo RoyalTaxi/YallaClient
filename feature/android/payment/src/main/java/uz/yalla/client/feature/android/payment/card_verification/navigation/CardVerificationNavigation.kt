@@ -25,10 +25,6 @@ internal fun NavGraphBuilder.cardVerificationScreen(
 ) {
     composable(
         route = CARD_VERIFICATION_ROUTE,
-        enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-        popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) + fadeIn() },
-        exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) + fadeOut() },
-        popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
         arguments = listOf(
             navArgument(KEY) { type = NavType.StringType },
             navArgument(CARD_NUMBER) { type = NavType.StringType },

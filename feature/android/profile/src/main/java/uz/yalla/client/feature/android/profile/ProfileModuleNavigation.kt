@@ -12,13 +12,15 @@ import uz.yalla.client.feature.core.navigation.safePopBackStack
 internal const val PROFILE_MODULE_ROUTE = "profile_module_route"
 
 fun NavGraphBuilder.profileModule(
-    navController: NavHostController
+    navController: NavHostController,
+    onNavigateToStart: () -> Unit,
 ) {
     navigation(
         startDestination = EDIT_PROFILE_ROUTE,
         route = PROFILE_MODULE_ROUTE
     ) {
         editProfileScreen(
+            onNavigateToStart = onNavigateToStart,
             onNavigateBack = navController::safePopBackStack
         )
     }

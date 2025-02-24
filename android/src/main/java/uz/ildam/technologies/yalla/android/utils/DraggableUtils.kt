@@ -16,7 +16,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.zIndex
 import kotlinx.coroutines.channels.Channel
 
@@ -44,7 +46,7 @@ inline fun <T : Any> LazyListScope.draggableItems(
 }
 
 fun Modifier.dragContainer(dragDropState: DragDropState): Modifier {
-    return this.then(pointerInput(dragDropState) {
+    return this.then(Modifier.pointerInput(dragDropState) {
         detectDragGesturesAfterLongPress(
             onDrag = { change, offset ->
                 change.consume()
@@ -55,6 +57,29 @@ fun Modifier.dragContainer(dragDropState: DragDropState): Modifier {
             onDragCancel = { dragDropState.onDragInterrupted() }
         )
     }
+    )
+}
+
+
+@Composable
+fun Modifier.dragContainerWithHaptic(dragDropState: DragDropState): Modifier {
+    val haptic = LocalHapticFeedback.current
+    return this.then(
+        Modifier.pointerInput(dragDropState) {
+            detectDragGesturesAfterLongPress(
+                onDrag = { change, offset ->
+                    change.consume()
+                    dragDropState.onDrag(offset = offset)
+                },
+                onDragStart = { offset ->
+                    // Trigger a haptic feedback when drag starts
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    dragDropState.onDragStart(offset)
+                },
+                onDragEnd = { dragDropState.onDragInterrupted() },
+                onDragCancel = { dragDropState.onDragInterrupted() }
+            )
+        }
     )
 }
 

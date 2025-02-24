@@ -19,11 +19,7 @@ internal fun NavGraphBuilder.cardListScreen(
     onAddBusinessAccount: () -> Unit
 ) {
     composable(
-        route = CARD_LIST_ROUTE,
-        enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-        popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) + fadeIn() },
-        exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) + fadeOut() },
-        popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() }
+        route = CARD_LIST_ROUTE
     ) {
         CardListRoute(
             onNavigateBack = onNavigateBack,

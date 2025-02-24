@@ -24,9 +24,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import uz.ildam.technologies.yalla.android.R
-import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
 import uz.ildam.technologies.yalla.android.ui.components.item.SearchCarItem
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.ShowOrderModel
+import uz.yalla.client.feature.core.components.buttons.YButton
 import uz.yalla.client.feature.core.design.theme.YallaTheme
 
 @Composable
@@ -120,7 +120,7 @@ fun DriverWaitingBottomSheet(
 //                onClick = onCancel
 //            )
 
-            YallaButton(
+            YButton(
                 text = stringResource(R.string.connect),
                 contentPadding = PaddingValues(vertical = 20.dp),
                 onClick = { onClickCall(car.phone) },

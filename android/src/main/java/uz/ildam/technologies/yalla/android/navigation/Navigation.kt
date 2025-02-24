@@ -1,5 +1,7 @@
 package uz.ildam.technologies.yalla.android.navigation
 
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -46,7 +48,11 @@ fun Navigation(
     NavHost(
         modifier = Modifier.fillMaxSize(),
         navController = navController,
-        startDestination = if (AppPreferences.isDeviceRegistered) MAP_ROUTE else INTRO_ROUTE
+        startDestination = if (AppPreferences.isDeviceRegistered) MAP_ROUTE else INTRO_ROUTE,
+        enterTransition = { slideInHorizontally(initialOffsetX = { it }) },
+        popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) },
+        exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) },
+        popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) }
     ) {
 
         introModule(
@@ -107,7 +113,15 @@ fun Navigation(
         )
 
         profileModule(
-            navController = navController
+            navController = navController,
+            onNavigateToStart = {
+                navController.navigateToIntroModel(
+                    navOptions {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                )
+            }
         )
 
         settingsModule(

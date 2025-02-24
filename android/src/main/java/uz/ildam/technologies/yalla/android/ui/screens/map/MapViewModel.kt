@@ -168,7 +168,7 @@ class MapViewModel(
                 tariffs = data,
                 selectedTariff = newSelectedTariff,
                 options = newSelectedTariff?.services ?: emptyList(),
-                selectedOptions = if (currentSelected == null || currentSelected.id !in data.tariff.map { it.id }) emptyList() else state.selectedOptions
+                selectedOptions = if (currentSelected?.id != newSelectedTariff?.id) emptyList() else state.selectedOptions
             )
         }
     }

@@ -232,15 +232,17 @@ fun YallaMarker(
                 Surface(
                     color = YallaTheme.color.black,
                     shape = RoundedCornerShape(25.dp),
-                    modifier = Modifier.constrainAs(addressName) {
-                        if (isSearching.not()) {
-                            bottom.linkTo(indicator.top, margin = 96.dp)
-                            linkTo(start = indicator.start, end = indicator.end)
-                        } else {
-                            bottom.linkTo(circle.top, margin = 96.dp)
-                            linkTo(start = parent.start, end = parent.end)
+                    modifier = Modifier
+                        .padding(horizontal = 60.dp)
+                        .constrainAs(addressName) {
+                            if (isSearching.not()) {
+                                bottom.linkTo(indicator.top, margin = 96.dp)
+                                linkTo(start = indicator.start, end = indicator.end)
+                            } else {
+                                bottom.linkTo(circle.top, margin = 96.dp)
+                                linkTo(start = parent.start, end = parent.end)
+                            }
                         }
-                    }
                 ) {
                     AnimatedContent(
                         contentAlignment = Alignment.Center,
@@ -262,7 +264,7 @@ fun YallaMarker(
                             color = YallaTheme.color.white,
                             style = YallaTheme.font.labelSemiBold,
                             textAlign = TextAlign.Center,
-                            maxLines = 2,
+                            maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp)
                         )

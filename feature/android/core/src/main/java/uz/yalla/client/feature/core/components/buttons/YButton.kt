@@ -22,7 +22,7 @@ fun YButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     contentPadding: PaddingValues = PaddingValues(vertical = 16.dp, horizontal = 32.dp),
-    containerColor: Color = YallaTheme.color.black,
+    containerColor: Color = YallaTheme.color.primary,
     contentColor: Color = YallaTheme.color.white,
     leadingIcon: Painter? = null,
     trailingIcon: Painter? = null,

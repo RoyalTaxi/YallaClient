@@ -30,6 +30,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -96,7 +97,17 @@ internal fun EditProfileScreen(
                     IconButton(onClick = { onIntent(EditProfileIntent.OnNavigateBack) }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = null
+                            contentDescription = null,
+                            tint = YallaTheme.color.black
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { onIntent(EditProfileIntent.OnDelete) }) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = null,
+                            tint = YallaTheme.color.black
                         )
                     }
                 },

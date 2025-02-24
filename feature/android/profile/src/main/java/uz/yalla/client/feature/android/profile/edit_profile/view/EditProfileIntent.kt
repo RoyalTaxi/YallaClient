@@ -5,6 +5,7 @@ import uz.yalla.client.feature.android.profile.edit_profile.components.Gender
 
 internal sealed interface EditProfileIntent {
     data object OnNavigateBack : EditProfileIntent
+    data object OnDelete : EditProfileIntent
     data object OnUpdateImage : EditProfileIntent
     data object OnSave : EditProfileIntent
     data object OpenDateBottomSheet : EditProfileIntent

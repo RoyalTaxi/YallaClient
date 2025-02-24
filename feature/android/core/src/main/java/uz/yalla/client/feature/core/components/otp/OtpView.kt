@@ -28,7 +28,7 @@ fun OtpView(
     modifier: Modifier = Modifier,
     charColor: Color = YallaTheme.color.black,
     containerColor: Color = Color.Transparent,
-    selectedContainerColor: Color = YallaTheme.color.black,
+    selectedContainerColor: Color = YallaTheme.color.primary,
     charBackground: Color = YallaTheme.color.gray2,
     charSize: TextUnit = 14.sp,
     containerRadius: Dp = 12.dp,

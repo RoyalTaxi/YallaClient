@@ -25,12 +25,12 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import org.koin.androidx.compose.koinViewModel
-import uz.ildam.technologies.yalla.android.ui.dialogs.LoadingDialog
 import uz.ildam.technologies.yalla.android.utils.rememberPermissionState
 import uz.ildam.technologies.yalla.core.data.enums.MapType
 import uz.ildam.technologies.yalla.core.data.local.AppPreferences
 import uz.ildam.technologies.yalla.core.domain.model.MapPoint
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.OrderStatus
+import uz.yalla.client.feature.core.dialogs.LoadingDialog
 import uz.yalla.client.feature.core.map.ConcreteGisMap
 import uz.yalla.client.feature.core.map.ConcreteGoogleMap
 import uz.yalla.client.feature.core.map.MapStrategy

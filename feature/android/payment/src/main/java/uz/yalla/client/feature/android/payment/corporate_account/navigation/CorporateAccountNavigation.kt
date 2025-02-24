@@ -17,11 +17,7 @@ internal fun NavGraphBuilder.corporateAccountScreen(
 
 ) {
     composable(
-        route = ADD_CORPORATE_ACCOUNT_ROUTE,
-        enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-        popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) + fadeIn() },
-        exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) + fadeOut() },
-        popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() }
+        route = ADD_CORPORATE_ACCOUNT_ROUTE
     ) {
         AddCompanyRoute(
             onNavigateBack = onNavigateBack

@@ -20,8 +20,8 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.ildam.technologies.yalla.android.R
-import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
 import uz.ildam.technologies.yalla.android.ui.components.text_field.AddCommentField
+import uz.yalla.client.feature.core.components.buttons.YButton
 import uz.yalla.client.feature.core.design.theme.YallaTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -95,7 +95,7 @@ fun OrderCommentBottomSheet(
                     shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
                 )
             ) {
-                YallaButton(
+                YButton(
                     text = stringResource(R.string.close),
                     onClick = onDismissRequest,
                     modifier = Modifier

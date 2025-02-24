@@ -3,6 +3,7 @@ package uz.ildam.technologies.yalla.android.ui.sheets
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -19,6 +20,8 @@ import uz.yalla.client.feature.core.sheets.SheetValue
 @Composable
 fun MainBottomSheet(
     scaffoldState: BottomSheetScaffoldState<SheetValue>,
+    isLoading: Boolean,
+    hasSelectedTariff: Boolean,
     orderTaxi: @Composable () -> Unit,
     tariffInfo: @Composable () -> Unit
 ) {
@@ -37,9 +40,7 @@ fun MainBottomSheet(
     }
 
     Box(
-        modifier = Modifier
-            .fillMaxHeight(.9f)
-            .fillMaxWidth()
+        modifier = Modifier.fillMaxSize()
     ) {
         Box(
             modifier = Modifier
@@ -53,7 +54,7 @@ fun MainBottomSheet(
             modifier = Modifier
                 .graphicsLayer { alpha = fraction }
                 .zIndex(if (fraction >= 0.5f) 1f else 0f)
-                .matchParentSize()
+                .then(if (hasSelectedTariff && isLoading.not()) Modifier.matchParentSize() else Modifier)
                 .pointerInput(fraction) {
                     if (fraction > 0f) {
                         awaitPointerEventScope {

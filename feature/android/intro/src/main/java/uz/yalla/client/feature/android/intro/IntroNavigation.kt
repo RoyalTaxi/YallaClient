@@ -3,6 +3,7 @@ package uz.yalla.client.feature.android.intro
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.NavOptions
 import androidx.navigation.navigation
 import uz.yalla.client.feature.android.intro.language.navigation.languageScreen
 import uz.yalla.client.feature.android.intro.language.navigation.navigateToLanguageScreen
@@ -24,7 +25,8 @@ fun NavGraphBuilder.introModule(
         route = INTRO_ROUTE
     ) {
         onboardingScreen(
-            onNext = navController::navigateToPermissionScreen
+            onNext = navController::navigateToPermissionScreen,
+            onJumpNext = navController::navigateToLanguageScreen
         )
 
         permissionScreen(
@@ -38,4 +40,5 @@ fun NavGraphBuilder.introModule(
     }
 }
 
-fun NavController.navigateToIntroModel() = safeNavigate(INTRO_ROUTE)
+fun NavController.navigateToIntroModel(navOptions: NavOptions? = null) =
+    safeNavigate(INTRO_ROUTE, navOptions)

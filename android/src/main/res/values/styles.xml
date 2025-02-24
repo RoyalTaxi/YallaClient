@@ -1,8 +1,8 @@
 <resources>
 
     <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
-        <item name="windowSplashScreenBackground">#1FBA66</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_logo</item>
+        <item name="windowSplashScreenBackground">#8B3EFC</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash</item>
     </style>
 
 </resources>

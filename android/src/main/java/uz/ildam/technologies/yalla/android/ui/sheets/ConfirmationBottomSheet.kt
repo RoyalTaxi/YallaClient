@@ -17,7 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
+import uz.yalla.client.feature.core.components.buttons.YButton
 import uz.yalla.client.feature.core.design.theme.YallaTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -80,7 +80,7 @@ fun ConfirmationBottomSheet(
                     )
                     .padding(20.dp)
             ) {
-                YallaButton(
+                YButton(
                     text = actionText,
                     onClick = onConfirm,
                     containerColor = YallaTheme.color.gray2,
@@ -90,7 +90,7 @@ fun ConfirmationBottomSheet(
                 )
 
                 dismissText?.let {
-                    YallaButton(
+                    YButton(
                         text = dismissText,
                         onClick = onDismissRequest,
                         contentPadding = PaddingValues(vertical = 20.dp),

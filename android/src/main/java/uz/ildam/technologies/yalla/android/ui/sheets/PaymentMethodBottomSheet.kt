@@ -21,10 +21,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.ildam.technologies.yalla.android.R
-import uz.ildam.technologies.yalla.android.ui.components.button.YallaButton
 import uz.ildam.technologies.yalla.android.ui.components.item.SelectPaymentTypeItem
 import uz.ildam.technologies.yalla.android.ui.screens.map.MapUIState
 import uz.ildam.technologies.yalla.core.data.enums.PaymentType
+import uz.yalla.client.feature.core.components.buttons.YButton
 import uz.yalla.client.feature.core.design.theme.YallaTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -128,7 +128,7 @@ fun PaymentMethodBottomSheet(
                     shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
                 )
             ) {
-                YallaButton(
+                YButton(
                     text = stringResource(R.string.ready),
                     onClick = onDismissRequest,
                     modifier = Modifier

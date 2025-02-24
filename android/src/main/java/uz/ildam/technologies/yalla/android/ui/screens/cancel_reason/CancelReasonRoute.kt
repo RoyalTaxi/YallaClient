@@ -10,7 +10,7 @@ import androidx.compose.runtime.setValue
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import uz.ildam.technologies.yalla.android.ui.dialogs.LoadingDialog
+import uz.yalla.client.feature.core.dialogs.LoadingDialog
 
 @Composable
 fun CancelReasonRoute(

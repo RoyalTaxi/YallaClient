@@ -32,14 +32,17 @@ internal fun HistoryScreen(
     orders: LazyPagingItems<OrdersHistory>,
     onIntent: (HistoryIntent) -> Unit
 ) {
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier = Modifier.nestedScroll(
+            connection = TopAppBarDefaults
+                .exitUntilCollapsedScrollBehavior()
+                .nestedScrollConnection
+        ),
         containerColor = YallaTheme.color.white,
         topBar = {
             LargeTopAppBar(
-                scrollBehavior = scrollBehavior,
+                scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(),
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = YallaTheme.color.white,
                     scrolledContainerColor = YallaTheme.color.white

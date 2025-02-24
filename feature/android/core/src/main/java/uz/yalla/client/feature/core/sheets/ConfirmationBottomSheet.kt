@@ -48,6 +48,7 @@ fun ConfirmationBottomSheet(
                 horizontalAlignment = Alignment.Start,
                 verticalArrangement = Arrangement.spacedBy(10.dp),
                 modifier = Modifier
+                    .fillMaxWidth()
                     .background(
                         color = YallaTheme.color.white,
                         shape = RoundedCornerShape(30.dp)

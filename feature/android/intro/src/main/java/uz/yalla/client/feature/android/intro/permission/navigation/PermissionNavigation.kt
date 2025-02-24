@@ -17,11 +17,7 @@ internal fun NavGraphBuilder.permissionScreen(
     onPermissionGranted: () -> Unit
 ) {
     composable(
-        route = PERMISSION_ROUTE,
-        enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-        popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) + fadeIn() },
-        exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) + fadeOut() },
-        popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() }
+        route = PERMISSION_ROUTE
     ) {
         PermissionRoute(onPermissionGranted = onPermissionGranted)
     }

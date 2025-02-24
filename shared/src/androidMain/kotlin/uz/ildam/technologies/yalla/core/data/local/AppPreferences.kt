@@ -13,6 +13,9 @@ object AppPreferences {
     fun init(context: Context) {
         preferences = context.getSharedPreferences(YALLA, MODE_PRIVATE)
     }
+    fun clear() {
+        preferences.edit()?.clear()?.apply()
+    }
 
     var locale: String
         get() = preferences.getString(AppPreferences::locale.name, "uz") ?: "uz"

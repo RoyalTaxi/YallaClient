@@ -15,7 +15,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.core.net.toUri
 import io.morfly.compose.bottomsheet.material3.BottomSheetScaffoldState
 import kotlinx.coroutines.flow.collectLatest
@@ -31,7 +30,6 @@ import uz.ildam.technologies.yalla.android.ui.sheets.TariffInfoAction
 import uz.ildam.technologies.yalla.android.ui.sheets.TariffInfoBottomSheet
 import uz.ildam.technologies.yalla.core.domain.model.MapPoint
 import uz.ildam.technologies.yalla.feature.order.domain.model.response.order.OrderStatus
-import uz.yalla.client.feature.core.map.MapStrategy
 import uz.yalla.client.feature.core.sheets.SheetValue
 import java.util.Locale
 
@@ -50,7 +48,6 @@ class MapSheetHandler(
         uiState: MapUIState
     ) {
         val context = LocalContext.current
-        val density = LocalDensity.current
         var timer by remember { mutableStateOf("") }
         var rating by remember { mutableIntStateOf(0) }
         val listState = rememberSaveable(saver = LazyListState.Saver) { LazyListState() }
@@ -70,6 +67,8 @@ class MapSheetHandler(
         when (visibleSheet) {
             SheetType.OrderTaxi -> MainBottomSheet(
                 scaffoldState = scaffoldState,
+                isLoading = isLoading,
+                hasSelectedTariff = uiState.selectedTariff != null,
                 orderTaxi = {
                     OrderTaxiBottomSheet(
                         isLoading = isLoading,

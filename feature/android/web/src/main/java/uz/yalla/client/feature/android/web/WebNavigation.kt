@@ -22,10 +22,6 @@ fun NavGraphBuilder.webScreen(
 ) {
     composable(
         route = WEB_ROUTE,
-        enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-        popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) + fadeIn() },
-        exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) + fadeOut() },
-        popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
         arguments = listOf(
             navArgument(TITLE) { type = NavType.StringType },
             navArgument(URL) { type = NavType.StringType }
