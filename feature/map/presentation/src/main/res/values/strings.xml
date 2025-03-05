@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="min">daq</string>
+    <string name="loading">Yuklanmoqda</string>
+    <string name="x_order">%s ta buyurtma</string>
+</resources>

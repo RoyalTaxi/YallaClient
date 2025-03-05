@@ -1,0 +1,47 @@
+package uz.yalla.client.service.map.service
+
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import uz.yalla.client.core.domain.error.DataError
+import uz.yalla.client.core.domain.error.Either
+import uz.yalla.client.core.service.model.ApiResponseWrapper
+import uz.yalla.client.core.service.network.safeApiCall
+import uz.yalla.client.service.map.request.GetRoutingRequestItem
+import uz.yalla.client.service.map.request.LocationNameRequest
+import uz.yalla.client.service.map.request.SearchForAddressRequest
+import uz.yalla.client.service.map.response.PlaceNameResponse
+import uz.yalla.client.service.map.response.GetRoutingResponse
+import uz.yalla.client.service.map.response.PolygonResponseItem
+import uz.yalla.client.service.map.response.SearchForAddressResponseItem
+import uz.yalla.client.service.map.url.MapUrl
+
+
+class MapService(
+    private val ktorWithApi2: HttpClient
+) {
+    suspend fun getPolygons(): Either<ApiResponseWrapper<List<PolygonResponseItem>>, DataError.Network> =
+        safeApiCall {
+            ktorWithApi2.get(MapUrl.POLYGON).body()
+        }
+
+    suspend fun getAddress(
+        body: LocationNameRequest
+    ): Either<ApiResponseWrapper<PlaceNameResponse>, DataError.Network> = safeApiCall {
+        ktorWithApi2.post(MapUrl.ADDRESS) { setBody(body) }.body()
+    }
+
+    suspend fun searchForAddress(
+        body: SearchForAddressRequest
+    ): Either<ApiResponseWrapper<List<SearchForAddressResponseItem>>, DataError.Network> =
+        safeApiCall {
+            ktorWithApi2.post(MapUrl.SEARCH) { setBody(body) }.body()
+        }
+
+    suspend fun getRouting(body: List<GetRoutingRequestItem>): Either<ApiResponseWrapper<GetRoutingResponse>, DataError.Network> =
+        safeApiCall {
+            ktorWithApi2.post(MapUrl.ROUTING) { setBody(body) }.body()
+        }
+}

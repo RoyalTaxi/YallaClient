@@ -33,21 +33,51 @@ dependencyResolutionManagement {
 
 rootProject.name = "YallaClient"
 
-include(":android")
-include(":shared")
+include(":app")
 
-include(":feature")
-include(":feature:android")
-include(":feature:android:dgis")
-include(":feature:android:auth")
-include(":feature:android:core")
-include(":feature:android:intro")
-include(":feature:android:registration")
-include(":feature:android:payment")
-include(":feature:android:places")
-include(":feature:android:history")
-include(":feature:android:info")
-include(":feature:android:setting")
-include(":feature:android:profile")
-include(":feature:android:web")
-include(":feature:android:contact")
+include(
+    ":core:data",
+    ":core:domain",
+    ":core:service",
+    ":core:presentation",
+    ":core:common",
+    ":core:dgis"
+)
+
+include(":feature:dgis")
+include(":feature:core")
+
+include(":feature:auth:data", ":feature:auth:domain", ":feature:auth:presentation")
+include(":feature:history:data", ":feature:history:domain", ":feature:history:presentation")
+include(":feature:setting:data", ":feature:setting:domain")
+include(":feature:places:presentation")
+include(":feature:map:domain", ":feature:map:presentation")
+include(":feature:order:domain")
+
+
+include(":feature:intro:presentation")
+include(":feature:registration:presentation")
+include(":feature:payment:presentation")
+include(":feature:info:presentation")
+include(":feature:setting:presentation")
+include(":feature:profile:presentation")
+include(":feature:web:presentation")
+include(":feature:contact:presentation")
+
+include(":service:auth")
+include(":service:map")
+include(":service:places")
+include(":service:histroy")
+include(":service:order")
+include(":service:payment")
+include(":service:profile")
+include(":service:setting")
+include(":feature:places:domain")
+include(":feature:order:data")
+include(":feature:profile:data")
+include(":feature:profile:domain")
+include(":feature:places:data")
+include(":feature:map:data")
+include(":feature:payment:data")
+include(":feature:payment:domain")
+include(":feature:order:presentation")
