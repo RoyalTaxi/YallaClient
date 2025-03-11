@@ -35,6 +35,7 @@ import uz.yalla.client.feature.map.presentation.components.marker.YallaMarkerSta
 import uz.yalla.client.feature.map.presentation.model.MapViewModel
 import uz.yalla.client.feature.map.presentation.view.drawer.MapDrawer
 import uz.yalla.client.feature.map.presentation.view.drawer.MapDrawerIntent
+import uz.yalla.client.feature.order.presentation.client_waiting.view.ClientWaitingSheet
 import uz.yalla.client.feature.order.presentation.main.view.MainBottomSheetIntent
 import uz.yalla.client.feature.order.presentation.main.view.MainSheet
 import uz.yalla.client.feature.order.presentation.search.navigateToSearchForCarBottomSheet
