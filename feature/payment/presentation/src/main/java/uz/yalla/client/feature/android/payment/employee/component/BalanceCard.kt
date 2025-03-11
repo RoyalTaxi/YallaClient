@@ -16,8 +16,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.android.payment.R
-import uz.yalla.client.feature.core.design.theme.YallaTheme
 
 @Composable
 fun BalanceCard(

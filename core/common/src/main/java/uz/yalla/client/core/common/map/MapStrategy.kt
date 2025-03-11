@@ -7,6 +7,8 @@ import androidx.compose.ui.Modifier
 import kotlinx.coroutines.flow.Flow
 import uz.yalla.client.core.domain.model.Executor
 import uz.yalla.client.core.domain.model.MapPoint
+import uz.yalla.client.core.domain.model.OrderStatus
+import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 
 interface MapStrategy {
     val mapPoint: MutableState<MapPoint>

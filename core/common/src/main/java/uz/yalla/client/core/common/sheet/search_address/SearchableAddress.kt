@@ -1,6 +1,6 @@
 package uz.yalla.client.core.common.sheet.search_address
 
-import uz.yalla.client.core.domain.model.PlaceType
+import uz.yalla.client.feature.order.domain.model.type.PlaceType
 
 
 data class SearchableAddress(

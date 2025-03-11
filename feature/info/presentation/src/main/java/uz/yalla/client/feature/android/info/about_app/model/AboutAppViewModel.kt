@@ -8,9 +8,9 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import uz.ildam.technologies.yalla.feature.settings.domain.usecase.GetConfigUseCase
 import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.feature.android.info.R
+import uz.yalla.client.feature.setting.domain.usecase.GetConfigUseCase
 
 internal class AboutAppViewModel(
     private val getConfigUseCase: GetConfigUseCase

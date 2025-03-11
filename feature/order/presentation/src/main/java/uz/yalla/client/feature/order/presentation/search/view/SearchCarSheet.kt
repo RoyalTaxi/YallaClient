@@ -16,6 +16,8 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -25,29 +27,58 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.getKoin
+import uz.yalla.client.core.common.progress.YallaProgressBar
+import uz.yalla.client.core.data.mapper.or0
+import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
+import uz.yalla.client.feature.order.presentation.R
+import uz.yalla.client.feature.order.presentation.components.SearchCarItem
 import uz.yalla.client.feature.order.presentation.search.model.SearchCarSheetViewModel
+import kotlin.time.Duration.Companion.seconds
 
 
-object SearchCarBottomSheet {
+object SearchCarSheet {
     val viewModel: SearchCarSheetViewModel = getKoin().get()
+    val intentFlow = viewModel.intentFlow
 
     @Composable
     fun View(
-        sheetHeight: Dp,
-        footerHeight: Dp,
+        point: MapPoint,
+        tariffId: Int
     ) {
         val density = LocalDensity.current
-        val totalTime = uiState.setting?.orderCancelTime.or0()
+        val state by viewModel.uiState.collectAsState()
         var currentTime by rememberSaveable { mutableIntStateOf(0) }
         val progress by animateFloatAsState(
             targetValue = currentTime.toFloat(),
             animationSpec = tween(durationMillis = 1000),
             label = "progress_anim"
         )
+
+        LaunchedEffect(Unit) {
+            launch {
+                viewModel.setPoint(point)
+                viewModel.setTariffId(tariffId)
+            }
+
+            launch {
+                while (currentTime > state.setting?.orderCancelTime.or0()) {
+                    delay(1.seconds)
+                    currentTime += 1
+                }
+            }
+
+            launch {
+                while (true) {
+                    viewModel.searchCar()
+                    delay(5.seconds)
+                }
+            }
+        }
         Column(
             verticalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier
@@ -56,7 +87,11 @@ object SearchCarBottomSheet {
                     shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
                 )
                 .navigationBarsPadding()
-                .onSizeChanged { with(density) { onAppear(it.height.toDp()) } }
+                .onSizeChanged {
+                    with(density) {
+                        viewModel.onIntent(SearchCarSheetIntent.SetSheetHeight(it.height.toDp()))
+                    }
+                }
         ) {
             Column(
                 modifier = Modifier
@@ -77,7 +112,10 @@ object SearchCarBottomSheet {
                 Spacer(modifier = Modifier.height(10.dp))
 
                 Text(
-                    text = stringResource(R.string.it_takes_around_x_minute, uiState.timeout.or0()),
+                    text = stringResource(
+                        R.string.it_takes_around_x_minute,
+                        state.cars?.timeout.or0()
+                    ),
                     color = YallaTheme.color.gray,
                     style = YallaTheme.font.label
                 )
@@ -85,7 +123,7 @@ object SearchCarBottomSheet {
                 Spacer(modifier = Modifier.height(20.dp))
 
                 YallaProgressBar(
-                    progress = progress / totalTime,
+                    progress = progress / (state.setting?.orderCancelTime ?: 1),
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -99,16 +137,15 @@ object SearchCarBottomSheet {
                 SearchCarItem(
                     text = stringResource(R.string.cancel_order),
                     imageVector = Icons.Default.Close,
-                    onClick = onClickCancel
+                    onClick = { viewModel.setCancelBottomSheetVisibility(true) }
                 )
 
                 SearchCarItem(
                     text = stringResource(R.string.order_details),
                     imageVector = Icons.Outlined.Info,
-                    onClick = onClickDetails
+                    onClick = { viewModel.setDetailsBottomSheetVisibility(true) }
                 )
             }
         }
     }
-
 }

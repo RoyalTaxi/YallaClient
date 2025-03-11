@@ -37,10 +37,13 @@ dependencies {
     implementation(projects.core.data)
     implementation(projects.core.domain)
     implementation(projects.core.common)
+    implementation(projects.core.service)
     implementation(projects.core.presentation)
+    implementation(projects.feature.map.data)
     implementation(projects.feature.map.domain)
     implementation(projects.feature.profile.domain)
     implementation(projects.feature.order.domain)
+    implementation(projects.feature.places.domain)
     implementation(projects.feature.order.presentation)
 
     implementation(libs.androidx.core.ktx)
@@ -65,12 +68,6 @@ dependencies {
 
     // Advanced BottomSheet
     implementation(libs.advanced.bottomsheet.material3)
-
-    // Lottie compose
-    implementation(libs.lottie.compose)
-
-    // ConstraintLayout
-    implementation(libs.androidx.constraintlayout.compose)
 
     // Coil
     implementation(libs.coil.compose)

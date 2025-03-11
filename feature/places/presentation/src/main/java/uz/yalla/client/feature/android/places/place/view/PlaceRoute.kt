@@ -23,7 +23,6 @@ import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import uz.ildam.technologies.yalla.feature.addresses.domain.model.response.AddressType
 import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.core.common.sheet.AddDestinationBottomSheet
 import uz.yalla.client.core.common.sheet.ConfirmationBottomSheet
@@ -32,12 +31,13 @@ import uz.yalla.client.feature.android.places.place.model.PlaceUIState
 import uz.yalla.client.feature.android.places.place.model.PlaceViewModel
 import uz.yalla.client.feature.android.places.presentation.R
 import uz.yalla.client.core.common.sheet.select_from_map.SelectFromMapBottomSheet
+import uz.yalla.client.feature.order.domain.model.type.PlaceType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun AddressRoute(
     id: Int?,
-    type: AddressType,
+    type: PlaceType,
     onNavigateBack: () -> Unit,
     viewModel: PlaceViewModel = koinViewModel()
 ) {

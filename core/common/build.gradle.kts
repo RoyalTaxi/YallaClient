@@ -43,6 +43,7 @@ dependencies {
 
     implementation(projects.feature.places.domain)
     implementation(projects.feature.map.domain)
+    implementation(projects.feature.order.domain)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -71,4 +72,10 @@ dependencies {
 
     implementation(libs.maps.compose)
     implementation(libs.play.services.location)
+
+    // Lottie compose
+    implementation(libs.lottie.compose)
+
+    // ConstraintLayout
+    implementation(libs.androidx.constraintlayout.compose)
 }

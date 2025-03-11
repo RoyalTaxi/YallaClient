@@ -9,9 +9,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import uz.ildam.technologies.yalla.android.connectivity.ConnectivityObserver
-import uz.ildam.technologies.yalla.core.data.local.AppPreferences
-import uz.ildam.technologies.yalla.feature.settings.domain.usecase.GetConfigUseCase
-import uz.yalla.client.feature.core.utils.getCurrentLocation
+import uz.ildam.technologies.yalla.android.utils.getCurrentLocation
+import uz.yalla.client.core.data.local.AppPreferences
+import uz.yalla.client.feature.setting.domain.usecase.GetConfigUseCase
 
 class MainViewModel(
     connectivityObserver: ConnectivityObserver,

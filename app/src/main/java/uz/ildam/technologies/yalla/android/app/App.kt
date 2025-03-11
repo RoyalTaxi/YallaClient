@@ -8,9 +8,9 @@ import org.koin.core.context.GlobalContext.startKoin
 import ru.dgis.sdk.Context
 import uz.ildam.technologies.yalla.android.di.Navigation
 import uz.ildam.technologies.yalla.android2gis.InitMap
-import uz.ildam.technologies.yalla.core.data.di.Common
-import uz.ildam.technologies.yalla.core.data.enums.MapType
-import uz.ildam.technologies.yalla.core.data.local.AppPreferences
+import uz.yalla.client.core.data.di.Common
+import uz.yalla.client.core.data.enums.MapType
+import uz.yalla.client.core.data.local.AppPreferences
 
 class App : Application() {
     override fun onCreate() {

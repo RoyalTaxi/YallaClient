@@ -7,12 +7,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uz.yalla.client.feature.order.domain.usecase.FindAllMapPlacesUseCase
-import uz.yalla.client.core.domain.model.PlaceModel
-import uz.yalla.client.core.domain.model.PlaceType
 import uz.yalla.client.feature.map.domain.model.response.PolygonRemoteItem
 import uz.yalla.client.feature.map.domain.model.response.SearchForAddressItemModel
 import uz.yalla.client.feature.map.domain.usecase.GetPolygonUseCase
 import uz.yalla.client.feature.map.domain.usecase.SearchAddressUseCase
+import uz.yalla.client.feature.order.domain.model.response.PlaceModel
+import uz.yalla.client.feature.order.domain.model.type.PlaceType
 
 class SearchByNameBottomSheetViewModel(
     private val searchAddressUseCase: SearchAddressUseCase,

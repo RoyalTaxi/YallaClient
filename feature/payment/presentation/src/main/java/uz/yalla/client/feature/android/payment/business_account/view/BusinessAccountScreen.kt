@@ -1,14 +1,11 @@
 package uz.yalla.client.feature.android.payment.business_account.view
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -25,11 +22,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.android.payment.R
 import uz.yalla.client.feature.android.payment.business_account.components.BusinessAccountItem
 import uz.yalla.client.feature.android.payment.business_account.components.EmployeeItem
 import uz.yalla.client.feature.android.payment.business_account.model.BusinessAccountUIState
-import uz.yalla.client.feature.core.design.theme.YallaTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

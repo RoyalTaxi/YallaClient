@@ -12,14 +12,14 @@ import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.common.button.MapButton
 import uz.yalla.client.core.common.state.HamburgerButtonState
 import uz.yalla.client.core.common.state.MoveCameraButtonState
+import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.map.presentation.R
 import uz.yalla.client.feature.map.presentation.components.button.ShowActiveOrdersButton
-import uz.yalla.client.feature.map.presentation.components.marker.YallaMarker
+import uz.yalla.client.core.common.marker.YallaMarker
 import uz.yalla.client.feature.map.presentation.components.marker.YallaMarkerState
 import uz.yalla.client.feature.map.presentation.model.MapUIState
 import uz.yalla.client.feature.map.presentation.view.MapScreenIntent.MapOverlayIntent
-import uz.yalla.client.feature.order.domain.model.response.order.OrderStatus
 
 @Composable
 fun BoxScope.MapOverlay(

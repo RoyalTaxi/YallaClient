@@ -4,6 +4,8 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.navigation
+import uz.yalla.client.core.presentation.navigation.safeNavigate
+import uz.yalla.client.core.presentation.navigation.safePopBackStack
 import uz.yalla.client.feature.android.payment.add_card.navigation.addCardScreen
 import uz.yalla.client.feature.android.payment.add_card.navigation.navigateToAddCardScreen
 import uz.yalla.client.feature.android.payment.add_employee.navigation.addEmployeeScreen
@@ -21,8 +23,6 @@ import uz.yalla.client.feature.android.payment.employee.navigation.employeeScree
 import uz.yalla.client.feature.android.payment.employee.navigation.navigateToEmployee
 import uz.yalla.client.feature.android.payment.top_up_balance.navigation.navigateToTopUpScreen
 import uz.yalla.client.feature.android.payment.top_up_balance.navigation.topUpScreen
-import uz.yalla.client.feature.core.navigation.safeNavigate
-import uz.yalla.client.feature.core.navigation.safePopBackStack
 
 internal const val PAYMENT_ROUTE = "payment_route"
 

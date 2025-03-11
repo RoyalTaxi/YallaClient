@@ -45,7 +45,6 @@ include(
 )
 
 include(":feature:dgis")
-include(":feature:core")
 
 include(":feature:auth:data", ":feature:auth:domain", ":feature:auth:presentation")
 include(":feature:history:data", ":feature:history:domain", ":feature:history:presentation")

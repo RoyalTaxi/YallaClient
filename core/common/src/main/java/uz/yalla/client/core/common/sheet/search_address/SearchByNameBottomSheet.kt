@@ -30,11 +30,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import uz.yalla.client.core.common.field.SearchLocationField
+import uz.yalla.client.core.common.item.FoundAddressItem
 import uz.yalla.client.core.common.utils.getCurrentLocation
 import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
-import uz.yalla.client.feature.core.components.items.FoundAddressItem
-import uz.yalla.client.feature.core.components.text_field.SearchLocationField
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

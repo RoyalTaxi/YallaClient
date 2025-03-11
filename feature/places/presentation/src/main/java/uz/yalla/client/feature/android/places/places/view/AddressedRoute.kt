@@ -10,9 +10,9 @@ import androidx.compose.runtime.setValue
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.feature.android.places.places.model.AddressesActionState
 import uz.yalla.client.feature.android.places.places.model.AddressesViewModel
-import uz.yalla.client.feature.core.dialogs.LoadingDialog
 
 @Composable
 internal fun AddressesRoute(

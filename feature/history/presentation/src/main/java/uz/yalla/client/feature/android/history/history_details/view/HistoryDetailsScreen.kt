@@ -26,8 +26,8 @@ import androidx.compose.ui.unit.dp
 import uz.yalla.client.feature.android.history.R
 import uz.yalla.client.feature.android.history.history_details.components.OrderDetailsBottomSheet
 import uz.yalla.client.feature.android.history.history_details.model.HistoryDetailsUIState
-import uz.yalla.client.feature.core.design.theme.YallaTheme
 import uz.yalla.client.core.common.map.MapStrategy
+import uz.yalla.client.core.presentation.design.theme.YallaTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,11 +68,11 @@ internal fun HistoryDetailsScreen(
             ) {
                 if (loading.not()) map.Map(
                     startingPoint = null,
+                    contentPadding = PaddingValues(0.dp),
+                    enabled = false,
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(1f)
-                        .pointerInput(Unit) { detectTapGestures { } },
-                    contentPadding = PaddingValues(0.dp)
                 )
 
                 uiState.orderDetails?.let {

@@ -13,12 +13,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import uz.yalla.client.core.common.field.PhoneNumberField
+import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.android.payment.R
 import uz.yalla.client.feature.android.payment.corporate_account.components.BusinessAccountTextField
 import uz.yalla.client.feature.android.payment.corporate_account.model.CorporateAccountUIState
 import uz.yalla.client.feature.android.payment.corporate_account.view.CorporateAccountIntent
-import uz.yalla.client.feature.core.components.text_field.LoginNumberField
-import uz.yalla.client.feature.core.design.theme.YallaTheme
 
 @Composable
 internal fun AddCompanyPage(
@@ -65,7 +65,7 @@ internal fun AddCompanyPage(
             modifier = Modifier.fillMaxWidth()
         )
 
-        LoginNumberField(
+        PhoneNumberField(
             number = uiState.number,
             onUpdateNumber = { number -> onIntent(CorporateAccountIntent.SetNumber(number)) }
         )

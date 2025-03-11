@@ -3,10 +3,10 @@ package uz.yalla.client.feature.map.data.mapper
 import uz.yalla.client.core.data.mapper.Mapper
 import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.data.mapper.orFalse
-import uz.yalla.client.core.domain.model.PlaceNameModel
 import uz.yalla.client.feature.map.domain.model.response.GetRoutingModel
 import uz.yalla.client.feature.map.domain.model.response.PolygonRemoteItem
 import uz.yalla.client.feature.map.domain.model.response.SearchForAddressItemModel
+import uz.yalla.client.feature.order.domain.model.response.PlaceNameModel
 import uz.yalla.client.service.map.response.PlaceNameResponse
 import uz.yalla.client.service.map.response.GetRoutingResponse
 import uz.yalla.client.service.map.response.PolygonResponseItem

@@ -9,9 +9,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
+import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.feature.android.payment.add_card.model.AddCardActionState
 import uz.yalla.client.feature.android.payment.add_card.model.AddCardViewModel
-import uz.yalla.client.feature.core.dialogs.LoadingDialog
 
 @Composable
 internal fun AddCardRoute(

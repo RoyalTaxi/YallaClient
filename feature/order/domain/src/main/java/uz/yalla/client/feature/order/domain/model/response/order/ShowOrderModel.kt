@@ -1,5 +1,7 @@
 package uz.yalla.client.feature.order.domain.model.response.order
 
+import uz.yalla.client.core.domain.model.OrderStatus
+
 
 data class ShowOrderModel(
     val comment: String,

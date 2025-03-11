@@ -43,10 +43,9 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import uz.yalla.client.core.common.R
+import uz.yalla.client.core.common.button.ChooseFromMapButton
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
-import uz.yalla.client.feature.core.R
-import uz.yalla.client.feature.core.components.buttons.ChooseFromMapButton
-import uz.yalla.client.feature.core.design.theme.YallaTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

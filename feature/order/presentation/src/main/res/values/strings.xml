@@ -18,4 +18,11 @@
     <string name="invalid_options">Ba\'zi variantlar ushbu tarifda amal qilmaydi</string>
     <string name="comment_to_driver">Haydovchiga izoh</string>
     <string name="lets_go">Ketdik</string>
+    <string name="search_cars">Avtomobil qidirish</string>
+    <string name="it_takes_around_x_minute">Bu taxminan %s daqiqa vaqt oladi</string>
+    <string name="cancel_order">Buyurtmani bekor qilish</string>
+    <string name="order_details">Buyurtma tafsilotlari</string>
+    <string name="we_need_cause">Xizmatimizni yaxshilash uchun bekor qilish sababini bilish biz uchun muhim.</string>
+    <string name="why_canceled">Nima uchun buyurtmani bekor qildingiz?</string>
+
 </resources>

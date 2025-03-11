@@ -39,6 +39,7 @@ dependencies {
     implementation(projects.core.service)
     implementation(projects.service.map)
     implementation(projects.feature.map.domain)
+    implementation(projects.feature.places.domain)
 
     implementation(libs.ktor.client.core)
     implementation(libs.kotlinx.coroutines.core)

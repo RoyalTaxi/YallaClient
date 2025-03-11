@@ -2,9 +2,9 @@ package uz.yalla.client.feature.order.data.repository
 
 import uz.yalla.client.core.domain.error.DataError
 import uz.yalla.client.core.domain.error.Either
-import uz.yalla.client.core.domain.model.PlaceModel
 import uz.yalla.client.feature.order.data.mapper.PlacesMapper
 import uz.yalla.client.feature.order.domain.model.request.PostOnePlaceDto
+import uz.yalla.client.feature.order.domain.model.response.PlaceModel
 import uz.yalla.client.feature.order.domain.repository.PlacesRepository
 import uz.yalla.client.service.places.request.PostOnePlaceRequest
 import uz.yalla.client.service.places.service.PlacesApiService

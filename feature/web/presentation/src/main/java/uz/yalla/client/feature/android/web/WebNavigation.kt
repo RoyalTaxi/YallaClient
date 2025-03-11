@@ -5,7 +5,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import uz.yalla.client.feature.core.navigation.safeNavigate
+import uz.yalla.client.core.presentation.navigation.safeNavigate
 
 
 const val TITLE = "title"

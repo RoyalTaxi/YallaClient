@@ -18,13 +18,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.ildam.technologies.yalla.android.R
-import uz.yalla.client.feature.core.design.theme.YallaTheme
+import uz.yalla.client.core.presentation.design.theme.YallaTheme
 
 @Composable
 fun CallButton(
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(vertical = 16.dp, horizontal = 32.dp),
-    modifier: Modifier = Modifier
 ) {
     Button(
         onClick = onClick,

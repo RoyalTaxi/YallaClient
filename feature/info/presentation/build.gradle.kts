@@ -44,6 +44,8 @@ dependencies {
     implementation(projects.core.presentation)
     implementation(projects.core.common)
 
+    implementation(projects.feature.setting.domain)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

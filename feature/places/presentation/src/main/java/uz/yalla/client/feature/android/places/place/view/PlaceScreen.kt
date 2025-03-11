@@ -35,11 +35,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.common.button.PrimaryButton
+import uz.yalla.client.core.common.button.SelectCurrentLocationButton
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.android.places.place.components.AddressFormField
 import uz.yalla.client.feature.android.places.place.model.PlaceUIState
 import uz.yalla.client.feature.android.places.presentation.R
-import uz.yalla.client.feature.core.components.buttons.SelectCurrentLocationButton
+import uz.yalla.client.feature.order.domain.model.type.PlaceType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,10 +61,10 @@ internal fun AddressScreen(
                 title = {
                     Text(
                         text = stringResource(
-                            when (uiState.addressType) {
-                                AddressType.HOME -> R.string.home
-                                AddressType.WORK -> R.string.work
-                                AddressType.OTHER -> R.string.other
+                            when (uiState.placeType) {
+                                PlaceType.HOME -> R.string.home
+                                PlaceType.WORK -> R.string.work
+                                PlaceType.OTHER -> R.string.other
                             }
                         ),
                         color = YallaTheme.color.black,

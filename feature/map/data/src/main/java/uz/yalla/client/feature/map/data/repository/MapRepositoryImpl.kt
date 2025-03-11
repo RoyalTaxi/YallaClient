@@ -2,14 +2,13 @@ package uz.yalla.client.feature.map.data.repository
 
 import uz.yalla.client.core.domain.error.DataError
 import uz.yalla.client.core.domain.error.Either
-import uz.yalla.client.core.domain.model.PlaceModel
-import uz.yalla.client.core.domain.model.PlaceNameModel
 import uz.yalla.client.feature.map.data.mapper.MapMapper
 import uz.yalla.client.feature.map.domain.model.request.GetRoutingRequestItemDto
 import uz.yalla.client.feature.map.domain.model.response.GetRoutingModel
 import uz.yalla.client.feature.map.domain.model.response.PolygonRemoteItem
 import uz.yalla.client.feature.map.domain.model.response.SearchForAddressItemModel
 import uz.yalla.client.feature.map.domain.repository.MapRepository
+import uz.yalla.client.feature.order.domain.model.response.PlaceNameModel
 import uz.yalla.client.service.map.request.GetRoutingRequestItem
 import uz.yalla.client.service.map.request.LocationNameRequest
 import uz.yalla.client.service.map.request.SearchForAddressRequest

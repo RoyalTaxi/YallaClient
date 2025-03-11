@@ -10,9 +10,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
+import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.feature.android.payment.corporate_account.model.CorporateAccountActionState
 import uz.yalla.client.feature.android.payment.corporate_account.model.CorporateAccountViewModel
-import uz.yalla.client.feature.core.dialogs.LoadingDialog
 
 @Composable
 internal fun AddCompanyRoute(

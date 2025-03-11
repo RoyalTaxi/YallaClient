@@ -9,9 +9,11 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.navigation.NavHostController
 import uz.yalla.client.core.common.map.MapStrategy
 import uz.yalla.client.core.common.state.HamburgerButtonState
 import uz.yalla.client.core.common.state.MoveCameraButtonState
+import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.feature.map.presentation.components.marker.YallaMarkerState
 import uz.yalla.client.feature.map.presentation.model.MapUIState
 import uz.yalla.client.feature.map.presentation.navigation.BottomSheetNavHost
@@ -24,6 +26,7 @@ fun MapScreen(
     markerState: YallaMarkerState,
     moveCameraButtonState: MoveCameraButtonState,
     hamburgerButtonState: HamburgerButtonState,
+    navController: NavHostController,
     onIntent: (MapScreenIntent) -> Unit
 ) {
     val density = LocalDensity.current
@@ -50,6 +53,8 @@ fun MapScreen(
             onIntent = onIntent
         )
 
-        BottomSheetNavHost()
+        BottomSheetNavHost(
+            navController = navController
+        )
     }
 }

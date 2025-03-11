@@ -8,8 +8,8 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import uz.ildam.technologies.yalla.feature.addresses.domain.model.request.PostOneAddressDto
-import uz.ildam.technologies.yalla.feature.addresses.domain.model.response.AddressType
+import uz.yalla.client.feature.order.domain.model.request.PostOnePlaceDto
+import uz.yalla.client.feature.order.domain.model.type.PlaceType
 import uz.yalla.client.feature.order.domain.usecase.DeleteOnePlaceUseCase
 import uz.yalla.client.feature.order.domain.usecase.FindOnePlaceUseCase
 import uz.yalla.client.feature.order.domain.usecase.PostOnePlaceUseCase
@@ -34,7 +34,7 @@ internal class PlaceViewModel(
             .onSuccess { result ->
                 _uiState.update {
                     it.copy(
-                        addressType = result.type,
+                        placeType = result.type,
                         addressName = result.name,
                         apartment = result.apartment,
                         entrance = result.enter,
@@ -64,12 +64,12 @@ internal class PlaceViewModel(
         uiState.value.let { state ->
             if (state.selectedAddress != null) updateOnePlaceUseCase(
                 id = id,
-                body = PostOneAddressDto(
+                body = PostOnePlaceDto(
                     name = state.addressName,
                     address = state.selectedAddress.name,
                     lat = state.selectedAddress.lat,
                     lng = state.selectedAddress.lng,
-                    type = state.addressType.typeName,
+                    type = state.placeType.typeName,
                     enter = state.entrance,
                     apartment = state.apartment,
                     floor = state.floor,
@@ -84,12 +84,12 @@ internal class PlaceViewModel(
         _actionState.emit(PlaceActionState.Loading)
         uiState.value.let { state ->
             if (state.selectedAddress != null) postOnePlaceUseCase(
-                body = PostOneAddressDto(
+                body = PostOnePlaceDto(
                     name = state.addressName,
                     address = state.selectedAddress.name,
                     lat = state.selectedAddress.lat,
                     lng = state.selectedAddress.lng,
-                    type = state.addressType.typeName,
+                    type = state.placeType.typeName,
                     enter = state.entrance,
                     apartment = state.apartment,
                     floor = state.floor,
@@ -104,8 +104,8 @@ internal class PlaceViewModel(
         it.copy(addressName = name)
     }
 
-    fun updateType(type: AddressType) = _uiState.update {
-        it.copy(addressType = type)
+    fun updateType(type: PlaceType) = _uiState.update {
+        it.copy(placeType = type)
     }
 
     fun updateSelectedAddress(address: PlaceUIState.Location) = _uiState.update {

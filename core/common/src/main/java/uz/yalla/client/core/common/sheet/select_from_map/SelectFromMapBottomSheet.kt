@@ -35,16 +35,17 @@ import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
 import uz.yalla.client.core.common.R
+import uz.yalla.client.core.common.button.MapButton
 import uz.yalla.client.core.common.button.PrimaryButton
+import uz.yalla.client.core.common.button.SelectCurrentLocationButton
 import uz.yalla.client.core.common.map.ConcreteGisMap
 import uz.yalla.client.core.common.map.ConcreteGoogleMap
 import uz.yalla.client.core.data.enums.MapType
 import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
-import uz.yalla.client.feature.core.components.buttons.MapButton
-import uz.yalla.client.feature.core.components.buttons.SelectCurrentLocationButton
-import uz.yalla.client.feature.core.components.marker.YallaMarker
+import uz.yalla.client.core.common.marker.YallaMarker
+import uz.yalla.client.feature.map.presentation.components.marker.YallaMarkerState
 
 @Composable
 fun SelectFromMapBottomSheet(
@@ -103,6 +104,7 @@ fun SelectFromMapBottomSheet(
         map.Map(
             startingPoint = startingPoint,
             modifier = Modifier.matchParentSize(),
+            enabled = true,
             contentPadding = PaddingValues(bottom = mapBottomPadding)
         )
 
@@ -119,10 +121,11 @@ fun SelectFromMapBottomSheet(
             )
 
             YallaMarker(
-                time = uiState.timeout,
-                isLoading = map.isMarkerMoving,
                 color = YallaTheme.color.black,
-                selectedAddressName = uiState.name,
+                state = if (isMarkerMoving) YallaMarkerState.LOADING else YallaMarkerState.IDLE(
+                    title = uiState.name,
+                    timeout = uiState.timeout
+                ),
                 modifier = Modifier
                     .matchParentSize()
                     .align(Alignment.Center)

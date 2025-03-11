@@ -16,11 +16,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import uz.yalla.client.core.common.item.HistoryOrderItem
+import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.android.payment.R
 import uz.yalla.client.feature.android.payment.business_account.components.EmployeeItem
 import uz.yalla.client.feature.android.payment.employee.component.BalanceCard
-import uz.yalla.client.feature.core.components.items.HistoryOrderItem
-import uz.yalla.client.feature.core.design.theme.YallaTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

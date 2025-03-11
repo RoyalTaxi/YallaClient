@@ -1,6 +1,5 @@
 package uz.yalla.client.feature.map.presentation.model
 
-import androidx.activity.ImmLeaksCleaner.FailedInitialization.servedView
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.async
@@ -15,12 +14,12 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uz.yalla.client.core.common.state.HamburgerButtonState
 import uz.yalla.client.core.domain.model.MapPoint
-import uz.yalla.client.core.domain.model.PlaceNameModel
+import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.feature.map.domain.model.request.GetRoutingDtoItem
 import uz.yalla.client.feature.map.domain.usecase.GetAddressNameUseCase
 import uz.yalla.client.feature.map.domain.usecase.GetPolygonUseCase
 import uz.yalla.client.feature.map.domain.usecase.GetRoutingUseCase
-import uz.yalla.client.feature.order.domain.model.response.order.OrderStatus
+import uz.yalla.client.feature.order.domain.model.response.PlaceNameModel
 import uz.yalla.client.feature.order.domain.usecase.order.GetActiveOrdersUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.GetShowOrderUseCase
 import uz.yalla.client.feature.order.domain.usecase.tariff.GetTimeOutUseCase
@@ -171,7 +170,7 @@ class MapViewModel(
                 selectedTariffId = null,
                 timeout = null,
 
-            )
+                )
         }
     }
 }

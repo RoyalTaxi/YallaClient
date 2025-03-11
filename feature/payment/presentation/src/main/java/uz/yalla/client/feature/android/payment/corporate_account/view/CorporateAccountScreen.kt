@@ -25,14 +25,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import uz.yalla.client.core.common.button.PrimaryButton
+import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.android.payment.R
 import uz.yalla.client.feature.android.payment.corporate_account.components.PagerIndicator
 import uz.yalla.client.feature.android.payment.corporate_account.model.CorporateAccountUIState
 import uz.yalla.client.feature.android.payment.corporate_account.pages.AddBankDetailsPage
 import uz.yalla.client.feature.android.payment.corporate_account.pages.AddCompanyPage
 import uz.yalla.client.feature.android.payment.corporate_account.pages.AddLegalAddressPage
-import uz.yalla.client.feature.core.components.buttons.YButton
-import uz.yalla.client.feature.core.design.theme.YallaTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -98,7 +98,7 @@ internal fun CorporateAccountScreen(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                YButton(
+                PrimaryButton(
                     text = stringResource(R.string.next),
                     enabled = when (pagerState.currentPage) {
                         0 -> uiState.isCompanyPageValid

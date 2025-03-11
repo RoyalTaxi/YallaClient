@@ -21,13 +21,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import uz.ildam.technologies.yalla.core.data.enums.PaymentType
+import uz.yalla.client.core.common.item.SelectPaymentTypeItem
+import uz.yalla.client.core.data.enums.PaymentType
+import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.android.payment.R
 import uz.yalla.client.feature.android.payment.card_list.model.CardListUIState
-import uz.yalla.client.feature.core.components.items.SelectPaymentTypeItem
-import uz.yalla.client.feature.core.design.theme.YallaTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
+ @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun CardListScreen(
     uiState: CardListUIState,

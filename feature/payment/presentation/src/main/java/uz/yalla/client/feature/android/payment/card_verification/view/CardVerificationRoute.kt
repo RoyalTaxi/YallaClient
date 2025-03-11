@@ -13,10 +13,10 @@ import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.feature.android.payment.R
 import uz.yalla.client.feature.android.payment.card_verification.model.CardVerificationActionState
 import uz.yalla.client.feature.android.payment.card_verification.model.CardVerificationViewModel
-import uz.yalla.client.feature.core.dialogs.LoadingDialog
 
 @Composable
 internal fun CardVerificationRoute(

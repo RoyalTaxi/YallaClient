@@ -51,9 +51,11 @@ android {
 
 dependencies {
     implementation(projects.core.data)
+    implementation(projects.core.domain)
+    implementation(projects.core.presentation)
 
+    implementation(projects.feature.setting.domain)
     implementation(projects.feature.auth.presentation)
-    implementation(projects.feature.core)
     implementation(projects.feature.dgis)
     implementation(projects.feature.intro.presentation)
     implementation(projects.feature.registration.presentation)
@@ -66,6 +68,7 @@ dependencies {
     implementation(projects.feature.web.presentation)
     implementation(projects.feature.contact.presentation)
     implementation(projects.feature.map.presentation)
+    implementation(projects.feature.order.presentation)
 
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling.preview)

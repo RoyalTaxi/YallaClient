@@ -3,4 +3,14 @@
     <string name="min">мин</string>
     <string name="loading">Загружается</string>
     <string name="x_order">%s заказ</string>
+    <string name="orders_history">История поездок</string>
+    <string name="my_places">Мои места</string>
+    <string name="payment_type">Способ оплаты</string>
+    <string name="cash">Наличние</string>
+    <string name="invite_friends">Пригласите близких</string>
+    <string name="win_x_sums">Получите %s сум</string>
+    <string name="become_a_driver">Стать водителем</string>
+    <string name="contuct_us">Связаться с нами</string>
+    <string name="settings">Настройки</string>
+    <string name="about_app">О приложении</string>
 </resources>

@@ -19,12 +19,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import uz.yalla.client.core.common.button.PrimaryButton
+import uz.yalla.client.core.common.field.PhoneNumberField
+import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.android.payment.R
 import uz.yalla.client.feature.android.payment.corporate_account.components.BusinessAccountTextField
-import uz.yalla.client.feature.core.components.buttons.YButton
-import uz.yalla.client.feature.core.components.text_field.LoginNumberField
-import uz.yalla.client.feature.core.components.text_field.YTextField
-import uz.yalla.client.feature.core.design.theme.YallaTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,7 +63,7 @@ internal fun AddEmployeeScreen(
                     .padding(20.dp)
             ) {
 
-                LoginNumberField(
+                PhoneNumberField(
                     number = uiState.number,
                     onUpdateNumber = { number -> onIntent(AddEmployeeIntent.SetNumber(number)) }
                 )
@@ -78,7 +77,7 @@ internal fun AddEmployeeScreen(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                YButton(
+                PrimaryButton(
                     text = stringResource(R.string.add),
                     enabled = uiState.isAddButtonValid,
                     onClick = {},

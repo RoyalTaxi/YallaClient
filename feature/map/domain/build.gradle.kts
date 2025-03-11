@@ -34,5 +34,6 @@ android {
 
 dependencies {
     implementation(projects.core.domain)
+    implementation(projects.feature.places.domain)
     implementation(libs.kotlinx.coroutines.core)
 }

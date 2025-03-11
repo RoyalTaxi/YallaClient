@@ -27,12 +27,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import uz.ildam.technologies.yalla.core.data.local.AppPreferences
+import uz.yalla.client.core.common.button.PrimaryButton
+import uz.yalla.client.core.common.otp.OtpView
+import uz.yalla.client.core.data.local.AppPreferences
+import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.android.payment.R
 import uz.yalla.client.feature.android.payment.card_verification.model.CardVerificationUIState
-import uz.yalla.client.feature.core.components.buttons.YButton
-import uz.yalla.client.feature.core.components.otp.OtpView
-import uz.yalla.client.feature.core.design.theme.YallaTheme
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -123,7 +123,7 @@ internal fun CardVerificationScreen(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                YButton(
+                PrimaryButton(
                     modifier = Modifier.fillMaxWidth(),
                     text = stringResource(id = R.string.next),
                     enabled = uiState.buttonState,

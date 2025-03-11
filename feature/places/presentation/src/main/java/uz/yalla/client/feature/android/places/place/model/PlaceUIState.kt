@@ -1,7 +1,9 @@
 package uz.yalla.client.feature.android.places.place.model
 
+import uz.yalla.client.feature.order.domain.model.type.PlaceType
+
 internal data class PlaceUIState(
-    val addressType: AddressType = AddressType.OTHER,
+    val placeType: PlaceType = PlaceType.OTHER,
     val selectedAddress: Location? = null,
     val addressName: String = "",
     val apartment: String = "",

@@ -30,11 +30,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import uz.ildam.technologies.yalla.feature.addresses.domain.model.response.AddressType
-import uz.yalla.client.feature.android.places.R
+import uz.yalla.client.core.common.item.OrderOptionsItem
+import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.android.places.places.model.AddressesUIState
-import uz.yalla.client.feature.core.components.items.OrderOptionsItem
-import uz.yalla.client.feature.core.design.theme.YallaTheme
+import uz.yalla.client.feature.android.places.presentation.R
+import uz.yalla.client.feature.order.domain.model.type.PlaceType
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -109,7 +109,7 @@ internal fun AddressesScreen(
                                 tint = YallaTheme.color.gray
                             )
                         },
-                        onClick = { onIntent(AddressesIntent.OnAddNewAddress(AddressType.HOME)) }
+                        onClick = { onIntent(AddressesIntent.OnAddNewAddress(PlaceType.HOME)) }
                     )
 
                     OrderOptionsItem(
@@ -132,7 +132,7 @@ internal fun AddressesScreen(
                                 tint = YallaTheme.color.gray
                             )
                         },
-                        onClick = { onIntent(AddressesIntent.OnAddNewAddress(AddressType.WORK)) }
+                        onClick = { onIntent(AddressesIntent.OnAddNewAddress(PlaceType.WORK)) }
                     )
                 }
 
@@ -150,9 +150,9 @@ internal fun AddressesScreen(
                                     tint = YallaTheme.color.gray,
                                     painter = painterResource(
                                         when (address.type) {
-                                            AddressType.HOME -> R.drawable.ic_home
-                                            AddressType.WORK -> R.drawable.ic_work
-                                            AddressType.OTHER -> R.drawable.ic_other
+                                            PlaceType.HOME -> R.drawable.ic_home
+                                            PlaceType.WORK -> R.drawable.ic_work
+                                            PlaceType.OTHER -> R.drawable.ic_other
                                         }
                                     )
                                 )
@@ -185,7 +185,7 @@ internal fun AddressesScreen(
             FloatingActionButton(
                 shape = CircleShape,
                 containerColor = YallaTheme.color.black,
-                onClick = { onIntent(AddressesIntent.OnAddNewAddress(AddressType.OTHER)) },
+                onClick = { onIntent(AddressesIntent.OnAddNewAddress(PlaceType.OTHER)) },
                 modifier = Modifier.padding(20.dp),
                 content = {
                     Icon(

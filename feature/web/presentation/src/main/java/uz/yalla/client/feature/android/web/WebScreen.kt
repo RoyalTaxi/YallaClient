@@ -2,7 +2,6 @@ package uz.yalla.client.feature.android.web
 
 import android.content.Intent
 import android.graphics.Color
-import android.net.Uri
 import android.view.ViewGroup
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
@@ -21,7 +20,8 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
-import uz.yalla.client.feature.core.design.theme.YallaTheme
+import uz.yalla.client.core.presentation.design.theme.YallaTheme
+import androidx.core.net.toUri
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,7 +72,7 @@ internal fun WebScreen(
                                 val newUrl = request?.url?.toString()
                                 if (newUrl != null) {
                                     try {
-                                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(newUrl))
+                                        val intent = Intent(Intent.ACTION_VIEW, newUrl.toUri())
                                         onNavigateBack()
                                         context.startActivity(intent)
                                     } catch (_: Exception) {
@@ -85,7 +85,7 @@ internal fun WebScreen(
                     }
                 },
                 update = {
-                    it.loadUrl(url) // Load the initial URL
+                    it.loadUrl(url)
                 }
             )
         }

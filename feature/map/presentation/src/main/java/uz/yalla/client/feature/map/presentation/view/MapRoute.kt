@@ -14,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -26,15 +27,19 @@ import uz.yalla.client.core.common.map.MapStrategy
 import uz.yalla.client.core.common.state.rememberPermissionState
 import uz.yalla.client.core.data.enums.MapType
 import uz.yalla.client.core.data.local.AppPreferences
+import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.domain.model.MapPoint
+import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.core.domain.model.SelectedLocation
 import uz.yalla.client.feature.map.presentation.components.marker.YallaMarkerState
 import uz.yalla.client.feature.map.presentation.model.MapViewModel
 import uz.yalla.client.feature.map.presentation.view.drawer.MapDrawer
 import uz.yalla.client.feature.map.presentation.view.drawer.MapDrawerIntent
-import uz.yalla.client.feature.order.domain.model.response.order.OrderStatus
 import uz.yalla.client.feature.order.presentation.main.view.MainBottomSheetIntent
 import uz.yalla.client.feature.order.presentation.main.view.MainSheet
+import uz.yalla.client.feature.order.presentation.search.navigateToSearchForCarBottomSheet
+import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheet
+import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheetIntent
 import kotlin.time.Duration.Companion.seconds
 
 @Composable
@@ -76,6 +81,8 @@ fun MapRoute(
         )
     }
     val mapPoint by map.mapPoint
+    val navController = rememberNavController()
+
 
     BackHandler {
         when {
@@ -137,7 +144,10 @@ fun MapRoute(
                     is MainBottomSheetIntent.OrderTaxiBottomSheetIntent.DestinationClick -> TODO()
                     is MainBottomSheetIntent.OrderTaxiBottomSheetIntent.OrderCreated -> {
                         vm.updateState(state.copy(showingOrderId = intent.orderId))
-
+                        navController.navigateToSearchForCarBottomSheet(
+                            tariffId = state.selectedTariffId.or0(),
+                            point = mapPoint
+                        )
                     }
 
                     is MainBottomSheetIntent.TariffInfoBottomSheetIntent.ClickComment -> {}
@@ -146,6 +156,24 @@ fun MapRoute(
                     }
 
                     else -> {}
+                }
+            }
+        }
+
+        launch {
+            SearchCarSheet.intentFlow.collectLatest { intent ->
+                when (intent) {
+                    is SearchCarSheetIntent.OnCancelled -> {
+                        onCancel()
+                    }
+
+                    is SearchCarSheetIntent.OnFoundCars -> {
+                        // TODO: update cars
+                    }
+
+                    is SearchCarSheetIntent.SetSheetHeight -> {
+                        vm.updateState(state.copy(sheetHeight = intent.height))
+                    }
                 }
             }
         }
@@ -248,9 +276,17 @@ fun MapRoute(
                 state = state,
                 markerState = markerState,
                 moveCameraButtonState = state.moveCameraButtonState,
-                hamburgerButtonState = hamburgerButtonState
-            ) {
-
+                hamburgerButtonState = hamburgerButtonState,
+                navController = navController
+            ) { intent ->
+                when (intent) {
+                    MapScreenIntent.MapOverlayIntent.ClickShowOrders -> {}
+                    MapScreenIntent.MapOverlayIntent.MoveToFirstLocation -> {}
+                    MapScreenIntent.MapOverlayIntent.MoveToMyLocation -> {}
+                    MapScreenIntent.MapOverlayIntent.MoveToMyRoute -> {}
+                    MapScreenIntent.MapOverlayIntent.NavigateBack -> {}
+                    MapScreenIntent.MapOverlayIntent.OpenDrawer -> {}
+                }
             }
         }
     )

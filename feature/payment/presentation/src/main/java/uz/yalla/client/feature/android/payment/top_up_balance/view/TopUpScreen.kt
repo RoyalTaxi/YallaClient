@@ -20,11 +20,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import uz.yalla.client.core.common.button.PrimaryButton
+import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.android.payment.R
-import uz.yalla.client.feature.android.payment.top_up_balance.model.TopUpUIState
 import uz.yalla.client.feature.android.payment.top_up_balance.components.input.BalanceInputField
-import uz.yalla.client.feature.core.components.buttons.YButton
-import uz.yalla.client.feature.core.design.theme.YallaTheme
+import uz.yalla.client.feature.android.payment.top_up_balance.model.TopUpUIState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -80,7 +80,7 @@ internal fun TopUpScreen(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                YButton(
+                PrimaryButton(
                     text = stringResource(R.string.pay),
                     enabled = uiState.isPayButtonValid,
                     onClick = {},

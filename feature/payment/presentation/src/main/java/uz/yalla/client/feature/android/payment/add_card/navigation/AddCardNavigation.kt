@@ -1,14 +1,10 @@
 package uz.yalla.client.feature.android.payment.add_card.navigation
 
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import uz.yalla.client.core.presentation.navigation.safeNavigate
 import uz.yalla.client.feature.android.payment.add_card.view.AddCardRoute
-import uz.yalla.client.feature.core.navigation.safeNavigate
 
 internal const val ADD_CARD_ROUTE = "add_card_route"
 

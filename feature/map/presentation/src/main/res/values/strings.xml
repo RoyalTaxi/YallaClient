@@ -3,4 +3,14 @@
     <string name="min">daq</string>
     <string name="loading">Yuklanmoqda</string>
     <string name="x_order">%s ta buyurtma</string>
+    <string name="orders_history">Safarlar tarixi</string>
+    <string name="my_places">Mening joylarim</string>
+    <string name="payment_type">To\'lov usuli</string>
+    <string name="cash">Naqd</string>
+    <string name="invite_friends">Yaqinlaringizni taklif qiling</string>
+    <string name="win_x_sums">%s so\'m oling</string>
+    <string name="become_a_driver">Haydovchi bo\'lish</string>
+    <string name="contuct_us">Biz bilan bog\'lanish</string>
+    <string name="settings">Sozlamalar</string>
+    <string name="about_app">Ilova haqida</string>
 </resources>

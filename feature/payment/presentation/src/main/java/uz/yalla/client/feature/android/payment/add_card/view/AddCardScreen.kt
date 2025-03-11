@@ -21,12 +21,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import uz.yalla.client.core.common.button.PrimaryButton
+import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.android.payment.R
 import uz.yalla.client.feature.android.payment.add_card.components.CardViewCard
 import uz.yalla.client.feature.android.payment.add_card.model.AddCardUIState
-import uz.yalla.client.feature.core.components.buttons.YButton
-import uz.yalla.client.feature.core.design.theme.YallaTheme
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun AddCardScreen(
@@ -76,7 +75,7 @@ internal fun AddCardScreen(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                YButton(
+                PrimaryButton (
                     text = stringResource(R.string.link_card),
                     enabled = uiState.buttonState,
                     onClick = { onIntent(AddCardIntent.OnClickLinkCard) },

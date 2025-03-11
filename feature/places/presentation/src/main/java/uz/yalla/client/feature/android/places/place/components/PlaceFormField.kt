@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import uz.yalla.client.feature.core.design.theme.YallaTheme
+import uz.yalla.client.core.presentation.design.theme.YallaTheme
 
 @Composable
 internal fun AddressFormField(

@@ -5,7 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import uz.yalla.client.feature.order.domain.repository.PlacesRepository
 import uz.yalla.client.core.domain.error.Either
-import uz.yalla.client.core.domain.model.PlaceModel
+import uz.yalla.client.feature.order.domain.model.response.PlaceModel
 
 class FindAllMapPlacesUseCase(
     private val repository: PlacesRepository,

@@ -2,8 +2,8 @@ package uz.yalla.client.feature.order.domain.repository
 
 import uz.yalla.client.core.domain.error.DataError
 import uz.yalla.client.core.domain.error.Either
-import uz.yalla.client.core.domain.model.PlaceModel
 import uz.yalla.client.feature.order.domain.model.request.PostOnePlaceDto
+import uz.yalla.client.feature.order.domain.model.response.PlaceModel
 
 interface PlacesRepository {
     suspend fun findAll(): Either<List<PlaceModel>, DataError.Network>

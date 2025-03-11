@@ -9,4 +9,5 @@
     <string name="choose">Выбрать</string>
     <string name="fixed_cost">%s сум</string>
     <string name="destination_count">%s направления</string>
+    <string name="call">Позвонить</string>
 </resources>

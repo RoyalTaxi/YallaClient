@@ -1,14 +1,10 @@
 package uz.yalla.client.feature.android.payment.business_account.navigation
 
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import uz.yalla.client.core.presentation.navigation.safeNavigate
 import uz.yalla.client.feature.android.payment.business_account.view.BusinessAccountRoute
-import uz.yalla.client.feature.core.navigation.safeNavigate
 
 internal const val BUSINESS_ACCOUNT_ROUTE = "business_account_route"
 

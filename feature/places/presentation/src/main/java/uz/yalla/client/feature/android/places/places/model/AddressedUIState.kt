@@ -1,7 +1,8 @@
 package uz.yalla.client.feature.android.places.places.model
 
-import uz.ildam.technologies.yalla.feature.addresses.domain.model.response.AddressModel
+import uz.yalla.client.feature.order.domain.model.response.PlaceModel
+
 
 internal data class AddressesUIState(
-    val addresses: List<AddressModel>? = null
+    val addresses: List<PlaceModel>? = null
 )

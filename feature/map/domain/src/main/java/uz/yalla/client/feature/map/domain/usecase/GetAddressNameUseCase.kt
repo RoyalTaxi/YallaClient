@@ -4,9 +4,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import uz.yalla.client.core.domain.error.Either
-import uz.yalla.client.core.domain.model.PlaceModel
-import uz.yalla.client.core.domain.model.PlaceNameModel
 import uz.yalla.client.feature.map.domain.repository.MapRepository
+import uz.yalla.client.feature.order.domain.model.response.PlaceNameModel
 
 class GetAddressNameUseCase(
     private val repository: MapRepository,

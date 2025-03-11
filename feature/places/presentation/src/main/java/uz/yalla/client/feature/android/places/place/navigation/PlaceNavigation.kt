@@ -5,9 +5,9 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import uz.ildam.technologies.yalla.feature.addresses.domain.model.response.AddressType
+import uz.yalla.client.core.presentation.navigation.safeNavigate
 import uz.yalla.client.feature.android.places.place.view.AddressRoute
-import uz.yalla.client.feature.core.navigation.safeNavigate
+import uz.yalla.client.feature.order.domain.model.type.PlaceType
 
 internal const val ID = "id"
 internal const val TYPE = "type"
@@ -32,7 +32,7 @@ internal fun NavGraphBuilder.addressScreen(
         )
     ) { navBackStackEntry ->
         val id = navBackStackEntry.arguments?.getString(ID)?.toIntOrNull()
-        val type = AddressType.fromType(navBackStackEntry.arguments?.getString(TYPE).orEmpty())
+        val type = PlaceType.fromType(navBackStackEntry.arguments?.getString(TYPE).orEmpty())
         AddressRoute(
             id = id,
             type = type,
