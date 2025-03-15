@@ -8,7 +8,7 @@ import uz.yalla.client.feature.setting.domain.repository.SettingRepository
 import uz.yalla.client.feature.setting.domain.usecase.GetConfigUseCase
 import uz.yalla.client.service.setting.service.SettingsService
 
-object Settings {
+object SettingsData {
     private val serviceModule = module {
         single { SettingsService(get(named(NetworkConstants.API_2))) }
     }

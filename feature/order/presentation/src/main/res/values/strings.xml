@@ -24,5 +24,7 @@
     <string name="order_details">Buyurtma tafsilotlari</string>
     <string name="we_need_cause">Xizmatimizni yaxshilash uchun bekor qilish sababini bilish biz uchun muhim.</string>
     <string name="why_canceled">Nima uchun buyurtmani bekor qildingiz?</string>
+    <string name="coming_to_you">Siz tomonga kelyapti</string>
+    <string name="write_comment_here">Bu yerga fikringizni yozing. \nMasalan, "Qo\'ng\'iroq qilmang"”</string>
 
 </resources>

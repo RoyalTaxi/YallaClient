@@ -1,4 +1,4 @@
-package uz.ildam.technologies.yalla.android.ui.components.text_field
+package uz.yalla.client.feature.order.presentation.components
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
@@ -17,8 +17,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import uz.ildam.technologies.yalla.android.R
-import uz.yalla.client.feature.core.design.theme.YallaTheme
+import uz.yalla.client.core.presentation.design.theme.YallaTheme
+import uz.yalla.client.feature.order.presentation.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

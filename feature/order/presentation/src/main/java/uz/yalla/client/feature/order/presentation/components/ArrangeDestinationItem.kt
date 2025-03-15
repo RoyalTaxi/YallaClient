@@ -1,4 +1,4 @@
-package uz.ildam.technologies.yalla.android.ui.components.item
+package uz.yalla.client.feature.order.presentation.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -20,13 +20,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import uz.ildam.technologies.yalla.android.R
-import uz.ildam.technologies.yalla.android.ui.screens.map.MapUIState
-import uz.yalla.client.feature.core.design.theme.YallaTheme
+import uz.yalla.client.core.domain.model.Destination
+import uz.yalla.client.core.presentation.design.theme.YallaTheme
+import uz.yalla.client.feature.order.presentation.R
 
 @Composable
 fun ArrangeDestinationItem(
-    destination: MapUIState.Destination,
+    destination: Destination,
     modifier: Modifier = Modifier,
     onDelete: () -> Unit
 ) {

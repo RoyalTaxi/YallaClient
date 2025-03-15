@@ -39,7 +39,7 @@ object Navigation {
         ProfileViewModel.module,
         HistoryViewModel.module,
         InfoViewModel.module,
-        SettingViewModel.module,
+        *SettingViewModel.modules.toTypedArray(),
         HistoryViewModel.module,
         ContactViewModel.module
     )

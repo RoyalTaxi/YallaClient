@@ -17,6 +17,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.koin.java.KoinJavaComponent.getKoin
+import uz.yalla.client.core.common.button.CallButton
+import uz.yalla.client.core.common.item.CarNumberItem
+import uz.yalla.client.core.presentation.design.theme.YallaTheme
+import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
+import uz.yalla.client.feature.order.presentation.R
 import uz.yalla.client.feature.order.presentation.client_waiting.model.ClientWaitingViewModel
 
 object ClientWaitingSheet {

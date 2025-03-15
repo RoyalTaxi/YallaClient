@@ -39,6 +39,7 @@ dependencies {
     implementation(projects.core.domain)
     implementation(projects.core.common)
     implementation(projects.core.presentation)
+    implementation(projects.feature.setting.data)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

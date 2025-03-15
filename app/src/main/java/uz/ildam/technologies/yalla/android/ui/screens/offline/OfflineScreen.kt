@@ -29,9 +29,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import uz.ildam.technologies.yalla.android.R
-import uz.ildam.technologies.yalla.core.data.local.AppPreferences
-import uz.yalla.client.feature.core.components.buttons.YButton
-import uz.yalla.client.feature.core.design.theme.YallaTheme
+import uz.yalla.client.core.common.button.PrimaryButton
+import uz.yalla.client.core.data.local.AppPreferences
+import uz.yalla.client.core.presentation.design.theme.YallaTheme
+import androidx.core.net.toUri
 
 @Composable
 fun OfflineScreen() {
@@ -92,13 +93,13 @@ fun OfflineScreen() {
 
         Spacer(modifier = Modifier.weight(1f))
 
-        YButton(
+        PrimaryButton(
             text = stringResource(R.string.call),
             containerColor = YallaTheme.color.primary,
             modifier = Modifier.fillMaxWidth(),
             onClick = {
                 val intent = Intent(ACTION_DIAL).apply {
-                    data = Uri.parse("tel:${AppPreferences.supportNumber}")
+                    data = "tel:${AppPreferences.supportNumber}".toUri()
                 }
                 if (intent.resolveActivity(context.packageManager) != null) {
                     context.startActivity(intent)

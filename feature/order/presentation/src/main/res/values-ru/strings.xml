@@ -22,4 +22,7 @@
     <string name="order_details">Детали заказа</string>
     <string name="we_need_cause">Нам важно знать причины, чтобы совершенствовать наш сервис.</string>
     <string name="why_canceled">Почему вы отменили заказ?</string>
+    <string name="coming_to_you">К вам едет</string>
+    <string name="write_comment_here">Напишите комментарий сюда. \nНапример, “Не звоните”</string>
+
 </resources>
