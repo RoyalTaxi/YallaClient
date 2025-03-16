@@ -1,16 +1,21 @@
 package uz.yalla.client.feature.order.data.repository
 
-import uz.ildam.technologies.yalla.feature.order.data.mapper.ActiveOrdersMapper
-import uz.ildam.technologies.yalla.feature.order.data.mapper.GetSettingMapper
-import uz.ildam.technologies.yalla.feature.order.data.mapper.OrderTaxiMapper
-import uz.ildam.technologies.yalla.feature.order.data.mapper.SearchCarMapper
-import uz.ildam.technologies.yalla.feature.order.data.mapper.ShowOrderMapper
-import uz.ildam.technologies.yalla.feature.order.data.request.order.OrderTaxiRequest
-import uz.ildam.technologies.yalla.feature.order.data.service.OrderApiService
-import uz.ildam.technologies.yalla.feature.order.domain.model.request.OrderTaxiDto
-import uz.ildam.technologies.yalla.feature.order.domain.repository.OrderRepository
 import uz.yalla.client.core.domain.error.DataError
 import uz.yalla.client.core.domain.error.Either
+import uz.yalla.client.feature.order.data.mapper.ActiveOrdersMapper
+import uz.yalla.client.feature.order.data.mapper.GetSettingMapper
+import uz.yalla.client.feature.order.data.mapper.OrderTaxiMapper
+import uz.yalla.client.feature.order.data.mapper.SearchCarMapper
+import uz.yalla.client.feature.order.data.mapper.ShowOrderMapper
+import uz.yalla.client.feature.order.domain.model.request.OrderTaxiDto
+import uz.yalla.client.feature.order.domain.model.response.order.ActiveOrdersModel
+import uz.yalla.client.feature.order.domain.model.response.order.OrderTaxiModel
+import uz.yalla.client.feature.order.domain.model.response.order.SearchCarModel
+import uz.yalla.client.feature.order.domain.model.response.order.SettingModel
+import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
+import uz.yalla.client.feature.order.domain.repository.OrderRepository
+import uz.yalla.client.service.order.request.order.OrderTaxiRequest
+import uz.yalla.client.service.order.service.OrderApiService
 
 class OrderRepositoryImpl(
     private val orderApiService: OrderApiService

@@ -4,8 +4,10 @@ import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import uz.yalla.client.feature.android.intro.language.model.LanguageViewModel
 
-object IntroViewModel {
-    val module = module {
+object Intro {
+    private val viewModelModule = module {
         viewModelOf(::LanguageViewModel)
     }
+
+    val modules = listOf(viewModelModule)
 }

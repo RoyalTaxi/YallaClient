@@ -7,13 +7,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import uz.yalla.client.core.common.map.MapStrategy
 import uz.yalla.client.core.common.state.HamburgerButtonState
 import uz.yalla.client.core.common.state.MoveCameraButtonState
-import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.feature.map.presentation.components.marker.YallaMarkerState
 import uz.yalla.client.feature.map.presentation.model.MapUIState
 import uz.yalla.client.feature.map.presentation.navigation.BottomSheetNavHost
@@ -31,7 +33,9 @@ fun MapScreen(
 ) {
     val density = LocalDensity.current
 
-    Box {
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
         map.Map(
             startingPoint = null,
             modifier = Modifier.fillMaxSize(),
@@ -54,7 +58,14 @@ fun MapScreen(
         )
 
         BottomSheetNavHost(
-            navController = navController
+            navController = navController,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .onSizeChanged {
+                    with(density) {
+                        onIntent(MapScreenIntent.SetSheetHeight(it.height.toDp()))
+                    }
+                }
         )
     }
 }

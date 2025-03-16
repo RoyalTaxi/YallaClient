@@ -1,5 +1,6 @@
 package uz.ildam.technologies.yalla.android.activity
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.ViewTreeObserver
@@ -67,9 +68,11 @@ class MainActivity : AppCompatActivity() {
             updateFlowLauncher = registerForActivityResult(
                 ActivityResultContracts.StartIntentSenderForResult()
             ) { activityResult ->
-                if (activityResult.resultCode != RESULT_OK) finish()
+                if (activityResult.resultCode != RESULT_OK) {
+                    finish()
+                    startActivity(Intent(this, MainActivity::class.java))
+                }
             }
-
             checkForImmediateUpdate()
         }
 

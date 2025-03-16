@@ -10,6 +10,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import uz.ildam.technologies.yalla.android.ui.screens.offline.OfflineScreen
 import uz.yalla.client.core.data.local.AppPreferences
+import uz.yalla.client.core.presentation.navigation.safePopBackStack
 import uz.yalla.client.feature.android.auth.authModule
 import uz.yalla.client.feature.android.auth.navigateToAuthModule
 import uz.yalla.client.feature.android.contact.contactModule
@@ -27,8 +28,6 @@ import uz.yalla.client.feature.android.places.addressModule
 import uz.yalla.client.feature.android.places.navigateToAddressModule
 import uz.yalla.client.feature.android.profile.navigateToProfileModule
 import uz.yalla.client.feature.android.profile.profileModule
-import uz.yalla.client.feature.android.registration.navigateToRegistrationModule
-import uz.yalla.client.feature.android.registration.registrationModule
 import uz.yalla.client.feature.android.setting.navigateToSettingModule
 import uz.yalla.client.feature.android.setting.settingsModule
 import uz.yalla.client.feature.android.web.navigateToWebScreen
@@ -38,6 +37,8 @@ import uz.yalla.client.feature.map.presentation.navigation.mapScreen
 import uz.yalla.client.feature.map.presentation.navigation.navigateToMapScreen
 import uz.yalla.client.feature.order.presentation.cancel.cancelReasonScreen
 import uz.yalla.client.feature.order.presentation.cancel.navigateToCancelReasonScreen
+import uz.yalla.client.feature.registration.presentation.navigation.navigateToRegistrationScreen
+import uz.yalla.client.feature.registration.presentation.navigation.registrationScreen
 
 @Composable
 fun Navigation(
@@ -62,7 +63,7 @@ fun Navigation(
 
         authModule(
             navController = navController,
-            onClientNotFound = navController::navigateToRegistrationModule,
+            onClientNotFound = navController::navigateToRegistrationScreen,
             onClientFound = {
                 navController.navigateToMapScreen(
                     navOptions {
@@ -72,8 +73,8 @@ fun Navigation(
             }
         )
 
-        registrationModule(
-            navController = navController,
+        registrationScreen(
+            onBack = navController::safePopBackStack,
             onNext = {
                 navController.navigateToMapScreen(
                     navOptions { popUpTo(0) { inclusive = true } }

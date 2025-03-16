@@ -10,5 +10,8 @@ object Map {
         viewModelOf(::MapViewModel)
     }
 
-    val modules = listOf(viewModelModule, *MapData.modules.toTypedArray())
+    val modules = listOf(
+        viewModelModule,
+        *MapData.modules.toTypedArray()
+    )
 }

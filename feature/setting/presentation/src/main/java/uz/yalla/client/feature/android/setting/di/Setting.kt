@@ -5,7 +5,7 @@ import org.koin.dsl.module
 import uz.yalla.client.feature.android.setting.settings.model.SettingsViewModel
 import uz.yalla.client.feature.setting.data.di.SettingsData
 
-object SettingViewModel {
+object Setting {
     private var viewModelModule = module {
         viewModelOf(::SettingsViewModel)
     }

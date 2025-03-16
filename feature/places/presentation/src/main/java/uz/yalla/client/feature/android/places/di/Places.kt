@@ -6,7 +6,7 @@ import uz.yalla.client.feature.android.places.place.model.PlaceViewModel
 import uz.yalla.client.feature.android.places.places.model.AddressesViewModel
 import uz.yalla.client.feature.order.data.di.PlacesData
 
-object PlacesViewModel {
+object Places {
     private val viewModelModule = module {
         viewModelOf(::PlaceViewModel)
         viewModelOf(::AddressesViewModel)

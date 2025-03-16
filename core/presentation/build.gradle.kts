@@ -35,19 +35,22 @@ android {
 
 dependencies {
 
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
+    api(libs.androidx.core.ktx)
+    api(libs.androidx.appcompat)
+    api(libs.material)
+    testApi(libs.junit)
+    androidTestApi(libs.androidx.junit)
+    androidTestApi(libs.androidx.espresso.core)
 
-    implementation(libs.compose.ui)
-    implementation(libs.compose.ui.tooling.preview)
-    implementation(libs.compose.material3)
-    implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.animation.android)
-    debugImplementation(libs.compose.ui.tooling)
+    api(libs.compose.ui)
+    api(libs.compose.ui.tooling.preview)
+    api(libs.compose.material3)
+    api(libs.androidx.activity.compose)
+    api(libs.androidx.animation.android)
+    debugApi(libs.compose.ui.tooling)
 
-    implementation(libs.androidx.navigation.compose)
+    api(libs.androidx.navigation.compose)
+
+    api(libs.koin.android)
+    api(libs.insert.koin.koin.androidx.compose)
 }

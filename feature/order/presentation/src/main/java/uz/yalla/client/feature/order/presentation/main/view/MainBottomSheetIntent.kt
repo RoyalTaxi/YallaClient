@@ -31,6 +31,4 @@ sealed interface MainBottomSheetIntent {
         data class SetFooterHeight(val height: Dp) : FooterIntent
         data class ChangeSheetVisibility(val isVisible: Boolean) : FooterIntent
     }
-
-    data class SetMainSheetHeight(val height: Dp) : MainBottomSheetIntent
 }

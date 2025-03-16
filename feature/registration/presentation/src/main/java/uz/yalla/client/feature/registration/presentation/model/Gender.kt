@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.android.registration.credentials.model
+package uz.yalla.client.feature.registration.presentation.model
 
 internal enum class Gender(name: String) {
     MALE("MALE"),

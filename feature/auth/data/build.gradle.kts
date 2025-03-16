@@ -34,18 +34,8 @@ android {
 }
 
 dependencies {
-    implementation(projects.core.data)
-    implementation(projects.core.domain)
-    implementation(projects.core.service)
+    api(projects.core.data)
+    api(projects.core.service)
     implementation(projects.service.auth)
     implementation(projects.feature.auth.domain)
-
-    implementation(libs.ktor.client.core)
-    implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.ktor.client.content.negotiation)
-    implementation(libs.ktor.serialization.kotlinx.json)
-    implementation(libs.ktor.client.logging)
-
-    implementation(project.dependencies.platform(libs.koin.bom))
-    implementation(libs.koin.core)
 }

@@ -15,6 +15,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -35,7 +36,6 @@ import uz.yalla.client.feature.map.presentation.components.marker.YallaMarkerSta
 import uz.yalla.client.feature.map.presentation.model.MapViewModel
 import uz.yalla.client.feature.map.presentation.view.drawer.MapDrawer
 import uz.yalla.client.feature.map.presentation.view.drawer.MapDrawerIntent
-import uz.yalla.client.feature.order.presentation.client_waiting.view.ClientWaitingSheet
 import uz.yalla.client.feature.order.presentation.main.view.MainBottomSheetIntent
 import uz.yalla.client.feature.order.presentation.main.view.MainSheet
 import uz.yalla.client.feature.order.presentation.search.navigateToSearchForCarBottomSheet
@@ -90,7 +90,7 @@ fun MapRoute(
             drawerState.isOpen -> scope.launch { drawerState.close() }
 
             state.route.isNotEmpty() -> {
-                MainSheet.viewModel.setDestination(emptyList())
+                MainSheet.setDestination(emptyList())
                 state.selectedLocation?.point?.let { there -> map.animate(to = there) }
             }
 
@@ -103,7 +103,7 @@ fun MapRoute(
     }
 
     LaunchedEffect(Unit) {
-        launch {
+        launch(Dispatchers.IO) {
             while (true) {
                 vm.getActiveOrders()
                 delay(5.seconds)
@@ -111,12 +111,12 @@ fun MapRoute(
             }
         }
 
-        launch {
+        launch(Dispatchers.IO) {
             vm.getPolygon()
             vm.getMe()
         }
 
-        launch {
+        launch(Dispatchers.Main) {
             map.isMarkerMoving.collectLatest { isMarkerMoving ->
                 if (state.route.isEmpty() && state.selectedOrder?.status == null) {
                     if (isMarkerMoving) vm.setStateToNotFound()
@@ -137,7 +137,7 @@ fun MapRoute(
             }
         }
 
-        launch {
+        launch(Dispatchers.Main) {
             MainSheet.intentFlow.collectLatest { intent ->
                 when (intent) {
                     is MainBottomSheetIntent.OrderTaxiBottomSheetIntent.AddNewDestinationClick -> TODO()
@@ -152,16 +152,12 @@ fun MapRoute(
                     }
 
                     is MainBottomSheetIntent.TariffInfoBottomSheetIntent.ClickComment -> {}
-                    is MainBottomSheetIntent.SetMainSheetHeight -> {
-                        vm.updateState(state.copy(sheetHeight = intent.height))
-                    }
-
                     else -> {}
                 }
             }
         }
 
-        launch {
+        launch(Dispatchers.Main) {
             SearchCarSheet.intentFlow.collectLatest { intent ->
                 when (intent) {
                     is SearchCarSheetIntent.OnCancelled -> {
@@ -181,19 +177,20 @@ fun MapRoute(
     }
 
     LaunchedEffect(state.selectedLocation, state.selectedOrder) {
-        markerState = when {
-            state.selectedLocation == null -> YallaMarkerState.LOADING
-            state.selectedOrder?.status in OrderStatus.nonInteractive -> YallaMarkerState.Searching(
-                title = state.selectedLocation?.name
-            )
+        launch(Dispatchers.Main) {
+            markerState = when {
+                state.selectedLocation == null -> YallaMarkerState.LOADING
+                state.selectedOrder?.status in OrderStatus.nonInteractive -> YallaMarkerState.Searching(
+                    title = state.selectedLocation?.name
+                )
 
-            else -> YallaMarkerState.IDLE(
-                title = state.selectedLocation?.name,
-                timeout = state.timeout
-            )
+                else -> YallaMarkerState.IDLE(
+                    title = state.selectedLocation?.name,
+                    timeout = state.timeout
+                )
+            }
         }
     }
-
 
 //    LaunchedEffect(state.hasServiceProvided) {
 //        if (state.outOfService == true) sheetHandler.showNoService()
@@ -201,7 +198,7 @@ fun MapRoute(
 //    }
 
     LaunchedEffect(state.route) {
-        launch {
+        launch(Dispatchers.Main) {
             map.updateRoute(state.route)
             if (state.route.isEmpty()) state.selectedLocation?.point?.let { map.animate(it) }
             else map.animateToFitBounds(state.route)
@@ -209,7 +206,7 @@ fun MapRoute(
     }
 
     LaunchedEffect(state.selectedLocation, state.destinations) {
-        launch {
+        launch(Dispatchers.Main) {
             val start = state.selectedLocation?.point?.let {
                 MapPoint(it.lat, it.lng)
             }
@@ -222,12 +219,20 @@ fun MapRoute(
     }
 
 
-    LaunchedEffect(state.drivers) { launch { map.updateDrivers(state.drivers) } }
+    LaunchedEffect(state.drivers) {
+        launch(Dispatchers.Main) {
+            map.updateDrivers(state.drivers)
+        }
+    }
 
-    LaunchedEffect(state.selectedOrder) { state.selectedOrder?.let { map.updateDriver(it.executor) } }
+    LaunchedEffect(state.selectedOrder) {
+        launch(Dispatchers.Main) {
+            state.selectedOrder?.let { map.updateDriver(it.executor) }
+        }
+    }
 
     LaunchedEffect(state.showingOrderId) {
-        launch {
+        launch(Dispatchers.IO) {
             while (state.showingOrderId != null) {
                 vm.getShowOrder()
                 delay(5.seconds)
@@ -241,7 +246,7 @@ fun MapRoute(
     }
 
     LaunchedEffect(state.selectedOrder) {
-        launch {
+        launch(Dispatchers.Main) {
             if (state.selectedOrder != null) vm.updateState(state.copy(loading = false))
             if (state.selectedOrder?.status == OrderStatus.InFetters)
                 state.selectedOrder?.let { driver ->
@@ -287,6 +292,7 @@ fun MapRoute(
                     MapScreenIntent.MapOverlayIntent.MoveToMyRoute -> {}
                     MapScreenIntent.MapOverlayIntent.NavigateBack -> {}
                     MapScreenIntent.MapOverlayIntent.OpenDrawer -> {}
+                    is MapScreenIntent.SetSheetHeight -> vm.updateState(state.copy(sheetHeight = intent.height))
                 }
             }
         }

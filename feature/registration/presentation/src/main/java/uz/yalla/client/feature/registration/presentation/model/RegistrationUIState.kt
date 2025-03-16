@@ -1,8 +1,8 @@
-package uz.yalla.client.feature.android.registration.credentials.model
+package uz.yalla.client.feature.registration.presentation.model
 
 import org.threeten.bp.LocalDate
 
-internal data class CredentialsUIState(
+internal data class RegistrationUIState(
     val number: String = "",
     val secretKey: String = "",
     val firstName: String = "",

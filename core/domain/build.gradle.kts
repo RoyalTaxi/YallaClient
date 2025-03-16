@@ -6,6 +6,7 @@ plugins {
 
 android {
     namespace = "uz.yalla.client.core.domain"
+
     compileSdk = 35
 
     defaultConfig {

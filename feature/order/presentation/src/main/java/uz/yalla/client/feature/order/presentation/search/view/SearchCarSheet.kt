@@ -29,6 +29,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.getKoin
 import uz.yalla.client.core.common.progress.YallaProgressBar
@@ -42,8 +44,9 @@ import kotlin.time.Duration.Companion.seconds
 
 
 object SearchCarSheet {
-    val viewModel: SearchCarSheetViewModel = getKoin().get()
-    val intentFlow = viewModel.intentFlow
+    private val viewModel: SearchCarSheetViewModel by lazy { getKoin().get() }
+    internal val mutableIntentFlow = MutableSharedFlow<SearchCarSheetIntent>()
+    val intentFlow = mutableIntentFlow.asSharedFlow()
 
     @Composable
     fun View(

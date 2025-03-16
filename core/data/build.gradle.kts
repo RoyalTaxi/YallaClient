@@ -37,17 +37,17 @@ dependencies {
     implementation(projects.core.domain)
     implementation(projects.core.service)
 
-    implementation(libs.kotlinx.serialization.json)
+    api(libs.kotlinx.serialization.json)
 
-    implementation(libs.ktor.client.core)
-    implementation(libs.ktor.client.android)
-    implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.ktor.client.content.negotiation)
-    implementation(libs.ktor.serialization.kotlinx.json)
-    implementation(libs.ktor.client.logging)
+    api(libs.ktor.client.core)
+    api(libs.ktor.client.android)
+    api(libs.kotlinx.coroutines.core)
+    api(libs.ktor.client.content.negotiation)
+    api(libs.ktor.serialization.kotlinx.json)
+    api(libs.ktor.client.logging)
 
-    implementation(project.dependencies.platform(libs.koin.bom))
-    implementation(libs.koin.core)
+    api(project.dependencies.platform(libs.koin.bom))
+    api(libs.koin.core)
 
     implementation(libs.inspektify.ktor3)
 }

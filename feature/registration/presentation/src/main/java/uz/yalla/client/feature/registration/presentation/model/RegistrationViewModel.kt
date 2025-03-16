@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.android.registration.credentials.model
+package uz.yalla.client.feature.registration.presentation.model
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,14 +13,14 @@ import uz.yalla.client.core.common.formation.formatWithDotsDMY
 import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.feature.auth.domain.usecase.register.RegisterUseCase
 
-internal class CredentialsViewModel(
+internal class RegistrationViewModel(
     private val registerUseCase: RegisterUseCase,
 ) : ViewModel() {
 
-    private val _actionFlow = MutableSharedFlow<CredentialsActionState>()
+    private val _actionFlow = MutableSharedFlow<RegistrationActionState>()
     val actionFlow = _actionFlow.asSharedFlow()
 
-    private val _uiState = MutableStateFlow(CredentialsUIState())
+    private val _uiState = MutableStateFlow(RegistrationUIState())
     val uiState = _uiState.asStateFlow()
 
     fun updateUiState(
@@ -44,7 +44,7 @@ internal class CredentialsViewModel(
     }
 
     fun register() = viewModelScope.launch {
-        _actionFlow.emit(CredentialsActionState.Loading)
+        _actionFlow.emit(RegistrationActionState.Loading)
         _uiState.value.apply {
             registerUseCase(
                 formattedNumber(),
@@ -62,9 +62,9 @@ internal class CredentialsViewModel(
                 AppPreferences.lastName = lastName
                 AppPreferences.gender = gender.name
                 AppPreferences.dateOfBirth = dateOfBirth.formatWithDotsDMY()
-                _actionFlow.emit(CredentialsActionState.Success(result))
+                _actionFlow.emit(RegistrationActionState.Success(result))
             }.onFailure {
-                _actionFlow.emit(CredentialsActionState.Error)
+                _actionFlow.emit(RegistrationActionState.Error)
             }
         }
     }

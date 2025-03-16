@@ -37,33 +37,10 @@ android {
 }
 
 dependencies {
-    implementation(projects.core.data)
-    implementation(projects.core.domain)
     implementation(projects.core.common)
     implementation(projects.core.presentation)
     implementation(projects.feature.auth.data)
     implementation(projects.feature.auth.domain)
-
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-
-    implementation(libs.compose.ui)
-    implementation(libs.compose.ui.tooling.preview)
-    implementation(libs.compose.material3)
-    implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.animation.android)
-    debugImplementation(libs.compose.ui.tooling)
-
-    implementation(project.dependencies.platform(libs.koin.bom))
-    implementation(libs.koin.core)
-    implementation(libs.koin.android)
-    implementation(libs.insert.koin.koin.androidx.compose)
-
-    implementation(libs.androidx.navigation.compose)
 
     implementation(libs.play.services.auth)
     implementation(libs.play.services.auth.api.phone)

@@ -2,10 +2,16 @@ package uz.yalla.client.feature.order.presentation.di
 
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
+import uz.yalla.client.feature.order.data.di.OrderData
 import uz.yalla.client.feature.order.presentation.main.model.MainSheetViewModel
 
 object Order {
-    val module = module {
+    private val viewModelModule = module {
         viewModelOf(::MainSheetViewModel)
     }
+
+    val modules = listOf(
+        viewModelModule,
+        *OrderData.modules.toTypedArray()
+    )
 }

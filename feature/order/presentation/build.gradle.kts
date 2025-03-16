@@ -43,6 +43,7 @@ dependencies {
     implementation(projects.core.domain)
     implementation(projects.core.common)
     implementation(projects.core.presentation)
+    implementation(projects.feature.order.data)
     implementation(projects.feature.order.domain)
     implementation(projects.feature.payment.domain)
 

@@ -2,8 +2,9 @@ package uz.yalla.client.feature.order.presentation.main.view
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -11,20 +12,27 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import io.morfly.compose.bottomsheet.material3.rememberBottomSheetState
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import org.koin.java.KoinJavaComponent.getKoin
 import uz.yalla.client.core.common.state.SheetValue
 import uz.yalla.client.core.data.local.AppPreferences
+import uz.yalla.client.core.domain.model.Destination
+import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.main.model.MainSheetViewModel
 
 
 object MainSheet {
-    val viewModel: MainSheetViewModel = getKoin().get()
-    val intentFlow = viewModel.intentFlow
+    private val viewModel: MainSheetViewModel by lazy { getKoin().get() }
+    internal val mutableIntentFlow = MutableSharedFlow<MainBottomSheetIntent>()
+    val intentFlow = mutableIntentFlow.asSharedFlow()
 
     @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
     @Composable
@@ -56,14 +64,17 @@ object MainSheet {
             viewModel.setPaymentType(AppPreferences.paymentType)
         }
 
-        Column {
-            Box(modifier = Modifier.fillMaxSize()) {
+        Card(
+            colors = CardDefaults.cardColors(YallaTheme.color.gray2),
+            shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
+        ) {
+            Box(contentAlignment = Alignment.BottomCenter) {
                 OrderTaxiBottomSheet(
                     state = state,
                     onIntent = viewModel::onIntent,
                     modifier = Modifier
                         .graphicsLayer { alpha = 1f - fraction }
-                        .zIndex(if (fraction < 0.5f) 1f else 0f),
+                        .zIndex(fraction),
                 )
 
                 TariffInfoBottomSheet(
@@ -72,7 +83,7 @@ object MainSheet {
                     onIntent = viewModel::onIntent,
                     modifier = Modifier
                         .graphicsLayer { alpha = fraction }
-                        .zIndex(if (fraction >= 0.5f) 1f else 0f)
+                        .zIndex(fraction)
                         .then(
                             if (state.selectedTariff != null && state.loading.not()) Modifier.matchParentSize()
                             else Modifier
@@ -93,4 +104,6 @@ object MainSheet {
             )
         }
     }
+
+    val setDestination: (_: List<Destination>) -> Unit = viewModel::setDestination
 }

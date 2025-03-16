@@ -2,12 +2,12 @@
 <resources>
     <string name="number_prefix" translatable="false">+998\u00A0</string>
     <string name="number_example" translatable="false">91 123 45 67</string>
-    <string name="enter_phone_number">Введите номер телефона</string>
-    <string name="next">Далее</string>
-    <string name="we_send_code">Мы отправим вам код подтверждения</string>
-    <string name="error_message">Вы ввели неверный код, попробуйте еще раз.</string>
-    <string name="enter_otp">Введите код безопасности</string>
-    <string name="enter_otp_definition">Введите 5-значный код, который мы отправили на номер +998%s</string>
-    <string name="resend_in">Оптравить код ещё раз через %s</string>
-    <string name="resend">Оптравить код ещё раз</string>
+    <string name="enter_phone_number">Telefon raqamingizni kiriting</string>
+    <string name="next">Keyingi</string>
+    <string name="we_send_code">Sizga tasdiqlash kodini yuboramiz</string>
+    <string name="error_message">Noto\'g\'ri kod kiritdingiz, iltimos qayta urinib ko\'ring</string>
+    <string name="enter_otp">Xavfsizlik kodini kiriting</string>
+    <string name="enter_otp_definition">Biz +998%s raqamiga yuborgan 5 xonali kodni kiriting</string>
+    <string name="resend_in">Kod\'ni %s dan so\'ng qayta yuborish</string>
+    <string name="resend">Kodni qayta yuborish</string>
 </resources>

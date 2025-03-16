@@ -3,10 +3,8 @@ package uz.yalla.client.feature.order.presentation.main.model
 import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -23,6 +21,7 @@ import uz.yalla.client.feature.order.presentation.main.view.MainBottomSheetInten
 import uz.yalla.client.feature.order.presentation.main.view.MainBottomSheetIntent.FooterIntent
 import uz.yalla.client.feature.order.presentation.main.view.MainBottomSheetIntent.OrderTaxiBottomSheetIntent
 import uz.yalla.client.feature.order.presentation.main.view.MainBottomSheetIntent.TariffInfoBottomSheetIntent
+import uz.yalla.client.feature.order.presentation.main.view.MainSheet.mutableIntentFlow
 import uz.yalla.client.feature.payment.domain.usecase.GetCardListUseCase
 
 class MainSheetViewModel(
@@ -33,8 +32,6 @@ class MainSheetViewModel(
     private val _uiState = MutableStateFlow(MainSheetState())
     val uiState = _uiState.asStateFlow()
 
-    private val _intentFlow = MutableSharedFlow<MainBottomSheetIntent>()
-    val intentFlow = _intentFlow.asSharedFlow()
 
     val isButtonEnabled = uiState
         .map { state ->
@@ -77,7 +74,7 @@ class MainSheetViewModel(
             is FooterIntent.ClickPaymentButton -> {}
             is FooterIntent.ChangeSheetVisibility -> {}
 
-            else -> viewModelScope.launch { _intentFlow.emit(intent) }
+            else -> viewModelScope.launch { mutableIntentFlow.emit(intent) }
         }
     }
 

@@ -20,7 +20,7 @@ import uz.yalla.client.feature.order.domain.usecase.tariff.GetTimeOutUseCase
 import uz.yalla.client.service.order.service.OrderApiService
 import uz.yalla.client.service.order.service.TariffApiService
 
-object Order {
+object OrderData {
 
     private val serviceModule = module {
         single { TariffApiService(get(named(NetworkConstants.API_2))) }

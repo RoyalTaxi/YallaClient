@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "uz.yalla.client.feature.android.registration"
+    namespace = "uz.yalla.client.feature.registration.presentation"
     compileSdk = 35
 
     defaultConfig {
@@ -71,6 +71,4 @@ dependencies {
 
     // LocalDate
     implementation(libs.threetenabp)
-
-
 }

@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.android.registration.credentials.view
+package uz.yalla.client.feature.registration.presentation.view
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
@@ -39,20 +39,20 @@ import uz.yalla.client.core.common.field.PrimaryTextField
 import uz.yalla.client.core.common.formation.formatWithDotsDMY
 import uz.yalla.client.core.common.sheet.DatePickerBottomSheet
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
-import uz.yalla.client.feature.android.registration.R
-import uz.yalla.client.feature.android.registration.credentials.model.CredentialsUIState
-import uz.yalla.client.feature.android.registration.credentials.model.Gender
+import uz.yalla.client.feature.registration.presentation.R
+import uz.yalla.client.feature.registration.presentation.model.RegistrationUIState
+import uz.yalla.client.feature.registration.presentation.model.Gender
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun CredentialsScreen(
+internal fun RegistrationScreen(
     sheetState: BottomSheetScaffoldState,
-    uiState: CredentialsUIState,
-    onIntent: (CredentialsIntent) -> Unit
+    uiState: RegistrationUIState,
+    onIntent: (RegistrationIntent) -> Unit
 ) {
 
-    BackHandler(onBack = { onIntent(CredentialsIntent.NavigateBack) })
+    BackHandler(onBack = { onIntent(RegistrationIntent.NavigateBack) })
 
     BottomSheetScaffold(
         sheetDragHandle = null,
@@ -64,8 +64,8 @@ internal fun CredentialsScreen(
         sheetContent = {
             DatePickerBottomSheet(
                 startDate = uiState.dateOfBirth ?: LocalDate.now(),
-                onSelectDate = { onIntent(CredentialsIntent.SetDateOfBirth(it)) },
-                onDismissRequest = { onIntent(CredentialsIntent.CloseDateBottomSheet) }
+                onSelectDate = { onIntent(RegistrationIntent.SetDateOfBirth(it)) },
+                onDismissRequest = { onIntent(RegistrationIntent.CloseDateBottomSheet) }
             )
         },
         content = {
@@ -97,7 +97,7 @@ internal fun CredentialsScreen(
 
                 PrimaryTextField(
                     text = uiState.firstName,
-                    onChangeText = { onIntent(CredentialsIntent.SetFirstName(it)) },
+                    onChangeText = { onIntent(RegistrationIntent.SetFirstName(it)) },
                     placeHolderText = stringResource(id = R.string.name),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -108,7 +108,7 @@ internal fun CredentialsScreen(
 
                 PrimaryTextField(
                     text = uiState.lastName,
-                    onChangeText = { onIntent(CredentialsIntent.SetLastName(it)) },
+                    onChangeText = { onIntent(RegistrationIntent.SetLastName(it)) },
                     placeHolderText = stringResource(id = R.string.surname)
                 )
 
@@ -121,7 +121,7 @@ internal fun CredentialsScreen(
                     placeHolderText = stringResource(id = R.string.date_of_birth),
                     onChangeText = {},
                     trailingIcon = painterResource(id = R.drawable.ic_calendar),
-                    onClick = { onIntent(CredentialsIntent.OpenDateBottomSheet) }
+                    onClick = { onIntent(RegistrationIntent.OpenDateBottomSheet) }
                 )
 
 
@@ -137,14 +137,14 @@ internal fun CredentialsScreen(
                         modifier = Modifier.weight(1f),
                         text = stringResource(id = R.string.gender_m),
                         isSelected = uiState.gender == Gender.MALE,
-                        onSelect = { onIntent(CredentialsIntent.SetGender(Gender.MALE)) }
+                        onSelect = { onIntent(RegistrationIntent.SetGender(Gender.MALE)) }
                     )
 
                     GenderButton(
                         modifier = Modifier.weight(1f),
                         text = stringResource(id = R.string.gender_f),
                         isSelected = uiState.gender == Gender.FEMALE,
-                        onSelect = { onIntent(CredentialsIntent.SetGender(Gender.FEMALE)) }
+                        onSelect = { onIntent(RegistrationIntent.SetGender(Gender.FEMALE)) }
                     )
                 }
 
@@ -156,7 +156,7 @@ internal fun CredentialsScreen(
                     modifier = Modifier.fillMaxWidth(),
                     text = stringResource(id = R.string.next),
                     enabled = uiState.firstName.isNotBlank() && uiState.lastName.isNotBlank() && uiState.gender != Gender.NOT_SELECTED && uiState.dateOfBirth != null,
-                    onClick = { onIntent(CredentialsIntent.Register) }
+                    onClick = { onIntent(RegistrationIntent.Register) }
                 )
             }
 
@@ -170,7 +170,7 @@ internal fun CredentialsScreen(
                         .fillMaxSize()
                         .background(Color.Black.copy(alpha = 0.3f))
                         .clickable(
-                            onClick = { onIntent(CredentialsIntent.CloseDateBottomSheet) },
+                            onClick = { onIntent(RegistrationIntent.CloseDateBottomSheet) },
                             indication = null,
                             interactionSource = remember { MutableInteractionSource() }
                         )

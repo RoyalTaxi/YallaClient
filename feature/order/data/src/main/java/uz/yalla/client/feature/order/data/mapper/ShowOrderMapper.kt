@@ -3,8 +3,10 @@ package uz.yalla.client.feature.order.data.mapper
 import uz.yalla.client.core.data.mapper.Mapper
 import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.data.mapper.orFalse
-import uz.ildam.technologies.yalla.feature.order.data.response.order.ShowOrderResponse
 import uz.yalla.client.core.domain.formations.TimeFormation.toFormattedTime
+import uz.yalla.client.core.domain.model.OrderStatus
+import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
+import uz.yalla.client.service.order.response.order.ShowOrderResponse
 
 object ShowOrderMapper {
     val mapper: Mapper<ShowOrderResponse?, ShowOrderModel> = { remote ->
