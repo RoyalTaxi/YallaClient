@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="lets_meet">Давайте\nпознакомимся</string>
-    <string name="lets_meet_desc">Сообщите нам, как правильно к вам\nобращаться</string>
-    <string name="name">Имя</string>
-    <string name="surname">Фамилия</string>
-    <string name="date_of_birth">Дата рождения</string>
-    <string name="gender_m">Мужчина</string>
-    <string name="gender_f">Женщина</string>
-    <string name="next">Далее</string>
+    <string name="lets_meet">Keling\ntanishamiz</string>
+    <string name="lets_meet_desc">Bizga qanday murojaat qilish kerakligini\nayting</string>
+    <string name="name">Ism</string>
+    <string name="surname">Familiya</string>
+    <string name="date_of_birth">Tug\'ilgan sana</string>
+    <string name="gender_m">Erkak</string>
+    <string name="gender_f">Ayol</string>
+    <string name="next">Keyingi</string>
 </resources>

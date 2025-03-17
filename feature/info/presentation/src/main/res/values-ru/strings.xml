@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="user_agreement">Пользовательское соглашение</string>
+    <string name="about_app">О приложении</string>
+    <string name="version_x">Версия %s</string>
+    <string name="we_on_social_networks">Мы в соцсетях</string>
+    <string name="rate">Оценить</string>
+</resources>

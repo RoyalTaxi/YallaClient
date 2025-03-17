@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="number_prefix" translatable="false">+998\u00A0</string>
-    <string name="number_example" translatable="false">91 123 45 67</string>
     <string name="enter_phone_number">Telefon raqamingizni kiriting</string>
     <string name="next">Keyingi</string>
     <string name="we_send_code">Sizga tasdiqlash kodini yuboramiz</string>

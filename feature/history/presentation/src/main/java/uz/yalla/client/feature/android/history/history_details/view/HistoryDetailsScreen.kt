@@ -1,6 +1,5 @@
 package uz.yalla.client.feature.android.history.history_details.view
 
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio

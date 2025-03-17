@@ -1,18 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="number_prefix" translatable="false">+998\u00A0</string>
-    <string name="number_example" translatable="false">91 123 45 67</string>
-    <string name="choose_date">Sanani tanlang</string>
-    <string name="where_to_go">Qayerga boramiz?</string>
-    <string name="enter_the_address">Manzilni kiriting</string>
-    <string name="map">Xarita</string>
-    <string name="min">daq</string>
     <string name="loading">Yuklanmoqda</string>
     <string name="choose">Tanlash</string>
     <string name="fixed_cost">%s so\'m</string>
     <string name="starting_cost">%s so\'mdan boshlab</string>
-    <string name="no_service_massage">Afsuski, biz hozirda bu hududda ishlaymiz</string>
-    <string name="new_address">Yangi manzil</string>
     <string name="options_not_valid">Tanlangan variantlar ushbu tarifda mavjud emas</string>
     <string name="required_second_address">Ushbu tarif uchun ikkinchi manzil talab qilinadi.</string>
     <string name="invalid_options">Ba\'zi variantlar ushbu tarifda amal qilmaydi</string>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="onboarding_1">Вызывайте такси одним кликом</string>
+    <string name="onboarding_1_desc">Больше не нужно звонить оператору - просто укажите место подачи автомобиля и конечную остановку</string>
+    <string name="onboarding_2">Отслеживайте поездку</string>
+    <string name="onboarding_2_desc">Вся информация о поездке - время в пути, маршрут, стоимость и др. всегда на экране вашего смартфона</string>
+    <string name="onboarding_3">Экономьте время</string>
+    <string name="onboarding_3_desc">Можно сохранять адрес дома, работы и любимых мест в разделе "Мои адреса"</string>
+    <string name="onboarding_4">Включить геолокацию</string>
+    <string name="onboarding_4_desc">Чтобы продолжить, разрешите устройству определять ваше местоположение.</string>
+    <string name="next">Далее</string>
+    <string name="choose_language">Выберите язык интерфейса</string>
+    <string name="choose_language_desc">Пожалуйста, выберите язык, который вам удобен для использования приложения.</string>
+</resources>

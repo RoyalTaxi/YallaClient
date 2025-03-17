@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="orders_history">История поездок</string>
-    <string name="today">Сегодня</string>
-    <string name="yesterday">Вчера</string>
-    <string name="order_details">Детали заказа</string>
-    <string name="date_and_time">Дата и время</string>
-    <string name="status">Статус</string>
-    <string name="payment">Оплата</string>
-    <string name="car">Автомобиль</string>
-    <string name="cash">Наличние</string>
-    <string name="fixed_cost">%s сум</string>
-    <string name="tariff">Тариф</string>
-
+    <string name="orders_history">Safarlar tarixi</string>
+    <string name="today">Bugun</string>
+    <string name="yesterday">Kecha</string>
+    <string name="order_details">Buyurtma tafsilotlari</string>
+    <string name="date_and_time">Sana va vaqt</string>
+    <string name="status">Holat</string>
+    <string name="payment">To\'lov</string>
+    <string name="car">Avtomobil</string>
+    <string name="cash">Naqd</string>
+    <string name="fixed_cost">%s so\'m</string>
+    <string name="tariff">Tarif</string>
 </resources>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="orders_history">История поездок</string>
+    <string name="today">Сегодня</string>
+    <string name="yesterday">Вчера</string>
+    <string name="order_details">Детали заказа</string>
+    <string name="date_and_time">Дата и время</string>
+    <string name="status">Статус</string>
+    <string name="payment">Оплата</string>
+    <string name="car">Автомобиль</string>
+    <string name="cash">Наличние</string>
+    <string name="fixed_cost">%s сум</string>
+    <string name="tariff">Тариф</string>
+</resources>

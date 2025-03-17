@@ -6,9 +6,9 @@
     <string name="facebook" translatable="false">Faceboook</string>
     <string name="instagram" translatable="false">Instagram</string>
 
-    <string name="user_agreement">Пользовательское соглашение</string>
-    <string name="about_app">О приложении</string>
-    <string name="version_x">Версия %s</string>
-    <string name="we_on_social_networks">Мы в соцсетях</string>
-    <string name="rate">Оценить</string>
+    <string name="user_agreement">Foydalanuvchi shartnomasi</string>
+    <string name="about_app">Ilova haqida</string>
+    <string name="version_x">Versiya %s</string>
+    <string name="we_on_social_networks">Biz ijtimoiy tarmoqlardamiz</string>
+    <string name="rate">Baholash</string>
 </resources>

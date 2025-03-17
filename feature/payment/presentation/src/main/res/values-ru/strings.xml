@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="new_card">Новая карта</string>
+    <string name="link_card">Привязать карту</string>
+    <string name="payment_method">Способ оплаты</string>
+    <string name="choose_payment_method">Выберите удобный способ оплаты</string>
+    <string name="add_card">Добавить карту</string>
+    <string name="card_number">Номер карты</string>
+    <string name="mm_yy">ММ/ГГ</string>
+    <string name="cash">Наличние</string>
+    <string name="error_message">Вы ввели неверный код, попробуйте еще раз.</string>\
+    <string name="enter_otp">Введите код безопасности</string>
+    <string name="enter_otp_definition_6digits">Введите 6-значный код, который мы отправили на номер +998%s</string>
+    <string name="resend_in">Оптравить код ещё раз через %s</string>
+    <string name="resend">Оптравить код ещё раз</string>
+    <string name="next">Далее</string>
+    <string name="add_corporate_account">Добавить корпоративный счет</string>
+    <string name="add_company">Добавление компании</string>
+    <string name="company_name">Название</string>
+    <string name="city">Город</string>
+    <string name="contact_person">Контактное лицо</string>
+    <string name="email">Электронная почта</string>
+    <string name="legal_address">Юридический адрес</string>
+    <string name="index">Индекс</string>
+    <string name="street">Улица</string>
+    <string name="home_office">Дом,офис</string>
+    <string name="bank_details">Банковские реквизиты</string>
+    <string name="bank_name">Название банка</string>
+    <string name="current_account">Расчётный счёт</string>
+    <string name="mfo">МФО</string>
+    <string name="business_account">Бизнес аккаунт</string>
+    <string name="overall_balance">Общий баланс</string>
+    <string name="employees">Сотрудники</string>
+    <string name="balance">Баланс</string>
+    <string name="top_up">Пополнить</string>
+    <string name="today">Сегодня</string>
+    <string name="top_up_balanse">Пополнить баланс</string>
+    <string name="enter_balance">0 сум</string>
+    <string name="min_value">Мин. сумма: 5 000 сум</string>
+    <string name="pay">Оплатить</string>
+    <string name="currency"> сум</string>
+    <string name="add_employee">Добавить сотрудника</string>
+    <string name="add">Добавить</string>
+    <string name="full_name">ФИО</string>
+</resources>

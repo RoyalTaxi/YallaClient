@@ -1,16 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="choose_date">Выберите дату</string>
-    <string name="where_to_go">Куда едем?</string>
-    <string name="enter_the_address">Введите адрес</string>
-    <string name="map">Карта</string>
-    <string name="min">мин</string>
     <string name="loading">Загружается</string>
     <string name="choose">Выбрать</string>
     <string name="fixed_cost">%s сум</string>
     <string name="starting_cost">от %s сум</string>
-    <string name="no_service_massage">К сожалению, пока не работаем в этом регионе</string>
-    <string name="new_address">Новый адрес</string>
     <string name="options_not_valid">Опции недоступны в этом тарифе.</string>
     <string name="required_second_address">Для этого тарифа требуется второй адрес</string>
     <string name="invalid_options">Некоторые опции не действительны в этом тарифе</string>
