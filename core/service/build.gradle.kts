@@ -1,40 +1,19 @@
 plugins {
-    alias(libs.plugins.androidLibrary)
-    alias(libs.plugins.kotlinAndroid)
-    alias(libs.plugins.kotlin.serialization)
+    id(libs.plugins.buildlogic.get().pluginId)
 }
 
 android {
     namespace = "uz.yalla.client.core.service"
-    compileSdk = 35
-
-    defaultConfig {
-        minSdk = 24
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles("consumer-rules.pro")
-    }
-
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-        }
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
 }
 
 dependencies {
-    implementation(projects.core.domain)
-    implementation(libs.ktor.client.core)
-    implementation(libs.ktor.serialization.kotlinx.json)
+    api(projects.core.domain)
+    api(libs.ktor.client.core)
+    api(libs.kotlinx.coroutines.core)
+    api(libs.ktor.client.content.negotiation)
+    api(libs.ktor.serialization.kotlinx.json)
+    api(libs.ktor.client.logging)
+
+    api(project.dependencies.platform(libs.koin.bom))
+    api(libs.koin.core)
 }

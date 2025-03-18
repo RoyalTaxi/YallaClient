@@ -1,8 +1,7 @@
 import java.util.Properties
 
 plugins {
-    alias(libs.plugins.androidLibrary)
-    alias(libs.plugins.kotlinAndroid)
+    id(libs.plugins.buildlogic.get().pluginId)
     alias(libs.plugins.compose.compiler)
 }
 
@@ -17,33 +16,6 @@ fun getLocalProperty(name: String): String {
 
 android {
     namespace = "uz.yalla.client.core.dgis"
-    compileSdk = 35
-
-    defaultConfig {
-        minSdk = 24
-        buildConfigField("String", "MAP_API_KEY", getLocalProperty("dgisMapApiKey"))
-    }
-
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
-    }
-
-    buildTypes {
-        getByName("release") {
-            isMinifyEnabled = false
-        }
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-
-    kotlinOptions {
-        jvmTarget = "11"
-    }
 
     buildFeatures {
         buildConfig = true

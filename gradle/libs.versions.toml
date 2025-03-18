@@ -1,10 +1,11 @@
 [versions]
 advancedBottomsheetMaterial3 = "0.1.0"
-agp = "8.5.2"
+agp = "8.9.0"
 appUpdateKtx = "2.1.0"
 constraintlayoutCompose = "1.0.1"
 coreSplashscreen = "1.0.1"
 desugar_jdk_libs = "2.1.2"
+gradleToolingApi = "8.9.0"
 inappupdateKotlinLib = "8.0.2"
 inspektifyKtor2 = "1.0.0-beta01"
 kotlin = "2.0.0"
@@ -55,12 +56,13 @@ app-update-ktx = { module = "com.google.android.play:app-update-ktx", version.re
 app-update = { module = "com.google.android.play:app-update", version.ref = "appUpdateKtx" }
 
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
+gradle = { module = "com.android.tools.build:gradle", version.ref = "agp" }
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin-bom" }
 insert-koin-koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose" }
 koin-android = { module = "io.insert-koin:koin-android" }
 koin-core = { module = "io.insert-koin:koin-core" }
 koin-test-junit4 = { module = "io.insert-koin:koin-test-junit4" }
-
+kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
@@ -121,3 +123,4 @@ kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref =
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize" }
+buildlogic = { id = "uz.yalla.client.buildlogic.service" }

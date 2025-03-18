@@ -1,36 +1,10 @@
 plugins {
-    alias(libs.plugins.androidLibrary)
-    alias(libs.plugins.kotlinAndroid)
+    id(libs.plugins.buildlogic.get().pluginId)
     alias(libs.plugins.compose.compiler)
 }
 
 android {
     namespace = "uz.yalla.client.core.presentation"
-    compileSdk = 35
-
-    defaultConfig {
-        minSdk = 24
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles("consumer-rules.pro")
-    }
-
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-        }
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
 }
 
 dependencies {
@@ -52,6 +26,8 @@ dependencies {
 
     api(libs.androidx.navigation.compose)
 
+    api(project.dependencies.platform(libs.koin.bom))
+    api(libs.koin.core)
     api(libs.koin.android)
     api(libs.insert.koin.koin.androidx.compose)
 }
