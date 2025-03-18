@@ -2,7 +2,7 @@
 
     <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="windowSplashScreenBackground">#8B3EFC</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_logo</item>
     </style>
 
 </resources>
