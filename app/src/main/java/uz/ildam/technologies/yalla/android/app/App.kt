@@ -5,12 +5,11 @@ import com.google.android.gms.maps.MapsInitializer
 import com.jakewharton.threetenabp.AndroidThreeTen
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext.startKoin
-import ru.dgis.sdk.Context
 import uz.ildam.technologies.yalla.android.di.Navigation
-import uz.ildam.technologies.yalla.android2gis.InitMap
 import uz.yalla.client.core.data.di.Common
 import uz.yalla.client.core.data.enums.MapType
 import uz.yalla.client.core.data.local.AppPreferences
+import uz.yalla.client.dgis.InitMap
 
 class App : Application() {
     override fun onCreate() {
@@ -31,9 +30,5 @@ class App : Application() {
                 *Navigation.modules.toTypedArray(),
             )
         }
-    }
-
-    companion object {
-        lateinit var context: Context
     }
 }
