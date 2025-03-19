@@ -192,11 +192,6 @@ fun MapRoute(
         }
     }
 
-//    LaunchedEffect(state.hasServiceProvided) {
-//        if (state.outOfService == true) sheetHandler.showNoService()
-//        else sheetHandler.showOrderTaxi()
-//    }
-
     LaunchedEffect(state.route) {
         launch(Dispatchers.Main) {
             map.updateRoute(state.route)
@@ -286,13 +281,37 @@ fun MapRoute(
                 navController = navController
             ) { intent ->
                 when (intent) {
-                    MapScreenIntent.MapOverlayIntent.ClickShowOrders -> {}
-                    MapScreenIntent.MapOverlayIntent.MoveToFirstLocation -> {}
-                    MapScreenIntent.MapOverlayIntent.MoveToMyLocation -> {}
-                    MapScreenIntent.MapOverlayIntent.MoveToMyRoute -> {}
-                    MapScreenIntent.MapOverlayIntent.NavigateBack -> {}
-                    MapScreenIntent.MapOverlayIntent.OpenDrawer -> {}
-                    is MapScreenIntent.SetSheetHeight -> vm.updateState(state.copy(sheetHeight = intent.height))
+                    is MapScreenIntent.MapOverlayIntent.ClickShowOrders -> {
+                        
+                    }
+
+                    is MapScreenIntent.MapOverlayIntent.MoveToFirstLocation -> {
+                        state.selectedLocation?.point?.let {
+                            map.animate(it)
+                        }
+                    }
+
+                    is MapScreenIntent.MapOverlayIntent.MoveToMyLocation -> {
+                        map.animateToMyLocation()
+                    }
+
+                    is MapScreenIntent.MapOverlayIntent.MoveToMyRoute -> {
+                        map.animateToFitBounds(state.route)
+                    }
+
+                    is MapScreenIntent.MapOverlayIntent.NavigateBack -> {
+
+                    }
+
+                    is MapScreenIntent.MapOverlayIntent.OpenDrawer -> {
+                        scope.launch(Dispatchers.Main) {
+                            drawerState.open()
+                        }
+                    }
+
+                    is MapScreenIntent.SetSheetHeight -> {
+                        vm.updateState(state.copy(sheetHeight = intent.height))
+                    }
                 }
             }
         }

@@ -9,9 +9,7 @@ object RegisterMapper {
     val mapper: Mapper<RegisterResponse?, RegisterModel> = { remote ->
         RegisterModel(
             tokenType = remote?.token_type.orEmpty(),
-            accessToken = remote?.access_token.orEmpty(),
-            expiresIn = remote?.expires_in.orEmpty(),
-            client = remote?.client?.let(ClientMapper.clientMapper)
+            accessToken = remote?.access_token.orEmpty()
         )
     }
 }
