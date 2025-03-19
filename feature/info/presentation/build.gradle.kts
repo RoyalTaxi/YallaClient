@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "uz.yalla.client.feature.android.info"
+    namespace = "uz.yalla.client.feature.info"
 }
 
 dependencies {

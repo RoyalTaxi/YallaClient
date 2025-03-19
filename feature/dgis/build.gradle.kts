@@ -16,7 +16,7 @@ fun getLocalProperty(name: String): String {
 }
 
 android {
-    namespace = "uz.ildam.technologies.yalla.android2gis"
+    namespace = "uz.yalla.client.dgis"
     compileSdk = 35
 
     defaultConfig {

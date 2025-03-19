@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "uz.yalla.client.feature.android.payment"
+    namespace = "uz.yalla.client.feature.payment"
 }
 
 dependencies {

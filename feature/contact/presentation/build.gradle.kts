@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "uz.yalla.client.feature.android.contact"
+    namespace = "uz.yalla.client.feature.contact"
 }
 
 dependencies {

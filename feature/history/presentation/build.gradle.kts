@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "uz.yalla.client.feature.android.history"
+    namespace = "uz.yalla.client.feature.history"
 }
 
 dependencies {

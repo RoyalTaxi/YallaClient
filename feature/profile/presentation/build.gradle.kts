@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "uz.yalla.client.feature.android.cancel"
+    namespace = "uz.yalla.client.feature.cancel"
 }
 
 dependencies {

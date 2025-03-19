@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "uz.yalla.client.feature.android.auth"
+    namespace = "uz.yalla.client.feature.auth"
 }
 
 dependencies {

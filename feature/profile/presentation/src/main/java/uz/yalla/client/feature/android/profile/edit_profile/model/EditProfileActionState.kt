@@ -1,9 +1,0 @@
-package uz.yalla.client.feature.android.profile.edit_profile.model
-
-internal sealed interface EditProfileActionState {
-    data object Loading : EditProfileActionState
-    data object Error : EditProfileActionState
-    data object GetSuccess : EditProfileActionState
-    data object UpdateSuccess : EditProfileActionState
-    data object UpdateAvatarSuccess : EditProfileActionState
-}

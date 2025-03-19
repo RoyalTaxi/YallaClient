@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "uz.yalla.client.feature.android.places.presentation"
+    namespace = "uz.yalla.client.feature.places.presentation"
 }
 
 dependencies {
