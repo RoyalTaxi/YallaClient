@@ -7,10 +7,7 @@ import uz.yalla.client.service.payment.response.AddCardResponse
 object AddCardMapper {
     val mapper: Mapper<AddCardResponse?, AddCardModel> = { remote ->
         AddCardModel(
-            expiry = remote?.expiry.orEmpty(),
             key = remote?.key.orEmpty(),
-            number = remote?.number.orEmpty(),
-            phone = remote?.phone.orEmpty()
         )
     }
 }

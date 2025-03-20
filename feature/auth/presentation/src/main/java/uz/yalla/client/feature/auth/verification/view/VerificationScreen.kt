@@ -35,7 +35,7 @@ import uz.yalla.client.feature.auth.verification.model.VerificationUIState
 import uz.yalla.client.core.common.otp.OtpView
 import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 internal fun VerificationScreen(
     uiState: VerificationUIState,
@@ -46,18 +46,7 @@ internal fun VerificationScreen(
         containerColor = YallaTheme.color.white,
         modifier = Modifier.imePadding(),
         topBar = {
-            TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(YallaTheme.color.white),
-                title = {},
-                navigationIcon = {
-                    IconButton(onClick = { onIntent(VerificationIntent.NavigateBack) }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
-                }
-            )
+            LoginAppBar(onNavigateBack = { onIntent(VerificationIntent.NavigateBack) })
         },
         content = { paddingValues ->
             Column(
@@ -66,66 +55,20 @@ internal fun VerificationScreen(
                     .padding(paddingValues)
                     .padding(20.dp)
             ) {
-                Spacer(modifier = Modifier.height(20.dp))
-
-                Text(
-                    text = stringResource(id = R.string.enter_otp),
-                    color = YallaTheme.color.black,
-                    style = YallaTheme.font.headline
+                LoginContent(
+                    number = uiState.number,
+                    code = uiState.code,
+                    hasRemainingTime = uiState.hasRemainingTime,
+                    remainingMinutes = uiState.remainingMinutes,
+                    remainingSeconds = uiState.remainingSeconds,
+                    sendCode = { onIntent(VerificationIntent.SetCode(it)) },
+                    reSendCode = { onIntent(VerificationIntent.ResendCode(uiState.number)) }
                 )
 
-                Spacer(modifier = Modifier.height(20.dp))
-
-                Text(
-                    text = stringResource(id = R.string.enter_otp_definition, uiState.number),
-                    color = YallaTheme.color.gray,
-                    style = YallaTheme.font.body
-                )
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                OtpView(
-                    modifier = Modifier.fillMaxWidth(),
-                    otpText = uiState.code,
-                    onOtpTextChange = { onIntent(VerificationIntent.SetCode(it)) }
-                )
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                Text(
-                    color = YallaTheme.color.gray,
-                    style = YallaTheme.font.body,
-                    text = if (uiState.hasRemainingTime) {
-                        stringResource(
-                            id = R.string.resend_in,
-                            String.format(
-                                Locale.US,
-                                "%d:%02d",
-                                uiState.remainingMinutes,
-                                uiState.remainingSeconds
-                            )
-                        )
-                    } else {
-                        stringResource(id = R.string.resend)
-                    },
-                    modifier = Modifier.then(
-                        if (!uiState.hasRemainingTime) {
-                            Modifier.clickable(
-                                onClick = { onIntent(VerificationIntent.ResendCode(uiState.number)) },
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = ripple(color = YallaTheme.color.white)
-                            )
-                        } else Modifier
-                    )
-                )
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                PrimaryButton(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(id = R.string.next),
-                    enabled = uiState.buttonState,
-                    onClick = {
+                LoginFooter(
+                    modifier = Modifier.weight(1f),
+                    primaryButtonState = uiState.buttonState,
+                    onVerifyCode = {
                         onIntent(
                             VerificationIntent.VerifyCode(
                                 uiState.number,
@@ -137,16 +80,122 @@ internal fun VerificationScreen(
             }
         },
         snackbarHost = {
-            SnackbarHost(
-                hostState = snackbarHostState,
-                modifier = Modifier.imePadding(),
-                snackbar = { snackbarData: SnackbarData ->
-                    Snackbar(
-                        snackbarData = snackbarData,
-                        containerColor = YallaTheme.color.red,
-                        contentColor = YallaTheme.color.white
-                    )
-                }
+            SnackBar(hostState = snackbarHostState)
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun LoginAppBar(
+    onNavigateBack: () -> Unit
+) {
+    TopAppBar(
+        colors = TopAppBarDefaults.topAppBarColors(YallaTheme.color.white),
+        title = {},
+        navigationIcon = {
+            IconButton(onClick = onNavigateBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                    contentDescription = null
+                )
+            }
+        }
+    )
+}
+
+@Composable
+private fun LoginContent(
+    number: String,
+    code: String,
+    hasRemainingTime: Boolean,
+    remainingMinutes: Int,
+    remainingSeconds: Int,
+    sendCode: (String) -> Unit,
+    reSendCode: () -> Unit
+) {
+    Spacer(modifier = Modifier.height(20.dp))
+
+    Text(
+        text = stringResource(id = R.string.enter_otp),
+        color = YallaTheme.color.black,
+        style = YallaTheme.font.headline
+    )
+
+    Spacer(modifier = Modifier.height(20.dp))
+
+    Text(
+        text = stringResource(id = R.string.enter_otp_definition, number),
+        color = YallaTheme.color.gray,
+        style = YallaTheme.font.body
+    )
+
+    Spacer(modifier = Modifier.height(20.dp))
+
+    OtpView(
+        modifier = Modifier.fillMaxWidth(),
+        otpText = code,
+        onOtpTextChange = { sendCode(it) }
+    )
+
+    Spacer(modifier = Modifier.height(20.dp))
+
+    Text(
+        color = YallaTheme.color.gray,
+        style = YallaTheme.font.body,
+        text = if (hasRemainingTime) {
+            stringResource(
+                id = R.string.resend_in,
+                String.format(
+                    Locale.US,
+                    "%d:%02d",
+                    remainingMinutes,
+                    remainingSeconds
+                )
+            )
+        } else {
+            stringResource(id = R.string.resend)
+        },
+        modifier = Modifier.then(
+            if (!hasRemainingTime) {
+                Modifier.clickable(
+                    onClick = reSendCode,
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = ripple(color = YallaTheme.color.white)
+                )
+            } else Modifier
+        )
+    )
+}
+
+@Composable
+private fun LoginFooter(
+    primaryButtonState: Boolean,
+    onVerifyCode: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Spacer(modifier = modifier)
+
+    PrimaryButton(
+        modifier = Modifier.fillMaxWidth(),
+        text = stringResource(id = R.string.next),
+        enabled = primaryButtonState,
+        onClick = onVerifyCode
+    )
+}
+
+@Composable
+private fun SnackBar(
+    hostState: SnackbarHostState
+) {
+    SnackbarHost(
+        hostState = hostState,
+        modifier = Modifier.imePadding(),
+        snackbar = { snackbarData: SnackbarData ->
+            Snackbar(
+                snackbarData = snackbarData,
+                containerColor = YallaTheme.color.red,
+                contentColor = YallaTheme.color.white
             )
         }
     )

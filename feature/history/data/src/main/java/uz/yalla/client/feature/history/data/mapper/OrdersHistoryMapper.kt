@@ -2,7 +2,6 @@ package uz.yalla.client.feature.history.data.mapper
 
 import uz.yalla.client.core.data.mapper.Mapper
 import uz.yalla.client.core.data.mapper.or0
-import uz.yalla.client.core.data.mapper.orFalse
 import uz.yalla.client.feature.domain.model.OrdersHistoryModel
 import uz.yalla.client.service.history.response.OrdersHistoryResponseItem
 
@@ -21,16 +20,8 @@ object OrdersHistoryMapper {
     private val taxiMapper: Mapper<OrdersHistoryResponseItem.Taxi?, OrdersHistoryModel.Taxi> =
         { remote ->
             OrdersHistoryModel.Taxi(
-                bonusAmount = remote?.bonus_amount.or0(),
-                clientTotalPrice = remote?.client_total_price.or0(),
-                distance = remote?.distance.or0(),
-                fixedPrice = remote?.fixed_price.orFalse(),
                 routes = remote?.routes?.map(routeMapper).orEmpty(),
-                startPrice = remote?.start_price.or0(),
-                tariff = remote?.tariff.orEmpty(),
-                tariffCategoryId = remote?.tariff_category_id.or0(),
                 totalPrice = remote?.total_price.or0().toString(),
-                useTheBonus = remote?.use_the_bonus.orFalse()
             )
         }
 

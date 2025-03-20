@@ -7,7 +7,6 @@ object ClientMapper {
     val clientMapper: Mapper<ClientRemoteModel?, Client> =
         { client ->
             Client(
-                id = client?.id.or0(),
                 phone = client?.phone.orEmpty(),
                 givenNames = client?.given_names.orEmpty(),
                 surname = client?.sur_name.orEmpty(),

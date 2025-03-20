@@ -4,7 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ClientRemoteModel(
-    val id: Int?,
     val phone: String?,
     val given_names: String?,
     val sur_name: String?,

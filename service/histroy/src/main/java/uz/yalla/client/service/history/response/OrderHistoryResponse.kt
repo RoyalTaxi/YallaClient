@@ -4,49 +4,21 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class OrderHistoryResponse(
-    val comment: String?,
     val date_time: Long?,
     val executor: Executor?,
-    val id: Int?,
-    val number: Long?,
-    val payment_type: String?,
-    val service: String?,
     val status: String?,
     val taxi: Taxi?,
-    val track: List<Track>?
 ) {
     @Serializable
     data class Executor(
-        val coords: Coordinates?,
-        val driver: Driver?,
-        val father_name: String?,
-        val given_names: String?,
-        val id: Int?,
-        val phone: String?,
-        val sur_name: String?
+        val driver: Driver?
     ) {
         @Serializable
-        data class Coordinates(
-            val heading: Double?,
-            val lat: Double?,
-            val lng: Double?
-        )
-
-        @Serializable
         data class Driver(
-            val callsign: String?,
-            val color: Color?,
-            val id: Int?,
             val mark: String?,
             val model: String?,
             val state_number: String?
-        ) {
-            @Serializable
-            data class Color(
-                val color: String?,
-                val name: String?
-            )
-        }
+        )
     }
 
     @Serializable
@@ -76,13 +48,4 @@ data class OrderHistoryResponse(
             )
         }
     }
-
-    @Serializable
-    data class Track(
-        val lat: Double?,
-        val lng: Double?,
-        val speed: Double?,
-        val status: String?,
-        val time: Long?
-    )
 }

@@ -44,59 +44,86 @@ internal fun OnboardingScreen(
                 .verticalScroll(scrollState)
                 .padding(paddingValues)
         ) {
-            HorizontalPager(
-                state = pagerState,
-                verticalAlignment = Alignment.Top,
+
+            OnboardingContent(
+                pagerState = pagerState,
+                screenContents = screenContents,
                 modifier = Modifier.matchParentSize()
-            ) { page ->
-                Column {
-                    Image(
-                        painter = painterResource(id = screenContents[page].image),
-                        contentDescription = null,
-                        contentScale = ContentScale.Fit
-                    )
+            )
 
-                    Spacer(modifier = Modifier.height(54.dp))
-
-                    Text(
-                        text = stringResource(id = screenContents[page].title),
-                        color = YallaTheme.color.black,
-                        style = YallaTheme.font.headline,
-                        modifier = Modifier.padding(horizontal = 20.dp)
-                    )
-
-                    Spacer(modifier = Modifier.height(32.dp))
-
-                    Text(
-                        text = stringResource(id = screenContents[page].desc),
-                        color = YallaTheme.color.gray,
-                        style = YallaTheme.font.body,
-                        modifier = Modifier.padding(horizontal = 20.dp)
-                    )
-                }
-            }
-
-            Column(
-                modifier = Modifier.align(Alignment.BottomCenter)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    DotIndicator(
-                        pageCount = pagerState.pageCount,
-                        pagerState = pagerState
-                    )
-
-                    NextButton(
-                        modifier = Modifier.padding(horizontal = 20.dp),
-                        onClick = { onIntent(OnboardingIntent.Swipe) }
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(20.dp))
-            }
+            OnboardingNavigation(
+                pagerState = pagerState,
+                modifier = Modifier.align(Alignment.BottomCenter),
+                onNext = { onIntent(OnboardingIntent.Swipe) }
+            )
         }
+    }
+}
+
+@Composable
+private fun OnboardingContent(
+    pagerState: PagerState,
+    screenContents: List<Page>,
+    modifier: Modifier = Modifier
+) {
+    HorizontalPager(
+        state = pagerState,
+        verticalAlignment = Alignment.Top,
+        modifier = modifier
+    ) { page ->
+        Column {
+            Image(
+                painter = painterResource(id = screenContents[page].image),
+                contentDescription = null,
+                contentScale = ContentScale.Fit
+            )
+
+            Spacer(modifier = Modifier.height(54.dp))
+
+            Text(
+                text = stringResource(id = screenContents[page].title),
+                color = YallaTheme.color.black,
+                style = YallaTheme.font.headline,
+                modifier = Modifier.padding(horizontal = 20.dp)
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Text(
+                text = stringResource(id = screenContents[page].desc),
+                color = YallaTheme.color.gray,
+                style = YallaTheme.font.body,
+                modifier = Modifier.padding(horizontal = 20.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun OnboardingNavigation(
+    pagerState: PagerState,
+    onNext: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            DotIndicator(
+                pageCount = pagerState.pageCount,
+                pagerState = pagerState
+            )
+
+            NextButton(
+                modifier = Modifier.padding(horizontal = 20.dp),
+                onClick = onNext
+            )
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
     }
 }

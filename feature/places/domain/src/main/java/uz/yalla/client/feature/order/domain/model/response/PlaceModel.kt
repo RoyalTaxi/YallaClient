@@ -12,7 +12,6 @@ data class PlaceModel(
     val apartment: String,
     val floor: String,
     val comment: String,
-    val createdAt: String
 ) {
     data class Coords(
         val lat: Double,

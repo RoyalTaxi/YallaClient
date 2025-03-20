@@ -12,16 +12,8 @@ data class OrdersHistoryResponseItem(
 ) {
     @Serializable
     data class Taxi(
-        val bonus_amount: Int?,
-        val client_total_price: Int?,
-        val distance: Double?,
-        val fixed_price: Boolean?,
         val routes: List<Route>,
-        val start_price: Int?,
-        val tariff: String?,
-        val tariff_category_id: Int?,
-        val total_price: Int?,
-        val use_the_bonus: Boolean?
+        val total_price: Int?
     ) {
         @Serializable
         data class Route(

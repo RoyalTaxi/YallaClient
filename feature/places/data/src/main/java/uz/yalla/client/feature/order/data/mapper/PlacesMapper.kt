@@ -18,7 +18,6 @@ object PlacesMapper {
             apartment = remote?.apartment.orEmpty(),
             floor = remote?.floor.orEmpty(),
             comment = remote?.comment.orEmpty(),
-            createdAt = remote?.created_at.orEmpty()
         )
     }
 
