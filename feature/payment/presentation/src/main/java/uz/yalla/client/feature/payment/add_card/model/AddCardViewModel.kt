@@ -2,6 +2,7 @@ package uz.yalla.client.feature.payment.add_card.model
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -20,7 +21,7 @@ internal class AddCardViewModel(
     private val _actionState = MutableSharedFlow<AddCardActionState>()
     val actionState = _actionState.asSharedFlow()
 
-    fun addCard() = viewModelScope.launch {
+    fun addCard() = viewModelScope.launch(Dispatchers.IO) {
         uiState.value.apply {
             _actionState.emit(AddCardActionState.Loading)
             addCardUseCase(number = cardNumber, expiry = cardExpiry)

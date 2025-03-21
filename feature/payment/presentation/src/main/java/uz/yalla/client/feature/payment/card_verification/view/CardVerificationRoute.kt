@@ -10,8 +10,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
 import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.feature.payment.R
@@ -32,8 +34,7 @@ internal fun CardVerificationRoute(
     val errorMessage = stringResource(R.string.error_message)
 
     LaunchedEffect(Unit) {
-
-        launch {
+        launch(Dispatchers.Default) {
             viewModel.countDownTimer(60).collectLatest { seconds ->
                 viewModel.updateUiState(
                     buttonState = seconds != 0 && uiState.code.length == 6,
@@ -44,7 +45,7 @@ internal fun CardVerificationRoute(
             }
         }
 
-        launch {
+        launch(Dispatchers.IO) {
             viewModel.updateUiState(
                 key = key,
                 cardNumber = cardNumber,
@@ -52,13 +53,13 @@ internal fun CardVerificationRoute(
             )
         }
 
-        launch {
+        launch(Dispatchers.IO) {
             viewModel.actionState.collectLatest { action ->
                 loading = when (action) {
                     is CardVerificationActionState.Error -> {
                         viewModel.updateUiState(buttonState = false)
 
-                        launch {
+                        withContext(Dispatchers.Main) {
                             snackbarHostState.showSnackbar(
                                 message = errorMessage,
                                 withDismissAction = true,
@@ -75,7 +76,7 @@ internal fun CardVerificationRoute(
                     }
 
                     is CardVerificationActionState.ResendSuccess -> {
-                        launch {
+                        withContext(Dispatchers.Default) {
                             viewModel.countDownTimer(60).collectLatest { seconds ->
                                 viewModel.updateUiState(
                                     buttonState = seconds != 0 && uiState.code.length == 6,

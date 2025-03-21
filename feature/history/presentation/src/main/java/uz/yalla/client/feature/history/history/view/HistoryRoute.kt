@@ -8,6 +8,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.paging.LoadState
 import app.cash.paging.compose.collectAsLazyPagingItems
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.feature.history.history.model.HistoryViewModel
@@ -22,7 +24,11 @@ internal fun HistoryRoute(
     val orders = vm.orders.collectAsLazyPagingItems()
     var loading by remember { mutableStateOf(true) }
 
-    LaunchedEffect(Unit) { vm.getOrders() }
+    LaunchedEffect(Unit) {
+        launch(Dispatchers.IO) {
+            vm.getOrders()
+        }
+    }
 
     loading = when (orders.loadState.refresh) {
         LoadState.Loading -> true

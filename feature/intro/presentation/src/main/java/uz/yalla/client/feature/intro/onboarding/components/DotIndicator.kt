@@ -18,6 +18,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 
 @Composable
@@ -33,17 +35,21 @@ internal fun DotIndicator(
         LaunchedEffect(
             key1 = pagerState.currentPage,
             block = {
-                val currentPage = pagerState.currentPage
-                val size = indicatorScrollState.layoutInfo.visibleItemsInfo.size
-                val lastVisibleIndex =
-                    indicatorScrollState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
-                val firstVisibleItemIndex = indicatorScrollState.firstVisibleItemIndex
+                launch(Dispatchers.Main) {
+                    val currentPage = pagerState.currentPage
+                    val size = indicatorScrollState.layoutInfo.visibleItemsInfo.size
+                    val lastVisibleIndex =
+                        indicatorScrollState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
+                    val firstVisibleItemIndex = indicatorScrollState.firstVisibleItemIndex
 
-                if (lastVisibleIndex != null) {
-                    if (currentPage > lastVisibleIndex - 1) {
-                        indicatorScrollState.animateScrollToItem(currentPage - size + 2)
-                    } else if (currentPage <= firstVisibleItemIndex + 1) {
-                        indicatorScrollState.animateScrollToItem((currentPage - 1).coerceAtLeast(0))
+                    if (lastVisibleIndex != null) {
+                        if (currentPage > lastVisibleIndex - 1) {
+                            indicatorScrollState
+                                .animateScrollToItem(currentPage - size + 2)
+                        } else if (currentPage <= firstVisibleItemIndex + 1) {
+                            indicatorScrollState
+                                .animateScrollToItem((currentPage - 1).coerceAtLeast(0))
+                        }
                     }
                 }
             }

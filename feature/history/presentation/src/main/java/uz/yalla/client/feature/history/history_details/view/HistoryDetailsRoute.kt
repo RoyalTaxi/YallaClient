@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -36,24 +37,28 @@ internal fun HistoryDetailsRoute(
     }
 
     LaunchedEffect(uiState.orderDetails, loading) {
-        if (uiState.orderDetails?.taxi?.routes?.size == 1)
-            uiState.orderDetails?.taxi?.routes?.first()?.cords?.let {
-                map.updateRoute(listOf(MapPoint(it.lat, it.lng)))
-                map.updateOrderStatus(OrderStatus.Appointed)
-                map.move(MapPoint(it.lat, it.lng))
-            }
-        else if ((uiState.orderDetails?.taxi?.routes?.size ?: 0) > 1) {
-            uiState.orderDetails?.taxi?.routes?.let {
-                map.updateRoute(it.map { p -> MapPoint(p.cords.lat, p.cords.lng) })
-                map.moveToFitBounds(it.map { p -> MapPoint(p.cords.lat, p.cords.lng) })
+        launch(Dispatchers.Main) {
+            if (uiState.orderDetails?.taxi?.routes?.size == 1)
+                uiState.orderDetails?.taxi?.routes?.first()?.cords?.let {
+                    map.updateRoute(listOf(MapPoint(it.lat, it.lng)))
+                    map.updateOrderStatus(OrderStatus.Appointed)
+                    map.move(MapPoint(it.lat, it.lng))
+                }
+            else if ((uiState.orderDetails?.taxi?.routes?.size ?: 0) > 1) {
+                uiState.orderDetails?.taxi?.routes?.let {
+                    map.updateRoute(it.map { p -> MapPoint(p.cords.lat, p.cords.lng) })
+                    map.moveToFitBounds(it.map { p -> MapPoint(p.cords.lat, p.cords.lng) })
+                }
             }
         }
     }
 
     LaunchedEffect(Unit) {
-        launch { vm.getOrderHistory(orderId) }
+        launch(Dispatchers.IO) {
+            vm.getOrderHistory(orderId)
+        }
 
-        launch {
+        launch(Dispatchers.Main) {
             vm.actionState.collectLatest { action ->
                 loading = when (action) {
                     is HistoryDetailsActionState.Loading -> true

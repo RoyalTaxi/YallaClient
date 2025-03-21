@@ -7,7 +7,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.feature.payment.add_card.model.AddCardActionState
@@ -23,13 +25,15 @@ internal fun AddCardRoute(
     var loading by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        viewModel.actionState.collectLatest { action ->
-            loading = when (action) {
-                is AddCardActionState.Error -> false
-                is AddCardActionState.Loading -> true
-                is AddCardActionState.Success -> {
-                    onNavigateNext(action.key, action.cardNumber, action.cardExpiry)
-                    false
+        launch(Dispatchers.Main) {
+            viewModel.actionState.collectLatest { action ->
+                loading = when (action) {
+                    is AddCardActionState.Error -> false
+                    is AddCardActionState.Loading -> true
+                    is AddCardActionState.Success -> {
+                        onNavigateNext(action.key, action.cardNumber, action.cardExpiry)
+                        false
+                    }
                 }
             }
         }

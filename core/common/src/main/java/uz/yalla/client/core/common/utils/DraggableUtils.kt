@@ -18,7 +18,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.zIndex
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.launch
 
 
 inline fun <T : Any> LazyListScope.draggableItems(
@@ -75,9 +77,11 @@ fun rememberDragDropState(
             )
         }
     LaunchedEffect(state) {
-        while (true) {
-            val diff = state.scrollChannel.receive()
-            lazyListState.scrollBy(diff)
+        launch(Dispatchers.Main) {
+            while (true) {
+                val diff = state.scrollChannel.receive()
+                lazyListState.scrollBy(diff)
+            }
         }
     }
     return state

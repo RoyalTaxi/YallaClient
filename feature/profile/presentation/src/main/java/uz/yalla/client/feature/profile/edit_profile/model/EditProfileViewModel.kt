@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -34,7 +35,7 @@ internal class EditProfileViewModel(
     private val _actionState = MutableSharedFlow<EditProfileActionState>()
     val actionState = _actionState.asSharedFlow()
 
-    fun getMe() = viewModelScope.launch {
+    fun getMe() = viewModelScope.launch(Dispatchers.IO) {
         _actionState.emit(EditProfileActionState.Loading)
         getMeUseCase().onSuccess { result ->
             _actionState.emit(EditProfileActionState.GetSuccess)
@@ -51,7 +52,7 @@ internal class EditProfileViewModel(
         }
     }
 
-    fun postMe() = viewModelScope.launch {
+    fun postMe() = viewModelScope.launch(Dispatchers.IO) {
         _actionState.emit(EditProfileActionState.Loading)
         with(uiState.value) {
             updateMeUseCase(
@@ -67,7 +68,7 @@ internal class EditProfileViewModel(
         }
     }
 
-    fun updateAvatar() = viewModelScope.launch {
+    fun updateAvatar() = viewModelScope.launch(Dispatchers.IO) {
         _actionState.emit(EditProfileActionState.Loading)
         uiState.value.newImage?.let { newImage ->
             updateAvatarUseCase(newImage).onSuccess { result ->
@@ -77,7 +78,7 @@ internal class EditProfileViewModel(
         }
     }
 
-    fun setNewImage(uri: Uri, context: Context) = viewModelScope.launch {
+    fun setNewImage(uri: Uri, context: Context) = viewModelScope.launch(Dispatchers.IO) {
         val byteArray = context.uriToByteArray(uri)
         if (byteArray != null) _uiState.update { it.copy(newImage = byteArray) }
         else _actionState.emit(EditProfileActionState.Error)

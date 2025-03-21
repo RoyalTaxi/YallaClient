@@ -24,6 +24,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import uz.yalla.client.core.common.field.SearchLocationField
@@ -45,9 +46,17 @@ fun AddDestinationBottomSheet(
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
-        launch { viewModel.findAllMapAddresses() }
-        launch { viewModel.setQuery("") }
-        focusRequester.requestFocus()
+        launch(Dispatchers.IO) {
+            viewModel.findAllMapAddresses()
+        }
+
+        launch(Dispatchers.IO) {
+            viewModel.setQuery("")
+        }
+
+        launch(Dispatchers.Main) {
+            focusRequester.requestFocus()
+        }
     }
 
     ModalBottomSheet(

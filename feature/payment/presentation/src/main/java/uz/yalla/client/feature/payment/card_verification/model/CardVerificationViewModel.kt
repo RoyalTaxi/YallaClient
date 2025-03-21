@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -36,7 +37,7 @@ internal class CardVerificationViewModel(
         }
     }
 
-    fun addCard() = viewModelScope.launch {
+    fun addCard() = viewModelScope.launch(Dispatchers.IO) {
         _uiState.update { it.copy(code = "") }
         uiState.value.apply {
             _actionState.emit(CardVerificationActionState.Loading)
@@ -47,7 +48,7 @@ internal class CardVerificationViewModel(
 
     }
 
-    fun verifyCard() = viewModelScope.launch {
+    fun verifyCard() = viewModelScope.launch(Dispatchers.IO) {
         _actionState.emit(CardVerificationActionState.Loading)
         verifyCardUseCase(key = uiState.value.key, confirmCode = uiState.value.code)
             .onSuccess { _actionState.emit(CardVerificationActionState.VerificationSuccess) }

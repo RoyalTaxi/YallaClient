@@ -43,6 +43,8 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import uz.yalla.client.core.common.R
 import uz.yalla.client.core.common.button.ChooseFromMapButton
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
@@ -62,17 +64,30 @@ fun SearchLocationField(
 
     val focusRequester = remember { FocusRequester() }
     var textFieldValue by remember {
-        mutableStateOf(TextFieldValue(text = value.orEmpty(), selection = TextRange(value?.length ?: 0)))
+        mutableStateOf(
+            TextFieldValue(
+                text = value.orEmpty(),
+                selection = TextRange(value?.length ?: 0)
+            )
+        )
     }
 
     LaunchedEffect(value) {
-        textFieldValue = textFieldValue.copy(text = value.orEmpty(), selection = TextRange(value?.length ?: 0))
+        launch(Dispatchers.Main) {
+            textFieldValue = textFieldValue.copy(
+                text = value.orEmpty(),
+                selection = TextRange(value?.length ?: 0)
+            )
+        }
     }
 
     LaunchedEffect(isFocused) {
-        if (isFocused) {
-            focusRequester.requestFocus()
-            textFieldValue = textFieldValue.copy(selection = TextRange(textFieldValue.text.length))
+        launch(Dispatchers.Main) {
+            if (isFocused) {
+                focusRequester.requestFocus()
+                textFieldValue =
+                    textFieldValue.copy(selection = TextRange(textFieldValue.text.length))
+            }
         }
     }
 
@@ -122,7 +137,8 @@ fun SearchLocationField(
                     .onFocusChanged { focusState ->
                         onFocusChange(focusState.isFocused)
                         if (focusState.isFocused) {
-                            textFieldValue = textFieldValue.copy(selection = TextRange(textFieldValue.text.length))
+                            textFieldValue =
+                                textFieldValue.copy(selection = TextRange(textFieldValue.text.length))
                         }
                     },
                 singleLine = true,
@@ -139,8 +155,8 @@ fun SearchLocationField(
                         placeholder = {
                             Text(
                                 text =
-                                if (isForDestination) stringResource(R.string.where_to_go)
-                                else stringResource(R.string.enter_the_address),
+                                    if (isForDestination) stringResource(R.string.where_to_go)
+                                    else stringResource(R.string.enter_the_address),
                                 color = YallaTheme.color.gray,
                                 style = YallaTheme.font.label
                             )

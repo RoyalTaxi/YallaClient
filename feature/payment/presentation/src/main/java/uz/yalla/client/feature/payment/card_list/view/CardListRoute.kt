@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -27,9 +28,11 @@ internal fun CardListRoute(
 
     LaunchedEffect(Unit) {
 
-        launch { viewModel.getCardList() }
+        launch(Dispatchers.IO) {
+            viewModel.getCardList()
+        }
 
-        launch {
+        launch(Dispatchers.Main) {
             viewModel.actionState.collectLatest { action ->
                 loading = when (action) {
                     CardListActionState.Error -> false

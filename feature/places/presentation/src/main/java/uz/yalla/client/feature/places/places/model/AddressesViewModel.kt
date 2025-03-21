@@ -2,6 +2,7 @@ package uz.yalla.client.feature.places.places.model
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -20,7 +21,7 @@ internal class AddressesViewModel(
     private val _actionState = MutableSharedFlow<AddressesActionState>()
     val actionState = _actionState.asSharedFlow()
 
-    fun findAllAddresses() = viewModelScope.launch {
+    fun findAllAddresses() = viewModelScope.launch(Dispatchers.IO) {
         _actionState.emit(AddressesActionState.Loading)
         findAllPlacesUseCase()
             .onSuccess { result ->

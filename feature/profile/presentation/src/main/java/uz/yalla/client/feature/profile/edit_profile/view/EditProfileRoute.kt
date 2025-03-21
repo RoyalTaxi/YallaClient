@@ -20,8 +20,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
 import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.core.common.sheet.ConfirmationBottomSheet
@@ -72,31 +74,40 @@ internal fun EditProfileRoute(
     )
 
     LaunchedEffect(Unit) {
-        viewModel.getMe()
+        launch(Dispatchers.IO) {
+            viewModel.getMe()
+        }
 
-        viewModel.actionState.collectLatest { action ->
-            loading = when (action) {
-                EditProfileActionState.Error -> false
-                EditProfileActionState.GetSuccess -> false
-                EditProfileActionState.Loading -> true
-                EditProfileActionState.UpdateAvatarSuccess -> {
-                    launch { viewModel.postMe() }
-                    false
-                }
+        launch(Dispatchers.Main) {
+            viewModel.actionState.collectLatest { action ->
+                loading = when (action) {
+                    EditProfileActionState.Error -> false
+                    EditProfileActionState.GetSuccess -> false
+                    EditProfileActionState.Loading -> true
+                    EditProfileActionState.UpdateAvatarSuccess -> {
+                        withContext(Dispatchers.IO) {
+                            viewModel.postMe()
+                        }
+                        false
+                    }
 
-                EditProfileActionState.UpdateSuccess -> {
-                    onNavigateBack()
-                    false
+                    EditProfileActionState.UpdateSuccess -> {
+                        onNavigateBack()
+                        false
+                    }
                 }
             }
         }
+
     }
 
     LaunchedEffect(uiState.isDatePickerVisible) {
-        if (uiState.isDatePickerVisible) {
-            bottomSheetScaffoldState.bottomSheetState.expand()
-        } else {
-            bottomSheetScaffoldState.bottomSheetState.hide()
+        launch(Dispatchers.Main) {
+            if (uiState.isDatePickerVisible) {
+                bottomSheetScaffoldState.bottomSheetState.expand()
+            } else {
+                bottomSheetScaffoldState.bottomSheetState.hide()
+            }
         }
     }
 

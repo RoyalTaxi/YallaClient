@@ -20,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import com.google.android.gms.auth.api.phone.SmsRetriever
 import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.common.api.Status
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -80,11 +81,11 @@ internal fun VerificationRoute(
     }
 
     LaunchedEffect(Unit) {
-        launch {
+        launch(Dispatchers.Main) {
             smsRetriever.startSmsUserConsent(null)
         }
 
-        launch {
+        launch(Dispatchers.Default) {
             vm.updateUiState(
                 number = number,
                 hasRemainingTime = expiresIn > 0,
@@ -93,7 +94,7 @@ internal fun VerificationRoute(
             )
         }
 
-        launch {
+        launch(Dispatchers.IO) {
             vm.countDownTimer(expiresIn).collectLatest { seconds ->
                 vm.updateUiState(
                     buttonState = seconds != 0 && uiState.code.length == 5,
@@ -104,7 +105,7 @@ internal fun VerificationRoute(
             }
         }
 
-        launch {
+        launch(Dispatchers.Main) {
             vm.actionFlow.collectLatest {
                 when (it) {
                     is VerificationActionState.Error -> {

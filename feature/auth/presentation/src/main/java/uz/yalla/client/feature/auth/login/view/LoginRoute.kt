@@ -9,6 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -29,7 +30,7 @@ internal fun LoginRoute(
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        launch {
+        launch(Dispatchers.Main) {
             vm.actionFlow.collectLatest { actionState ->
                 when (actionState) {
                     is LoginActionState.Error -> {

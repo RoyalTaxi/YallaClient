@@ -44,12 +44,12 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import uz.yalla.client.core.common.R
 import uz.yalla.client.core.common.shape.squareSize
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
-import uz.yalla.client.feature.map.presentation.components.marker.YallaMarkerState
 
 @Composable
 fun YallaMarker(
@@ -72,44 +72,47 @@ fun YallaMarker(
     var rotationJob: Job? by remember { mutableStateOf(null) }
 
     LaunchedEffect(state) {
-        when (state) {
-            is YallaMarkerState.LOADING, is YallaMarkerState.Searching -> {
-                if (jumpOffset.value < 9f) {
-                    jumpOffset.animateTo(
-                        targetValue = 17f,
-                        animationSpec = tween(durationMillis = 600)
-                    )
-                }
-
-                jumpJob = launch {
-                    while (true) {
-                        jumpOffset.animateTo(
-                            targetValue = 9f,
-                            animationSpec = tween(durationMillis = 600)
-                        )
+        launch(Dispatchers.Main) {
+            when (state) {
+                is YallaMarkerState.LOADING, is YallaMarkerState.Searching -> {
+                    if (jumpOffset.value < 9f) {
                         jumpOffset.animateTo(
                             targetValue = 17f,
                             animationSpec = tween(durationMillis = 600)
                         )
                     }
-                }
 
-                rotationJob = launch {
-                    while (true) {
-                        rotation.animateTo(
-                            targetValue = 360f,
-                            animationSpec = tween(durationMillis = 1000)
-                        )
-                        rotation.snapTo(0f)
+                    jumpJob = launch {
+                        while (true) {
+                            jumpOffset.animateTo(
+                                targetValue = 9f,
+                                animationSpec = tween(durationMillis = 600)
+                            )
+                            jumpOffset.animateTo(
+                                targetValue = 17f,
+                                animationSpec = tween(durationMillis = 600)
+                            )
+                        }
+                    }
+
+                    rotationJob = launch {
+                        while (true) {
+                            rotation.animateTo(
+                                targetValue = 360f,
+                                animationSpec = tween(durationMillis = 1000)
+                            )
+                            rotation.snapTo(0f)
+                        }
                     }
                 }
-            }
-            is YallaMarkerState.IDLE -> {
-                jumpOffset.animateTo(
-                    targetValue = 3f,
-                    animationSpec = tween(durationMillis = 600)
-                )
-                rotation.snapTo(0f)
+
+                is YallaMarkerState.IDLE -> {
+                    jumpOffset.animateTo(
+                        targetValue = 3f,
+                        animationSpec = tween(durationMillis = 600)
+                    )
+                    rotation.snapTo(0f)
+                }
             }
         }
     }
@@ -244,10 +247,12 @@ fun YallaMarker(
                                 bottom.linkTo(circle.top, margin = 96.dp)
                                 linkTo(start = parent.start, end = parent.end)
                             }
+
                             is YallaMarkerState.Searching -> {
                                 bottom.linkTo(indicator.top, margin = 96.dp)
                                 linkTo(start = indicator.start, end = indicator.end)
                             }
+
                             is YallaMarkerState.LOADING -> {
                                 bottom.linkTo(circle.top, margin = 96.dp)
                                 linkTo(start = parent.start, end = parent.end)

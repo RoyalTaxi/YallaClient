@@ -24,7 +24,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.payment.R
 import uz.yalla.client.feature.payment.top_up_balance.components.transformation.TopUpBalanceVisualTransformation
@@ -40,8 +42,9 @@ internal fun BalanceInputField(
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        delay(300)
-        focusRequester.requestFocus()
+        launch(Dispatchers.Main) {
+            focusRequester.requestFocus()
+        }
     }
 
     Row(
@@ -55,7 +58,8 @@ internal fun BalanceInputField(
                 .onFocusChanged { focusState ->
                     if (!focusState.isFocused && balance.isEmpty()) {
                         focusRequester.requestFocus()
-                    } },
+                    }
+                },
             value = balance,
             onValueChange = { newValue ->
                 val filteredValue = newValue.filter { it.isDigit() }

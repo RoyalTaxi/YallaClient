@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -24,7 +25,7 @@ class CancelReasonViewModel(
     private val _actionState = MutableSharedFlow<CancelReasonActionState>()
     val actionState = _actionState.asSharedFlow()
 
-    fun getSetting() = viewModelScope.launch {
+    fun getSetting() = viewModelScope.launch(Dispatchers.IO) {
         _actionState.emit(CancelReasonActionState.Loading)
         getSettingUseCase()
             .onSuccess { result ->
@@ -36,7 +37,7 @@ class CancelReasonViewModel(
             }
     }
 
-    fun cancelReason() = viewModelScope.launch {
+    fun cancelReason() = viewModelScope.launch(Dispatchers.IO) {
         if (AppPreferences.lastOrderId != -1) {
             _actionState.emit(CancelReasonActionState.Loading)
             uiState.value.selectedReason?.apply {

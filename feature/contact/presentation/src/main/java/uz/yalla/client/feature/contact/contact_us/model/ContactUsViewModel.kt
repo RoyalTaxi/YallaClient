@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.feature.contact.R
@@ -22,7 +23,7 @@ internal class ContactUsViewModel(
     private val _actionState = MutableSharedFlow<ContactUsActionState>()
     val actionState = _actionState.asSharedFlow()
 
-    fun getConfig() = viewModelScope.launch {
+    fun getConfig() = viewModelScope.launch(Dispatchers.IO) {
         _actionState.emit(ContactUsActionState.Loading)
         getConfigUseCase()
             .onSuccess { result ->

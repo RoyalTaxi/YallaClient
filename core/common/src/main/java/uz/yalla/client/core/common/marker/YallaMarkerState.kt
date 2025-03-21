@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.map.presentation.components.marker
+package uz.yalla.client.core.common.marker
 
 
 sealed interface YallaMarkerState {

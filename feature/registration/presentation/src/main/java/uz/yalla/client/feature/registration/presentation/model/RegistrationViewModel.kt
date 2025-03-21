@@ -2,6 +2,7 @@ package uz.yalla.client.feature.registration.presentation.model
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -30,7 +31,7 @@ internal class RegistrationViewModel(
         lastName: String? = null,
         gender: Gender? = null,
         dateOfBirth: LocalDate? = null
-    ) = viewModelScope.launch {
+    ) = viewModelScope.launch(Dispatchers.IO) {
         _uiState.update { currentState ->
             currentState.copy(
                 number = number ?: currentState.number,
@@ -43,7 +44,7 @@ internal class RegistrationViewModel(
         }
     }
 
-    fun register() = viewModelScope.launch {
+    fun register() = viewModelScope.launch(Dispatchers.IO) {
         _actionFlow.emit(RegistrationActionState.Loading)
         _uiState.value.apply {
             registerUseCase(

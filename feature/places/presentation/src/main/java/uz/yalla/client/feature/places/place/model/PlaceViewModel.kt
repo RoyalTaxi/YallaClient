@@ -2,6 +2,7 @@ package uz.yalla.client.feature.places.place.model
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -28,7 +29,7 @@ internal class PlaceViewModel(
     private val _actionState = MutableSharedFlow<PlaceActionState>()
     val actionState = _actionState.asSharedFlow()
 
-    fun findOneAddress(id: Int) = viewModelScope.launch {
+    fun findOneAddress(id: Int) = viewModelScope.launch(Dispatchers.IO) {
         _actionState.emit(PlaceActionState.Loading)
         findOnePlaceUseCase(id)
             .onSuccess { result ->
@@ -52,14 +53,14 @@ internal class PlaceViewModel(
             .onFailure { _actionState.emit(PlaceActionState.Error(it.message.orEmpty())) }
     }
 
-    fun deleteOneAddress(id: Int) = viewModelScope.launch {
+    fun deleteOneAddress(id: Int) = viewModelScope.launch(Dispatchers.IO) {
         _actionState.emit(PlaceActionState.Loading)
         deleteOnePlaceUseCase(id)
             .onSuccess { _actionState.emit(PlaceActionState.DeleteSuccess) }
             .onFailure { _actionState.emit(PlaceActionState.Error(it.message.orEmpty())) }
     }
 
-    fun updateOneAddress(id: Int) = viewModelScope.launch {
+    fun updateOneAddress(id: Int) = viewModelScope.launch(Dispatchers.IO) {
         _actionState.emit(PlaceActionState.Loading)
         uiState.value.let { state ->
             if (state.selectedAddress != null) updateOnePlaceUseCase(
@@ -80,7 +81,7 @@ internal class PlaceViewModel(
         }
     }
 
-    fun createOneAddress() = viewModelScope.launch {
+    fun createOneAddress() = viewModelScope.launch(Dispatchers.IO) {
         _actionState.emit(PlaceActionState.Loading)
         uiState.value.let { state ->
             if (state.selectedAddress != null) postOnePlaceUseCase(

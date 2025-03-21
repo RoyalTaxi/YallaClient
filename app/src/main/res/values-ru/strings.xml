@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="call">Позвонить</string>
-    <string name="repeat">ПОВТОРИТЬ</string>
+    <string name="repeat">Повторить</string>
     <string name="no_internet_connection">Нет подключение к интернету</string>
     <string name="no_internet_connection_body">Проверьте интернет-соединение или позвоните чтобы вызвать такси</string>
 </resources>

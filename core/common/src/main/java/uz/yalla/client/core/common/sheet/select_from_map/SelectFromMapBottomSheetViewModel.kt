@@ -2,6 +2,7 @@ package uz.yalla.client.core.common.sheet.select_from_map
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -24,13 +25,13 @@ class SelectFromMapBottomSheetViewModel(
         fetchPolygons()
     }
 
-    private fun fetchPolygons() = viewModelScope.launch {
+    private fun fetchPolygons() = viewModelScope.launch(Dispatchers.IO) {
         getPolygonUseCase()
             .onSuccess { result -> addresses = result }
             .onFailure { changeStateToNotFound() }
     }
 
-    fun getAddressDetails(point: MapPoint) = viewModelScope.launch {
+    fun getAddressDetails(point: MapPoint) = viewModelScope.launch(Dispatchers.IO) {
         if (addresses.isEmpty()) fetchPolygons()
         else addresses.firstOrNull {
             isPointInsidePolygon(
@@ -48,7 +49,7 @@ class SelectFromMapBottomSheetViewModel(
     }
 
 
-    private fun fetchAddressName(point: MapPoint) = viewModelScope.launch {
+    private fun fetchAddressName(point: MapPoint) = viewModelScope.launch(Dispatchers.IO) {
         getAddressNameUseCase(point.lat, point.lng)
             .onSuccess { result ->
                 updateSelectedLocation(

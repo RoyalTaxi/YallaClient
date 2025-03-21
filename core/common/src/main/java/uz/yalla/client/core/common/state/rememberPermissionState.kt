@@ -10,6 +10,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun rememberPermissionState(permissions: List<String>): State<Boolean> {
@@ -33,8 +35,10 @@ fun rememberPermissionState(permissions: List<String>): State<Boolean> {
     )
 
     LaunchedEffect(Unit) {
-        if (!arePermissionsGranted.value) {
-            permissionLauncher.launch(permissions.toTypedArray())
+        launch(Dispatchers.Main) {
+            if (!arePermissionsGranted.value) {
+                permissionLauncher.launch(permissions.toTypedArray())
+            }
         }
     }
 

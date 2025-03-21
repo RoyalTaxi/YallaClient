@@ -9,6 +9,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalFocusManager
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -32,14 +33,14 @@ internal fun RegistrationRoute(
     )
 
     LaunchedEffect(Unit) {
-        launch {
+        launch(Dispatchers.IO) {
             vm.updateUiState(
                 number = number,
                 secretKey = secretKey
             )
         }
 
-        launch {
+        launch(Dispatchers.Main) {
             vm.actionFlow.collectLatest {
                 when (it) {
                     is RegistrationActionState.Error -> {}

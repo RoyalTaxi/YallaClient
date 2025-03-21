@@ -22,9 +22,9 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
 import uz.yalla.client.core.common.item.OrderItem
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
+import uz.yalla.client.feature.domain.model.OrdersHistory
 import uz.yalla.client.feature.history.R
 import uz.yalla.client.feature.history.history.components.getRelativeDate
-import uz.yalla.client.feature.domain.model.OrdersHistory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,17 +32,14 @@ internal fun HistoryScreen(
     orders: LazyPagingItems<OrdersHistory>,
     onIntent: (HistoryIntent) -> Unit
 ) {
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     Scaffold(
-        modifier = Modifier.nestedScroll(
-            connection = TopAppBarDefaults
-                .exitUntilCollapsedScrollBehavior()
-                .nestedScrollConnection
-        ),
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         containerColor = YallaTheme.color.white,
         topBar = {
             LargeTopAppBar(
-                scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(),
+                scrollBehavior = scrollBehavior,
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = YallaTheme.color.white,
                     scrolledContainerColor = YallaTheme.color.white
@@ -58,51 +55,50 @@ internal fun HistoryScreen(
                         onClick = { onIntent(HistoryIntent.OnNavigateBack) }
                     ) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = null
                         )
                     }
                 }
             )
-        },
-        content = { paddingValues ->
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentPadding = PaddingValues(20.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                items(orders.itemCount) { index ->
-                    orders[index]?.let { order ->
-                        when (order) {
-                            is OrdersHistory.Date -> {
-                                Text(
-                                    text = getRelativeDate(
-                                        date = order.date,
-                                        today = stringResource(R.string.today),
-                                        yesterday = stringResource(R.string.yesterday)
-                                    ),
-                                    color = YallaTheme.color.black,
-                                    style = YallaTheme.font.title2,
-                                    modifier = Modifier.padding(vertical = 10.dp)
-                                )
-                            }
+        }
+    ) { paddingValues ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            items(orders.itemCount) { index ->
+                orders[index]?.let { order ->
+                    when (order) {
+                        is OrdersHistory.Date -> {
+                            Text(
+                                text = getRelativeDate(
+                                    date = order.date,
+                                    today = stringResource(R.string.today),
+                                    yesterday = stringResource(R.string.yesterday)
+                                ),
+                                color = YallaTheme.color.black,
+                                style = YallaTheme.font.title2,
+                                modifier = Modifier.padding(vertical = 10.dp)
+                            )
+                        }
 
-                            is OrdersHistory.Item -> {
-                                OrderItem(
-                                    firstAddress = order.taxi.routes.firstOrNull()?.fullAddress.orEmpty(),
-                                    secondAddress = order.taxi.routes.lastOrNull()?.fullAddress,
-                                    time = order.time,
-                                    totalPrice = order.taxi.totalPrice,
-                                    status = order.status,
-                                    onClick = { onIntent(HistoryIntent.OnHistoryItemClick(order.id)) }
-                                )
-                            }
+                        is OrdersHistory.Item -> {
+                            OrderItem(
+                                firstAddress = order.taxi.routes.firstOrNull()?.fullAddress.orEmpty(),
+                                secondAddress = order.taxi.routes.lastOrNull()?.fullAddress,
+                                time = order.time,
+                                totalPrice = order.taxi.totalPrice,
+                                status = order.status,
+                                onClick = { onIntent(HistoryIntent.OnHistoryItemClick(order.id)) }
+                            )
                         }
                     }
                 }
             }
         }
-    )
+    }
 }

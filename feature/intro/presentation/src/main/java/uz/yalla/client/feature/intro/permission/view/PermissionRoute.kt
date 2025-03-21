@@ -16,6 +16,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
@@ -47,12 +48,18 @@ internal fun PermissionRoute(
     }
 
     LaunchedEffect(isPermissionGranted) {
-        if (isPermissionGranted) {
-            onPermissionGranted()
+        launch(Dispatchers.Main) {
+            if (isPermissionGranted) {
+                onPermissionGranted()
+            }
         }
     }
 
-    LaunchedEffect(Unit) { scope.launch { scrollState.animateScrollTo(scrollState.maxValue) } }
+    LaunchedEffect(Unit) {
+        scope.launch(Dispatchers.Main) {
+            scrollState.animateScrollTo(scrollState.maxValue)
+        }
+    }
 
     PermissionScreen(
         scrollState = scrollState,

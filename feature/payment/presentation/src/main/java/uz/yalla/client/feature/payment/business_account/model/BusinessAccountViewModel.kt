@@ -6,9 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-internal class BusinessAccountViewModel(
-
-) : ViewModel() {
+internal class BusinessAccountViewModel: ViewModel() {
 
     private val _uiState = MutableStateFlow(
         BusinessAccountUIState(

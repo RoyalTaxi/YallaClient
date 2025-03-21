@@ -13,6 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import uz.yalla.client.feature.intro.R
 
@@ -63,7 +64,11 @@ internal fun OnboardingRoute(
 
     val nextNavigation = if (isPermissionGranted) onJumpNext else onNext
 
-    LaunchedEffect(Unit) { scope.launch { scrollState.animateScrollTo(scrollState.maxValue) } }
+    LaunchedEffect(Unit) {
+        launch(Dispatchers.Main) {
+            scrollState.animateScrollTo(scrollState.maxValue)
+        }
+    }
 
     OnboardingScreen(
         scrollState = scrollState,

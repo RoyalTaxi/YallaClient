@@ -8,7 +8,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.feature.payment.corporate_account.model.CorporateAccountActionState
@@ -21,14 +23,16 @@ internal fun AddCompanyRoute(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var loading by remember { mutableStateOf(false) }
-    val pagerState = rememberPagerState{ 3 }
+    val pagerState = rememberPagerState { 3 }
 
     LaunchedEffect(Unit) {
-        viewModel.actionState.collectLatest { action ->
-            loading = when (action) {
-                is CorporateAccountActionState.Error -> false
-                is CorporateAccountActionState.Loading -> true
-                is CorporateAccountActionState.Success -> false
+        launch(Dispatchers.Main) {
+            viewModel.actionState.collectLatest { action ->
+                loading = when (action) {
+                    is CorporateAccountActionState.Error -> false
+                    is CorporateAccountActionState.Loading -> true
+                    is CorporateAccountActionState.Success -> false
+                }
             }
         }
     }

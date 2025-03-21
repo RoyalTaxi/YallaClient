@@ -16,12 +16,10 @@ sealed interface MainBottomSheetIntent {
         ) : OrderTaxiBottomSheetIntent
     }
 
-    sealed interface TariffInfoBottomSheetIntent : MainBottomSheetIntent {
-        data object ClickComment : TariffInfoBottomSheetIntent
-        data object ClearOptions : TariffInfoBottomSheetIntent
-        data class OptionsChange(
-            val options: List<GetTariffsModel.Tariff.Service>
-        ) : TariffInfoBottomSheetIntent
+    sealed class TariffInfoBottomSheetIntent : MainBottomSheetIntent {
+        data object ClickComment : TariffInfoBottomSheetIntent()
+        data object ClearOptions : TariffInfoBottomSheetIntent()
+        data class OptionsChange(val options: List<GetTariffsModel.Tariff.Service>) : TariffInfoBottomSheetIntent()
     }
 
     sealed interface FooterIntent : MainBottomSheetIntent {
@@ -29,6 +27,6 @@ sealed interface MainBottomSheetIntent {
         data object CreateOrder : FooterIntent
         data object ClearOptions : FooterIntent
         data class SetFooterHeight(val height: Dp) : FooterIntent
-        data class ChangeSheetVisibility(val isVisible: Boolean) : FooterIntent
+        data class ChangeSheetVisibility(val isExtended: Boolean) : FooterIntent
     }
 }

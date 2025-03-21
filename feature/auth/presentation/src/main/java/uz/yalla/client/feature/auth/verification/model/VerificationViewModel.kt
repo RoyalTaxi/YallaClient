@@ -2,6 +2,7 @@ package uz.yalla.client.feature.auth.verification.model
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -35,7 +36,7 @@ class VerificationViewModel(
         hasRemainingTime: Boolean? = null,
         remainingMinutes: Int? = null,
         remainingSeconds: Int? = null
-    ) = viewModelScope.launch {
+    ) = viewModelScope.launch(Dispatchers.IO) {
         _uiState.update { currentState ->
             currentState.copy(
                 number = number ?: currentState.number,
@@ -48,7 +49,7 @@ class VerificationViewModel(
         }
     }
 
-    fun verifyAuthCode() = viewModelScope.launch {
+    fun verifyAuthCode() = viewModelScope.launch(Dispatchers.IO) {
         _uiState.value.apply {
             _actionFlow.emit(VerificationActionState.Loading)
 
@@ -72,7 +73,7 @@ class VerificationViewModel(
         }
     }
 
-    fun resendAuthCode(hash: String?) = viewModelScope.launch {
+    fun resendAuthCode(hash: String?) = viewModelScope.launch(Dispatchers.IO) {
         _uiState.value.apply {
             _actionFlow.emit(VerificationActionState.Loading)
             sendCodeUseCase(getFormattedNumber(), hash)

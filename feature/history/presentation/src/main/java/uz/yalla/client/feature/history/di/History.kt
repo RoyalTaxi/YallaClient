@@ -2,6 +2,7 @@ package uz.yalla.client.feature.history.di
 
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
+import uz.yalla.client.feature.history.data.di.HistoryData
 import uz.yalla.client.feature.history.history.model.HistoryViewModel
 import uz.yalla.client.feature.history.history_details.model.HistoryDetailsViewModel
 
@@ -11,5 +12,8 @@ object History {
         viewModelOf(::HistoryDetailsViewModel)
     }
 
-    val modules = listOf(viewModelModule)
+    val modules = listOf(
+        viewModelModule,
+        *HistoryData.modules.toTypedArray()
+    )
 }

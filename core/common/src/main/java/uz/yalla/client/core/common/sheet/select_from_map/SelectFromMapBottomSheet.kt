@@ -31,8 +31,10 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import uz.yalla.client.core.common.R
 import uz.yalla.client.core.common.button.MapButton
@@ -40,12 +42,12 @@ import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.common.button.SelectCurrentLocationButton
 import uz.yalla.client.core.common.map.ConcreteGisMap
 import uz.yalla.client.core.common.map.ConcreteGoogleMap
+import uz.yalla.client.core.common.marker.YallaMarker
 import uz.yalla.client.core.data.enums.MapType
 import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
-import uz.yalla.client.core.common.marker.YallaMarker
-import uz.yalla.client.feature.map.presentation.components.marker.YallaMarkerState
+import uz.yalla.client.core.common.marker.YallaMarkerState
 
 @Composable
 fun SelectFromMapBottomSheet(
@@ -73,24 +75,33 @@ fun SelectFromMapBottomSheet(
     BackHandler(onBack = onDismissRequest)
 
     LaunchedEffect(Unit) {
-        map.isMarkerMoving.collectLatest {
-            isMarkerMoving = it
+        launch(Dispatchers.Main) {
+            map.isMarkerMoving.collectLatest {
+                isMarkerMoving = it
+            }
         }
     }
 
     LaunchedEffect(isMarkerMoving) {
-        if (isMarkerMoving) viewModel.changeStateToNotFound()
-        else viewModel.getAddressDetails(map.mapPoint.value)
+        launch(Dispatchers.Default) {
+            if (isMarkerMoving) {
+                viewModel.changeStateToNotFound()
+            } else {
+                viewModel.getAddressDetails(map.mapPoint.value)
+            }
+        }
     }
 
     LaunchedEffect(mapBottomPadding) {
-        if (mapBottomPadding > 0.dp) {
-            awaitFrame()
-            when {
-                startingPoint == null -> map.moveToMyLocation()
-                map.mapPoint.value != MapPoint.Zero -> {
-                    map.move(map.mapPoint.value)
-                    viewModel.getAddressDetails(map.mapPoint.value)
+        launch(Dispatchers.Main) {
+            if (mapBottomPadding > 0.dp) {
+                awaitFrame()
+                when {
+                    startingPoint == null -> map.moveToMyLocation()
+                    map.mapPoint.value != MapPoint.Zero -> {
+                        map.move(map.mapPoint.value)
+                        viewModel.getAddressDetails(map.mapPoint.value)
+                    }
                 }
             }
         }

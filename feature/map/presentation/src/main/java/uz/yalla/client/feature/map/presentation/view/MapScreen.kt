@@ -7,16 +7,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.zIndex
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import uz.yalla.client.core.common.map.MapStrategy
 import uz.yalla.client.core.common.state.HamburgerButtonState
 import uz.yalla.client.core.common.state.MoveCameraButtonState
-import uz.yalla.client.feature.map.presentation.components.marker.YallaMarkerState
 import uz.yalla.client.feature.map.presentation.model.MapUIState
 import uz.yalla.client.feature.map.presentation.navigation.BottomSheetNavHost
 
@@ -25,17 +23,18 @@ fun MapScreen(
     map: MapStrategy,
     isMapEnabled: Boolean,
     state: MapUIState,
-    markerState: YallaMarkerState,
     moveCameraButtonState: MoveCameraButtonState,
     hamburgerButtonState: HamburgerButtonState,
     navController: NavHostController,
-    onIntent: (MapScreenIntent) -> Unit
+    onIntent: (MapOverlayIntent) -> Unit
 ) {
     val density = LocalDensity.current
 
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
+    val effectiveSheetHeight = remember(state.sheetHeight) {
+        if (state.sheetHeight <= 0.dp) 300.dp else state.sheetHeight
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
         map.Map(
             startingPoint = null,
             modifier = Modifier.fillMaxSize(),
@@ -43,15 +42,14 @@ fun MapScreen(
             contentPadding = with(density) {
                 PaddingValues(
                     top = WindowInsets.statusBars.getTop(density).toDp(),
-                    bottom = state.sheetHeight
+                    bottom = effectiveSheetHeight
                 )
             }
         )
 
         MapOverlay(
-            modifier = Modifier.padding(bottom = state.sheetHeight),
+            modifier = Modifier.padding(bottom = effectiveSheetHeight),
             state = state,
-            markerState = markerState,
             moveCameraButtonState = moveCameraButtonState,
             hamburgerButtonState = hamburgerButtonState,
             onIntent = onIntent
@@ -59,13 +57,7 @@ fun MapScreen(
 
         BottomSheetNavHost(
             navController = navController,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .onSizeChanged {
-                    with(density) {
-                        onIntent(MapScreenIntent.SetSheetHeight(it.height.toDp()))
-                    }
-                }
+            modifier = Modifier.fillMaxSize(),
         )
     }
 }

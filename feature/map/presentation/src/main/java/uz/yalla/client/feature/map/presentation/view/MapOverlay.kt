@@ -10,22 +10,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.common.button.MapButton
+import uz.yalla.client.core.common.marker.YallaMarker
 import uz.yalla.client.core.common.state.HamburgerButtonState
 import uz.yalla.client.core.common.state.MoveCameraButtonState
 import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.map.presentation.R
 import uz.yalla.client.feature.map.presentation.components.button.ShowActiveOrdersButton
-import uz.yalla.client.core.common.marker.YallaMarker
-import uz.yalla.client.feature.map.presentation.components.marker.YallaMarkerState
 import uz.yalla.client.feature.map.presentation.model.MapUIState
-import uz.yalla.client.feature.map.presentation.view.MapScreenIntent.MapOverlayIntent
 
 @Composable
 fun BoxScope.MapOverlay(
     modifier: Modifier,
     state: MapUIState,
-    markerState: YallaMarkerState,
     moveCameraButtonState: MoveCameraButtonState,
     hamburgerButtonState: HamburgerButtonState,
     onIntent: (MapOverlayIntent) -> Unit
@@ -36,7 +33,7 @@ fun BoxScope.MapOverlay(
             .padding(20.dp)
     ) {
         YallaMarker(
-            state = markerState,
+            state = state.markerState,
             color = YallaTheme.color.primary,
             modifier = Modifier
                 .align(Alignment.Center)

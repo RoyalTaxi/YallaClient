@@ -16,6 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 
 @Composable
@@ -30,7 +32,9 @@ internal fun CardViewCard(
     val focusRequestExpiry = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
-        focusRequestPan.requestFocus()
+        launch(Dispatchers.Main) {
+            focusRequestPan.requestFocus()
+        }
     }
 
     Card(

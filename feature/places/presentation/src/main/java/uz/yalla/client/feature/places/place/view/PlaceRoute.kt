@@ -20,8 +20,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
 import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.core.common.sheet.AddDestinationBottomSheet
@@ -54,12 +56,12 @@ internal fun AddressRoute(
 
 
     LaunchedEffect(Unit) {
-        launch {
+        launch(Dispatchers.IO) {
             if (id != null) viewModel.findOneAddress(id)
             viewModel.updateType(type)
         }
 
-        launch {
+        launch(Dispatchers.Main) {
             viewModel.actionState.collectLatest { action ->
                 loading = when (action) {
                     PlaceActionState.DeleteSuccess -> {

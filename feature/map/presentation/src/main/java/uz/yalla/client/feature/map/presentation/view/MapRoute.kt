@@ -12,13 +12,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import org.koin.androidx.compose.koinViewModel
 import uz.yalla.client.core.common.dialog.LoadingDialog
@@ -31,11 +31,10 @@ import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.OrderStatus
-import uz.yalla.client.core.domain.model.SelectedLocation
-import uz.yalla.client.feature.map.presentation.components.marker.YallaMarkerState
 import uz.yalla.client.feature.map.presentation.model.MapViewModel
 import uz.yalla.client.feature.map.presentation.view.drawer.MapDrawer
 import uz.yalla.client.feature.map.presentation.view.drawer.MapDrawerIntent
+import uz.yalla.client.feature.order.presentation.main.navigateToMainBottomSheet
 import uz.yalla.client.feature.order.presentation.main.view.MainBottomSheetIntent
 import uz.yalla.client.feature.order.presentation.main.view.MainSheet
 import uz.yalla.client.feature.order.presentation.search.navigateToSearchForCarBottomSheet
@@ -72,7 +71,6 @@ fun MapRoute(
     val isMapEnabled by vm.isMapEnabled.collectAsState()
     val hamburgerButtonState by vm.hamburgerButtonState.collectAsState()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
-    var markerState by remember { mutableStateOf<YallaMarkerState>(YallaMarkerState.LOADING) }
     val map: MapStrategy by remember {
         mutableStateOf(
             when (AppPreferences.mapType) {
@@ -81,9 +79,7 @@ fun MapRoute(
             }
         )
     }
-    val mapPoint by map.mapPoint
     val navController = rememberNavController()
-
 
     BackHandler {
         when {
@@ -99,10 +95,17 @@ fun MapRoute(
     }
 
     LaunchedEffect(permissionsGranted) {
-        if (!permissionsGranted) onPermissionDenied()
+        launch(Dispatchers.Main) {
+            if (!permissionsGranted) onPermissionDenied()
+        }
     }
 
     LaunchedEffect(Unit) {
+        // Initialize navigation to main bottom sheet
+        launch(Dispatchers.Main) {
+            navController.navigateToMainBottomSheet()
+        }
+
         launch(Dispatchers.IO) {
             while (true) {
                 vm.getActiveOrders()
@@ -112,25 +115,18 @@ fun MapRoute(
         }
 
         launch(Dispatchers.IO) {
-            vm.getPolygon()
             vm.getMe()
         }
 
         launch(Dispatchers.Main) {
             map.isMarkerMoving.collectLatest { isMarkerMoving ->
                 if (state.route.isEmpty() && state.selectedOrder?.status == null) {
-                    if (isMarkerMoving) vm.setStateToNotFound()
-                    else {
-                        vm.getAddressName(mapPoint)?.let { place ->
-                            vm.updateState(
-                                state.copy(
-                                    selectedLocation = SelectedLocation(
-                                        name = place.displayName,
-                                        point = mapPoint,
-                                        addressId = place.id
-                                    )
-                                )
-                            )
+                    MainSheet.setLoading(isMarkerMoving)
+                    if (isMarkerMoving) {
+                        vm.setStateToNotFound()
+                    } else {
+                        withContext(Dispatchers.IO) {
+                            vm.getAddressName(map.mapPoint.value)
                         }
                     }
                 }
@@ -138,7 +134,7 @@ fun MapRoute(
         }
 
         launch(Dispatchers.Main) {
-            MainSheet.intentFlow.collectLatest { intent ->
+            MainSheet.intentFlow.collect { intent ->
                 when (intent) {
                     is MainBottomSheetIntent.OrderTaxiBottomSheetIntent.AddNewDestinationClick -> TODO()
                     is MainBottomSheetIntent.OrderTaxiBottomSheetIntent.CurrentLocationClick -> TODO()
@@ -147,11 +143,15 @@ fun MapRoute(
                         vm.updateState(state.copy(showingOrderId = intent.orderId))
                         navController.navigateToSearchForCarBottomSheet(
                             tariffId = state.selectedTariffId.or0(),
-                            point = mapPoint
+                            point = map.mapPoint.value
                         )
                     }
 
                     is MainBottomSheetIntent.TariffInfoBottomSheetIntent.ClickComment -> {}
+                    is MainBottomSheetIntent.OrderTaxiBottomSheetIntent.SetSheetHeight -> {
+                        vm.updateState(state.copy(sheetHeight = intent.height))
+                    }
+
                     else -> {}
                 }
             }
@@ -176,27 +176,15 @@ fun MapRoute(
         }
     }
 
-    LaunchedEffect(state.selectedLocation, state.selectedOrder) {
-        launch(Dispatchers.Main) {
-            markerState = when {
-                state.selectedLocation == null -> YallaMarkerState.LOADING
-                state.selectedOrder?.status in OrderStatus.nonInteractive -> YallaMarkerState.Searching(
-                    title = state.selectedLocation?.name
-                )
-
-                else -> YallaMarkerState.IDLE(
-                    title = state.selectedLocation?.name,
-                    timeout = state.timeout
-                )
-            }
-        }
-    }
-
+    // Rest of your existing code...
     LaunchedEffect(state.route) {
         launch(Dispatchers.Main) {
             map.updateRoute(state.route)
-            if (state.route.isEmpty()) state.selectedLocation?.point?.let { map.animate(it) }
-            else map.animateToFitBounds(state.route)
+            if (state.route.isEmpty()) {
+                state.selectedLocation?.point?.let { map.animate(it) }
+            } else {
+                map.animateToFitBounds(state.route)
+            }
         }
     }
 
@@ -212,7 +200,6 @@ fun MapRoute(
             map.updateLocations(locations)
         }
     }
-
 
     LaunchedEffect(state.drivers) {
         launch(Dispatchers.Main) {
@@ -237,13 +224,15 @@ fun MapRoute(
     }
 
     LaunchedEffect(state.selectedOrder?.status) {
-        // Navigate to appropriate sheet
     }
 
     LaunchedEffect(state.selectedOrder) {
         launch(Dispatchers.Main) {
-            if (state.selectedOrder != null) vm.updateState(state.copy(loading = false))
-            if (state.selectedOrder?.status == OrderStatus.InFetters)
+            if (state.selectedOrder != null) {
+                vm.updateState(state.copy(loading = false))
+            }
+
+            if (state.selectedOrder?.status == OrderStatus.InFetters) {
                 state.selectedOrder?.let { driver ->
                     val driverPosition = MapPoint(
                         lat = driver.executor.coords.lat,
@@ -251,6 +240,7 @@ fun MapRoute(
                     )
                     map.animate(to = driverPosition)
                 }
+            }
         }
     }
 
@@ -275,42 +265,35 @@ fun MapRoute(
                 map = map,
                 isMapEnabled = isMapEnabled,
                 state = state,
-                markerState = markerState,
                 moveCameraButtonState = state.moveCameraButtonState,
                 hamburgerButtonState = hamburgerButtonState,
                 navController = navController
             ) { intent ->
                 when (intent) {
-                    is MapScreenIntent.MapOverlayIntent.ClickShowOrders -> {
-                        
+                    is MapOverlayIntent.ClickShowOrders -> {
                     }
 
-                    is MapScreenIntent.MapOverlayIntent.MoveToFirstLocation -> {
+                    is MapOverlayIntent.MoveToFirstLocation -> {
                         state.selectedLocation?.point?.let {
                             map.animate(it)
                         }
                     }
 
-                    is MapScreenIntent.MapOverlayIntent.MoveToMyLocation -> {
+                    is MapOverlayIntent.MoveToMyLocation -> {
                         map.animateToMyLocation()
                     }
 
-                    is MapScreenIntent.MapOverlayIntent.MoveToMyRoute -> {
+                    is MapOverlayIntent.MoveToMyRoute -> {
                         map.animateToFitBounds(state.route)
                     }
 
-                    is MapScreenIntent.MapOverlayIntent.NavigateBack -> {
-
+                    is MapOverlayIntent.NavigateBack -> {
                     }
 
-                    is MapScreenIntent.MapOverlayIntent.OpenDrawer -> {
+                    is MapOverlayIntent.OpenDrawer -> {
                         scope.launch(Dispatchers.Main) {
                             drawerState.open()
                         }
-                    }
-
-                    is MapScreenIntent.SetSheetHeight -> {
-                        vm.updateState(state.copy(sheetHeight = intent.height))
                     }
                 }
             }

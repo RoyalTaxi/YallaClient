@@ -6,12 +6,14 @@ import uz.yalla.client.core.data.enums.PaymentType
 import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.SelectedLocation
+import uz.yalla.client.feature.map.domain.model.response.PolygonRemoteItem
 import uz.yalla.client.feature.payment.domain.model.CardListItemModel
 import uz.yalla.client.feature.order.domain.model.request.OrderTaxiDto
 import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 import uz.yalla.client.feature.order.domain.model.response.tarrif.GetTariffsModel
 
 data class MainSheetState(
+    val polygon: List<PolygonRemoteItem> = emptyList(),
     val loading: Boolean = false,
 
     val sheetHeight: Dp = 0.dp,

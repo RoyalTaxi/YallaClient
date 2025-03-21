@@ -2,6 +2,7 @@ package uz.yalla.client.feature.history.history_details.model
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -21,7 +22,7 @@ internal class HistoryDetailsViewModel(
     private val _uiState = MutableStateFlow(HistoryDetailsUIState())
     val uiState = _uiState.asStateFlow()
 
-    fun getOrderHistory(orderId: Int) = viewModelScope.launch {
+    fun getOrderHistory(orderId: Int) = viewModelScope.launch(Dispatchers.IO) {
         _actionState.emit(HistoryDetailsActionState.Loading)
         getOrderHistoryUseCase(orderId)
             .onSuccess { result ->
@@ -33,7 +34,7 @@ internal class HistoryDetailsViewModel(
             }
     }
 
-    fun getMapPoints() = viewModelScope.launch {
+    fun getMapPoints() = viewModelScope.launch(Dispatchers.IO) {
         _actionState.emit(HistoryDetailsActionState.Loading)
         getTariffsUseCase(
             coords = _uiState.value.orderDetails?.taxi?.routes?.map {

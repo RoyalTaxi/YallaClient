@@ -1,32 +1,35 @@
 package uz.yalla.client.feature.map.presentation.model
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import uz.yalla.client.core.common.marker.YallaMarkerState
 import uz.yalla.client.core.common.state.HamburgerButtonState
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.OrderStatus
+import uz.yalla.client.core.domain.model.SelectedLocation
 import uz.yalla.client.feature.map.domain.model.request.GetRoutingDtoItem
 import uz.yalla.client.feature.map.domain.usecase.GetAddressNameUseCase
-import uz.yalla.client.feature.map.domain.usecase.GetPolygonUseCase
 import uz.yalla.client.feature.map.domain.usecase.GetRoutingUseCase
-import uz.yalla.client.feature.order.domain.model.response.PlaceNameModel
 import uz.yalla.client.feature.order.domain.usecase.order.GetActiveOrdersUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.GetShowOrderUseCase
 import uz.yalla.client.feature.order.domain.usecase.tariff.GetTimeOutUseCase
+import uz.yalla.client.feature.order.presentation.main.view.MainSheet
 import uz.yalla.client.feature.profile.domain.usecase.GetMeUseCase
+import kotlin.math.log
 
 class MapViewModel(
-    private val getPolygonUseCase: GetPolygonUseCase,
     private val getAddressNameUseCase: GetAddressNameUseCase,
     private val getTimeOutUseCase: GetTimeOutUseCase,
     private val getShowOrderUseCase: GetShowOrderUseCase,
@@ -39,8 +42,47 @@ class MapViewModel(
     val uiState = _uiState.asStateFlow()
 
     init {
-        getPolygon()
         getMe()
+
+        val markerStateInputs = uiState
+            .map { state ->
+                Triple(
+                    state.selectedLocation,
+                    state.timeout,
+                    state.selectedOrder?.status in OrderStatus.nonInteractive
+                )
+            }
+            .distinctUntilChanged()
+
+        viewModelScope.launch {
+            uiState
+                .distinctUntilChangedBy { it.selectedLocation }
+                .collectLatest { state ->
+                    state.selectedLocation?.let { location ->
+                        MainSheet.setLocation(location)
+                        location.point?.let { l -> getTimeout(l) }
+                    }
+                }
+        }
+
+        viewModelScope.launch {
+            markerStateInputs.collectLatest { (selectedLocation, timeout, isNonInteractive) ->
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        markerState = when {
+                            selectedLocation == null -> YallaMarkerState.LOADING
+                            isNonInteractive -> YallaMarkerState.Searching(
+                                title = selectedLocation.name
+                            )
+                            else -> YallaMarkerState.IDLE(
+                                title = selectedLocation.name,
+                                timeout = timeout
+                            )
+                        }
+                    )
+                }
+            }
+        }
     }
 
     val hamburgerButtonState = uiState
@@ -64,29 +106,30 @@ class MapViewModel(
             initialValue = false
         )
 
-    fun getPolygon() {
-        viewModelScope.launch {
-            getPolygonUseCase().onSuccess { polygon ->
-                _uiState.update { it.copy(polygon = polygon) }
-            }.onFailure {
-
-            }
-        }
-    }
-
     fun getMe() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             getMeUseCase().onSuccess { user -> _uiState.update { it.copy(user = user) } }
         }
     }
 
-    suspend fun getAddressName(point: MapPoint): PlaceNameModel? = coroutineScope {
-        val result = async { getAddressNameUseCase(point.lat, point.lng).getOrNull() }
-        result.await()
+    fun getAddressName(point: MapPoint) {
+        viewModelScope.launch(Dispatchers.IO) {
+            getAddressNameUseCase(point.lat, point.lng).onSuccess { data ->
+                _uiState.update {
+                    it.copy(
+                        selectedLocation = SelectedLocation(
+                            name = data.displayName,
+                            point = point,
+                            addressId = data.id
+                        )
+                    )
+                }
+            }
+        }
     }
 
     fun getActiveOrders() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             getActiveOrdersUseCase().onSuccess { activeOrders ->
                 _uiState.update { it.copy(orders = activeOrders.list) }
             }
@@ -95,18 +138,20 @@ class MapViewModel(
 
     fun getShowOrder() {
         val showingOrderId = uiState.value.showingOrderId ?: return
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             getShowOrderUseCase(showingOrderId).onSuccess { order ->
                 _uiState.update { it.copy(selectedOrder = order) }
             }
         }
     }
 
-    fun getTimeout(point: MapPoint) {
-        viewModelScope.launch {
+    private fun getTimeout(point: MapPoint) {
+        viewModelScope.launch(Dispatchers.IO) {
             uiState.value.selectedTariffId?.let { tariffId ->
                 getTimeOutUseCase(point.lat, point.lng, tariffId).onSuccess { timeout ->
                     _uiState.update { it.copy(timeout = timeout.timeout) }
+                }.onFailure {
+                    Log.d("here we gooo", "getTimeout: $it")
                 }
             }
         }
@@ -120,7 +165,7 @@ class MapViewModel(
 
         if (points.size < 2) return
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val addresses = mutableListOf<GetRoutingDtoItem>()
 
             addresses.add(
@@ -168,9 +213,8 @@ class MapViewModel(
             it.copy(
                 selectedLocation = null,
                 selectedTariffId = null,
-                timeout = null,
-
-                )
+                timeout = null
+            )
         }
     }
 }

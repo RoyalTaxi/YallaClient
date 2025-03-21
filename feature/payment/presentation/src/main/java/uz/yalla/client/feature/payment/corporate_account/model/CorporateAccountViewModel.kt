@@ -2,7 +2,6 @@ package uz.yalla.client.feature.payment.corporate_account.model
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -10,9 +9,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uz.yalla.client.feature.payment.corporate_account.view.CorporateAccountIntent
+import kotlinx.coroutines.Dispatchers
 
-internal class CorporateAccountViewModel(
-) : ViewModel(){
+internal class CorporateAccountViewModel : ViewModel() {
 
     private var _uiState = MutableStateFlow(CorporateAccountUIState())
     val uiState = _uiState.asStateFlow()
@@ -21,7 +20,7 @@ internal class CorporateAccountViewModel(
     val actionState = _actionState.asSharedFlow()
 
     fun processIntent(intent: CorporateAccountIntent) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             _uiState.update { currentState ->
                 when (intent) {
                     is CorporateAccountIntent.SetCompanyName -> currentState.copy(name = intent.name)

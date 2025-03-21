@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -25,9 +26,11 @@ internal fun AddressesRoute(
     var loading by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
-        launch { viewModel.findAllAddresses() }
+        launch(Dispatchers.IO) {
+            viewModel.findAllAddresses()
+        }
 
-        launch {
+        launch(Dispatchers.Main) {
             viewModel.actionState.collectLatest { action ->
                 loading = when (action) {
                     AddressesActionState.Error -> false

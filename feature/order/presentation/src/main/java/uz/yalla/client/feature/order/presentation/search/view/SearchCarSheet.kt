@@ -28,6 +28,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -63,19 +64,19 @@ object SearchCarSheet {
         )
 
         LaunchedEffect(Unit) {
-            launch {
+            launch(Dispatchers.IO) {
                 viewModel.setPoint(point)
                 viewModel.setTariffId(tariffId)
             }
 
-            launch {
+            launch(Dispatchers.Default) {
                 while (currentTime > state.setting?.orderCancelTime.or0()) {
                     delay(1.seconds)
                     currentTime += 1
                 }
             }
 
-            launch {
+            launch(Dispatchers.IO) {
                 while (true) {
                     viewModel.searchCar()
                     delay(5.seconds)

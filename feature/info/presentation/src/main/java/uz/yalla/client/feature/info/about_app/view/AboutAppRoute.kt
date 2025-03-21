@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -26,9 +27,11 @@ internal fun AboutAppRoute(
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        launch { viewModel.getConfig() }
+        launch(Dispatchers.IO) {
+            viewModel.getConfig()
+        }
 
-        launch {
+        launch(Dispatchers.Main) {
             viewModel.actionState.collectLatest { action ->
                 loading = when (action) {
                     AboutAppActionState.Error -> false

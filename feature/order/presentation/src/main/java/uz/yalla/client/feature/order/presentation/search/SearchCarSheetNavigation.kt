@@ -26,13 +26,23 @@ fun NavGraphBuilder.searchForCarBottomSheet() {
     ) { backStackEntry ->
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
             SearchCarSheet.View(
-                point = backStackEntry.arguments?.getParcelable(POINT, MapPoint::class.java)
+                point = backStackEntry
+                    .arguments
+                    ?.getParcelable(POINT, MapPoint::class.java)
                     ?: MapPoint.Zero,
-                tariffId = backStackEntry.arguments?.getInt(TARIFF_ID).or0()
+                tariffId = backStackEntry
+                    .arguments
+                    ?.getInt(TARIFF_ID).or0()
+
             )
         else SearchCarSheet.View(
-            point = backStackEntry.arguments?.getParcelable(POINT) ?: MapPoint.Zero,
-            tariffId = backStackEntry.arguments?.getInt(TARIFF_ID).or0()
+            point = backStackEntry
+                .arguments
+                ?.getParcelable(POINT) ?: MapPoint.Zero,
+            tariffId = backStackEntry
+                .arguments
+                ?.getInt(TARIFF_ID)
+                .or0()
         )
     }
 }

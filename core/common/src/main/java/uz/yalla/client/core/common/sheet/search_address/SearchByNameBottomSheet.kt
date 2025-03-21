@@ -28,6 +28,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import uz.yalla.client.core.common.field.SearchLocationField
@@ -58,20 +59,27 @@ fun SearchByNameBottomSheet(
     var lastFocusedForDestination by remember { mutableStateOf(isForDestination) }
 
     LaunchedEffect(Unit) {
-        launch { viewModel.findAllMapAddresses() }
-        launch { initialAddress?.let { viewModel.setQuery(it) } }
-        launch { initialDestination?.let { viewModel.setDestinationQuery(it) } }
-        launch { viewModel.fetchPolygons() }
-        getCurrentLocation(context) { location ->
-            viewModel.setCurrentLocation(location.latitude, location.longitude)
+        launch(Dispatchers.IO) {
+            initialAddress?.let { viewModel.setQuery(it) }
+            initialDestination?.let { viewModel.setDestinationQuery(it) }
+            viewModel.findAllMapAddresses()
+            viewModel.fetchPolygons()
+        }
+
+        launch(Dispatchers.Main) {
+            getCurrentLocation(context) { location ->
+                viewModel.setCurrentLocation(location.latitude, location.longitude)
+            }
         }
     }
 
     LaunchedEffect(isForDestination) {
-        if (isForDestination) {
-            destinationFocusRequester.requestFocus()
-        } else {
-            addressFocusRequester.requestFocus()
+        launch(Dispatchers.Main) {
+            if (isForDestination) {
+                destinationFocusRequester.requestFocus()
+            } else {
+                addressFocusRequester.requestFocus()
+            }
         }
     }
 

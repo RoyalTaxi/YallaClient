@@ -12,6 +12,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,8 +36,10 @@ import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.launch
 import uz.yalla.client.core.common.R
 import uz.yalla.client.core.common.convertor.dpToPx
@@ -84,19 +87,25 @@ class ConcreteGoogleMap : MapStrategy {
         cameraPositionState = rememberCameraPositionState()
 
         LaunchedEffect(::cameraPositionState.isInitialized) {
-            awaitFrame()
-            startingPoint?.let { mapPoint.value = it }
+            launch(Dispatchers.Main) {
+                awaitFrame()
+                startingPoint?.let { mapPoint.value = it }
+            }
         }
 
-        LaunchedEffect(cameraPositionState.isMoving) {
-            isMarkerMoving.emit(cameraPositionState.isMoving)
-        }
+        LaunchedEffect(cameraPositionState) {
+            snapshotFlow { cameraPositionState.isMoving }
+                .collect { isMoving ->
+                    isMarkerMoving.emit(isMoving)
 
-        LaunchedEffect(cameraPositionState.position) {
-            if (!isMarkerMoving.value) mapPoint.value = MapPoint(
-                cameraPositionState.position.target.latitude,
-                cameraPositionState.position.target.longitude
-            )
+                    if (!isMoving) {
+                        val target = cameraPositionState.position.target
+                        mapPoint.value = MapPoint(
+                            lat = target.latitude,
+                            lng = target.longitude
+                        )
+                    }
+                }
         }
 
         GoogleMap(

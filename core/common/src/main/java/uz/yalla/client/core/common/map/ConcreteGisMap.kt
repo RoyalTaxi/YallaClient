@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import ru.dgis.sdk.Duration
@@ -26,6 +27,7 @@ import ru.dgis.sdk.map.CameraState
 import ru.dgis.sdk.map.calcPosition
 import uz.yalla.client.core.common.R
 import uz.yalla.client.core.common.utils.getCurrentLocation
+import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.core.dgis.CameraPosition
 import uz.yalla.client.core.dgis.GeoPoint
 import uz.yalla.client.core.dgis.MapView
@@ -69,10 +71,12 @@ class ConcreteGisMap : MapStrategy {
         val cameraNode by cameraState.node.collectAsState()
 
         LaunchedEffect(cameraState.position.point) {
-            mapPoint.value = MapPoint(
-                cameraState.position.point.lat,
-                cameraState.position.point.lon
-            )
+            launch(Dispatchers.Main) {
+                mapPoint.value = MapPoint(
+                    cameraState.position.point.lat,
+                    cameraState.position.point.lon
+                )
+            }
         }
 
         MapView(

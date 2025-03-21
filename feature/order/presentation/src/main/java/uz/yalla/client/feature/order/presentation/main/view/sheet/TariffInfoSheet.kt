@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.order.presentation.main.view
+package uz.yalla.client.feature.order.presentation.main.view.sheet
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -14,6 +15,8 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -24,23 +27,30 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
+import uz.yalla.client.feature.order.domain.model.response.tarrif.GetTariffsModel
 import uz.yalla.client.feature.order.presentation.R
 import uz.yalla.client.feature.order.presentation.components.OptionsItem
 import uz.yalla.client.feature.order.presentation.components.ProvideDescriptionButton
 import uz.yalla.client.feature.order.presentation.main.model.MainSheetState
 import uz.yalla.client.feature.order.presentation.main.view.MainBottomSheetIntent.TariffInfoBottomSheetIntent
-import uz.yalla.client.feature.order.domain.model.response.tarrif.GetTariffsModel
 
 private typealias Tariff = GetTariffsModel.Tariff
 
@@ -55,84 +65,116 @@ fun TariffInfoBottomSheet(
         mutableStateListOf(*state.selectedOptions.toTypedArray())
     }
 
-    LaunchedEffect(state.selectedOptions, isTariffValidWithOptions) {
-        if (isTariffValidWithOptions) {
-            val validOptions = state.selectedOptions.filter { selected ->
-                state.options.any { option ->
-                    option.name == selected.name && option.cost == selected.cost
-                }
-            }
+    val columnState = rememberLazyListState()
 
-            if (newSelectedOptions != validOptions) {
-                newSelectedOptions.clear()
-                newSelectedOptions.addAll(validOptions)
+    val endOfListReached by remember {
+        derivedStateOf { columnState.isScrolledToEnd() }
+    }
+
+    LaunchedEffect(state.selectedOptions, isTariffValidWithOptions) {
+        launch(Dispatchers.Default) {
+            if (isTariffValidWithOptions) {
+                val validOptions = state.selectedOptions.filter { selected ->
+                    state.options.any { option ->
+                        option.name == selected.name && option.cost == selected.cost
+                    }
+                }
+
+                if (newSelectedOptions != validOptions) {
+                    newSelectedOptions.clear()
+                    newSelectedOptions.addAll(validOptions)
+                }
             }
         }
     }
+    Box {
+        state.selectedTariff?.let { tariff ->
+            LazyColumn(
+                modifier = modifier.fillMaxSize(),
+                state = columnState
+            ) {
+                item {
+                    TariffInfoSection(
+                        tariff = tariff,
+                        isDestinationsEmpty = state.destinations.isEmpty()
+                    )
+                }
 
-    state.selectedTariff?.let { tariff ->
-        LazyColumn(modifier = modifier.padding(bottom = state.footerHeight)) {
-            item {
-                TariffInfoSection(
-                    tariff = tariff,
-                    isDestinationsEmpty = state.destinations.isEmpty()
-                )
-            }
-
-            item { Spacer(modifier = Modifier.height(10.dp)) }
-
-            item {
-                InfoProvidersSection(
-                    info = state.comment,
-                    onClick = { onIntent(TariffInfoBottomSheetIntent.ClickComment) }
-                )
-            }
-
-            if (isTariffValidWithOptions) {
                 item { Spacer(modifier = Modifier.height(10.dp)) }
 
                 item {
-                    InvalidOptionsSection(
-                        clearOptions = { onIntent(TariffInfoBottomSheetIntent.ClearOptions) }
+                    InfoProvidersSection(
+                        info = state.comment,
+                        onClick = { onIntent(TariffInfoBottomSheetIntent.ClickComment) }
                     )
                 }
-            }
 
-            item { Spacer(modifier = Modifier.height(10.dp)) }
+                if (isTariffValidWithOptions) {
+                    item { Spacer(modifier = Modifier.height(10.dp)) }
 
-
-            item {
-                Column(modifier = Modifier.clip(RoundedCornerShape(30.dp))) {
-                    state.options.forEach { service ->
-                        OptionsItem(
-                            option = service,
-                            isSelected = newSelectedOptions.any {
-                                it.name == service.name && it.cost == service.cost
-                            },
-                            onChecked = { isSelected ->
-                                newSelectedOptions.toggle(service, isSelected)
-                                onIntent(
-                                    TariffInfoBottomSheetIntent.OptionsChange(
-                                        options = newSelectedOptions
-                                    )
-                                )
-                            }
+                    item {
+                        InvalidOptionsSection(
+                            clearOptions = { onIntent(TariffInfoBottomSheetIntent.ClearOptions) }
                         )
                     }
                 }
+
+                item { Spacer(modifier = Modifier.height(10.dp)) }
+
+
+                item {
+                    Column(modifier = Modifier.clip(RoundedCornerShape(30.dp))) {
+                        state.options.forEach { service ->
+                            OptionsItem(
+                                option = service,
+                                isSelected = newSelectedOptions.any {
+                                    it.name == service.name && it.cost == service.cost
+                                },
+                                onChecked = { isSelected ->
+                                    newSelectedOptions.toggle(service, isSelected)
+                                    onIntent(
+                                        TariffInfoBottomSheetIntent.OptionsChange(
+                                            options = newSelectedOptions
+                                        )
+                                    )
+                                }
+                            )
+                        }
+                    }
+                }
+
+                item { Spacer(modifier = Modifier.height(state.footerHeight)) }
             }
         }
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(20.dp)
+                .align(Alignment.BottomCenter)
+                .padding(bottom = state.footerHeight)
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            Color.Black.copy(alpha = if (endOfListReached) 0.3f else 0f),
+                            Color.Black.copy(alpha = if (endOfListReached) 0.6f else 0f)
+                        )
+                    )
+                )
+        )
     }
 }
 
 @Composable
 private fun TariffSectionBackground(
     modifier: Modifier = Modifier,
+    shape: Shape = RoundedCornerShape(30.dp),
     content: @Composable ColumnScope.() -> Unit
 ) {
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(30.dp),
+        shape = shape,
         colors = CardDefaults.cardColors(YallaTheme.color.white)
     ) {
         Column { content() }
@@ -144,7 +186,9 @@ private fun TariffInfoSection(
     tariff: Tariff,
     isDestinationsEmpty: Boolean
 ) {
-    TariffSectionBackground {
+    TariffSectionBackground(
+        shape = RoundedCornerShape(bottomStart = 30.dp, bottomEnd = 30.dp)
+    ) {
         Column(
             modifier = Modifier
                 .padding(horizontal = 20.dp)
@@ -270,4 +314,10 @@ private fun MutableList<GetTariffsModel.Tariff.Service>.toggle(
     } else {
         removeIf { it.name == item.name && it.cost == item.cost }
     }
+}
+
+private fun LazyListState.isScrolledToEnd(): Boolean {
+    val lastVisibleItem = layoutInfo.visibleItemsInfo.lastOrNull() ?: return false
+    return lastVisibleItem.index == layoutInfo.totalItemsCount - 1 &&
+            lastVisibleItem.offset + lastVisibleItem.size <= layoutInfo.viewportEndOffset
 }

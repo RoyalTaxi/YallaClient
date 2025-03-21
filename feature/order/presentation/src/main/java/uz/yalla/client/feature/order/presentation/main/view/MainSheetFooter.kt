@@ -13,6 +13,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -33,8 +35,10 @@ fun MainSheetFooter(
     isTariffValidWithOptions: Boolean,
     sheetState: BottomSheetState<SheetValue>,
     state: MainSheetState,
-    onIntent: (FooterIntent) -> Unit
+    onIntent: (FooterIntent) -> Unit,
+    modifier: Modifier = Modifier
 ) {
+    val density = LocalDensity.current
     val primaryButtonText = when {
         isTariffValidWithOptions -> stringResource(R.string.options_not_valid)
         state.isSecondaryAddressMandatory && state.destinations.isEmpty() -> stringResource(R.string.required_second_address)
@@ -44,8 +48,16 @@ fun MainSheetFooter(
     Row(
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
+        modifier = modifier
             .height(IntrinsicSize.Min)
+            .onSizeChanged {
+                with(density) {
+                    it.height.toDp().let { height ->
+                        if (height != state.footerHeight)
+                            onIntent(FooterIntent.SetFooterHeight(height))
+                    }
+                }
+            }
             .padding(top = 10.dp)
             .background(
                 YallaTheme.color.white,
@@ -53,6 +65,7 @@ fun MainSheetFooter(
             )
             .navigationBarsPadding()
             .padding(20.dp)
+
     ) {
         OptionsButton(
             modifier = Modifier.fillMaxHeight(),

@@ -85,9 +85,9 @@ fun OfflineScreen() {
             elevation = ButtonDefaults.buttonElevation(0.dp)
         ) {
             Text(
-                text = stringResource(R.string.repeat),
+                text = stringResource(R.string.repeat).uppercase(),
                 style = YallaTheme.font.labelLarge,
-                color = YallaTheme.color.primary
+                color = YallaTheme.color.primary,
             )
         }
 

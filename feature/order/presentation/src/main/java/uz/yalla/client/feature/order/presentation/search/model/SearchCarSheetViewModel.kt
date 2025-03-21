@@ -2,6 +2,7 @@ package uz.yalla.client.feature.order.presentation.search.model
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -22,7 +23,7 @@ class SearchCarSheetViewModel(
     val uiState = _uiState.asStateFlow()
 
     fun onIntent(intent: SearchCarSheetIntent) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             mutableIntentFlow.emit(intent)
         }
     }
@@ -30,7 +31,7 @@ class SearchCarSheetViewModel(
     fun searchCar() {
         val point = uiState.value.searchingAddressPoint ?: return
         val tariffId = uiState.value.tariffId ?: return
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             searchCarUseCase(
                 lat = point.lat,
                 lng = point.lng,
@@ -43,7 +44,7 @@ class SearchCarSheetViewModel(
     }
 
     fun getSetting() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             getSettingUseCase().onSuccess { setting ->
                 _uiState.update { it.copy(setting = setting) }
             }
@@ -52,7 +53,7 @@ class SearchCarSheetViewModel(
 
     fun cancelRide() {
         val orderId = uiState.value.orderId ?: return
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             cancelRideUseCase(orderId).onSuccess {
                 onIntent(SearchCarSheetIntent.OnCancelled)
             }

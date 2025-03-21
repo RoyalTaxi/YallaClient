@@ -2,6 +2,7 @@ package uz.yalla.client.core.common.sheet.search_address
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -24,17 +25,17 @@ class SearchByNameBottomSheetViewModel(
     private val _uiState = MutableStateFlow(SearchByNameBottomSheetState())
     val uiState = _uiState.asStateFlow()
 
-    fun fetchPolygons() = viewModelScope.launch {
+    fun fetchPolygons() = viewModelScope.launch(Dispatchers.IO) {
         getPolygonUseCase().onSuccess {result-> addresses = result }
     }
 
-    private fun searchForAddress(lat: Double, lng: Double, query: String) = viewModelScope.launch {
+    private fun searchForAddress(lat: Double, lng: Double, query: String) = viewModelScope.launch(Dispatchers.IO) {
         searchAddressUseCase(lat, lng, query).onSuccess {result->
             setFoundAddresses(result)
         }.onFailure { setFoundAddresses(emptyList()) }
     }
 
-    fun findAllMapAddresses() = viewModelScope.launch {
+    fun findAllMapAddresses() = viewModelScope.launch(Dispatchers.IO) {
         findAllMapPlacesUseCase()
             .onSuccess { result->setMapAddresses(result) }
             .onFailure { setMapAddresses(emptyList()) }
