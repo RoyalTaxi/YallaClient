@@ -8,11 +8,11 @@ import uz.ildam.technologies.yalla.android.connectivity.ConnectivityObserver
 import uz.yalla.client.feature.auth.di.Auth
 import uz.yalla.client.feature.contact.di.Contact
 import uz.yalla.client.feature.history.di.History
-import uz.yalla.client.feature.info.di.Info
+import uz.yalla.client.feature.info.about_app.di.Info
 import uz.yalla.client.feature.intro.di.Intro
 import uz.yalla.client.feature.payment.di.Payment
 import uz.yalla.client.feature.places.di.Places
-import uz.yalla.client.feature.profile.di.Profile
+import uz.yalla.client.feature.di.Profile
 import uz.yalla.client.feature.setting.di.Setting
 import uz.yalla.client.feature.map.presentation.di.Map
 import uz.yalla.client.feature.order.presentation.di.Order

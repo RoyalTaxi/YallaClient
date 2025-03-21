@@ -13,32 +13,32 @@ import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.core.presentation.navigation.safePopBackStack
 import uz.yalla.client.feature.auth.authModule
 import uz.yalla.client.feature.auth.navigateToAuthModule
-import uz.yalla.client.feature.contact.contactModule
-import uz.yalla.client.feature.contact.navigateToContactModule
+import uz.yalla.client.feature.contact.navigation.contactUsScreen
+import uz.yalla.client.feature.contact.navigation.navigateToContactUsScreen
+import uz.yalla.client.feature.edit_profile.navigation.editProfileScreen
+import uz.yalla.client.feature.edit_profile.navigation.navigateToEditProfileScreen
 import uz.yalla.client.feature.history.historyModule
 import uz.yalla.client.feature.history.navigateToHistoryModule
-import uz.yalla.client.feature.info.infoModule
-import uz.yalla.client.feature.info.navigateToInfoModule
+import uz.yalla.client.feature.info.about_app.navigation.aboutAppScreen
+import uz.yalla.client.feature.info.about_app.navigation.navigateToAboutAppScreen
 import uz.yalla.client.feature.intro.INTRO_ROUTE
 import uz.yalla.client.feature.intro.introModule
 import uz.yalla.client.feature.intro.navigateToIntroModel
-import uz.yalla.client.feature.payment.navigateToPaymentModule
-import uz.yalla.client.feature.payment.paymentModule
-import uz.yalla.client.feature.places.addressModule
-import uz.yalla.client.feature.places.navigateToAddressModule
-import uz.yalla.client.feature.profile.navigateToProfileModule
-import uz.yalla.client.feature.profile.profileModule
-import uz.yalla.client.feature.setting.navigateToSettingModule
-import uz.yalla.client.feature.setting.settingsModule
-import uz.yalla.client.feature.web.navigateToWebScreen
-import uz.yalla.client.feature.web.webScreen
 import uz.yalla.client.feature.map.presentation.navigation.MAP_ROUTE
 import uz.yalla.client.feature.map.presentation.navigation.mapScreen
 import uz.yalla.client.feature.map.presentation.navigation.navigateToMapScreen
 import uz.yalla.client.feature.order.presentation.cancel.cancelReasonScreen
 import uz.yalla.client.feature.order.presentation.cancel.navigateToCancelReasonScreen
+import uz.yalla.client.feature.payment.navigateToPaymentModule
+import uz.yalla.client.feature.payment.paymentModule
+import uz.yalla.client.feature.places.addressModule
+import uz.yalla.client.feature.places.navigateToAddressModule
 import uz.yalla.client.feature.registration.presentation.navigation.navigateToRegistrationScreen
 import uz.yalla.client.feature.registration.presentation.navigation.registrationScreen
+import uz.yalla.client.feature.setting.navigation.navigateToSettings
+import uz.yalla.client.feature.setting.navigation.settingsScreen
+import uz.yalla.client.feature.web.navigateToWebScreen
+import uz.yalla.client.feature.web.webScreen
 
 @Composable
 fun Navigation(
@@ -83,16 +83,16 @@ fun Navigation(
         )
 
         mapScreen(
-            onProfileClick = navController::navigateToProfileModule,
+            onProfileClick = navController::navigateToEditProfileScreen,
             onOrderHistoryClick = navController::navigateToHistoryModule,
             onPaymentTypeClick = navController::navigateToPaymentModule,
             onAddressesClick = navController::navigateToAddressModule,
-            onSettingsClick = navController::navigateToSettingModule,
+            onSettingsClick = navController::navigateToSettings,
             onPermissionDenied = navController::navigateToIntroModel,
             onCancel = navController::navigateToCancelReasonScreen,
             onAddNewCard = navController::navigateToPaymentModule,
-            onAboutAppClick = navController::navigateToInfoModule,
-            onContactUsClick = navController::navigateToContactModule,
+            onAboutAppClick = navController::navigateToAboutAppScreen,
+            onContactUsClick = navController::navigateToContactUsScreen,
             becomeDriverClick = navController::navigateToWebScreen,
             inviteFriendClick = navController::navigateToWebScreen
         )
@@ -113,8 +113,8 @@ fun Navigation(
             navController = navController
         )
 
-        profileModule(
-            navController = navController,
+        editProfileScreen(
+            onNavigateBack = navController::safePopBackStack,
             onNavigateToStart = {
                 navController.navigateToIntroModel(
                     navOptions {
@@ -125,17 +125,17 @@ fun Navigation(
             }
         )
 
-        settingsModule(
-            navController = navController
+        settingsScreen(
+            onNavigateBack = navController::safePopBackStack
         )
 
-        infoModule(
-            navController = navController,
+        aboutAppScreen(
+            onBack = navController::safePopBackStack,
             onClickUrl = navController::navigateToWebScreen
         )
 
-        contactModule(
-            navController = navController,
+        contactUsScreen(
+            onBack = navController::safePopBackStack,
             onClickUrl = navController::navigateToWebScreen
         )
 

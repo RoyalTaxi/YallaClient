@@ -36,19 +36,22 @@ internal fun PermissionScreen(
                 .fillMaxSize()
                 .verticalScroll(scrollState)
         ) {
-            PermissionContent(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(43.dp))
 
-            PermissionFooter(onClickPermission = { onIntent(PermissionIntent.GrantPermission) })
+            PermissionContent()
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Spacer(modifier = Modifier.height(56.dp))
+
+            PermissionFooter { onIntent(PermissionIntent.GrantPermission) }
         }
     }
 }
 
 @Composable
-private fun PermissionContent(
-    modifier: Modifier = Modifier
-) {
-    Spacer(modifier = Modifier.height(43.dp))
-
+private fun PermissionContent ()
+{
     Image(
         painter = painterResource(id = R.drawable.img_onboarding_4),
         contentDescription = null,
@@ -72,16 +75,12 @@ private fun PermissionContent(
         style = YallaTheme.font.body,
         modifier = Modifier.padding(horizontal = 20.dp)
     )
-
-    Spacer(modifier = modifier)
 }
 
 @Composable
 private fun PermissionFooter(
     onClickPermission: () -> Unit
 ) {
-    Spacer(modifier = Modifier.height(56.dp))
-
     PrimaryButton(
         text = stringResource(id = R.string.next),
         onClick = onClickPermission,

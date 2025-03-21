@@ -34,7 +34,6 @@ import uz.yalla.client.feature.payment.corporate_account.pages.AddBankDetailsPag
 import uz.yalla.client.feature.payment.corporate_account.pages.AddCompanyPage
 import uz.yalla.client.feature.payment.corporate_account.pages.AddLegalAddressPage
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun CorporateAccountScreen(
     uiState: CorporateAccountUIState,
@@ -42,84 +41,139 @@ internal fun CorporateAccountScreen(
     onIntent: (CorporateAccountIntent) -> Unit,
     onNavigateBack: () -> Unit
 ) {
-
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         containerColor = YallaTheme.color.white,
         modifier = Modifier.imePadding(),
-        topBar = {
-            TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(YallaTheme.color.white),
-                navigationIcon = {
-                    IconButton(
-                        onClick = onNavigateBack
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
-                },
-                title = {}
-            )
-        },
-        content = {paddingValues ->
-            Column(
+        topBar = { CorporateTopBar( onNavigateBack ) },
+        content = { paddingValues ->
+            CorporateContent(
+                uiState = uiState,
+                pagerState = pagerState,
+                onIntent = onIntent,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues)
-            ) {
-
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    PagerIndicator(
-                        pageCount = pagerState.pageCount,
-                        pagerState = pagerState,
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                HorizontalPager(
-                    state = pagerState,
-                    userScrollEnabled = false,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) { page ->
-                    when (page) {
-                        0 -> AddCompanyPage(uiState, onIntent)
-                        1 -> AddLegalAddressPage(uiState, onIntent)
-                        2 -> AddBankDetailsPage(uiState, onIntent)
+                    .padding(paddingValues),
+                onNextPage = {
+                    coroutineScope.launch {
+                        if (pagerState.currentPage < 2) {
+                            pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                        } else {
+                            onNavigateBack()
+                        }
                     }
                 }
+            )
+        }
+    )
+}
 
-                Spacer(modifier = Modifier.weight(1f))
-
-                PrimaryButton(
-                    text = stringResource(R.string.next),
-                    enabled = when (pagerState.currentPage) {
-                        0 -> uiState.isCompanyPageValid
-                        1 -> uiState.isLegalAddressPageValid
-                        2 -> uiState.isBankDetailsPageValid
-                        else -> false
-                    },
-                    onClick = {
-                        coroutineScope.launch {
-                            if (pagerState.currentPage < 2) {
-                                pagerState.animateScrollToPage(pagerState.currentPage + 1)
-                            } else {
-                                onNavigateBack()
-                            }
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp)
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CorporateTopBar(
+    onNavigateBack: () -> Unit
+) {
+    TopAppBar(
+        colors = TopAppBarDefaults.topAppBarColors(YallaTheme.color.white),
+        navigationIcon = {
+            IconButton(onClick = onNavigateBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                    contentDescription = null
                 )
             }
+        },
+        title = {}
+    )
+}
+
+@Composable
+private fun CorporateContent(
+    uiState: CorporateAccountUIState,
+    pagerState: PagerState,
+    modifier: Modifier,
+    onIntent: (CorporateAccountIntent) -> Unit,
+    onNextPage: () -> Unit
+) {
+    Column(
+        modifier = modifier
+    ) {
+        PageIndicatorSection(pagerState = pagerState)
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        CorporatePager(
+            pagerState = pagerState,
+            uiState = uiState,
+            onIntent = onIntent
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        NextButton(
+            pagerState = pagerState,
+            onClick = onNextPage,
+            isCompanyPageValid = uiState.isCompanyPageValid,
+            isBankDetailsPageValid = uiState.isBankDetailsPageValid,
+            isLegalAddressPageValid = uiState.isLegalAddressPageValid
+        )
+    }
+}
+
+@Composable
+private fun PageIndicatorSection(pagerState: PagerState) {
+    Box(
+        modifier = Modifier.fillMaxWidth(),
+        contentAlignment = Alignment.Center
+    ) {
+        PagerIndicator(
+            pageCount = pagerState.pageCount,
+            pagerState = pagerState,
+        )
+    }
+}
+
+@Composable
+private fun CorporatePager(
+    pagerState: PagerState,
+    uiState: CorporateAccountUIState,
+    onIntent: (CorporateAccountIntent) -> Unit
+) {
+    HorizontalPager(
+        state = pagerState,
+        userScrollEnabled = false,
+        modifier = Modifier.fillMaxWidth()
+    ) { page ->
+        when (page) {
+            0 -> AddCompanyPage(uiState, onIntent)
+            1 -> AddLegalAddressPage(uiState, onIntent)
+            2 -> AddBankDetailsPage(uiState, onIntent)
         }
+    }
+}
+
+@Composable
+private fun NextButton(
+    pagerState: PagerState,
+    isCompanyPageValid: Boolean,
+    isLegalAddressPageValid: Boolean,
+    isBankDetailsPageValid: Boolean,
+    onClick: () -> Unit
+) {
+    val buttonEnabled = when (pagerState.currentPage) {
+        0 -> isCompanyPageValid
+        1 -> isLegalAddressPageValid
+        2 -> isBankDetailsPageValid
+        else -> false
+    }
+
+    PrimaryButton(
+        text = stringResource(R.string.next),
+        enabled = buttonEnabled,
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(20.dp)
     )
 }

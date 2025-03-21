@@ -53,7 +53,6 @@ internal fun RegistrationRoute(
 
     RegistrationScreen(
         uiState = uiState,
-        sheetState = sheetState,
         onIntent = { intent ->
             when (intent) {
                 is RegistrationIntent.CloseDateBottomSheet -> scope.launch { sheetState.bottomSheetState.hide() }

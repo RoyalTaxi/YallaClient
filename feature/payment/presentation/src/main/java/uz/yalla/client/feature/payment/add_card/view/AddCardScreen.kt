@@ -26,7 +26,6 @@ import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.payment.R
 import uz.yalla.client.feature.payment.add_card.components.CardViewCard
 import uz.yalla.client.feature.payment.add_card.model.AddCardUIState
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun AddCardScreen(
     uiState: AddCardUIState,
@@ -35,26 +34,7 @@ internal fun AddCardScreen(
     Scaffold(
         containerColor = YallaTheme.color.white,
         modifier = Modifier.imePadding(),
-        topBar = {
-            CenterAlignedTopAppBar(
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
-                title = {
-                    Text(
-                        text = stringResource(R.string.new_card),
-                        color = YallaTheme.color.black,
-                        style = YallaTheme.font.labelLarge
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = { onIntent(AddCardIntent.OnNavigateBack) }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
-                }
-            )
-        },
+        topBar = { AddCardTopBar { onIntent(AddCardIntent.OnNavigateBack) } },
         content = { paddingValues ->
             Column(
                 modifier = Modifier
@@ -65,23 +45,70 @@ internal fun AddCardScreen(
             ) {
                 Spacer(modifier = Modifier.height(20.dp))
 
-                CardViewCard(
-                    cardNumber = uiState.cardNumber,
-                    cardDate = uiState.cardExpiry,
-                    onCardNumberChange = { onIntent(AddCardIntent.SetCardNumber(it)) },
-                    onCardDateChange = { onIntent(AddCardIntent.SetExpiryDate(it)) },
-                    onClickCamera = { onIntent(AddCardIntent.OnClickScanCard) }
+                AddCardContent(
+                    uiState = uiState,
+                    onIntent = onIntent
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                PrimaryButton (
-                    text = stringResource(R.string.link_card),
-                    enabled = uiState.buttonState,
-                    onClick = { onIntent(AddCardIntent.OnClickLinkCard) },
-                    modifier = Modifier.fillMaxWidth()
+                AddCardFooter(
+                    buttonState = uiState.buttonState,
+                    onClickCard = { onIntent(AddCardIntent.OnClickLinkCard) },
                 )
             }
         }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AddCardTopBar(
+    onNavigateBack: () -> Unit
+) {
+    CenterAlignedTopAppBar(
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
+        title = {
+            Text(
+                text = stringResource(R.string.new_card),
+                color = YallaTheme.color.black,
+                style = YallaTheme.font.labelLarge
+            )
+        },
+        navigationIcon = {
+            IconButton(onClick = onNavigateBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                    contentDescription = null
+                )
+            }
+        }
+    )
+}
+
+@Composable
+private fun AddCardContent(
+    uiState: AddCardUIState,
+    onIntent: (AddCardIntent) -> Unit
+) {
+    CardViewCard(
+        cardNumber = uiState.cardNumber,
+        cardDate = uiState.cardExpiry,
+        onCardNumberChange = { onIntent(AddCardIntent.SetCardNumber(it)) },
+        onCardDateChange = { onIntent(AddCardIntent.SetExpiryDate(it)) },
+        onClickCamera = { onIntent(AddCardIntent.OnClickScanCard) }
+    )
+}
+
+@Composable
+fun AddCardFooter(
+    buttonState: Boolean,
+    onClickCard: () -> Unit,
+) {
+    PrimaryButton (
+        text = stringResource(R.string.link_card),
+        enabled = buttonState,
+        onClick = onClickCard,
+        modifier = Modifier.fillMaxWidth()
     )
 }

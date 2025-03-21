@@ -9,7 +9,7 @@ import uz.yalla.client.feature.info.about_app.view.AboutAppRoute
 
 internal const val ABOUT_APP_ROUTE = "about_app_route"
 
-internal fun NavGraphBuilder.aboutAppScreen(
+fun NavGraphBuilder.aboutAppScreen(
     onBack: () -> Unit,
     onClickUrl: (String, String) -> Unit
 ) {

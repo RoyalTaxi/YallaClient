@@ -19,7 +19,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.feature.history.R
@@ -28,7 +27,6 @@ import uz.yalla.client.feature.history.history_details.model.HistoryDetailsUISta
 import uz.yalla.client.core.common.map.MapStrategy
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun HistoryDetailsScreen(
     uiState: HistoryDetailsUIState,
@@ -38,26 +36,7 @@ internal fun HistoryDetailsScreen(
 ) {
     Scaffold(
         containerColor = YallaTheme.color.white,
-        topBar = {
-            CenterAlignedTopAppBar(
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
-                navigationIcon = {
-                    IconButton(onClick = { onIntent(HistoryDetailsIntent.NavigateBack) }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
-                },
-                title = {
-                    Text(
-                        text = stringResource(R.string.order_details),
-                        color = YallaTheme.color.black,
-                        style = YallaTheme.font.labelLarge
-                    )
-                }
-            )
-        },
+        topBar = { HistoryDetailsTopApp { onIntent(HistoryDetailsIntent.NavigateBack) } },
         content = { paddingValues ->
             Column(
                 modifier = Modifier
@@ -65,19 +44,46 @@ internal fun HistoryDetailsScreen(
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
             ) {
-                if (loading.not()) map.Map(
-                    startingPoint = null,
-                    contentPadding = PaddingValues(0.dp),
-                    enabled = false,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(1f)
-                )
+                if (loading.not()) {
+                    map.Map(
+                        startingPoint = null,
+                        contentPadding = PaddingValues(0.dp),
+                        enabled = false,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(1f)
+                    )
+                }
 
                 uiState.orderDetails?.let {
                     OrderDetailsBottomSheet(order = it)
                 }
             }
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HistoryDetailsTopApp(
+    onNavigateBack: () -> Unit
+) {
+    CenterAlignedTopAppBar(
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
+        navigationIcon = {
+            IconButton(onClick = onNavigateBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                    contentDescription = null
+                )
+            }
+        },
+        title = {
+            Text(
+                text = stringResource(R.string.order_details),
+                color = YallaTheme.color.black,
+                style = YallaTheme.font.labelLarge
+            )
         }
     )
 }

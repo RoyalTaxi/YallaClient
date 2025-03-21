@@ -9,6 +9,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,8 +31,33 @@ import uz.yalla.client.core.common.date_picker.WheelPickerDefaults
 import uz.yalla.client.core.common.formation.formatWithDashesDMY
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DatePickerBottomSheet(
+fun DatePickerModalBottomSheet(
+    sheetState: SheetState,
+    startDate: LocalDate,
+    onSelectDate: (LocalDate) -> Unit,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest,
+        sheetState = sheetState,
+        containerColor = YallaTheme.color.white,
+        contentColor = YallaTheme.color.black,
+        dragHandle = null,
+        modifier = modifier
+    ) {
+        DatePickerContent(
+            startDate = startDate,
+            onSelectDate = onSelectDate,
+            onDismissRequest = onDismissRequest
+        )
+    }
+}
+
+@Composable
+private fun DatePickerContent(
     startDate: LocalDate,
     onSelectDate: (LocalDate) -> Unit,
     onDismissRequest: () -> Unit,
@@ -39,7 +67,10 @@ fun DatePickerBottomSheet(
 
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp),
-        modifier = modifier.navigationBarsPadding()
+        modifier = modifier
+            .navigationBarsPadding()
+            .padding(horizontal = 16.dp)
+            .padding(bottom = 16.dp)
     ) {
         Card(
             colors = CardDefaults.cardColors(YallaTheme.color.white),

@@ -32,11 +32,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.common.item.OrderOptionsItem
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
+import uz.yalla.client.feature.order.domain.model.response.PlaceModel
 import uz.yalla.client.feature.places.places.model.AddressesUIState
 import uz.yalla.client.feature.places.presentation.R
 import uz.yalla.client.feature.order.domain.model.type.PlaceType
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 internal fun AddressesScreen(
     uiState: AddressesUIState,
@@ -50,150 +50,193 @@ internal fun AddressesScreen(
             .background(YallaTheme.color.white)
             .imePadding()
             .navigationBarsPadding(),
-        topBar = {
-            TopAppBar(
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
-                title = {},
-                navigationIcon = {
-                    IconButton(onClick = { onIntent(AddressesIntent.OnNavigateBack) }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
-                }
+        topBar = { AddressesTopBar { onIntent(AddressesIntent.OnNavigateBack) } },
+        content = { paddingValue ->
+            AddressesContent(
+                modifier = Modifier.padding(paddingValue),
+                addresses = uiState.addresses,
+                onAddNewAddress = { type -> onIntent(AddressesIntent.OnAddNewAddress(type)) },
+                onClickAddress = { id, type -> onIntent(AddressesIntent.OnClickAddress(id, type)) }
             )
         },
-        content = { paddingValue ->
-            LazyColumn(modifier = Modifier.padding(paddingValue)) {
-                stickyHeader {
-                    Spacer(modifier = Modifier.height(40.dp))
-
-                    Text(
-                        text = stringResource(R.string.my_places),
-                        color = YallaTheme.color.black,
-                        style = YallaTheme.font.headline,
-                        modifier = Modifier.padding(start = 20.dp, end = 60.dp)
-                    )
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    Text(
-                        text = stringResource(R.string.my_places_desc),
-                        color = YallaTheme.color.black,
-                        style = YallaTheme.font.body,
-                        modifier = Modifier.padding(start = 20.dp, end = 60.dp)
-                    )
-
-                    Spacer(modifier = Modifier.height(20.dp))
-                }
-
-                item {
-                    OrderOptionsItem(
-                        title = stringResource(R.string.add_home_address),
-                        leadingIcon = {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_home),
-                                contentDescription = null,
-                                tint = YallaTheme.color.gray
-                            )
-
-                            Spacer(modifier = Modifier.width(16.dp))
-                        },
-                        trailingIcon = {
-                            Spacer(modifier = Modifier.width(16.dp))
-
-                            Icon(
-                                painter = painterResource(R.drawable.ic_add),
-                                contentDescription = null,
-                                tint = YallaTheme.color.gray
-                            )
-                        },
-                        onClick = { onIntent(AddressesIntent.OnAddNewAddress(PlaceType.HOME)) }
-                    )
-
-                    OrderOptionsItem(
-                        title = stringResource(R.string.add_work_address),
-                        leadingIcon = {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_work),
-                                contentDescription = null,
-                                tint = YallaTheme.color.gray
-                            )
-
-                            Spacer(modifier = Modifier.width(16.dp))
-                        },
-                        trailingIcon = {
-                            Spacer(modifier = Modifier.width(16.dp))
-
-                            Icon(
-                                painter = painterResource(R.drawable.ic_add),
-                                contentDescription = null,
-                                tint = YallaTheme.color.gray
-                            )
-                        },
-                        onClick = { onIntent(AddressesIntent.OnAddNewAddress(PlaceType.WORK)) }
-                    )
-                }
-
-                uiState.addresses?.let { addresses ->
-                    items(
-                        items = addresses,
-                        key = { it.id }
-                    ) { address ->
-                        OrderOptionsItem(
-                            title = address.name,
-                            description = address.address,
-                            leadingIcon = {
-                                Icon(
-                                    contentDescription = null,
-                                    tint = YallaTheme.color.gray,
-                                    painter = painterResource(
-                                        when (address.type) {
-                                            PlaceType.HOME -> R.drawable.ic_home
-                                            PlaceType.WORK -> R.drawable.ic_work
-                                            PlaceType.OTHER -> R.drawable.ic_other
-                                        }
-                                    )
-                                )
-
-                                Spacer(modifier = Modifier.width(16.dp))
-                            },
-                            trailingIcon = {
-                                Spacer(modifier = Modifier.width(16.dp))
-
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
-                                    contentDescription = null,
-                                    tint = YallaTheme.color.gray
-                                )
-                            },
-                            onClick = {
-                                onIntent(
-                                    AddressesIntent.OnClickAddress(
-                                        address.id,
-                                        address.type
-                                    )
-                                )
-                            }
-                        )
-                    }
-                }
-            }
-        },
         floatingActionButton = {
-            FloatingActionButton(
-                shape = CircleShape,
-                containerColor = YallaTheme.color.black,
-                onClick = { onIntent(AddressesIntent.OnAddNewAddress(PlaceType.OTHER)) },
-                modifier = Modifier.padding(20.dp),
-                content = {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = null,
-                        tint = YallaTheme.color.white
-                    )
-                }
+            AddAddressButton { onIntent(AddressesIntent.OnAddNewAddress(PlaceType.OTHER)) }
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AddressesTopBar(
+    onNavigateBack: () -> Unit
+) {
+    TopAppBar(
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
+        title = {},
+        navigationIcon = {
+            IconButton(onClick = onNavigateBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                    contentDescription = null
+                )
+            }
+        }
+    )
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun AddressesContent(
+    modifier: Modifier,
+    addresses: List<PlaceModel>?,
+    onAddNewAddress: (PlaceType) -> Unit,
+    onClickAddress: (Int, PlaceType) -> Unit
+) {
+    LazyColumn(modifier = modifier) {
+        stickyHeader {
+            Spacer(modifier = Modifier.height(40.dp))
+
+            AddressesHeader()
+
+            Spacer(modifier = Modifier.height(20.dp))
+        }
+
+        item {
+            AddDefaultAddressItems(
+                onAddHomeAddress = { onAddNewAddress(PlaceType.HOME) },
+                onAddWorkAddress = { onAddNewAddress(PlaceType.WORK) }
+            )
+        }
+
+        addresses?.let { addressList ->
+            items(
+                items = addressList,
+                key = { it.id }
+            ) { address ->
+                AddressItem(
+                    address = address,
+                    onClick = { onClickAddress(address.id, address.type) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AddressesHeader() {
+    Text(
+        text = stringResource(R.string.my_places),
+        color = YallaTheme.color.black,
+        style = YallaTheme.font.headline,
+        modifier = Modifier.padding(start = 20.dp, end = 60.dp)
+    )
+
+    Spacer(modifier = Modifier.height(20.dp))
+
+    Text(
+        text = stringResource(R.string.my_places_desc),
+        color = YallaTheme.color.black,
+        style = YallaTheme.font.body,
+        modifier = Modifier.padding(start = 20.dp, end = 60.dp)
+    )
+}
+
+@Composable
+private fun AddDefaultAddressItems(
+    onAddHomeAddress: () -> Unit,
+    onAddWorkAddress: () -> Unit
+) {
+    OrderOptionsItem(
+        title = stringResource(R.string.add_home_address),
+        leadingIcon = {
+            Icon(
+                painter = painterResource(R.drawable.ic_home),
+                contentDescription = null,
+                tint = YallaTheme.color.gray
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+        },
+        trailingIcon = {
+            Spacer(modifier = Modifier.width(16.dp))
+            Icon(
+                painter = painterResource(R.drawable.ic_add),
+                contentDescription = null,
+                tint = YallaTheme.color.gray
+            )
+        },
+        onClick = onAddHomeAddress
+    )
+
+    OrderOptionsItem(
+        title = stringResource(R.string.add_work_address),
+        leadingIcon = {
+            Icon(
+                painter = painterResource(R.drawable.ic_work),
+                contentDescription = null,
+                tint = YallaTheme.color.gray
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+        },
+        trailingIcon = {
+            Spacer(modifier = Modifier.width(16.dp))
+            Icon(
+                painter = painterResource(R.drawable.ic_add),
+                contentDescription = null,
+                tint = YallaTheme.color.gray
+            )
+        },
+        onClick = onAddWorkAddress
+    )
+}
+
+@Composable
+private fun AddressItem(
+    address: PlaceModel,
+    onClick: () -> Unit
+) {
+    OrderOptionsItem(
+        title = address.name,
+        description = address.address,
+        leadingIcon = {
+            Icon(
+                contentDescription = null,
+                tint = YallaTheme.color.gray,
+                painter = painterResource(
+                    when (address.type) {
+                        PlaceType.HOME -> R.drawable.ic_home
+                        PlaceType.WORK -> R.drawable.ic_work
+                        PlaceType.OTHER -> R.drawable.ic_other
+                    }
+                )
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+        },
+        trailingIcon = {
+            Spacer(modifier = Modifier.width(16.dp))
+            Icon(
+                imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
+                contentDescription = null,
+                tint = YallaTheme.color.gray
+            )
+        },
+        onClick = onClick
+    )
+}
+
+@Composable
+private fun AddAddressButton(
+    onClick: () -> Unit
+) {
+    FloatingActionButton(
+        shape = CircleShape,
+        containerColor = YallaTheme.color.black,
+        onClick = onClick,
+        modifier = Modifier.padding(20.dp),
+        content = {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = null,
+                tint = YallaTheme.color.white
             )
         }
     )

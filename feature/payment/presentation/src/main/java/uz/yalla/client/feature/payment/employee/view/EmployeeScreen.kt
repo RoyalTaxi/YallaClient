@@ -22,71 +22,90 @@ import uz.yalla.client.feature.payment.R
 import uz.yalla.client.feature.payment.business_account.components.EmployeeItem
 import uz.yalla.client.feature.payment.employee.component.BalanceCard
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun EmployeeScreen(
     onIntent: (EmployeeIntent) -> Unit
 ) {
     Scaffold(
         containerColor = YallaTheme.color.white,
-        topBar = {
-            CenterAlignedTopAppBar(
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
-                title = {
-                    Text(
-                        text = stringResource(R.string.employees),
-                        color = YallaTheme.color.black,
-                        style = YallaTheme.font.labelLarge
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = {onIntent(EmployeeIntent.OnNavigateBack)}) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
-                }
+        topBar = { EmployeeTopBar { onIntent(EmployeeIntent.OnNavigateBack) } },
+        content = { paddingValues ->
+            EmployeeContent(
+                modifier = Modifier.padding(paddingValues),
+                onAddBalance = { onIntent(EmployeeIntent.AddBalance) }
+            )
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun EmployeeTopBar(
+    onNavigateBack: () -> Unit
+) {
+    CenterAlignedTopAppBar(
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
+        title = {
+            Text(
+                text = stringResource(R.string.employees),
+                color = YallaTheme.color.black,
+                style = YallaTheme.font.labelLarge
             )
         },
-        content = { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(paddingValues)
-            ) {
-
-                EmployeeItem(
-                    name = "Икромов Сардор",
-                    phoneNumber = "+998991234567",
-                    onClick = {},
-                    onChecked = {},
-                    isSelected = true
+        navigationIcon = {
+            IconButton(onClick = onNavigateBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                    contentDescription = null
                 )
-
-                Column(modifier = Modifier.padding(20.dp)) {
-                    BalanceCard(
-                        balance = "24 000 so'm",
-                        addBalance = { onIntent(EmployeeIntent.AddBalance) },
-                    )
-
-                    Text(
-                        text = stringResource(R.string.today),
-                        color = YallaTheme.color.black,
-                        style = YallaTheme.font.title2,
-                        modifier = Modifier.padding(vertical = 20.dp)
-                    )
-
-                    HistoryOrderItem(
-                        firstAddress = "Ул. Сайлгох 124",
-                        secondAddress = "ул. Мустакиллик 124",
-                        time = "15:00",
-                        totalPrice = "16 000",
-                        status = "",
-                        onClick = {}
-                    )
-                }
             }
         }
+    )
+}
+
+@Composable
+private fun EmployeeContent(
+    modifier: Modifier,
+    onAddBalance: () -> Unit
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+    ) {
+        EmployeeItem(
+            name = "Икромов Сардор",
+            phoneNumber = "+998991234567",
+            onClick = {},
+            onChecked = {},
+            isSelected = true
+        )
+
+        Column(modifier = Modifier.padding(20.dp)) {
+            BalanceCard(
+                balance = "24 000 so'm",
+                addBalance = onAddBalance,
+            )
+
+            EmployeeHistorySection()
+        }
+    }
+}
+
+@Composable
+private fun EmployeeHistorySection() {
+    Text(
+        text = stringResource(R.string.today),
+        color = YallaTheme.color.black,
+        style = YallaTheme.font.title2,
+        modifier = Modifier.padding(vertical = 20.dp)
+    )
+
+    HistoryOrderItem(
+        firstAddress = "Ул. Сайлгох 124",
+        secondAddress = "ул. Мустакиллик 124",
+        time = "15:00",
+        totalPrice = "16 000",
+        status = "",
+        onClick = {}
     )
 }

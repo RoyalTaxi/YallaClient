@@ -46,7 +46,7 @@ internal fun VerificationScreen(
         containerColor = YallaTheme.color.white,
         modifier = Modifier.imePadding(),
         topBar = {
-            LoginAppBar(onNavigateBack = { onIntent(VerificationIntent.NavigateBack) })
+            LoginAppBar { onIntent(VerificationIntent.NavigateBack) }
         },
         content = { paddingValues ->
             Column(
@@ -55,18 +55,17 @@ internal fun VerificationScreen(
                     .padding(paddingValues)
                     .padding(20.dp)
             ) {
+                Spacer(modifier = Modifier.height(20.dp))
+
                 LoginContent(
-                    number = uiState.number,
-                    code = uiState.code,
-                    hasRemainingTime = uiState.hasRemainingTime,
-                    remainingMinutes = uiState.remainingMinutes,
-                    remainingSeconds = uiState.remainingSeconds,
+                    uiState = uiState,
                     sendCode = { onIntent(VerificationIntent.SetCode(it)) },
                     reSendCode = { onIntent(VerificationIntent.ResendCode(uiState.number)) }
                 )
 
+                Spacer(modifier = Modifier.weight(1f))
+
                 LoginFooter(
-                    modifier = Modifier.weight(1f),
                     primaryButtonState = uiState.buttonState,
                     onVerifyCode = {
                         onIntent(
@@ -106,16 +105,10 @@ private fun LoginAppBar(
 
 @Composable
 private fun LoginContent(
-    number: String,
-    code: String,
-    hasRemainingTime: Boolean,
-    remainingMinutes: Int,
-    remainingSeconds: Int,
+    uiState: VerificationUIState,
     sendCode: (String) -> Unit,
     reSendCode: () -> Unit
 ) {
-    Spacer(modifier = Modifier.height(20.dp))
-
     Text(
         text = stringResource(id = R.string.enter_otp),
         color = YallaTheme.color.black,
@@ -125,7 +118,7 @@ private fun LoginContent(
     Spacer(modifier = Modifier.height(20.dp))
 
     Text(
-        text = stringResource(id = R.string.enter_otp_definition, number),
+        text = stringResource(id = R.string.enter_otp_definition, uiState.number),
         color = YallaTheme.color.gray,
         style = YallaTheme.font.body
     )
@@ -134,7 +127,7 @@ private fun LoginContent(
 
     OtpView(
         modifier = Modifier.fillMaxWidth(),
-        otpText = code,
+        otpText = uiState.code,
         onOtpTextChange = { sendCode(it) }
     )
 
@@ -143,21 +136,21 @@ private fun LoginContent(
     Text(
         color = YallaTheme.color.gray,
         style = YallaTheme.font.body,
-        text = if (hasRemainingTime) {
+        text = if (uiState.hasRemainingTime) {
             stringResource(
                 id = R.string.resend_in,
                 String.format(
                     Locale.US,
                     "%d:%02d",
-                    remainingMinutes,
-                    remainingSeconds
+                    uiState.remainingMinutes,
+                    uiState.remainingSeconds
                 )
             )
         } else {
             stringResource(id = R.string.resend)
         },
         modifier = Modifier.then(
-            if (!hasRemainingTime) {
+            if (!uiState.hasRemainingTime) {
                 Modifier.clickable(
                     onClick = reSendCode,
                     interactionSource = remember { MutableInteractionSource() },
@@ -172,10 +165,7 @@ private fun LoginContent(
 private fun LoginFooter(
     primaryButtonState: Boolean,
     onVerifyCode: () -> Unit,
-    modifier: Modifier = Modifier
 ) {
-    Spacer(modifier = modifier)
-
     PrimaryButton(
         modifier = Modifier.fillMaxWidth(),
         text = stringResource(id = R.string.next),

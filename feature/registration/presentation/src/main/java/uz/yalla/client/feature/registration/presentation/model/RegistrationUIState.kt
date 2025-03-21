@@ -7,6 +7,7 @@ internal data class RegistrationUIState(
     val secretKey: String = "",
     val firstName: String = "",
     val lastName: String = "",
+    val isDatePickerVisible: Boolean = false,
     val dateOfBirth: LocalDate? = null,
     val gender: Gender = Gender.NOT_SELECTED
 ) {

@@ -1,6 +1,7 @@
- package uz.yalla.client.feature.payment.card_list.view
+package uz.yalla.client.feature.payment.card_list.view
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -27,7 +28,6 @@ import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.payment.R
 import uz.yalla.client.feature.payment.card_list.model.CardListUIState
 
- @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun CardListScreen(
     uiState: CardListUIState,
@@ -36,115 +36,137 @@ internal fun CardListScreen(
     onIntent: (CardListIntent) -> Unit
 ) {
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {},
-                colors = TopAppBarDefaults.topAppBarColors(YallaTheme.color.white),
-                navigationIcon = {
-                    IconButton(
-                        onClick = onNavigateBack
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
-                }
-            )
-        },
+        topBar = { CardListTopBar( onNavigateBack ) },
         content = { paddingValues ->
-            LazyColumn(
+            CardListContent(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(YallaTheme.color.white)
-                    .padding(paddingValues)
-            ) {
+                    .padding(paddingValues),
+                uiState = uiState,
+                onSelectItem = onSelectItem,
+                onIntent = onIntent
+            )
+        }
+    )
+}
 
-                item { Spacer(modifier = Modifier.height(40.dp)) }
-
-                item {
-                    Text(
-                        text = stringResource(id = R.string.payment_method),
-                        color = YallaTheme.color.black,
-                        style = YallaTheme.font.headline,
-                        modifier = Modifier.padding(horizontal = 20.dp)
-                    )
-                }
-
-                item { Spacer(modifier = Modifier.height(20.dp)) }
-
-                item {
-                    Text(
-                        text = stringResource(id = R.string.choose_payment_method),
-                        color = YallaTheme.color.gray,
-                        style = YallaTheme.font.body,
-                        modifier = Modifier.padding(horizontal = 20.dp)
-                    )
-                }
-
-                item { Spacer(modifier = Modifier.height(20.dp)) }
-
-                item {
-                    SelectPaymentTypeItem(
-                        isSelected = uiState.selectedPaymentType == PaymentType.CASH,
-                        tint = YallaTheme.color.gray,
-                        text = stringResource(R.string.cash),
-                        painter = painterResource(R.drawable.ic_money),
-                        onSelect = { onSelectItem(PaymentType.CASH) }
-                    )
-                }
-
-                items(uiState.cards) { cardListItem ->
-                    SelectPaymentTypeItem(
-                        isSelected = uiState.selectedPaymentType == PaymentType.CARD(
-                            cardListItem.cardId,
-                            cardListItem.maskedPan
-                        ),
-                        painter = painterResource(
-                            id = when (cardListItem.cardId.length) {
-                                16 -> R.drawable.img_logo_humo
-                                32 -> R.drawable.img_logo_uzcard
-                                else -> R.drawable.ic_money
-                            }
-                        ),
-                        text = cardListItem.maskedPan,
-                        onSelect = {
-                            onSelectItem(
-                                PaymentType.CARD(
-                                    cardListItem.cardId,
-                                    cardListItem.maskedPan
-                                )
-                            )
-                        }
-                    )
-                }
-
-                item {
-                    SelectPaymentTypeItem(
-                        isSelected = false,
-                        tint = YallaTheme.color.gray,
-                        painter = painterResource(R.drawable.ic_add),
-                        text = stringResource(R.string.add_card),
-                        onSelect = { onIntent(CardListIntent.AddNewCard) },
-                    )
-
-//                    SelectPaymentTypeItem(
-//                        isSelected = false,
-//                        tint = YallaTheme.color.gray,
-//                        painter = painterResource(R.drawable.ic_add),
-//                        text = stringResource(R.string.add_corporate_account),
-//                        onSelect = { onIntent(CardListIntent.AddCorporateAccount) },
-//                    )
-//
-//                    SelectPaymentTypeItem(
-//                        isSelected = false,
-//                        tint = YallaTheme.color.gray,
-//                        painter = painterResource(R.drawable.ic_add),
-//                        text = stringResource(R.string.business_account),
-//                        onSelect = { onIntent(CardListIntent.AddBusinessAccount) },
-//                    )
-                }
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CardListTopBar(onNavigateBack: () -> Unit) {
+    TopAppBar(
+        title = {},
+        colors = TopAppBarDefaults.topAppBarColors(YallaTheme.color.white),
+        navigationIcon = {
+            IconButton(onClick = onNavigateBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                    contentDescription = null
+                )
             }
         }
     )
+}
+
+@Composable
+private fun CardListContent(
+    modifier: Modifier = Modifier,
+    uiState: CardListUIState,
+    onSelectItem: (PaymentType) -> Unit,
+    onIntent: (CardListIntent) -> Unit
+) {
+    LazyColumn(modifier = modifier) {
+        item { Spacer(modifier = Modifier.height(40.dp)) }
+
+        item { CardListHeader() }
+
+        item { Spacer(modifier = Modifier.height(20.dp)) }
+
+        item {
+            SelectPaymentTypeItem(
+                isSelected = uiState.selectedPaymentType == PaymentType.CASH,
+                tint = YallaTheme.color.gray,
+                text = stringResource(R.string.cash),
+                painter = painterResource(R.drawable.ic_money),
+                onSelect = { onSelectItem(PaymentType.CASH) }
+            )
+        }
+
+        items(uiState.cards) { cardListItem ->
+            SelectPaymentTypeItem(
+                isSelected = uiState.selectedPaymentType == PaymentType.CARD(
+                    cardListItem.cardId,
+                    cardListItem.maskedPan
+                ),
+                painter = painterResource(
+                    id = getCardLogo(cardListItem.cardId)
+                ),
+                text = cardListItem.maskedPan,
+                onSelect = {
+                    onSelectItem(
+                        PaymentType.CARD(
+                            cardListItem.cardId,
+                            cardListItem.maskedPan
+                        )
+                    )
+                }
+            )
+        }
+
+        item {
+            SelectPaymentTypeItem(
+                isSelected = false,
+                tint = YallaTheme.color.gray,
+                painter = painterResource(R.drawable.ic_add),
+                text = stringResource(R.string.add_card),
+                onSelect = { onIntent(CardListIntent.AddNewCard) }
+            )
+
+            // Commented out items preserved but moved here for organization
+            /*
+            SelectPaymentTypeItem(
+                isSelected = false,
+                tint = YallaTheme.color.gray,
+                painter = painterResource(R.drawable.ic_add),
+                text = stringResource(R.string.add_corporate_account),
+                onSelect = { onIntent(CardListIntent.AddCorporateAccount) }
+            )
+
+            SelectPaymentTypeItem(
+                isSelected = false,
+                tint = YallaTheme.color.gray,
+                painter = painterResource(R.drawable.ic_add),
+                text = stringResource(R.string.business_account),
+                onSelect = { onIntent(CardListIntent.AddBusinessAccount) }
+            )
+            */
+        }
+    }
+}
+
+@Composable
+private fun CardListHeader() {
+    Column(modifier = Modifier.padding(horizontal = 20.dp)) {
+        Text(
+            text = stringResource(id = R.string.payment_method),
+            color = YallaTheme.color.black,
+            style = YallaTheme.font.headline
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Text(
+            text = stringResource(id = R.string.choose_payment_method),
+            color = YallaTheme.color.gray,
+            style = YallaTheme.font.body
+        )
+    }
+}
+
+private fun getCardLogo(cardId: String): Int {
+    return when (cardId.length) {
+        16 -> R.drawable.img_logo_humo
+        32 -> R.drawable.img_logo_uzcard
+        else -> R.drawable.ic_money
+    }
 }

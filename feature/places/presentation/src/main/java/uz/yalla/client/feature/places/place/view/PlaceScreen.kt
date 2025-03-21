@@ -42,7 +42,6 @@ import uz.yalla.client.feature.places.place.model.PlaceUIState
 import uz.yalla.client.feature.places.presentation.R
 import uz.yalla.client.feature.order.domain.model.type.PlaceType
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun AddressScreen(
     id: Int?,
@@ -56,142 +55,185 @@ internal fun AddressScreen(
             .fillMaxSize()
             .imePadding(),
         topBar = {
-            CenterAlignedTopAppBar(
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
-                title = {
-                    Text(
-                        text = stringResource(
-                            when (uiState.placeType) {
-                                PlaceType.HOME -> R.string.home
-                                PlaceType.WORK -> R.string.work
-                                PlaceType.OTHER -> R.string.other
-                            }
-                        ),
-                        color = YallaTheme.color.black,
-                        style = YallaTheme.font.labelLarge
-                    )
-                },
-                actions = {
-                    if (id != null) IconButton(onClick = { onIntent(PlaceIntent.OnDelete(id)) }) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = null,
-                            tint = YallaTheme.color.black
-                        )
-                    }
-                },
-                navigationIcon = {
-                    IconButton(onClick = { onIntent(PlaceIntent.OnNavigateBack) }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
-                }
+            AddressTopBar(
+                placeType = uiState.placeType,
+                id = id,
+                onNavigateBack = { onIntent(PlaceIntent.OnNavigateBack) },
+                onDelete = { onIntent(PlaceIntent.OnDelete(id!!)) }
             )
         },
         content = { paddingValues ->
-            Column(
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .padding(20.dp)
-            ) {
-                SelectCurrentLocationButton(
-                    text =
-                    if (uiState.selectedAddress?.name != null) uiState.selectedAddress.name
-                    else stringResource(R.string.enter_the_address),
-                    leadingIcon = {
-                        Box(
-                            modifier = Modifier
-                                .size(16.dp)
-                                .clip(CircleShape)
-                                .background(YallaTheme.color.white)
-                                .border(
-                                    width = 4.dp,
-                                    color = YallaTheme.color.primary,
-                                    shape = CircleShape
-                                )
-                        )
-                    },
-                    onClick = { onIntent(PlaceIntent.OpenSearchSheet) }
-                )
-
-                AddressFormField(
-                    value = uiState.addressName,
-                    modifier = Modifier.fillMaxWidth(),
-                    onValueChange = { if (it.length <= 100) onIntent(PlaceIntent.OnChangeName(it)) },
-                    placeHolder = stringResource(R.string.address_name)
-                )
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    AddressFormField(
-                        value = uiState.apartment,
-                        modifier = Modifier.weight(1f),
-                        onValueChange = {
-                            if (it.length <= 5)
-                                onIntent(PlaceIntent.OnChangeApartment(it))
-                        },
-                        placeHolder = stringResource(R.string.apartment)
-                    )
-
-                    AddressFormField(
-                        value = uiState.entrance,
-                        modifier = Modifier.weight(1f),
-                        onValueChange = {
-                            if (it.length <= 5)
-                                onIntent(PlaceIntent.OnChangeEntrance(it))
-                        },
-                        placeHolder = stringResource(R.string.entrance)
-                    )
-
-                    AddressFormField(
-                        value = uiState.floor,
-                        modifier = Modifier.weight(1f),
-                        onValueChange = {
-                            if (it.length <= 5)
-                                onIntent(PlaceIntent.OnChangeFloor(it))
-                        },
-                        placeHolder = stringResource(R.string.floor)
-                    )
-                }
-
-                AddressFormField(
-                    value = uiState.comment,
-                    modifier = Modifier.fillMaxWidth(),
-                    onValueChange = {
-                        if (it.length <= 100)
-                            onIntent(PlaceIntent.OnChangeComment(it))
-                    },
-                    placeHolder = stringResource(R.string.comment)
-                )
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                PrimaryButton(
-                    text = stringResource(R.string.save),
-                    modifier = Modifier.fillMaxWidth(),
-                    contentPadding = PaddingValues(vertical = 16.dp),
-                    enabled = uiState.selectedAddress != null,
-                    onClick = { onIntent(PlaceIntent.OnSave) }
-                )
-            }
+            AddressContent(
+                paddingValues = paddingValues,
+                uiState = uiState,
+                onIntent = onIntent
+            )
         },
         snackbarHost = {
-            SnackbarHost(
-                hostState = snackbarHostState,
-                modifier = Modifier.imePadding(),
-                snackbar = { snackbarData: SnackbarData ->
-                    Snackbar(
-                        snackbarData = snackbarData,
-                        containerColor = YallaTheme.color.red,
-                        contentColor = YallaTheme.color.white
+            AddressSnackbarHost(snackbarHostState = snackbarHostState)
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AddressTopBar(
+    placeType: PlaceType,
+    id: Int?,
+    onNavigateBack: () -> Unit,
+    onDelete: () -> Unit
+) {
+    CenterAlignedTopAppBar(
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
+        title = {
+            Text(
+                text = stringResource(
+                    when (placeType) {
+                        PlaceType.HOME -> R.string.home
+                        PlaceType.WORK -> R.string.work
+                        PlaceType.OTHER -> R.string.other
+                    }
+                ),
+                color = YallaTheme.color.black,
+                style = YallaTheme.font.labelLarge
+            )
+        },
+        actions = {
+            if (id != null) {
+                IconButton(onClick = onDelete) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = null,
+                        tint = YallaTheme.color.black
                     )
                 }
+            }
+        },
+        navigationIcon = {
+            IconButton(onClick = onNavigateBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                    contentDescription = null
+                )
+            }
+        }
+    )
+}
+
+@Composable
+private fun AddressContent(
+    paddingValues: PaddingValues,
+    uiState: PlaceUIState,
+    onIntent: (PlaceIntent) -> Unit
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
+            .padding(20.dp)
+    ) {
+        SelectCurrentLocationButton(
+            text = uiState.selectedAddress?.name ?: stringResource(R.string.enter_the_address),
+            leadingIcon = {
+                Box(
+                    modifier = Modifier
+                        .size(16.dp)
+                        .clip(CircleShape)
+                        .background(YallaTheme.color.white)
+                        .border(
+                            width = 4.dp,
+                            color = YallaTheme.color.primary,
+                            shape = CircleShape
+                        )
+                )
+            },
+            onClick = { onIntent(PlaceIntent.OpenSearchSheet) }
+        )
+
+        AddressFormField(
+            value = uiState.addressName,
+            modifier = Modifier.fillMaxWidth(),
+            onValueChange = { if (it.length <= 100) onIntent(PlaceIntent.OnChangeName(it)) },
+            placeHolder = stringResource(R.string.address_name)
+        )
+
+        ApartmentDetailsRow(
+            apartment = uiState.apartment,
+            entrance = uiState.entrance,
+            floor = uiState.floor,
+            onChangeApartment = { if (it.length <= 5) onIntent(PlaceIntent.OnChangeApartment(it)) },
+            onChangeEntrance = { if (it.length <= 5) onIntent(PlaceIntent.OnChangeEntrance(it)) },
+            onChangeFloor = { if (it.length <= 5) onIntent(PlaceIntent.OnChangeFloor(it)) }
+        )
+
+        AddressFormField(
+            value = uiState.comment,
+            modifier = Modifier.fillMaxWidth(),
+            onValueChange = { if (it.length <= 100) onIntent(PlaceIntent.OnChangeComment(it)) },
+            placeHolder = stringResource(R.string.comment)
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        PrimaryButton(
+            text = stringResource(R.string.save),
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(vertical = 16.dp),
+            enabled = uiState.selectedAddress != null,
+            onClick = { onIntent(PlaceIntent.OnSave) }
+        )
+    }
+}
+
+@Composable
+private fun ApartmentDetailsRow(
+    apartment: String,
+    entrance: String,
+    floor: String,
+    onChangeApartment: (String) -> Unit,
+    onChangeEntrance: (String) -> Unit,
+    onChangeFloor: (String) -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        AddressFormField(
+            value = apartment,
+            modifier = Modifier.weight(1f),
+            onValueChange = onChangeApartment,
+            placeHolder = stringResource(R.string.apartment)
+        )
+
+        AddressFormField(
+            value = entrance,
+            modifier = Modifier.weight(1f),
+            onValueChange = onChangeEntrance,
+            placeHolder = stringResource(R.string.entrance)
+        )
+
+        AddressFormField(
+            value = floor,
+            modifier = Modifier.weight(1f),
+            onValueChange = onChangeFloor,
+            placeHolder = stringResource(R.string.floor)
+        )
+    }
+}
+
+@Composable
+private fun AddressSnackbarHost(
+    snackbarHostState: SnackbarHostState
+) {
+    SnackbarHost(
+        hostState = snackbarHostState,
+        modifier = Modifier.imePadding(),
+        snackbar = { snackbarData: SnackbarData ->
+            Snackbar(
+                snackbarData = snackbarData,
+                containerColor = YallaTheme.color.red,
+                contentColor = YallaTheme.color.white
             )
         }
     )

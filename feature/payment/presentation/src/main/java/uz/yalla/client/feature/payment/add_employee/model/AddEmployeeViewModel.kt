@@ -3,7 +3,6 @@ package uz.yalla.client.feature.payment.add_employee.model
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import uz.yalla.client.feature.payment.add_employee.view.AddEmployeeUIState
 
 internal class AddEmployeeViewModel : ViewModel() {
 

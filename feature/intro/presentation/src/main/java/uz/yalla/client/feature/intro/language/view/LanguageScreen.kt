@@ -47,7 +47,11 @@ internal fun LanguageScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {
+            Spacer(modifier = Modifier.height(40.dp))
+
             LanguageHeader()
+
+            Spacer(modifier = Modifier.height(20.dp))
 
             LanguageOptions(
                 languages = uiState.languages,
@@ -55,8 +59,9 @@ internal fun LanguageScreen(
                 onLanguageSelected = { lang -> onIntent(LanguageIntent.SetLanguage(lang)) }
             )
 
+            Spacer(modifier = Modifier.weight(1f))
+
             LanguageFooter(
-                modifier = Modifier.weight(1f),
                 isButtonEnabled = uiState.selectedLanguage?.languageTag.isNullOrBlank().not(),
                 onNext = { onIntent(LanguageIntent.NavigateNext) }
             )
@@ -85,8 +90,6 @@ private fun LanguageAppBar(
 
 @Composable
 private fun LanguageHeader() {
-    Spacer(modifier = Modifier.height(40.dp))
-
     Text(
         text = stringResource(id = R.string.choose_language),
         color = YallaTheme.color.black,
@@ -102,8 +105,6 @@ private fun LanguageHeader() {
         style = YallaTheme.font.body,
         modifier = Modifier.padding(horizontal = 20.dp)
     )
-
-    Spacer(modifier = Modifier.height(20.dp))
 }
 
 @Composable
@@ -124,11 +125,8 @@ private fun LanguageOptions(
 @Composable
 private fun LanguageFooter(
     isButtonEnabled: Boolean,
-    modifier: Modifier = Modifier,
     onNext: () -> Unit
 ) {
-    Spacer(modifier = modifier)
-
     PrimaryButton(
         text = stringResource(id = R.string.next),
         enabled = isButtonEnabled,

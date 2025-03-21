@@ -1,5 +1,6 @@
 package uz.yalla.client.feature.info.about_app.view
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -39,7 +40,6 @@ import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.info.R
 import uz.yalla.client.feature.info.about_app.model.AboutAppUIState
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun AboutAppScreen(
     uiState: AboutAppUIState,
@@ -49,26 +49,7 @@ internal fun AboutAppScreen(
     Scaffold(
         containerColor = YallaTheme.color.white,
         modifier = Modifier,
-        topBar = {
-            CenterAlignedTopAppBar(
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
-                title = {
-                    Text(
-                        text = stringResource(R.string.about_app),
-                        color = YallaTheme.color.black,
-                        style = YallaTheme.font.labelLarge
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = { onIntent(AboutAppIntent.OnNavigateBack) }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
-                }
-            )
-        },
+        topBar = { TopBar { onIntent(AboutAppIntent.OnNavigateBack) } },
         content = { paddingValues ->
             Column(
                 verticalArrangement = Arrangement.spacedBy(20.dp),
@@ -77,85 +58,23 @@ internal fun AboutAppScreen(
             ) {
                 Spacer(modifier = Modifier.height(60.dp))
 
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(vertical = 12.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_splash_logo),
-                        modifier = Modifier
-                            .size(100.dp)
-                            .clip(RoundedCornerShape(16.dp)),
-                        contentDescription = null,
-                        contentScale = ContentScale.Fit
-                    )
-                    Text(
-                        text = stringResource(R.string.app_name),
-                        style = YallaTheme.font.title,
-                        color = YallaTheme.color.black,
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.version_x,
-                            context
-                                .packageManager
-                                .getPackageInfo(context.packageName, 0)
-                                .versionName
-                                .orEmpty()
-                        ),
-                        style = YallaTheme.font.label,
-                        color = YallaTheme.color.gray,
-                        textAlign = TextAlign.Center
-                    )
-                }
+                AppInfoSection(context)
 
-                ItemNavigable(
-                    title = stringResource(R.string.user_agreement),
-                    onClick = {
-                        if (AppPreferences.locale == "ru") uiState.privacyPolicyRu?.let {
-                            onIntent(AboutAppIntent.OnClickUrl(it.second, it.first))
-                        }
-                        else uiState.privacyPolicyUz?.let {
-                            onIntent(AboutAppIntent.OnClickUrl(it.second, it.first))
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    trailingIcon = {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
-                            contentDescription = null,
-                            tint = YallaTheme.color.gray
-                        )
+                PrivacyPolicySection(
+                    uiState = uiState,
+                    onClickPrivacyPolicy = { url, title ->
+                        onIntent(AboutAppIntent.OnClickUrl(url, title))
                     }
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                Text(
-                    text = stringResource(R.string.we_on_social_networks),
-                    style = YallaTheme.font.body,
-                    color = YallaTheme.color.black,
-                    textAlign = TextAlign.Center
-                )
-
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(24.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    uiState.socialNetworks.forEach {
-                        IconButton(
-                            onClick = { onIntent(AboutAppIntent.OnClickUrl(it.third, it.second)) },
-                        ) {
-                            Icon(
-                                painter = painterResource(it.first),
-                                tint = Color.Unspecified,
-                                contentDescription = null
-                            )
-                        }
+                SocialNetworksSection(
+                    socialNetworks = uiState.socialNetworks,
+                    onClickSocialNetwork = { url, title ->
+                        onIntent(AboutAppIntent.OnClickUrl(url, title))
                     }
-                }
+                )
 
                 PrimaryButton(
                     text = stringResource(id = R.string.rate),
@@ -167,4 +86,129 @@ internal fun AboutAppScreen(
             }
         }
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TopBar(
+    onNavigateBack: () -> Unit
+) {
+    CenterAlignedTopAppBar(
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
+        title = {
+            Text(
+                text = stringResource(R.string.about_app),
+                color = YallaTheme.color.black,
+                style = YallaTheme.font.labelLarge
+            )
+        },
+        navigationIcon = {
+            IconButton(onClick = onNavigateBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                    contentDescription = null
+                )
+            }
+        }
+    )
+}
+
+@Composable
+private fun AppInfoSection(context: Context) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(vertical = 12.dp)
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.ic_splash_logo),
+            modifier = Modifier
+                .size(100.dp)
+                .clip(RoundedCornerShape(16.dp)),
+            contentDescription = null,
+            contentScale = ContentScale.Fit
+        )
+
+        Text(
+            text = stringResource(R.string.app_name),
+            style = YallaTheme.font.title,
+            color = YallaTheme.color.black,
+            textAlign = TextAlign.Center
+        )
+
+        Text(
+            text = stringResource(
+                R.string.version_x,
+                context
+                    .packageManager
+                    .getPackageInfo(context.packageName, 0)
+                    .versionName
+                    .orEmpty()
+            ),
+            style = YallaTheme.font.label,
+            color = YallaTheme.color.gray,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+private fun PrivacyPolicySection(
+    uiState: AboutAppUIState,
+    onClickPrivacyPolicy: (Int, String) -> Unit
+) {
+    ItemNavigable(
+        title = stringResource(R.string.user_agreement),
+        onClick = {
+            if (AppPreferences.locale == "ru") {
+                uiState.privacyPolicyRu?.let {
+                    onClickPrivacyPolicy(it.second, it.first)
+                }
+            } else {
+                uiState.privacyPolicyUz?.let {
+                    onClickPrivacyPolicy(it.second, it.first)
+                }
+            }
+        },
+        modifier = Modifier.fillMaxWidth(),
+        trailingIcon = {
+            Icon(
+                imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
+                contentDescription = null,
+                tint = YallaTheme.color.gray
+            )
+        }
+    )
+}
+
+@Composable
+private fun SocialNetworksSection(
+    socialNetworks: List<Triple<Int, String, Int>>,
+    onClickSocialNetwork: (Int, String) -> Unit
+) {
+    Text(
+        text = stringResource(R.string.we_on_social_networks),
+        style = YallaTheme.font.body,
+        color = YallaTheme.color.black,
+        textAlign = TextAlign.Center
+    )
+
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(24.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        socialNetworks.forEach { socialNetwork ->
+            IconButton(
+                onClick = {
+                    onClickSocialNetwork(socialNetwork.third, socialNetwork.second)
+                }
+            ) {
+                Icon(
+                    painter = painterResource(socialNetwork.first),
+                    tint = Color.Unspecified,
+                    contentDescription = null
+                )
+            }
+        }
+    }
 }

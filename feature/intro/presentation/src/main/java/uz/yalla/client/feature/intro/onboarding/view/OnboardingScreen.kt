@@ -51,7 +51,7 @@ internal fun OnboardingScreen(
                 modifier = Modifier.matchParentSize()
             )
 
-            OnboardingNavigation(
+            OnboardingFooter(
                 pagerState = pagerState,
                 modifier = Modifier.align(Alignment.BottomCenter),
                 onNext = { onIntent(OnboardingIntent.Swipe) }
@@ -100,7 +100,7 @@ private fun OnboardingContent(
 }
 
 @Composable
-private fun OnboardingNavigation(
+private fun OnboardingFooter(
     pagerState: PagerState,
     onNext: () -> Unit,
     modifier: Modifier = Modifier

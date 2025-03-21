@@ -27,8 +27,8 @@ import uz.yalla.client.feature.payment.R
 import uz.yalla.client.feature.payment.business_account.components.BusinessAccountItem
 import uz.yalla.client.feature.payment.business_account.components.EmployeeItem
 import uz.yalla.client.feature.payment.business_account.model.BusinessAccountUIState
+import uz.yalla.client.feature.payment.business_account.model.EmployeeUIModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun BusinessAccountScreen(
     uiState: BusinessAccountUIState,
@@ -37,74 +37,126 @@ internal fun BusinessAccountScreen(
     Scaffold(
         containerColor = YallaTheme.color.white,
         modifier = Modifier.imePadding(),
-        topBar = {
-            CenterAlignedTopAppBar(
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
-                title = {
-                    Text(
-                        text = stringResource(R.string.business_account),
-                        color = YallaTheme.color.black,
-                        style = YallaTheme.font.labelLarge
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = { onIntent(BusinessAccountIntent.OnNavigateBack) }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
-                }
-            )
-        },
+        topBar = { BusinessTopBar { onIntent(BusinessAccountIntent.OnNavigateBack) } },
         content = { paddingValues ->
-            Column(
+            BusinessContent(
+                uiState = uiState,
+                onIntent = onIntent,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(paddingValues)
-            ) {
-                Column(modifier = Modifier.padding(20.dp)) {
-                    BusinessAccountItem(
-                        overallBalance = uiState.overallBalance,
-                        employeeCount = uiState.employeeCount
-                    )
-                }
+            )
+        }
+    )
+}
 
-                Text(
-                    text = stringResource(R.string.employees),
-                    color = YallaTheme.color.black,
-                    style = YallaTheme.font.title2,
-                    modifier = Modifier.padding(20.dp)
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun BusinessTopBar(
+    onNavigateBack: () -> Unit
+) {
+    CenterAlignedTopAppBar(
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
+        title = {
+            Text(
+                text = stringResource(R.string.business_account),
+                color = YallaTheme.color.black,
+                style = YallaTheme.font.labelLarge
+            )
+        },
+        navigationIcon = {
+            IconButton(onClick = onNavigateBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                    contentDescription = null
                 )
-
-                uiState.employees.forEach { employee ->
-                    EmployeeItem(
-                        name = employee.name,
-                        phoneNumber = employee.phoneNumber,
-                        balance = employee.balance,
-                        tripCount = employee.tripCount,
-                        onClick = { onIntent(BusinessAccountIntent.OnClickEmployee) },
-                        onChecked = {},
-                    )
-                }
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                FloatingActionButton(
-                    modifier = Modifier
-                        .align(Alignment.End)
-                        .padding(16.dp),
-                    containerColor = YallaTheme.color.black,
-                    shape = CircleShape,
-                    onClick = {onIntent(BusinessAccountIntent.AddEmployee)},
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_add),
-                        contentDescription = null,
-                        tint = YallaTheme.color.white
-                    )
-                }
             }
         }
     )
+}
+
+@Composable
+private fun BusinessContent(
+    uiState: BusinessAccountUIState,
+    modifier: Modifier,
+    onIntent: (BusinessAccountIntent) -> Unit
+) {
+    Column(
+        modifier = modifier
+    ) {
+        AccountSummarySection(
+            overallBalance = uiState.overallBalance,
+            employeeCount = uiState.employeeCount
+        )
+
+        EmployeesSection(
+            employees = uiState.employees,
+            onEmployeeClick = { onIntent(BusinessAccountIntent.OnClickEmployee) }
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        AddEmployeeButton(
+            onClick = { onIntent(BusinessAccountIntent.AddEmployee) },
+            modifier = Modifier
+                .align(Alignment.End)
+                .padding(16.dp)
+        )
+    }
+}
+
+@Composable
+private fun AccountSummarySection(
+    overallBalance: String,
+    employeeCount: String
+) {
+    Column(modifier = Modifier.padding(20.dp)) {
+        BusinessAccountItem(
+            overallBalance = overallBalance,
+            employeeCount = employeeCount
+        )
+    }
+}
+
+@Composable
+private fun EmployeesSection(
+    employees: List<EmployeeUIModel>,
+    onEmployeeClick: () -> Unit
+) {
+    Text(
+        text = stringResource(R.string.employees),
+        color = YallaTheme.color.black,
+        style = YallaTheme.font.title2,
+        modifier = Modifier.padding(20.dp)
+    )
+
+    employees.forEach { employee ->
+        EmployeeItem(
+            name = employee.name,
+            phoneNumber = employee.phoneNumber,
+            balance = employee.balance,
+            tripCount = employee.tripCount,
+            onClick = onEmployeeClick,
+            onChecked = {},
+        )
+    }
+}
+
+@Composable
+private fun AddEmployeeButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    FloatingActionButton(
+        modifier = modifier,
+        containerColor = YallaTheme.color.black,
+        shape = CircleShape,
+        onClick = onClick,
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.ic_add),
+            contentDescription = null,
+            tint = YallaTheme.color.white
+        )
+    }
 }

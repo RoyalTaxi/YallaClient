@@ -26,67 +26,84 @@ import uz.yalla.client.feature.payment.R
 import uz.yalla.client.feature.payment.top_up_balance.components.input.BalanceInputField
 import uz.yalla.client.feature.payment.top_up_balance.model.TopUpUIState
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun TopUpScreen(
     onIntent: (TopUpIntent) -> Unit,
     uiState: TopUpUIState
 ) {
-
     val focusRequester = remember { FocusRequester() }
 
     Scaffold(
         containerColor = YallaTheme.color.white,
         modifier = Modifier.imePadding(),
-        topBar = {
-            CenterAlignedTopAppBar(
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
-                title = {
-                    Text(
-                        text = stringResource(R.string.top_up_balanse),
-                        color = YallaTheme.color.black,
-                        style = YallaTheme.font.labelLarge
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = { onIntent(TopUpIntent.OnNavigateBack) }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
-                }
+        topBar = { TopUpAppBar { onIntent(TopUpIntent.OnNavigateBack) } },
+        content = { paddingValues ->
+            TopUpContent(
+                modifier = Modifier.padding(paddingValues),
+                uiState = uiState,
+                onValueChange = { value -> onIntent(TopUpIntent.SetValue(value)) },
+                focusRequester = focusRequester
+            )
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TopUpAppBar(
+    onNavigateBack: () -> Unit
+) {
+    CenterAlignedTopAppBar(
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
+        title = {
+            Text(
+                text = stringResource(R.string.top_up_balanse),
+                color = YallaTheme.color.black,
+                style = YallaTheme.font.labelLarge
             )
         },
-        content = { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(paddingValues)
-                    .padding(20.dp)
-            ) {
-
-                BalanceInputField(
-                    balance = uiState.topUpAmount,
-                    onBalanceChange = { value -> onIntent(TopUpIntent.SetValue(value)) },
-                    focusRequester = focusRequester
-                )
-
-                Text(
-                    text = stringResource(R.string.min_value),
-                    color = YallaTheme.color.gray,
-                    style = YallaTheme.font.body
-                )
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                PrimaryButton(
-                    text = stringResource(R.string.pay),
-                    enabled = uiState.isPayButtonValid,
-                    onClick = {},
-                    modifier = Modifier.fillMaxWidth()
+        navigationIcon = {
+            IconButton(onClick = onNavigateBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                    contentDescription = null
                 )
             }
         }
     )
+}
+
+@Composable
+private fun TopUpContent(
+    modifier: Modifier,
+    uiState: TopUpUIState,
+    onValueChange: (String) -> Unit,
+    focusRequester: FocusRequester
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(20.dp)
+    ) {
+        BalanceInputField(
+            balance = uiState.topUpAmount,
+            onBalanceChange = onValueChange,
+            focusRequester = focusRequester
+        )
+
+        Text(
+            text = stringResource(R.string.min_value),
+            color = YallaTheme.color.gray,
+            style = YallaTheme.font.body
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        PrimaryButton(
+            text = stringResource(R.string.pay),
+            enabled = uiState.isPayButtonValid,
+            onClick = {},
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
 }

@@ -23,9 +23,9 @@ import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.common.field.PhoneNumberField
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.payment.R
+import uz.yalla.client.feature.payment.add_employee.model.AddEmployeeUIState
 import uz.yalla.client.feature.payment.corporate_account.components.BusinessAccountTextField
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun AddEmployeeScreen(
     onIntent: (AddEmployeeIntent) -> Unit,
@@ -34,26 +34,7 @@ internal fun AddEmployeeScreen(
     Scaffold(
         containerColor = YallaTheme.color.white,
         modifier = Modifier.imePadding(),
-        topBar = {
-            CenterAlignedTopAppBar(
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
-                title = {
-                    Text(
-                        text = stringResource(R.string.add_employee),
-                        color = YallaTheme.color.black,
-                        style = YallaTheme.font.labelLarge
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = {onIntent(AddEmployeeIntent.OnNavigateBack)}) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
-                }
-            )
-        },
+        topBar = { AddEmployeeTopBar { onIntent(AddEmployeeIntent.OnNavigateBack) }},
         content = { paddingValues ->
             Column(
                 verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -63,27 +44,71 @@ internal fun AddEmployeeScreen(
                     .padding(20.dp)
             ) {
 
-                PhoneNumberField(
-                    number = uiState.number,
-                    onUpdateNumber = { number -> onIntent(AddEmployeeIntent.SetNumber(number)) }
+                AddEmployeeContent(
+                    uiState = uiState,
+                    onIntent = onIntent
                 )
-
-                BusinessAccountTextField(
-                    text = uiState.fullName,
-                    onChangeText = { onIntent(AddEmployeeIntent.SetFullName(it)) },
-                    placeHolderText = stringResource(id = R.string.full_name),
-                )
-
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                PrimaryButton(
-                    text = stringResource(R.string.add),
-                    enabled = uiState.isAddButtonValid,
-                    onClick = {},
-                    modifier = Modifier.fillMaxWidth()
+                AddEmployeeFooter(
+                    isAddButtonValid = uiState.isAddButtonValid,
                 )
             }
         }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AddEmployeeTopBar(
+    onNavigateBack: () -> Unit
+) {
+    CenterAlignedTopAppBar(
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
+        title = {
+            Text(
+                text = stringResource(R.string.add_employee),
+                color = YallaTheme.color.black,
+                style = YallaTheme.font.labelLarge
+            )
+        },
+        navigationIcon = {
+            IconButton(onClick = onNavigateBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                    contentDescription = null
+                )
+            }
+        }
+    )
+}
+
+@Composable
+private fun AddEmployeeContent(
+    uiState: AddEmployeeUIState,
+    onIntent: (AddEmployeeIntent) -> Unit
+) {
+    PhoneNumberField(
+        number = uiState.number,
+        onUpdateNumber = { onIntent(AddEmployeeIntent.SetNumber(it)) }
+    )
+
+    BusinessAccountTextField(
+        text = uiState.fullName,
+        onChangeText = { onIntent(AddEmployeeIntent.SetFullName(it)) },
+        placeHolderText = stringResource(id = R.string.full_name),
+    )
+}
+
+@Composable
+fun AddEmployeeFooter(
+    isAddButtonValid: Boolean,
+) {
+    PrimaryButton(
+        text = stringResource(R.string.add),
+        enabled = isAddButtonValid,
+        onClick = {},
+        modifier = Modifier.fillMaxWidth()
     )
 }

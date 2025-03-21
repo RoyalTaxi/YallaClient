@@ -42,13 +42,20 @@ internal fun LoginScreen(
                     .padding(paddingValues)
                     .padding(20.dp)
             ) {
+                Spacer(modifier = Modifier.height(20.dp))
+
                 LoginHeader()
+
+                Spacer(modifier = Modifier.height(20.dp))
 
                 LoginContent(
                     number = uiState.number,
-                    setPhoneNumber = {number -> onIntent(LoginIntent.SetNumber(number))},
-                    modifier = Modifier.weight(1f)
+                    setPhoneNumber = { number -> onIntent(LoginIntent.SetNumber(number)) },
                 )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Spacer(modifier = Modifier.height(32.dp))
 
                 LoginFooter(
                     buttonState = uiState.buttonState,
@@ -79,9 +86,7 @@ private fun LoginAppBar(
 }
 
 @Composable
-private fun LoginHeader(){
-    Spacer(modifier = Modifier.height(20.dp))
-
+private fun LoginHeader() {
     Text(
         text = stringResource(id = R.string.enter_phone_number),
         color = YallaTheme.color.black,
@@ -99,18 +104,13 @@ private fun LoginHeader(){
 
 @Composable
 private fun LoginContent(
-    modifier: Modifier,
     number: String = "",
     setPhoneNumber: (String) -> Unit
 ) {
-    Spacer(modifier = Modifier.height(20.dp))
-
     PhoneNumberField(
         number = number,
-        onUpdateNumber = {setPhoneNumber(number)}
+        onUpdateNumber = { setPhoneNumber(it) }
     )
-
-    Spacer(modifier = modifier)
 }
 
 @Composable
@@ -118,8 +118,6 @@ private fun LoginFooter(
     buttonState: Boolean,
     onClickButton: () -> Unit
 ) {
-    Spacer(modifier = Modifier.height(32.dp))
-
     PrimaryButton(
         modifier = Modifier.fillMaxWidth(),
         text = stringResource(id = R.string.next),
