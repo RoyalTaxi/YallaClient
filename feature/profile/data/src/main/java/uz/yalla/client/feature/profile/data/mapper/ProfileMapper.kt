@@ -16,7 +16,6 @@ object ProfileMapper {
 
     val avatarMapper: Mapper<UpdateAvatarResponse?, UpdateAvatarModel> = { remote ->
         UpdateAvatarModel(
-            path = remote?.path.orEmpty(),
             image = remote?.image.orEmpty()
         )
     }

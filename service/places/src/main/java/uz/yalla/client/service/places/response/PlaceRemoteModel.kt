@@ -13,7 +13,6 @@ data class PlaceRemoteModel(
     val apartment: String?,
     val floor: String?,
     val comment: String?,
-    val created_at: String?
 ) {
     @Serializable
     data class Coords(

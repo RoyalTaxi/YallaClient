@@ -8,16 +8,8 @@ data class OrdersHistoryModel(
     val taxi: Taxi
 ) {
     data class Taxi(
-        val bonusAmount: Int,
-        val clientTotalPrice: Int,
-        val distance: Double,
-        val fixedPrice: Boolean,
         val routes: List<Route>,
-        val startPrice: Int,
-        val tariff: String,
-        val tariffCategoryId: Int,
         val totalPrice: String,
-        val useTheBonus: Boolean
     ) {
         data class Route(
             val cords: Cords,

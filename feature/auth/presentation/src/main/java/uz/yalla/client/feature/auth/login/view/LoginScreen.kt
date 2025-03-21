@@ -25,7 +25,6 @@ import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.auth.R
 import uz.yalla.client.feature.auth.login.model.LoginUIState
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun LoginScreen(
     uiState: LoginUIState,
@@ -35,18 +34,7 @@ internal fun LoginScreen(
         modifier = Modifier.imePadding(),
         containerColor = YallaTheme.color.white,
         topBar = {
-            TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(YallaTheme.color.white),
-                title = {},
-                navigationIcon = {
-                    IconButton(onClick = { onIntent(LoginIntent.NavigateBack) }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
-                }
-            )
+            LoginAppBar(onNavigateBack = { onIntent(LoginIntent.NavigateBack) })
         },
         content = { paddingValues ->
             Column(
@@ -54,40 +42,88 @@ internal fun LoginScreen(
                     .padding(paddingValues)
                     .padding(20.dp)
             ) {
-                Spacer(modifier = Modifier.height(20.dp))
+                LoginHeader()
 
-                Text(
-                    text = stringResource(id = R.string.enter_phone_number),
-                    color = YallaTheme.color.black,
-                    style = YallaTheme.font.headline
-                )
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                Text(
-                    text = stringResource(id = R.string.we_send_code),
-                    color = YallaTheme.color.gray,
-                    style = YallaTheme.font.body
-                )
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                PhoneNumberField(
+                LoginContent(
                     number = uiState.number,
-                    onUpdateNumber = { number -> onIntent(LoginIntent.SetNumber(number)) }
+                    setPhoneNumber = {number -> onIntent(LoginIntent.SetNumber(number))},
+                    modifier = Modifier.weight(1f)
                 )
 
-                Spacer(modifier = Modifier.weight(1f))
-
-                Spacer(modifier = Modifier.height(32.dp))
-
-                PrimaryButton(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(id = R.string.next),
-                    enabled = uiState.buttonState,
-                    onClick = { onIntent(LoginIntent.SendCode) }
+                LoginFooter(
+                    buttonState = uiState.buttonState,
+                    onClickButton = { onIntent(LoginIntent.SendCode) }
                 )
             }
         }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun LoginAppBar(
+    onNavigateBack: () -> Unit
+) {
+    TopAppBar(
+        colors = TopAppBarDefaults.topAppBarColors(YallaTheme.color.white),
+        title = {},
+        navigationIcon = {
+            IconButton(onClick = onNavigateBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                    contentDescription = null
+                )
+            }
+        }
+    )
+}
+
+@Composable
+private fun LoginHeader(){
+    Spacer(modifier = Modifier.height(20.dp))
+
+    Text(
+        text = stringResource(id = R.string.enter_phone_number),
+        color = YallaTheme.color.black,
+        style = YallaTheme.font.headline
+    )
+
+    Spacer(modifier = Modifier.height(20.dp))
+
+    Text(
+        text = stringResource(id = R.string.we_send_code),
+        color = YallaTheme.color.gray,
+        style = YallaTheme.font.body
+    )
+}
+
+@Composable
+private fun LoginContent(
+    modifier: Modifier,
+    number: String = "",
+    setPhoneNumber: (String) -> Unit
+) {
+    Spacer(modifier = Modifier.height(20.dp))
+
+    PhoneNumberField(
+        number = number,
+        onUpdateNumber = {setPhoneNumber(number)}
+    )
+
+    Spacer(modifier = modifier)
+}
+
+@Composable
+private fun LoginFooter(
+    buttonState: Boolean,
+    onClickButton: () -> Unit
+) {
+    Spacer(modifier = Modifier.height(32.dp))
+
+    PrimaryButton(
+        modifier = Modifier.fillMaxWidth(),
+        text = stringResource(id = R.string.next),
+        enabled = buttonState,
+        onClick = onClickButton
     )
 }

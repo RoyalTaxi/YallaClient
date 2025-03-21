@@ -25,29 +25,20 @@ import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.common.selectable.ItemTextSelectable
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.intro.R
+import uz.yalla.client.feature.intro.language.model.Language
 import uz.yalla.client.feature.intro.language.model.LanguageUIState
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun LanguageScreen(
-    uiState: uz.yalla.client.feature.intro.language.model.LanguageUIState,
+    uiState: LanguageUIState,
     onIntent: (LanguageIntent) -> Unit
 ) {
     Scaffold(
         containerColor = YallaTheme.color.white,
         topBar = {
-            TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(YallaTheme.color.white),
-                title = {},
-                navigationIcon = {
-                    IconButton(onClick = { onIntent(LanguageIntent.NavigateBack) }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
-                }
-            )
+            LanguageAppBar {
+                onIntent(LanguageIntent.NavigateBack)
+            }
         }
     ) { paddingValues ->
         Column(
@@ -56,44 +47,94 @@ internal fun LanguageScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {
-            Spacer(modifier = Modifier.height(40.dp))
+            LanguageHeader()
 
-            Text(
-                text = stringResource(id = R.string.choose_language),
-                color = YallaTheme.color.black,
-                style = YallaTheme.font.headline,
-                modifier = Modifier.padding(horizontal = 20.dp)
+            LanguageOptions(
+                languages = uiState.languages,
+                selectedLanguageTag = uiState.selectedLanguage?.languageTag,
+                onLanguageSelected = { lang -> onIntent(LanguageIntent.SetLanguage(lang)) }
             )
 
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Text(
-                text = stringResource(id = R.string.choose_language_desc),
-                color = YallaTheme.color.gray,
-                style = YallaTheme.font.body,
-                modifier = Modifier.padding(horizontal = 20.dp)
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            uiState.languages.forEach { lang ->
-                ItemTextSelectable(
-                    text = stringResource(id = lang.stringResId),
-                    isSelected = uiState.selectedLanguage?.languageTag == lang.languageTag,
-                    onSelect = { onIntent(LanguageIntent.SetLanguage(lang)) }
-                )
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            PrimaryButton(
-                text = stringResource(id = R.string.next),
-                enabled = uiState.selectedLanguage?.languageTag.isNullOrBlank().not(),
-                onClick = { onIntent(LanguageIntent.NavigateNext) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp),
+            LanguageFooter(
+                modifier = Modifier.weight(1f),
+                isButtonEnabled = uiState.selectedLanguage?.languageTag.isNullOrBlank().not(),
+                onNext = { onIntent(LanguageIntent.NavigateNext) }
             )
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun LanguageAppBar(
+    onClickNavigate: () -> Unit
+) {
+    TopAppBar(
+        colors = TopAppBarDefaults.topAppBarColors(YallaTheme.color.white),
+        title = {},
+        navigationIcon = {
+            IconButton(onClick = onClickNavigate) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                    contentDescription = null
+                )
+            }
+        }
+    )
+}
+
+@Composable
+private fun LanguageHeader() {
+    Spacer(modifier = Modifier.height(40.dp))
+
+    Text(
+        text = stringResource(id = R.string.choose_language),
+        color = YallaTheme.color.black,
+        style = YallaTheme.font.headline,
+        modifier = Modifier.padding(horizontal = 20.dp)
+    )
+
+    Spacer(modifier = Modifier.height(20.dp))
+
+    Text(
+        text = stringResource(id = R.string.choose_language_desc),
+        color = YallaTheme.color.gray,
+        style = YallaTheme.font.body,
+        modifier = Modifier.padding(horizontal = 20.dp)
+    )
+
+    Spacer(modifier = Modifier.height(20.dp))
+}
+
+@Composable
+private fun LanguageOptions(
+    languages: List<Language>,
+    selectedLanguageTag: String?,
+    onLanguageSelected: (Language) -> Unit
+) {
+    languages.forEach { language ->
+        ItemTextSelectable(
+            text = stringResource(id = language.stringResId),
+            isSelected = selectedLanguageTag == language.languageTag,
+            onSelect = { onLanguageSelected(language) }
+        )
+    }
+}
+
+@Composable
+private fun LanguageFooter(
+    isButtonEnabled: Boolean,
+    modifier: Modifier = Modifier,
+    onNext: () -> Unit
+) {
+    Spacer(modifier = modifier)
+
+    PrimaryButton(
+        text = stringResource(id = R.string.next),
+        enabled = isButtonEnabled,
+        onClick = onNext,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(20.dp)
+    )
 }
