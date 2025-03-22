@@ -104,7 +104,7 @@ private fun LoginHeader() {
 
 @Composable
 private fun LoginContent(
-    number: String = "",
+    number: String,
     setPhoneNumber: (String) -> Unit
 ) {
     PhoneNumberField(

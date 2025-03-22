@@ -30,7 +30,6 @@ internal class LoginViewModel(
         _uiState.update { it.copy(buttonState = buttonState) }
     }
 
-
     fun sendAuthCode(hash: String?) = viewModelScope.launch(Dispatchers.IO) {
         _actionFlow.emit(LoginActionState.Loading)
         sendCodeUseCase(

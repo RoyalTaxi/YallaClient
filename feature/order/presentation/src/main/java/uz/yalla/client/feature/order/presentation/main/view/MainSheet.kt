@@ -35,8 +35,8 @@ import uz.yalla.client.core.domain.model.SelectedLocation
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.main.model.MainSheetState
 import uz.yalla.client.feature.order.presentation.main.model.MainSheetViewModel
-import uz.yalla.client.feature.order.presentation.main.view.sheet.OrderTaxiBottomSheet
-import uz.yalla.client.feature.order.presentation.main.view.sheet.TariffInfoBottomSheet
+import uz.yalla.client.feature.order.presentation.main.view.page.OrderTaxiPage
+import uz.yalla.client.feature.order.presentation.main.view.page.TariffInfoPage
 
 object MainSheet {
     private val viewModel: MainSheetViewModel by lazy { getKoin().get() }
@@ -47,8 +47,7 @@ object MainSheet {
     @Composable
     fun View() {
         val state by viewModel.uiState.collectAsState()
-        val primaryButtonState by viewModel.isButtonEnabled.collectAsState()
-        val isTariffValidWithOptions by viewModel.isTariffValidWithOptions.collectAsState()
+        val buttonAndOptionsState by viewModel.buttonAndOptionsState.collectAsState()
 
         val partialSheetHeight = state.sheetHeight + state.footerHeight
 
@@ -106,7 +105,7 @@ object MainSheet {
                 SheetContent(
                     state = state,
                     fraction = fraction,
-                    isTariffValidWithOptions = isTariffValidWithOptions,
+                    isTariffValidWithOptions = buttonAndOptionsState.isTariffValidWithOptions,
                     onIntent = viewModel::onIntent
                 )
             }
@@ -117,8 +116,8 @@ object MainSheet {
             MainSheetFooter(
                 state = state,
                 sheetState = scaffoldState.sheetState,
-                primaryButtonState = primaryButtonState,
-                isTariffValidWithOptions = isTariffValidWithOptions,
+                primaryButtonState = buttonAndOptionsState.isButtonEnabled,
+                isTariffValidWithOptions = buttonAndOptionsState.isTariffValidWithOptions,
                 onIntent = viewModel::onIntent,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -135,7 +134,7 @@ object MainSheet {
         onIntent: (MainBottomSheetIntent) -> Unit
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            OrderTaxiBottomSheet(
+            OrderTaxiPage(
                 state = state,
                 onIntent = onIntent,
                 modifier = Modifier
@@ -144,7 +143,7 @@ object MainSheet {
             )
 
             if (state.selectedTariff != null && !state.loading) {
-                TariffInfoBottomSheet(
+                TariffInfoPage(
                     state = state,
                     isTariffValidWithOptions = isTariffValidWithOptions,
                     onIntent = onIntent,

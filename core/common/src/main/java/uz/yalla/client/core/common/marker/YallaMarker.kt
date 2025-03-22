@@ -60,13 +60,6 @@ fun YallaMarker(
     val jumpOffset = remember { Animatable(initialValue = 3f) }
     val rotation = remember { Animatable(initialValue = 0f) }
 
-    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.lottie_ripple_default))
-    val progress by animateLottieCompositionAsState(
-        composition = composition,
-        iterations = LottieConstants.IterateForever,
-        isPlaying = true,
-        restartOnPlay = true
-    )
 
     var jumpJob: Job? by remember { mutableStateOf(null) }
     var rotationJob: Job? by remember { mutableStateOf(null) }
@@ -125,167 +118,224 @@ fun YallaMarker(
             val (circle, stick, indicator, locationName, lottie) = createRefs()
 
             if (state is YallaMarkerState.Searching) {
-                LottieAnimation(
-                    composition = composition,
-                    progress = { progress },
-                    modifier = Modifier
-                        .fillMaxSize(.8f)
-                        .alpha(.5f)
-                        .constrainAs(lottie) {
-                            linkTo(start = circle.start, end = circle.end)
-                            linkTo(top = circle.top, bottom = circle.bottom)
-                        }
+                SearchAnimation(
+                    modifier = Modifier.constrainAs(lottie) {
+                        linkTo(start = circle.start, end = circle.end)
+                        linkTo(top = circle.top, bottom = circle.bottom)
+                    }
                 )
             }
 
             if (state !is YallaMarkerState.Searching) {
-                Box(
-                    modifier = Modifier
-                        .height(6.dp)
-                        .width(8.dp)
-                        .clip(CircleShape)
-                        .background(YallaTheme.color.black)
-                        .constrainAs(indicator) {
-                            linkTo(start = parent.start, end = parent.end)
-                            linkTo(top = parent.top, bottom = parent.bottom)
-                        }
+                Indicator(
+                    Modifier.constrainAs(indicator) {
+                        linkTo(start = parent.start, end = parent.end)
+                        linkTo(top = parent.top, bottom = parent.bottom)
+                    }
                 )
 
-                Box(
-                    modifier = Modifier
-                        .height(20.dp)
-                        .width(2.dp)
-                        .clip(RoundedCornerShape(bottomStart = 10.dp, bottomEnd = 10.dp))
-                        .background(YallaTheme.color.black)
-                        .constrainAs(stick) {
-                            linkTo(start = indicator.start, end = indicator.end)
-                            bottom.linkTo(indicator.bottom, margin = jumpOffset.value.dp)
-                        }
+                Stick(
+                    modifier = Modifier.constrainAs(stick) {
+                        linkTo(start = indicator.start, end = indicator.end)
+                        bottom.linkTo(indicator.bottom, margin = jumpOffset.value.dp)
+                    }
                 )
             }
 
+            Circle(
+                color = color,
+                state = state,
+                rotation = rotation.value,
+                modifier = Modifier.constrainAs(circle) {
+                    if (state !is YallaMarkerState.Searching) {
+                        bottom.linkTo(stick.top)
+                        linkTo(start = indicator.start, end = indicator.end)
+                    } else {
+                        linkTo(start = parent.start, end = parent.end)
+                        linkTo(top = parent.top, bottom = parent.bottom)
+                    }
+                }
+            )
+
+            AddressName(
+                state = state,
+                modifier = Modifier.constrainAs(locationName) {
+                    when (state) {
+                        is YallaMarkerState.IDLE -> {
+                            bottom.linkTo(circle.top, margin = 20.dp)
+                            linkTo(start = parent.start, end = parent.end)
+                        }
+
+                        is YallaMarkerState.Searching -> {
+                            bottom.linkTo(indicator.top, margin = 20.dp)
+                            linkTo(start = indicator.start, end = indicator.end)
+                        }
+
+                        is YallaMarkerState.LOADING -> {
+                            bottom.linkTo(circle.top, margin = 20.dp)
+                            linkTo(start = parent.start, end = parent.end)
+                        }
+                    }
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun SearchAnimation(
+    modifier: Modifier = Modifier,
+) {
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.lottie_ripple_default))
+    val progress by animateLottieCompositionAsState(
+        composition = composition,
+        iterations = LottieConstants.IterateForever,
+        isPlaying = true,
+        restartOnPlay = true
+    )
+    LottieAnimation(
+        composition = composition,
+        progress = { progress },
+        modifier = modifier
+            .fillMaxSize(.8f)
+            .alpha(.5f)
+
+    )
+}
+
+@Composable
+fun Circle(
+    color: Color,
+    state: YallaMarkerState,
+    rotation: Float,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .clip(CircleShape)
+            .background(color)
+            .squareSize(.5f)
+            .padding(6.dp)
+            .height(IntrinsicSize.Min)
+            .width(IntrinsicSize.Min)
+
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = when (state) {
+                    is YallaMarkerState.IDLE -> state.timeout?.toString().orEmpty()
+                    else -> ""
+                },
+                color = YallaTheme.color.white,
+                style = YallaTheme.font.title
+            )
+            Text(
+                text = when (state) {
+                    is YallaMarkerState.IDLE -> if (state.timeout != null) stringResource(R.string.min) else ""
+                    else -> ""
+                },
+                color = YallaTheme.color.white,
+                style = YallaTheme.font.body
+            )
+        }
+
+        if (state is YallaMarkerState.LOADING) {
             Box(
-                modifier = Modifier
-                    .clip(CircleShape)
+                contentAlignment = Alignment.Center,
+                modifier = modifier
+                    .fillMaxSize()
                     .background(color)
-                    .squareSize(.5f)
-                    .padding(6.dp)
-                    .height(IntrinsicSize.Min)
-                    .width(IntrinsicSize.Min)
-                    .constrainAs(circle) {
-                        if (state !is YallaMarkerState.Searching) {
-                            bottom.linkTo(stick.top)
-                            linkTo(start = indicator.start, end = indicator.end)
-                        } else {
-                            linkTo(start = parent.start, end = parent.end)
-                            linkTo(top = parent.top, bottom = parent.bottom)
-                        }
-                    }
+                    .graphicsLayer { clip = true }
             ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = when (state) {
-                            is YallaMarkerState.IDLE -> state.timeout?.toString().orEmpty()
-                            else -> ""
-                        },
-                        color = YallaTheme.color.white,
-                        style = YallaTheme.font.title
-                    )
-                    Text(
-                        text = when (state) {
-                            is YallaMarkerState.IDLE -> if (state.timeout != null) stringResource(R.string.min) else ""
-                            else -> ""
-                        },
-                        color = YallaTheme.color.white,
-                        style = YallaTheme.font.body
-                    )
-                }
-
-                if (state is YallaMarkerState.LOADING) {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = modifier
-                            .fillMaxSize()
-                            .background(color)
-                            .graphicsLayer { clip = true }
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_loading),
-                            contentDescription = null,
-                            tint = YallaTheme.color.white,
-                            modifier = Modifier
-                                .size(24.dp)
-                                .graphicsLayer {
-                                    rotationZ = rotation.value
-                                }
-                        )
-                    }
-                }
-
-                if (state is YallaMarkerState.IDLE && state.timeout == null) {
-                    Box(
-                        modifier = modifier
-                            .size(24.dp)
-                            .clip(CircleShape)
-                            .background(YallaTheme.color.white)
-                            .graphicsLayer { clip = true }
-                    )
-                }
-            }
-
-            Surface(
-                color = YallaTheme.color.black,
-                shape = RoundedCornerShape(25.dp),
-                modifier = Modifier
-                    .padding(horizontal = 60.dp)
-                    .constrainAs(locationName) {
-                        when (state) {
-                            is YallaMarkerState.IDLE -> {
-                                bottom.linkTo(circle.top, margin = 96.dp)
-                                linkTo(start = parent.start, end = parent.end)
-                            }
-
-                            is YallaMarkerState.Searching -> {
-                                bottom.linkTo(indicator.top, margin = 96.dp)
-                                linkTo(start = indicator.start, end = indicator.end)
-                            }
-
-                            is YallaMarkerState.LOADING -> {
-                                bottom.linkTo(circle.top, margin = 96.dp)
-                                linkTo(start = parent.start, end = parent.end)
-                            }
+                Icon(
+                    painter = painterResource(R.drawable.ic_loading),
+                    contentDescription = null,
+                    tint = YallaTheme.color.white,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .graphicsLayer {
+                            rotationZ = rotation
                         }
-                    }
-            ) {
-                AnimatedContent(
-                    contentAlignment = Alignment.Center,
-                    targetState = when (state) {
-                        is YallaMarkerState.IDLE -> state.title
-                        is YallaMarkerState.Searching -> state.title
-                        is YallaMarkerState.LOADING -> stringResource(R.string.loading)
-                    } ?: stringResource(R.string.loading),
-                    transitionSpec = {
-                        fadeIn(
-                            animationSpec = tween(durationMillis = 500)
-                        ) togetherWith fadeOut(
-                            animationSpec = tween(durationMillis = 500)
-                        )
-                    }, label = "textAnimation"
-                ) { targetText ->
-                    Text(
-                        text = targetText,
-                        color = YallaTheme.color.white,
-                        style = YallaTheme.font.labelSemiBold,
-                        textAlign = TextAlign.Center,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp)
-                    )
-                }
+                )
             }
+        }
+
+        if (state is YallaMarkerState.IDLE && state.timeout == null) {
+            Box(
+                modifier = modifier
+                    .size(24.dp)
+                    .clip(CircleShape)
+                    .background(YallaTheme.color.white)
+                    .graphicsLayer { clip = true }
+            )
+        }
+    }
+}
+
+@Composable
+private fun Stick(
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .height(20.dp)
+            .width(2.dp)
+            .clip(RoundedCornerShape(bottomStart = 10.dp, bottomEnd = 10.dp))
+            .background(YallaTheme.color.black)
+    )
+}
+
+@Composable
+private fun Indicator(
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .height(6.dp)
+            .width(8.dp)
+            .clip(CircleShape)
+            .background(YallaTheme.color.black)
+
+    )
+}
+
+@Composable
+private fun AddressName(
+    state: YallaMarkerState,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        color = YallaTheme.color.black,
+        shape = RoundedCornerShape(25.dp),
+        modifier = modifier.padding(horizontal = 60.dp)
+    ) {
+        AnimatedContent(
+            contentAlignment = Alignment.Center,
+            targetState = when (state) {
+                is YallaMarkerState.IDLE -> state.title
+                is YallaMarkerState.Searching -> state.title
+                is YallaMarkerState.LOADING -> stringResource(R.string.loading)
+            } ?: stringResource(R.string.loading),
+            transitionSpec = {
+                fadeIn(
+                    animationSpec = tween(durationMillis = 500)
+                ) togetherWith fadeOut(
+                    animationSpec = tween(durationMillis = 500)
+                )
+            }, label = "textAnimation"
+        ) { targetText ->
+            Text(
+                text = targetText,
+                color = YallaTheme.color.white,
+                style = YallaTheme.font.labelSemiBold,
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp)
+            )
         }
     }
 }

@@ -31,7 +31,7 @@ data class GetTariffsModel(
         val name: String,
         val outCityKmCost: Int,
         val photo: String,
-        val secondAddress: Boolean,
+        val isSecondAddressMandatory: Boolean,
         val services: List<Service>
     ) {
         data class Category(

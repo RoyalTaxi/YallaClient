@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uz.yalla.client.core.data.enums.PaymentType
+import uz.yalla.client.core.data.mapper.orFalse
 import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.SelectedLocation
@@ -48,31 +49,31 @@ class MainSheetViewModel(
     private val _sheetVisibilityListener: Channel<Unit> = Channel(Channel.BUFFERED)
     val sheetVisibilityListener = _sheetVisibilityListener.receiveAsFlow()
 
-    val isButtonEnabled = uiState
+    val buttonAndOptionsState = uiState
         .map { state ->
-            !state.loading &&
-                    state.selectedTariff != null &&
-                    isTariffValidWithOptions.value &&
-                    !(state.selectedTariff.secondAddress && state.destinations.isNotEmpty())
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Lazily,
-            initialValue = false
-        )
-
-    val isTariffValidWithOptions = uiState
-        .map { state ->
-            state.selectedOptions.all { selected ->
+            val isTariffValidWithOptions = state.selectedOptions.all { selected ->
                 state.options.any { option ->
                     selected.cost == option.cost && selected.name == option.name
                 }
             }
+
+            val isButtonEnabled = !state.loading &&
+                    state.selectedTariff != null &&
+                    isTariffValidWithOptions &&
+                    !(state.selectedTariff.isSecondAddressMandatory && state.destinations.isNotEmpty())
+
+            ButtonAndOptionsState(
+                isButtonEnabled = isButtonEnabled,
+                isTariffValidWithOptions = isTariffValidWithOptions
+            )
         }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Lazily,
-            initialValue = true
+            initialValue = ButtonAndOptionsState(
+                isButtonEnabled = false,
+                isTariffValidWithOptions = true
+            )
         )
 
     init {
@@ -107,6 +108,10 @@ class MainSheetViewModel(
                 is OrderTaxiBottomSheetIntent.SetSheetHeight -> setSheetHeight(intent.height)
                 is TariffInfoBottomSheetIntent.ClearOptions -> setSelectedOptions(emptyList())
                 is TariffInfoBottomSheetIntent.OptionsChange -> setSelectedOptions(intent.options)
+                is TariffInfoBottomSheetIntent.ChangeShadowVisibility -> {
+                    _uiState.update { it.copy(shadowVisibility = intent.visible) }
+                }
+
                 is FooterIntent.SetFooterHeight -> setFooterHeight(intent.height)
                 is FooterIntent.ClearOptions -> setSelectedOptions(emptyList())
                 is FooterIntent.CreateOrder -> orderTaxi()
@@ -152,7 +157,13 @@ class MainSheetViewModel(
     }
 
     private fun setSelectedTariff(tariff: GetTariffsModel.Tariff?) {
-        _uiState.update { it.copy(selectedTariff = tariff) }
+        _uiState.update {
+            it.copy(
+                selectedTariff = tariff,
+                options = tariff?.services ?: emptyList(),
+                isSecondaryAddressMandatory = tariff?.isSecondAddressMandatory.orFalse()
+            )
+        }
     }
 
     private fun setSelectedOptions(options: List<GetTariffsModel.Tariff.Service>) {
@@ -161,18 +172,18 @@ class MainSheetViewModel(
 
     private fun setFooterHeight(height: Dp) {
         _uiState.update { it.copy(footerHeight = height) }
-        updateSheetHeight(height)
+        viewModelScope.launch(Dispatchers.Main) {
+            MainSheet.mutableIntentFlow.emit(
+                OrderTaxiBottomSheetIntent.SetSheetHeight(height = height + uiState.value.sheetHeight)
+            )
+        }
     }
 
     private fun setSheetHeight(height: Dp) {
         _uiState.update { it.copy(sheetHeight = height) }
-    }
-
-    private fun updateSheetHeight(height: Dp) {
-        val newSheetHeight = uiState.value.sheetHeight + height
         viewModelScope.launch(Dispatchers.Main) {
             MainSheet.mutableIntentFlow.emit(
-                OrderTaxiBottomSheetIntent.SetSheetHeight(height = newSheetHeight)
+                OrderTaxiBottomSheetIntent.SetSheetHeight(height = height + uiState.value.footerHeight)
             )
         }
     }

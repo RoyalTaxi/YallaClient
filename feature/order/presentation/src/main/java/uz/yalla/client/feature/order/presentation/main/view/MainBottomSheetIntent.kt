@@ -19,7 +19,9 @@ sealed interface MainBottomSheetIntent {
     sealed class TariffInfoBottomSheetIntent : MainBottomSheetIntent {
         data object ClickComment : TariffInfoBottomSheetIntent()
         data object ClearOptions : TariffInfoBottomSheetIntent()
-        data class OptionsChange(val options: List<GetTariffsModel.Tariff.Service>) : TariffInfoBottomSheetIntent()
+        data class ChangeShadowVisibility(val visible: Boolean) : TariffInfoBottomSheetIntent()
+        data class OptionsChange(val options: List<GetTariffsModel.Tariff.Service>) :
+            TariffInfoBottomSheetIntent()
     }
 
     sealed interface FooterIntent : MainBottomSheetIntent {

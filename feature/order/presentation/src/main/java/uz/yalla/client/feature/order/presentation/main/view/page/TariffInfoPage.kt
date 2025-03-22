@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.order.presentation.main.view.sheet
+package uz.yalla.client.feature.order.presentation.main.view.page
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -34,16 +34,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.domain.model.response.tarrif.GetTariffsModel
 import uz.yalla.client.feature.order.presentation.R
@@ -55,114 +51,88 @@ import uz.yalla.client.feature.order.presentation.main.view.MainBottomSheetInten
 private typealias Tariff = GetTariffsModel.Tariff
 
 @Composable
-fun TariffInfoBottomSheet(
+fun TariffInfoPage(
     state: MainSheetState,
     isTariffValidWithOptions: Boolean,
     modifier: Modifier = Modifier,
     onIntent: (TariffInfoBottomSheetIntent) -> Unit
 ) {
+    val columnState = rememberLazyListState()
     val newSelectedOptions = remember(state.selectedOptions) {
         mutableStateListOf(*state.selectedOptions.toTypedArray())
     }
 
-    val columnState = rememberLazyListState()
-
     val endOfListReached by remember {
-        derivedStateOf { columnState.isScrolledToEnd() }
-    }
-
-    LaunchedEffect(state.selectedOptions, isTariffValidWithOptions) {
-        launch(Dispatchers.Default) {
-            if (isTariffValidWithOptions) {
-                val validOptions = state.selectedOptions.filter { selected ->
-                    state.options.any { option ->
-                        option.name == selected.name && option.cost == selected.cost
-                    }
-                }
-
-                if (newSelectedOptions != validOptions) {
-                    newSelectedOptions.clear()
-                    newSelectedOptions.addAll(validOptions)
-                }
-            }
+        derivedStateOf {
+            columnState.isScrolledToEnd()
         }
     }
-    Box {
-        state.selectedTariff?.let { tariff ->
-            LazyColumn(
-                modifier = modifier.fillMaxSize(),
-                state = columnState
-            ) {
-                item {
-                    TariffInfoSection(
-                        tariff = tariff,
-                        isDestinationsEmpty = state.destinations.isEmpty()
-                    )
-                }
 
-                item { Spacer(modifier = Modifier.height(10.dp)) }
-
-                item {
-                    InfoProvidersSection(
-                        info = state.comment,
-                        onClick = { onIntent(TariffInfoBottomSheetIntent.ClickComment) }
-                    )
-                }
-
-                if (isTariffValidWithOptions) {
-                    item { Spacer(modifier = Modifier.height(10.dp)) }
-
-                    item {
-                        InvalidOptionsSection(
-                            clearOptions = { onIntent(TariffInfoBottomSheetIntent.ClearOptions) }
-                        )
-                    }
-                }
-
-                item { Spacer(modifier = Modifier.height(10.dp)) }
-
-
-                item {
-                    Column(modifier = Modifier.clip(RoundedCornerShape(30.dp))) {
-                        state.options.forEach { service ->
-                            OptionsItem(
-                                option = service,
-                                isSelected = newSelectedOptions.any {
-                                    it.name == service.name && it.cost == service.cost
-                                },
-                                onChecked = { isSelected ->
-                                    newSelectedOptions.toggle(service, isSelected)
-                                    onIntent(
-                                        TariffInfoBottomSheetIntent.OptionsChange(
-                                            options = newSelectedOptions
-                                        )
-                                    )
-                                }
-                            )
-                        }
-                    }
-                }
-
-                item { Spacer(modifier = Modifier.height(state.footerHeight)) }
-            }
-        }
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(20.dp)
-                .align(Alignment.BottomCenter)
-                .padding(bottom = state.footerHeight)
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            Color.Transparent,
-                            Color.Black.copy(alpha = if (endOfListReached) 0.3f else 0f),
-                            Color.Black.copy(alpha = if (endOfListReached) 0.6f else 0f)
-                        )
-                    )
-                )
+    LaunchedEffect(endOfListReached) {
+        onIntent(
+            TariffInfoBottomSheetIntent.ChangeShadowVisibility(
+                visible = endOfListReached.not()
+            )
         )
+    }
+
+    state.selectedTariff?.let { tariff ->
+        LazyColumn(
+            state = columnState,
+            modifier = modifier.fillMaxSize()
+        ) {
+            item {
+                TariffInfoSection(
+                    tariff = tariff,
+                    isDestinationsEmpty = state.destinations.isEmpty()
+                )
+            }
+
+            item { Spacer(modifier = Modifier.height(10.dp)) }
+
+            item {
+                InfoProvidersSection(
+                    info = state.comment,
+                    onClick = { onIntent(TariffInfoBottomSheetIntent.ClickComment) }
+                )
+            }
+
+            if (isTariffValidWithOptions.not()) {
+                item { Spacer(modifier = Modifier.height(10.dp)) }
+
+                item {
+                    InvalidOptionsSection(
+                        clearOptions = { onIntent(TariffInfoBottomSheetIntent.ClearOptions) }
+                    )
+                }
+            }
+
+            item { Spacer(modifier = Modifier.height(10.dp)) }
+
+
+            item {
+                Column(modifier = Modifier.clip(RoundedCornerShape(30.dp))) {
+                    state.options.forEach { service ->
+                        OptionsItem(
+                            option = service,
+                            isSelected = newSelectedOptions.any {
+                                it.name == service.name && it.cost == service.cost
+                            },
+                            onChecked = { isSelected ->
+                                newSelectedOptions.toggle(service, isSelected)
+                                onIntent(
+                                    TariffInfoBottomSheetIntent.OptionsChange(
+                                        options = newSelectedOptions
+                                    )
+                                )
+                            }
+                        )
+                    }
+                }
+            }
+
+            item { Spacer(modifier = Modifier.height(state.footerHeight)) }
+        }
     }
 }
 

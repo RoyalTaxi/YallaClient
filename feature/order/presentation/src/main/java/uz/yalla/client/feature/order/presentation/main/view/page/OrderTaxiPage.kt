@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.order.presentation.main.view.sheet
+package uz.yalla.client.feature.order.presentation.main.view.page
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.animateScrollBy
@@ -40,7 +40,7 @@ import uz.yalla.client.feature.order.presentation.main.model.MainSheetState
 import uz.yalla.client.feature.order.presentation.main.view.MainBottomSheetIntent.OrderTaxiBottomSheetIntent
 
 @Composable
-fun OrderTaxiBottomSheet(
+fun OrderTaxiPage(
     state: MainSheetState,
     modifier: Modifier = Modifier,
     onIntent: (OrderTaxiBottomSheetIntent) -> Unit

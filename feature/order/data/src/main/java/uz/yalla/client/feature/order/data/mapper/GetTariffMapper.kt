@@ -49,7 +49,7 @@ object GetTariffMapper {
                 name = remote?.name.orEmpty(),
                 outCityKmCost = remote?.out_city_km_cost.or0(),
                 photo = remote?.photo.orEmpty(),
-                secondAddress = remote?.second_address.orFalse(),
+                isSecondAddressMandatory = remote?.second_address.orFalse(),
                 services = remote?.services?.map(tariffServiceMapper).orEmpty()
             )
         }

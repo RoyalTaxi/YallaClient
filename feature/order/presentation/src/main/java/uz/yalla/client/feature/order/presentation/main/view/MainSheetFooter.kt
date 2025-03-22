@@ -13,6 +13,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -40,7 +44,7 @@ fun MainSheetFooter(
 ) {
     val density = LocalDensity.current
     val primaryButtonText = when {
-        isTariffValidWithOptions -> stringResource(R.string.options_not_valid)
+        isTariffValidWithOptions.not() -> stringResource(R.string.options_not_valid)
         state.isSecondaryAddressMandatory && state.destinations.isEmpty() -> stringResource(R.string.required_second_address)
         else -> stringResource(R.string.lets_go)
     }
@@ -50,6 +54,26 @@ fun MainSheetFooter(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .height(IntrinsicSize.Min)
+            .then(
+                if (state.shadowVisibility) {
+                    Modifier
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(
+                            brush = Brush.verticalGradient(
+                                startY = 0f,
+                                endY = with(density) { 20.dp.toPx() },
+                                tileMode = TileMode.Clamp,
+                                colors = listOf(
+                                    Color.Transparent,
+                                    Color.Black.copy(.03f),
+                                    Color.Black.copy(.09f)
+                                )
+                            )
+                        )
+                } else {
+                    Modifier
+                }
+            )
             .onSizeChanged {
                 with(density) {
                     it.height.toDp().let { height ->

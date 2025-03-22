@@ -7,10 +7,9 @@ import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.SelectedLocation
 import uz.yalla.client.feature.map.domain.model.response.PolygonRemoteItem
-import uz.yalla.client.feature.payment.domain.model.CardListItemModel
 import uz.yalla.client.feature.order.domain.model.request.OrderTaxiDto
-import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 import uz.yalla.client.feature.order.domain.model.response.tarrif.GetTariffsModel
+import uz.yalla.client.feature.payment.domain.model.CardListItemModel
 
 data class MainSheetState(
     val polygon: List<PolygonRemoteItem> = emptyList(),
@@ -34,7 +33,8 @@ data class MainSheetState(
     val selectedService: String = "road",
 
     val orderId: Int = 0,
-    val isSecondaryAddressMandatory: Boolean = false
+    val isSecondaryAddressMandatory: Boolean = false,
+    val shadowVisibility: Boolean = false
 ) {
 
     fun getBadgeText(): String? = when {
