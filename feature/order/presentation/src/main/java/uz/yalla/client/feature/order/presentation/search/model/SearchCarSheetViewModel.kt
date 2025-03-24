@@ -12,6 +12,7 @@ import kotlinx.coroutines.yield
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.feature.order.domain.usecase.order.CancelRideUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.GetSettingUseCase
+import uz.yalla.client.feature.order.domain.usecase.order.GetShowOrderUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.SearchCarUseCase
 import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheet.mutableIntentFlow
 import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheetIntent
@@ -21,6 +22,7 @@ class SearchCarSheetViewModel(
     private val searchCarUseCase: SearchCarUseCase,
     private val getSettingUseCase: GetSettingUseCase,
     private val cancelRideUseCase: CancelRideUseCase,
+    private val getShowOrderUseCase: GetShowOrderUseCase
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(SearchCarSheetState())
     val uiState = _uiState.asStateFlow()
@@ -29,6 +31,14 @@ class SearchCarSheetViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             while (true) {
                 searchCar()
+                delay(5.seconds)
+                yield()
+            }
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            while (true) {
+                getOrderDetails()
                 delay(5.seconds)
                 yield()
             }
@@ -56,6 +66,15 @@ class SearchCarSheetViewModel(
         }
     }
 
+    private fun getOrderDetails() {
+        val orderId = uiState.value.orderId ?: return
+        viewModelScope.launch(Dispatchers.IO) {
+            getShowOrderUseCase(orderId).onSuccess { data ->
+                _uiState.update { it.copy(order = data) }
+            }
+        }
+    }
+
     fun getSetting() {
         viewModelScope.launch(Dispatchers.IO) {
             getSettingUseCase().onSuccess { setting ->
@@ -68,7 +87,7 @@ class SearchCarSheetViewModel(
         val orderId = uiState.value.orderId ?: return
         viewModelScope.launch(Dispatchers.IO) {
             cancelRideUseCase(orderId).onSuccess {
-                onIntent(SearchCarSheetIntent.OnCancelled)
+                onIntent(SearchCarSheetIntent.OnCancelled(orderId))
             }
         }
     }

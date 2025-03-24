@@ -15,6 +15,7 @@ import uz.yalla.client.core.common.dialog.LoadingDialog
 
 @Composable
 fun CancelReasonRoute(
+    orderId: Int,
     onNavigateBack: () -> Unit,
     viewModel: CancelReasonViewModel = koinViewModel()
 ) {
@@ -43,11 +44,10 @@ fun CancelReasonRoute(
 
     CancelReasonScreen(
         uiState = uiState,
-        onSelect = viewModel::cancelReason,
         onIntent = { intent ->
             when (intent) {
                 is CancelReasonIntent.OnSelect -> viewModel.updateSelectedReason(intent.reason)
-                is CancelReasonIntent.OnSelected -> viewModel.cancelReason()
+                is CancelReasonIntent.OnSelected -> viewModel.cancelReason(orderId)
                 is CancelReasonIntent.NavigateBack -> onNavigateBack()
             }
         }

@@ -27,12 +27,10 @@ import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.domain.model.response.order.SettingModel
 import uz.yalla.client.feature.order.presentation.R
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CancelReasonScreen(
     uiState: CancelReasonUIState,
     onIntent: (CancelReasonIntent) -> Unit,
-    onSelect: () -> Unit
 ) {
     Scaffold(
         containerColor = YallaTheme.color.white,
@@ -52,9 +50,13 @@ fun CancelReasonScreen(
                 )
 
                 CancelReasonFooter(
+                    modifier = Modifier.weight(1f),
                     isButtonEnabled = uiState.selectedReason != null,
-                    onClickButton = { uiState.selectedReason?.let { onSelect() } },
-                    modifier = Modifier.weight(1f)
+                    onClickButton = {
+                        uiState.selectedReason?.let {
+                            onIntent(CancelReasonIntent.OnSelected)
+                        }
+                    }
                 )
             }
         }

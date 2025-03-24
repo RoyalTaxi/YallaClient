@@ -14,9 +14,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.android.awaitFrame
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -31,7 +31,6 @@ import uz.yalla.client.core.data.enums.MapType
 import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.domain.model.MapPoint
-import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.feature.map.presentation.model.MapViewModel
 import uz.yalla.client.feature.map.presentation.view.drawer.MapDrawer
 import uz.yalla.client.feature.map.presentation.view.drawer.MapDrawerIntent
@@ -41,7 +40,6 @@ import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent
 import uz.yalla.client.feature.order.presentation.search.navigateToSearchForCarBottomSheet
 import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheet
 import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheetIntent
-import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun MapRoute(
@@ -51,7 +49,7 @@ fun MapRoute(
     onPaymentTypeClick: () -> Unit,
     onAddressesClick: () -> Unit,
     onSettingsClick: () -> Unit,
-    onCancel: () -> Unit,
+    onCancel: (Int) -> Unit,
     onAddNewCard: () -> Unit,
     onAboutAppClick: () -> Unit,
     onContactUsClick: () -> Unit,
@@ -103,7 +101,11 @@ fun MapRoute(
 
     LaunchedEffect(Unit) {
         launch(Dispatchers.Main) {
-            navController.navigateToMainSheet()
+            navController.navigateToMainSheet(
+                navOptions {
+                    restoreState = false
+                }
+            )
         }
 
         launch(Dispatchers.IO) {
@@ -133,6 +135,11 @@ fun MapRoute(
                         vm.updateState(state.copy(orders = intent.orders))
                     }
 
+                    is MainSheetIntent.OrderTaxiSheetIntent.SetSheetHeight -> {
+                        vm.updateState(state.copy(sheetHeight = intent.height))
+                        map.move(to = map.mapPoint.value)
+                    }
+
                     is MainSheetIntent.OrderTaxiSheetIntent.AddNewDestinationClick -> TODO()
                     is MainSheetIntent.OrderTaxiSheetIntent.CurrentLocationClick -> TODO()
                     is MainSheetIntent.OrderTaxiSheetIntent.DestinationClick -> TODO()
@@ -148,13 +155,16 @@ fun MapRoute(
                             point = map.mapPoint.value,
                             orderId = intent.orderId,
                             tariffId = state.selectedTariffId.or0(),
+                            navOptions = navOptions {
+                                restoreState = false
+                            }
                         )
                     }
 
                     is MainSheetIntent.TariffInfoSheetIntent.ClickComment -> {}
-                    is MainSheetIntent.OrderTaxiSheetIntent.SetSheetHeight -> {
-                        vm.updateState(state.copy(sheetHeight = intent.height))
-                        map.move(to = map.mapPoint.value)
+
+                    is MainSheetIntent.PaymentMethodSheetIntent.OnAddNewCard -> {
+                        onAddNewCard()
                     }
 
                     else -> {}
@@ -166,7 +176,7 @@ fun MapRoute(
             SearchCarSheet.intentFlow.collectLatest { intent ->
                 when (intent) {
                     is SearchCarSheetIntent.OnCancelled -> {
-                        onCancel()
+                        onCancel(intent.orderId)
                     }
 
                     is SearchCarSheetIntent.OnFoundCars -> {
@@ -213,35 +223,6 @@ fun MapRoute(
     LaunchedEffect(state.drivers) {
         launch(Dispatchers.Main) {
             map.updateDrivers(state.drivers)
-        }
-    }
-
-    LaunchedEffect(state.selectedOrder) {
-        launch(Dispatchers.Main) {
-            state.selectedOrder?.let {
-                map.updateDriver(it.executor)
-            }
-        }
-    }
-
-    LaunchedEffect(state.selectedOrder?.status) {
-    }
-
-    LaunchedEffect(state.selectedOrder) {
-        launch(Dispatchers.Main) {
-            if (state.selectedOrder != null) {
-                vm.updateState(state.copy(loading = false))
-            }
-
-            if (state.selectedOrder?.status == OrderStatus.InFetters) {
-                state.selectedOrder?.let { driver ->
-                    val driverPosition = MapPoint(
-                        lat = driver.executor.coords.lat,
-                        lng = driver.executor.coords.lng
-                    )
-                    map.animate(to = driverPosition)
-                }
-            }
         }
     }
 

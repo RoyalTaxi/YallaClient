@@ -24,4 +24,9 @@
     <string name="ready">Готово</string>
     <string name="comment">Комментарий</string>
     <string name="close">Закрыть</string>
+
+    <string name="cancel_order_question">Вы уверены, что хотите отменить свой заказ?</string>
+    <string name="cancel_order_definition">Ищем машину для вас, но если отмените сейчас, поиск новой займет больше времени.</string>
+    <string name="cancel">Отменить</string>
+    <string name="wait">Дожтаться</string>
 </resources>

@@ -2,14 +2,13 @@ package uz.yalla.client.feature.order.presentation.cancel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.feature.order.domain.model.response.order.SettingModel
 import uz.yalla.client.feature.order.domain.usecase.order.CancelReasonUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.GetSettingUseCase
@@ -37,19 +36,16 @@ class CancelReasonViewModel(
             }
     }
 
-    fun cancelReason() = viewModelScope.launch(Dispatchers.IO) {
-        if (AppPreferences.lastOrderId != -1) {
-            _actionState.emit(CancelReasonActionState.Loading)
-            uiState.value.selectedReason?.apply {
-                cancelReasonUseCase(
-                    orderId = AppPreferences.lastOrderId,
-                    reasonId = id,
-                    reasonComment = name
-                ).onSuccess { _actionState.emit(CancelReasonActionState.SettingSuccess) }
-                    .onFailure { _actionState.emit(CancelReasonActionState.Error) }
-            }
+    fun cancelReason(orderId: Int) = viewModelScope.launch(Dispatchers.IO) {
+        _actionState.emit(CancelReasonActionState.Loading)
+        uiState.value.selectedReason?.apply {
+            cancelReasonUseCase(
+                orderId = orderId,
+                reasonId = id,
+                reasonComment = name
+            ).onSuccess { _actionState.emit(CancelReasonActionState.SettingSuccess) }
+                .onFailure { _actionState.emit(CancelReasonActionState.Error) }
         }
-        AppPreferences.lastOrderId = -1
     }
 
     fun updateSelectedReason(reason: SettingModel.CancelReason) =

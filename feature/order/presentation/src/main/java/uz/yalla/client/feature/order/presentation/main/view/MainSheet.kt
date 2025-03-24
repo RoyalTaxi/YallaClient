@@ -19,6 +19,9 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import io.morfly.compose.bottomsheet.material3.BottomSheetScaffold
 import io.morfly.compose.bottomsheet.material3.BottomSheetState
 import io.morfly.compose.bottomsheet.material3.rememberBottomSheetScaffoldState
@@ -36,10 +39,10 @@ import uz.yalla.client.core.domain.model.SelectedLocation
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.main.model.MainSheetState
 import uz.yalla.client.feature.order.presentation.main.model.MainSheetViewModel
+import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.PaymentMethodSheetIntent
 import uz.yalla.client.feature.order.presentation.main.view.page.OrderTaxiPage
 import uz.yalla.client.feature.order.presentation.main.view.page.TariffInfoPage
 import uz.yalla.client.feature.order.presentation.main.view.sheet.OrderCommentBottomSheet
-import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.PaymentMethodSheetIntent
 import uz.yalla.client.feature.order.presentation.main.view.sheet.PaymentMethodBottomSheet
 
 object MainSheet {
@@ -52,6 +55,7 @@ object MainSheet {
     fun View() {
         val state by viewModel.uiState.collectAsState()
         val buttonAndOptionsState by viewModel.buttonAndOptionsState.collectAsState()
+        val lifecycleOwner = LocalLifecycleOwner.current
 
         val partialSheetHeight = state.sheetHeight + state.footerHeight
 
@@ -95,6 +99,14 @@ object MainSheet {
                     )
                 }
             }
+
+            lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                mutableIntentFlow.emit(
+                    MainSheetIntent.OrderTaxiSheetIntent.SetSheetHeight(
+                        height = state.sheetHeight + state.footerHeight
+                    )
+                )
+            }
         }
 
         LaunchedEffect(state.isPaymentMethodSheetVisible) {
@@ -117,7 +129,7 @@ object MainSheet {
             }
         }
 
-        LaunchedEffect(state.orderId) {  }
+        LaunchedEffect(state.orderId) { }
 
         BottomSheetScaffold(
             scaffoldState = scaffoldState,
@@ -225,11 +237,9 @@ object MainSheet {
         return rawFraction.coerceIn(0f, 1f)
     }
 
-    // Public interface for ViewModel
     val setDestination: (List<Destination>) -> Unit = viewModel::setDestination
     val setLocation: (SelectedLocation) -> Unit = viewModel::setSelectedLocation
     val setLoading: (Boolean) -> Unit = viewModel::setLoading
 
-    // Used by ViewModel to emit intents
     internal val mutableIntentFlow: MutableSharedFlow<MainSheetIntent> get() = _intentFlow
 }

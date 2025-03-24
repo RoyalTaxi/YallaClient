@@ -3,6 +3,7 @@ package uz.yalla.client.feature.order.presentation.search
 import android.os.Build
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavOptions
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
@@ -59,8 +60,9 @@ fun NavGraphBuilder.searchForCarBottomSheet() {
 fun NavController.navigateToSearchForCarBottomSheet(
     point: MapPoint,
     tariffId: Int,
-    orderId: Int
+    orderId: Int,
+    navOptions: NavOptions
 ) {
     val route = "$SEARCH_CAR_ROUTE_BASE?$POINT=$point&$TARIFF_ID=$tariffId&$ORDER_ID=$orderId"
-    safeNavigate(route)
+    safeNavigate(route, navOptions)
 }

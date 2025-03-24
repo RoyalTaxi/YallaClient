@@ -24,4 +24,8 @@
     <string name="ready">Tayyor</string>
     <string name="comment">Izoh</string>
     <string name="close">Yopish</string>
+    <string name="cancel_order_question">Buyurtmani bekor qilishni xohlaysizmi?</string>
+    <string name="cancel_order_definition">Siz uchun mashina qidirmoqdamiz, ammo hozir bekor qilsangiz, yangi mashina topish ko\'proq vaqt oladi.</string>
+    <string name="cancel">Bekor qilish</string>
+    <string name="wait">Kutish</string>
 </resources>

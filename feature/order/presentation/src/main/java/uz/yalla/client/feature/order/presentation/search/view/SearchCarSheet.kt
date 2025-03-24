@@ -16,12 +16,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -38,6 +41,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.getKoin
 import uz.yalla.client.core.common.progress.YallaProgressBar
+import uz.yalla.client.core.common.sheet.ConfirmationBottomSheet
 import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
@@ -52,6 +56,7 @@ object SearchCarSheet {
     internal val mutableIntentFlow = MutableSharedFlow<SearchCarSheetIntent>()
     val intentFlow = mutableIntentFlow.asSharedFlow()
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun View(
         point: MapPoint,
@@ -60,7 +65,9 @@ object SearchCarSheet {
     ) {
         val density = LocalDensity.current
         val state by viewModel.uiState.collectAsState()
+        val scope = rememberCoroutineScope()
         var currentTime by rememberSaveable { mutableIntStateOf(0) }
+        val cancelOrderSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         val progress by animateFloatAsState(
             targetValue = currentTime.toFloat(),
             animationSpec = tween(durationMillis = 1000),
@@ -154,6 +161,29 @@ object SearchCarSheet {
                     )
                 }
             }
+        }
+
+        if (state.cancelBottomSheetVisibility) {
+            ConfirmationBottomSheet(
+                sheetState = cancelOrderSheetState,
+                title = stringResource(R.string.cancel_order_question),
+                description = stringResource(R.string.cancel_order_definition),
+                actionText = stringResource(R.string.cancel),
+                dismissText = stringResource(R.string.wait),
+                onDismissRequest = {
+                    viewModel.setCancelBottomSheetVisibility(false)
+                    scope.launch {
+                        cancelOrderSheetState.hide()
+                    }
+                },
+                onConfirm = {
+                    viewModel.cancelRide()
+                    viewModel.setCancelBottomSheetVisibility(false)
+                    scope.launch {
+                        cancelOrderSheetState.hide()
+                    }
+                }
+            )
         }
     }
 }

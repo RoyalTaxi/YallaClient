@@ -18,7 +18,7 @@ fun NavGraphBuilder.mapScreen(
     onPermissionDenied: () -> Unit,
     onAboutAppClick: () -> Unit,
     onContactUsClick: () -> Unit,
-    onCancel: () -> Unit,
+    onCancel: (Int) -> Unit,
     onAddNewCard: () -> Unit,
     becomeDriverClick: (String, String) -> Unit,
     inviteFriendClick: (String, String) -> Unit
