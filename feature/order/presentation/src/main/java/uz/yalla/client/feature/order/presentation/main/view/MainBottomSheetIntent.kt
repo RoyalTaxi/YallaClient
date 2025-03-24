@@ -38,4 +38,8 @@ sealed interface MainBottomSheetIntent {
         data object OnDismissRequest : PaymentMethodSheetIntent
         data class OnSelectPaymentType(val paymentType: PaymentType) : PaymentMethodSheetIntent
     }
+
+    sealed interface OrderCommentSheetIntent : MainBottomSheetIntent {
+        data class OnDismissRequest(val comment: String) : OrderCommentSheetIntent
+    }
 }

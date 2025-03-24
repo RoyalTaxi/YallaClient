@@ -22,5 +22,6 @@
     <string name="cash">Naqd</string>
     <string name="add_card">Karta qo\'shish</string>
     <string name="ready">Tayyor</string>
-
+    <string name="comment">Izoh</string>
+    <string name="close">Yopish</string>
 </resources>

@@ -35,6 +35,7 @@ import uz.yalla.client.feature.order.presentation.main.view.MainBottomSheetInten
 import uz.yalla.client.feature.order.presentation.main.view.MainBottomSheetIntent.OrderTaxiBottomSheetIntent
 import uz.yalla.client.feature.order.presentation.main.view.MainBottomSheetIntent.TariffInfoBottomSheetIntent
 import uz.yalla.client.feature.order.presentation.main.view.MainBottomSheetIntent.PaymentMethodSheetIntent
+import uz.yalla.client.feature.order.presentation.main.view.MainBottomSheetIntent.OrderCommentSheetIntent
 import uz.yalla.client.feature.order.presentation.main.view.MainSheet
 import uz.yalla.client.feature.payment.domain.usecase.GetCardListUseCase
 
@@ -114,18 +115,33 @@ class MainSheetViewModel(
                     _uiState.update { it.copy(shadowVisibility = intent.visible) }
                 }
 
+                is TariffInfoBottomSheetIntent.ClickComment -> {
+                    _uiState.update { it.copy(isOrderCommentSheetVisible = true) }
+                }
+
                 is FooterIntent.SetFooterHeight -> setFooterHeight(intent.height)
                 is FooterIntent.ClearOptions -> setSelectedOptions(emptyList())
                 is FooterIntent.CreateOrder -> orderTaxi()
                 is FooterIntent.ClickPaymentButton -> {
                     _uiState.update { it.copy(isPaymentMethodSheetVisible = true) }
                 }
+
                 is PaymentMethodSheetIntent.OnDismissRequest -> {
                     _uiState.update { it.copy(isPaymentMethodSheetVisible = false) }
                 }
+
                 is PaymentMethodSheetIntent.OnSelectPaymentType -> {
                     AppPreferences.paymentType = intent.paymentType
                     setPaymentType(intent.paymentType)
+                }
+
+                is OrderCommentSheetIntent.OnDismissRequest -> {
+                    _uiState.update {
+                        it.copy(
+                            isOrderCommentSheetVisible = false,
+                            comment = intent.comment
+                        )
+                    }
                 }
 
                 is FooterIntent.ChangeSheetVisibility -> _sheetVisibilityListener.send(Unit)

@@ -35,7 +35,8 @@ data class MainSheetState(
     val orderId: Int = 0,
     val isSecondaryAddressMandatory: Boolean = false,
     val shadowVisibility: Boolean = false,
-    val isPaymentMethodSheetVisible: Boolean = false
+    val isPaymentMethodSheetVisible: Boolean = false,
+    val isOrderCommentSheetVisible: Boolean = false
 ) {
 
     fun getBadgeText(): String? = when {

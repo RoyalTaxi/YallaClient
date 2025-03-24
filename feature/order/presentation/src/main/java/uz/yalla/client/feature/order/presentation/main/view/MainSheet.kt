@@ -38,6 +38,7 @@ import uz.yalla.client.feature.order.presentation.main.model.MainSheetState
 import uz.yalla.client.feature.order.presentation.main.model.MainSheetViewModel
 import uz.yalla.client.feature.order.presentation.main.view.page.OrderTaxiPage
 import uz.yalla.client.feature.order.presentation.main.view.page.TariffInfoPage
+import uz.yalla.client.feature.order.presentation.main.view.sheet.OrderCommentBottomSheet
 import uz.yalla.client.feature.order.presentation.main.view.sheet.PaymentMethodBottomSheet
 
 object MainSheet {
@@ -66,6 +67,10 @@ object MainSheet {
         )
 
         val paymentMethodSheetState = rememberModalBottomSheetState(
+            skipPartiallyExpanded = true
+        )
+
+        val orderCommentSheetState = rememberModalBottomSheetState(
             skipPartiallyExpanded = true
         )
 
@@ -148,6 +153,14 @@ object MainSheet {
                 sheetState = paymentMethodSheetState,
                 paymentTypes = state.cardList,
                 selectedPaymentType = state.selectedPaymentType,
+                onIntent = viewModel::onIntent
+            )
+        }
+
+        if (state.isOrderCommentSheetVisible) {
+            OrderCommentBottomSheet(
+                sheetState = orderCommentSheetState,
+                comment = state.comment,
                 onIntent = viewModel::onIntent
             )
         }

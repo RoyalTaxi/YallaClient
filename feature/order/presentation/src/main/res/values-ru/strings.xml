@@ -22,4 +22,6 @@
     <string name="cash">Наличние</string>
     <string name="add_card">Добавить карту</string>
     <string name="ready">Готово</string>
+    <string name="comment">Комментарий</string>
+    <string name="close">Закрыть</string>
 </resources>
