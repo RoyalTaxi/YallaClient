@@ -1,6 +1,7 @@
 package uz.yalla.client.feature.order.presentation.main.view
 
 import androidx.compose.ui.unit.Dp
+import uz.yalla.client.core.data.enums.PaymentType
 import uz.yalla.client.feature.order.domain.model.response.tarrif.GetTariffsModel
 
 sealed interface MainBottomSheetIntent {
@@ -30,5 +31,11 @@ sealed interface MainBottomSheetIntent {
         data object ClearOptions : FooterIntent
         data class SetFooterHeight(val height: Dp) : FooterIntent
         data class ChangeSheetVisibility(val isExtended: Boolean) : FooterIntent
+    }
+
+    sealed interface PaymentMethodSheetIntent : MainBottomSheetIntent {
+        data object OnAddNewCard : PaymentMethodSheetIntent
+        data object OnDismissRequest : PaymentMethodSheetIntent
+        data class OnSelectPaymentType(val paymentType: PaymentType) : PaymentMethodSheetIntent
     }
 }

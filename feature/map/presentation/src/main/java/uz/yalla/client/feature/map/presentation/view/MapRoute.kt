@@ -139,6 +139,9 @@ fun MapRoute(
                     is MainBottomSheetIntent.OrderTaxiBottomSheetIntent.AddNewDestinationClick -> TODO()
                     is MainBottomSheetIntent.OrderTaxiBottomSheetIntent.CurrentLocationClick -> TODO()
                     is MainBottomSheetIntent.OrderTaxiBottomSheetIntent.DestinationClick -> TODO()
+                    is MainBottomSheetIntent.OrderTaxiBottomSheetIntent.SetSheetHeight -> {
+                        vm.updateState(state.copy(sheetHeight = intent.height))
+                    }
                     is MainBottomSheetIntent.OrderTaxiBottomSheetIntent.OrderCreated -> {
                         vm.updateState(state.copy(showingOrderId = intent.orderId))
                         navController.navigateToSearchForCarBottomSheet(
@@ -148,8 +151,8 @@ fun MapRoute(
                     }
 
                     is MainBottomSheetIntent.TariffInfoBottomSheetIntent.ClickComment -> {}
-                    is MainBottomSheetIntent.OrderTaxiBottomSheetIntent.SetSheetHeight -> {
-                        vm.updateState(state.copy(sheetHeight = intent.height))
+                    is MainBottomSheetIntent.PaymentMethodSheetIntent.OnAddNewCard -> {
+                        onAddNewCard()
                     }
 
                     else -> {}

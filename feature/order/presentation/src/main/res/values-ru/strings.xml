@@ -17,5 +17,9 @@
     <string name="why_canceled">Почему вы отменили заказ?</string>
     <string name="coming_to_you">К вам едет</string>
     <string name="write_comment_here">Напишите комментарий сюда. \nНапример, “Не звоните”</string>
-
+    <string name="payment_method">Способ оплаты</string>
+    <string name="choose_payment_method">Выберите удобный способ оплаты</string>
+    <string name="cash">Наличние</string>
+    <string name="add_card">Добавить карту</string>
+    <string name="ready">Готово</string>
 </resources>

@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uz.yalla.client.core.data.enums.PaymentType
+import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.core.data.mapper.orFalse
 import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.MapPoint
@@ -33,6 +34,7 @@ import uz.yalla.client.feature.order.presentation.main.view.MainBottomSheetInten
 import uz.yalla.client.feature.order.presentation.main.view.MainBottomSheetIntent.FooterIntent
 import uz.yalla.client.feature.order.presentation.main.view.MainBottomSheetIntent.OrderTaxiBottomSheetIntent
 import uz.yalla.client.feature.order.presentation.main.view.MainBottomSheetIntent.TariffInfoBottomSheetIntent
+import uz.yalla.client.feature.order.presentation.main.view.MainBottomSheetIntent.PaymentMethodSheetIntent
 import uz.yalla.client.feature.order.presentation.main.view.MainSheet
 import uz.yalla.client.feature.payment.domain.usecase.GetCardListUseCase
 
@@ -115,6 +117,17 @@ class MainSheetViewModel(
                 is FooterIntent.SetFooterHeight -> setFooterHeight(intent.height)
                 is FooterIntent.ClearOptions -> setSelectedOptions(emptyList())
                 is FooterIntent.CreateOrder -> orderTaxi()
+                is FooterIntent.ClickPaymentButton -> {
+                    _uiState.update { it.copy(isPaymentMethodSheetVisible = true) }
+                }
+                is PaymentMethodSheetIntent.OnDismissRequest -> {
+                    _uiState.update { it.copy(isPaymentMethodSheetVisible = false) }
+                }
+                is PaymentMethodSheetIntent.OnSelectPaymentType -> {
+                    AppPreferences.paymentType = intent.paymentType
+                    setPaymentType(intent.paymentType)
+                }
+
                 is FooterIntent.ChangeSheetVisibility -> _sheetVisibilityListener.send(Unit)
                 else -> MainSheet.mutableIntentFlow.emit(intent)
             }

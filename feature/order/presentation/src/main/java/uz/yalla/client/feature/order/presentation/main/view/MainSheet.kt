@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -37,6 +38,7 @@ import uz.yalla.client.feature.order.presentation.main.model.MainSheetState
 import uz.yalla.client.feature.order.presentation.main.model.MainSheetViewModel
 import uz.yalla.client.feature.order.presentation.main.view.page.OrderTaxiPage
 import uz.yalla.client.feature.order.presentation.main.view.page.TariffInfoPage
+import uz.yalla.client.feature.order.presentation.main.view.sheet.PaymentMethodBottomSheet
 
 object MainSheet {
     private val viewModel: MainSheetViewModel by lazy { getKoin().get() }
@@ -63,6 +65,9 @@ object MainSheet {
             )
         )
 
+        val paymentMethodSheetState = rememberModalBottomSheetState(
+            skipPartiallyExpanded = true
+        )
 
         val fraction by remember {
             derivedStateOf {
@@ -83,6 +88,20 @@ object MainSheet {
                         else SheetValue.Expanded
                     )
                 }
+            }
+        }
+
+        LaunchedEffect(state.isPaymentMethodSheetVisible) {
+            if (state.isPaymentMethodSheetVisible) {
+                paymentMethodSheetState.show()
+            } else if (paymentMethodSheetState.isVisible) {
+                paymentMethodSheetState.hide()
+            }
+        }
+
+        LaunchedEffect(paymentMethodSheetState.isVisible) {
+            if (!paymentMethodSheetState.isVisible && state.isPaymentMethodSheetVisible) {
+                viewModel.onIntent(MainBottomSheetIntent.PaymentMethodSheetIntent.OnDismissRequest)
             }
         }
 
@@ -111,7 +130,6 @@ object MainSheet {
             }
         )
 
-        // Always visible footer positioned on top of everything
         Box(modifier = Modifier.fillMaxSize()) {
             MainSheetFooter(
                 state = state,
@@ -122,6 +140,15 @@ object MainSheet {
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .zIndex(2f)
+            )
+        }
+
+        if (state.isPaymentMethodSheetVisible) {
+            PaymentMethodBottomSheet(
+                sheetState = paymentMethodSheetState,
+                paymentTypes = state.cardList,
+                selectedPaymentType = state.selectedPaymentType,
+                onIntent = viewModel::onIntent
             )
         }
     }
