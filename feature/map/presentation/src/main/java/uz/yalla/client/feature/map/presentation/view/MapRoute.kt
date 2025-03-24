@@ -15,16 +15,17 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.yield
 import org.koin.androidx.compose.koinViewModel
 import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.core.common.map.ConcreteGisMap
 import uz.yalla.client.core.common.map.ConcreteGoogleMap
 import uz.yalla.client.core.common.map.MapStrategy
+import uz.yalla.client.core.common.marker.YallaMarkerState
 import uz.yalla.client.core.common.state.rememberPermissionState
 import uz.yalla.client.core.data.enums.MapType
 import uz.yalla.client.core.data.local.AppPreferences
@@ -34,9 +35,9 @@ import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.feature.map.presentation.model.MapViewModel
 import uz.yalla.client.feature.map.presentation.view.drawer.MapDrawer
 import uz.yalla.client.feature.map.presentation.view.drawer.MapDrawerIntent
-import uz.yalla.client.feature.order.presentation.main.navigateToMainBottomSheet
-import uz.yalla.client.feature.order.presentation.main.view.MainBottomSheetIntent
+import uz.yalla.client.feature.order.presentation.main.navigateToMainSheet
 import uz.yalla.client.feature.order.presentation.main.view.MainSheet
+import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent
 import uz.yalla.client.feature.order.presentation.search.navigateToSearchForCarBottomSheet
 import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheet
 import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheetIntent
@@ -101,17 +102,8 @@ fun MapRoute(
     }
 
     LaunchedEffect(Unit) {
-        // Initialize navigation to main bottom sheet
         launch(Dispatchers.Main) {
-            navController.navigateToMainBottomSheet()
-        }
-
-        launch(Dispatchers.IO) {
-            while (true) {
-                vm.getActiveOrders()
-                delay(5.seconds)
-                yield()
-            }
+            navController.navigateToMainSheet()
         }
 
         launch(Dispatchers.IO) {
@@ -120,14 +112,15 @@ fun MapRoute(
 
         launch(Dispatchers.Main) {
             map.isMarkerMoving.collectLatest { isMarkerMoving ->
-                if (state.route.isEmpty() && state.selectedOrder?.status == null) {
-                    MainSheet.setLoading(isMarkerMoving)
-                    if (isMarkerMoving) {
-                        vm.setStateToNotFound()
-                    } else {
+                when {
+                    isMarkerMoving.not() && state.showingOrderId == null -> {
                         withContext(Dispatchers.IO) {
                             vm.getAddressName(map.mapPoint.value)
                         }
+                    }
+
+                    state.route.isEmpty() && state.selectedOrder?.status == null && state.showingOrderId == null -> {
+                        vm.setStateToNotFound()
                     }
                 }
             }
@@ -136,23 +129,32 @@ fun MapRoute(
         launch(Dispatchers.Main) {
             MainSheet.intentFlow.collect { intent ->
                 when (intent) {
-                    is MainBottomSheetIntent.OrderTaxiBottomSheetIntent.AddNewDestinationClick -> TODO()
-                    is MainBottomSheetIntent.OrderTaxiBottomSheetIntent.CurrentLocationClick -> TODO()
-                    is MainBottomSheetIntent.OrderTaxiBottomSheetIntent.DestinationClick -> TODO()
-                    is MainBottomSheetIntent.OrderTaxiBottomSheetIntent.SetSheetHeight -> {
-                        vm.updateState(state.copy(sheetHeight = intent.height))
+                    is MainSheetIntent.UpdateActiveOrders -> {
+                        vm.updateState(state.copy(orders = intent.orders))
                     }
-                    is MainBottomSheetIntent.OrderTaxiBottomSheetIntent.OrderCreated -> {
-                        vm.updateState(state.copy(showingOrderId = intent.orderId))
+
+                    is MainSheetIntent.OrderTaxiSheetIntent.AddNewDestinationClick -> TODO()
+                    is MainSheetIntent.OrderTaxiSheetIntent.CurrentLocationClick -> TODO()
+                    is MainSheetIntent.OrderTaxiSheetIntent.DestinationClick -> TODO()
+                    is MainSheetIntent.OrderTaxiSheetIntent.OrderCreated -> {
+                        vm.updateState(
+                            state.copy(
+                                showingOrderId = intent.orderId,
+                                markerState = YallaMarkerState.Searching
+                            )
+                        )
+
                         navController.navigateToSearchForCarBottomSheet(
+                            point = map.mapPoint.value,
+                            orderId = intent.orderId,
                             tariffId = state.selectedTariffId.or0(),
-                            point = map.mapPoint.value
                         )
                     }
 
-                    is MainBottomSheetIntent.TariffInfoBottomSheetIntent.ClickComment -> {}
-                    is MainBottomSheetIntent.PaymentMethodSheetIntent.OnAddNewCard -> {
-                        onAddNewCard()
+                    is MainSheetIntent.TariffInfoSheetIntent.ClickComment -> {}
+                    is MainSheetIntent.OrderTaxiSheetIntent.SetSheetHeight -> {
+                        vm.updateState(state.copy(sheetHeight = intent.height))
+                        map.move(to = map.mapPoint.value)
                     }
 
                     else -> {}
@@ -173,13 +175,17 @@ fun MapRoute(
 
                     is SearchCarSheetIntent.SetSheetHeight -> {
                         vm.updateState(state.copy(sheetHeight = intent.height))
+
+                        awaitFrame()
+                        map.mapPoint.value.let {
+                            map.move(to = it)
+                        }
                     }
                 }
             }
         }
     }
 
-    // Rest of your existing code...
     LaunchedEffect(state.route) {
         launch(Dispatchers.Main) {
             map.updateRoute(state.route)
@@ -212,16 +218,8 @@ fun MapRoute(
 
     LaunchedEffect(state.selectedOrder) {
         launch(Dispatchers.Main) {
-            state.selectedOrder?.let { map.updateDriver(it.executor) }
-        }
-    }
-
-    LaunchedEffect(state.showingOrderId) {
-        launch(Dispatchers.IO) {
-            while (state.showingOrderId != null) {
-                vm.getShowOrder()
-                delay(5.seconds)
-                yield()
+            state.selectedOrder?.let {
+                map.updateDriver(it.executor)
             }
         }
     }

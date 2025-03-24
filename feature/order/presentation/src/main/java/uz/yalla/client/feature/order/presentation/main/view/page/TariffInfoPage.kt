@@ -46,7 +46,7 @@ import uz.yalla.client.feature.order.presentation.R
 import uz.yalla.client.feature.order.presentation.components.OptionsItem
 import uz.yalla.client.feature.order.presentation.components.ProvideDescriptionButton
 import uz.yalla.client.feature.order.presentation.main.model.MainSheetState
-import uz.yalla.client.feature.order.presentation.main.view.MainBottomSheetIntent.TariffInfoBottomSheetIntent
+import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.TariffInfoSheetIntent
 
 private typealias Tariff = GetTariffsModel.Tariff
 
@@ -55,7 +55,7 @@ fun TariffInfoPage(
     state: MainSheetState,
     isTariffValidWithOptions: Boolean,
     modifier: Modifier = Modifier,
-    onIntent: (TariffInfoBottomSheetIntent) -> Unit
+    onIntent: (TariffInfoSheetIntent) -> Unit
 ) {
     val columnState = rememberLazyListState()
     val newSelectedOptions = remember(state.selectedOptions) {
@@ -70,7 +70,7 @@ fun TariffInfoPage(
 
     LaunchedEffect(endOfListReached) {
         onIntent(
-            TariffInfoBottomSheetIntent.ChangeShadowVisibility(
+            TariffInfoSheetIntent.ChangeShadowVisibility(
                 visible = endOfListReached.not()
             )
         )
@@ -93,7 +93,7 @@ fun TariffInfoPage(
             item {
                 InfoProvidersSection(
                     info = state.comment,
-                    onClick = { onIntent(TariffInfoBottomSheetIntent.ClickComment) }
+                    onClick = { onIntent(TariffInfoSheetIntent.ClickComment) }
                 )
             }
 
@@ -102,7 +102,7 @@ fun TariffInfoPage(
 
                 item {
                     InvalidOptionsSection(
-                        clearOptions = { onIntent(TariffInfoBottomSheetIntent.ClearOptions) }
+                        clearOptions = { onIntent(TariffInfoSheetIntent.ClearOptions) }
                     )
                 }
             }
@@ -121,7 +121,7 @@ fun TariffInfoPage(
                             onChecked = { isSelected ->
                                 newSelectedOptions.toggle(service, isSelected)
                                 onIntent(
-                                    TariffInfoBottomSheetIntent.OptionsChange(
+                                    TariffInfoSheetIntent.OptionsChange(
                                         options = newSelectedOptions
                                     )
                                 )

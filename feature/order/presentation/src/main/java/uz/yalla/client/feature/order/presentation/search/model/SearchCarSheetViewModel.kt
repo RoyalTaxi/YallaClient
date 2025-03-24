@@ -3,16 +3,19 @@ package uz.yalla.client.feature.order.presentation.search.model
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.yield
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.feature.order.domain.usecase.order.CancelRideUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.GetSettingUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.SearchCarUseCase
 import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheet.mutableIntentFlow
 import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheetIntent
+import kotlin.time.Duration.Companion.seconds
 
 class SearchCarSheetViewModel(
     private val searchCarUseCase: SearchCarUseCase,
@@ -22,13 +25,23 @@ class SearchCarSheetViewModel(
     private val _uiState = MutableStateFlow(SearchCarSheetState())
     val uiState = _uiState.asStateFlow()
 
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            while (true) {
+                searchCar()
+                delay(5.seconds)
+                yield()
+            }
+        }
+    }
+
     fun onIntent(intent: SearchCarSheetIntent) {
         viewModelScope.launch(Dispatchers.IO) {
             mutableIntentFlow.emit(intent)
         }
     }
 
-    fun searchCar() {
+    private fun searchCar() {
         val point = uiState.value.searchingAddressPoint ?: return
         val tariffId = uiState.value.tariffId ?: return
         viewModelScope.launch(Dispatchers.IO) {
@@ -74,6 +87,9 @@ class SearchCarSheetViewModel(
 
     fun setTariffId(tariffId: Int) {
         _uiState.update { it.copy(tariffId = tariffId) }
+    }
 
+    fun setOrderId(orderId: Int) {
+        _uiState.update { it.copy(orderId = orderId) }
     }
 }

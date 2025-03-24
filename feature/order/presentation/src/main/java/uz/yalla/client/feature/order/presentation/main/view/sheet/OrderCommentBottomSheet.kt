@@ -31,7 +31,7 @@ import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
 import uz.yalla.client.feature.order.presentation.components.AddCommentField
-import uz.yalla.client.feature.order.presentation.main.view.MainBottomSheetIntent.OrderCommentSheetIntent
+import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.OrderCommentSheetIntent
 
 private const val MAX_COMMENT_LENGTH = 100
 private val SheetTopCornerShape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
@@ -153,20 +153,16 @@ private fun CommentField(
             onCommentChange = onCommentChange
         )
 
-        CommentCounter(
-            current = comment.length,
-            max = MAX_COMMENT_LENGTH
-        )
+        CommentCounter(current = comment.length)
     }
 }
 
 @Composable
 private fun CommentCounter(
-    current: Int,
-    max: Int
+    current: Int
 ) {
     Text(
-        text = "$current/$max",
+        text = "$current/$MAX_COMMENT_LENGTH",
         style = YallaTheme.font.label,
         color = YallaTheme.color.gray,
         modifier = Modifier.padding(top = 4.dp)

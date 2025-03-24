@@ -8,6 +8,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -19,6 +20,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.yield
 import uz.yalla.client.core.data.enums.PaymentType
 import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.core.data.mapper.orFalse
@@ -28,22 +30,25 @@ import uz.yalla.client.core.domain.model.SelectedLocation
 import uz.yalla.client.feature.map.domain.model.response.PolygonRemoteItem
 import uz.yalla.client.feature.map.domain.usecase.GetPolygonUseCase
 import uz.yalla.client.feature.order.domain.model.response.tarrif.GetTariffsModel
+import uz.yalla.client.feature.order.domain.usecase.order.GetActiveOrdersUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.OrderTaxiUseCase
 import uz.yalla.client.feature.order.domain.usecase.tariff.GetTariffsUseCase
-import uz.yalla.client.feature.order.presentation.main.view.MainBottomSheetIntent
-import uz.yalla.client.feature.order.presentation.main.view.MainBottomSheetIntent.FooterIntent
-import uz.yalla.client.feature.order.presentation.main.view.MainBottomSheetIntent.OrderTaxiBottomSheetIntent
-import uz.yalla.client.feature.order.presentation.main.view.MainBottomSheetIntent.TariffInfoBottomSheetIntent
-import uz.yalla.client.feature.order.presentation.main.view.MainBottomSheetIntent.PaymentMethodSheetIntent
-import uz.yalla.client.feature.order.presentation.main.view.MainBottomSheetIntent.OrderCommentSheetIntent
 import uz.yalla.client.feature.order.presentation.main.view.MainSheet
+import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent
+import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.FooterIntent
+import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.OrderCommentSheetIntent
+import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.OrderTaxiSheetIntent
+import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.PaymentMethodSheetIntent
+import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.TariffInfoSheetIntent
 import uz.yalla.client.feature.payment.domain.usecase.GetCardListUseCase
+import kotlin.time.Duration.Companion.seconds
 
 class MainSheetViewModel(
     private val getPolygonUseCase: GetPolygonUseCase,
     private val getTariffsUseCase: GetTariffsUseCase,
     private val orderTaxiUseCase: OrderTaxiUseCase,
     private val getCardListUseCase: GetCardListUseCase,
+    private val getActiveOrdersUseCase: GetActiveOrdersUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainSheetState())
@@ -82,12 +87,14 @@ class MainSheetViewModel(
     init {
         viewModelScope.launch(Dispatchers.IO) {
             uiState
-                .distinctUntilChangedBy { it.selectedLocation }
+                .distinctUntilChangedBy { it.selectedLocation?.point }
                 .collectLatest { state ->
-                    state.selectedLocation?.point?.let { point ->
+                    state.selectedLocation?.let { location ->
+                        val point = location.point ?: return@let
                         val (isInsidePolygon, addressId) = isPointInsidePolygon(point)
                         if (isInsidePolygon) {
                             getTariffs(addressId)
+                            setSelectedLocation(location.copy(addressId = addressId))
                         } else {
                             setSelectedTariff(null)
                             handleTariffsFailure()
@@ -95,12 +102,20 @@ class MainSheetViewModel(
                     }
                 }
         }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            while (true) {
+                getActiveOrders()
+                delay(5.seconds)
+                yield()
+            }
+        }
     }
 
-    fun onIntent(intent: MainBottomSheetIntent) {
+    fun onIntent(intent: MainSheetIntent) {
         viewModelScope.launch(Dispatchers.IO) {
             when (intent) {
-                is OrderTaxiBottomSheetIntent.SelectTariff -> {
+                is OrderTaxiSheetIntent.SelectTariff -> {
                     if (intent.wasSelected) {
                         _sheetVisibilityListener.send(Unit)
                     } else {
@@ -108,14 +123,14 @@ class MainSheetViewModel(
                     }
                 }
 
-                is OrderTaxiBottomSheetIntent.SetSheetHeight -> setSheetHeight(intent.height)
-                is TariffInfoBottomSheetIntent.ClearOptions -> setSelectedOptions(emptyList())
-                is TariffInfoBottomSheetIntent.OptionsChange -> setSelectedOptions(intent.options)
-                is TariffInfoBottomSheetIntent.ChangeShadowVisibility -> {
+                is OrderTaxiSheetIntent.SetSheetHeight -> setSheetHeight(intent.height)
+                is TariffInfoSheetIntent.ClearOptions -> setSelectedOptions(emptyList())
+                is TariffInfoSheetIntent.OptionsChange -> setSelectedOptions(intent.options)
+                is TariffInfoSheetIntent.ChangeShadowVisibility -> {
                     _uiState.update { it.copy(shadowVisibility = intent.visible) }
                 }
 
-                is TariffInfoBottomSheetIntent.ClickComment -> {
+                is TariffInfoSheetIntent.ClickComment -> {
                     _uiState.update { it.copy(isOrderCommentSheetVisible = true) }
                 }
 
@@ -203,7 +218,7 @@ class MainSheetViewModel(
         _uiState.update { it.copy(footerHeight = height) }
         viewModelScope.launch(Dispatchers.Main) {
             MainSheet.mutableIntentFlow.emit(
-                OrderTaxiBottomSheetIntent.SetSheetHeight(height = height + uiState.value.sheetHeight)
+                OrderTaxiSheetIntent.SetSheetHeight(height = height + uiState.value.sheetHeight)
             )
         }
     }
@@ -212,7 +227,7 @@ class MainSheetViewModel(
         _uiState.update { it.copy(sheetHeight = height) }
         viewModelScope.launch(Dispatchers.Main) {
             MainSheet.mutableIntentFlow.emit(
-                OrderTaxiBottomSheetIntent.SetSheetHeight(height = height + uiState.value.footerHeight)
+                OrderTaxiSheetIntent.SetSheetHeight(height = height + uiState.value.footerHeight)
             )
         }
     }
@@ -267,6 +282,18 @@ class MainSheetViewModel(
         }
     }
 
+    private fun getActiveOrders() {
+        viewModelScope.launch(Dispatchers.IO) {
+            getActiveOrdersUseCase().onSuccess { activeOrders ->
+                MainSheet.mutableIntentFlow.emit(
+                    MainSheetIntent.UpdateActiveOrders(
+                        activeOrders.list
+                    )
+                )
+            }
+        }
+    }
+
     private fun handleTariffsSuccess(tariffsModel: GetTariffsModel) {
         _uiState.update { currentState ->
             val currentSelectedTariff = currentState.selectedTariff
@@ -299,14 +326,16 @@ class MainSheetViewModel(
     }
 
     private fun handleTariffsFailure() {
-        _uiState.update {
-            it.copy(
-                tariffs = null,
-                selectedTariff = null,
-                options = emptyList(),
-                selectedOptions = emptyList(),
-                loading = false
-            )
+        viewModelScope.launch(Dispatchers.Main.immediate) {
+            _uiState.update {
+                it.copy(
+                    tariffs = null,
+                    selectedTariff = null,
+                    options = emptyList(),
+                    selectedOptions = emptyList(),
+                    loading = false
+                )
+            }
         }
     }
 
@@ -315,6 +344,9 @@ class MainSheetViewModel(
             uiState.value.mapToOrderTaxiDto()?.let { model ->
                 orderTaxiUseCase(model).onSuccess { order ->
                     _uiState.update { it.copy(orderId = order.orderId) }
+                    MainSheet.mutableIntentFlow.emit(
+                        OrderTaxiSheetIntent.OrderCreated(order.orderId)
+                    )
                 }
             }
         }

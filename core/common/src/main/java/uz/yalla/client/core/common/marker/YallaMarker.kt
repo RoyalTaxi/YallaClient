@@ -157,25 +157,11 @@ fun YallaMarker(
                 }
             )
 
-            AddressName(
+            if (state !is YallaMarkerState.Searching) AddressName(
                 state = state,
                 modifier = Modifier.constrainAs(locationName) {
-                    when (state) {
-                        is YallaMarkerState.IDLE -> {
-                            bottom.linkTo(circle.top, margin = 20.dp)
-                            linkTo(start = parent.start, end = parent.end)
-                        }
-
-                        is YallaMarkerState.Searching -> {
-                            bottom.linkTo(indicator.top, margin = 20.dp)
-                            linkTo(start = indicator.start, end = indicator.end)
-                        }
-
-                        is YallaMarkerState.LOADING -> {
-                            bottom.linkTo(circle.top, margin = 20.dp)
-                            linkTo(start = parent.start, end = parent.end)
-                        }
-                    }
+                    bottom.linkTo(circle.top, margin = 20.dp)
+                    linkTo(start = parent.start, end = parent.end)
                 }
             )
         }
@@ -186,7 +172,7 @@ fun YallaMarker(
 private fun SearchAnimation(
     modifier: Modifier = Modifier,
 ) {
-    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.lottie_ripple_default))
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.lottie_search))
     val progress by animateLottieCompositionAsState(
         composition = composition,
         iterations = LottieConstants.IterateForever,
@@ -199,7 +185,6 @@ private fun SearchAnimation(
         modifier = modifier
             .fillMaxSize(.8f)
             .alpha(.5f)
-
     )
 }
 
@@ -211,6 +196,7 @@ fun Circle(
     modifier: Modifier = Modifier
 ) {
     Box(
+        contentAlignment = Alignment.Center,
         modifier = modifier
             .clip(CircleShape)
             .background(color)
@@ -218,7 +204,6 @@ fun Circle(
             .padding(6.dp)
             .height(IntrinsicSize.Min)
             .width(IntrinsicSize.Min)
-
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -270,6 +255,7 @@ fun Circle(
                     .clip(CircleShape)
                     .background(YallaTheme.color.white)
                     .graphicsLayer { clip = true }
+                    .align(Alignment.Center)
             )
         }
     }
@@ -316,7 +302,7 @@ private fun AddressName(
             contentAlignment = Alignment.Center,
             targetState = when (state) {
                 is YallaMarkerState.IDLE -> state.title
-                is YallaMarkerState.Searching -> state.title
+                is YallaMarkerState.Searching -> null
                 is YallaMarkerState.LOADING -> stringResource(R.string.loading)
             } ?: stringResource(R.string.loading),
             transitionSpec = {

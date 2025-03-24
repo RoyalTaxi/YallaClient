@@ -25,7 +25,7 @@ import uz.yalla.client.core.common.item.SelectPaymentTypeItem
 import uz.yalla.client.core.data.enums.PaymentType
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
-import uz.yalla.client.feature.order.presentation.main.view.MainBottomSheetIntent.PaymentMethodSheetIntent
+import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.PaymentMethodSheetIntent
 import uz.yalla.client.feature.payment.domain.model.CardListItemModel
 
 @OptIn(ExperimentalMaterial3Api::class)

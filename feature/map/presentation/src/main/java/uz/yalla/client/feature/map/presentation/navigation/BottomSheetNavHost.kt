@@ -7,28 +7,28 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import uz.yalla.client.feature.order.presentation.main.MAIN_BOTTOM_SHEET_ROUTE
-import uz.yalla.client.feature.order.presentation.main.mainBottomSheet
-import uz.yalla.client.feature.order.presentation.main.navigateToMainBottomSheet
+import uz.yalla.client.feature.order.presentation.main.MAIN_SHEET_ROUTE
+import uz.yalla.client.feature.order.presentation.main.mainSheet
+import uz.yalla.client.feature.order.presentation.main.navigateToMainSheet
 import uz.yalla.client.feature.order.presentation.search.searchForCarBottomSheet
 
 @Composable
 fun BottomSheetNavHost(
     modifier: Modifier,
-    navController: NavHostController,
+    navController: NavHostController
 ) {
     LaunchedEffect(key1 = Unit) {
         launch(Dispatchers.Main) {
-            navController.navigateToMainBottomSheet()
+            navController.navigateToMainSheet()
         }
     }
 
     NavHost(
         modifier = modifier,
         navController = navController,
-        startDestination = MAIN_BOTTOM_SHEET_ROUTE
+        startDestination = MAIN_SHEET_ROUTE
     ) {
-        mainBottomSheet()
+        mainSheet()
         searchForCarBottomSheet()
     }
 }

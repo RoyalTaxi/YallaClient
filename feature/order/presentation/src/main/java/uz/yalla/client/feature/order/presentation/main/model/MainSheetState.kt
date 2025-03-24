@@ -46,8 +46,8 @@ data class MainSheetState(
     }
 
     fun mapToOrderTaxiDto(): OrderTaxiDto? {
-        val addressId = selectedLocation?.addressId ?: return null
-        val from = selectedLocation
+        val addressId = selectedLocation?.addressId.takeIf { it != 0 } ?: return null
+        val from = selectedLocation ?: return null
         val fromLat = selectedLocation.point?.lat ?: return null
         val fromLng = selectedLocation.point?.lng ?: return null
         val to = destinations

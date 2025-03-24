@@ -39,11 +39,12 @@ import uz.yalla.client.feature.order.presentation.main.model.MainSheetViewModel
 import uz.yalla.client.feature.order.presentation.main.view.page.OrderTaxiPage
 import uz.yalla.client.feature.order.presentation.main.view.page.TariffInfoPage
 import uz.yalla.client.feature.order.presentation.main.view.sheet.OrderCommentBottomSheet
+import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.PaymentMethodSheetIntent
 import uz.yalla.client.feature.order.presentation.main.view.sheet.PaymentMethodBottomSheet
 
 object MainSheet {
     private val viewModel: MainSheetViewModel by lazy { getKoin().get() }
-    private val _intentFlow = MutableSharedFlow<MainBottomSheetIntent>(1)
+    private val _intentFlow = MutableSharedFlow<MainSheetIntent>(1)
     val intentFlow = _intentFlow.asSharedFlow()
 
     @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -106,7 +107,7 @@ object MainSheet {
 
         LaunchedEffect(paymentMethodSheetState.isVisible) {
             if (!paymentMethodSheetState.isVisible && state.isPaymentMethodSheetVisible) {
-                viewModel.onIntent(MainBottomSheetIntent.PaymentMethodSheetIntent.OnDismissRequest)
+                viewModel.onIntent(PaymentMethodSheetIntent.OnDismissRequest)
             }
         }
 
@@ -115,6 +116,8 @@ object MainSheet {
                 scaffoldState.sheetState.refreshValues()
             }
         }
+
+        LaunchedEffect(state.orderId) {  }
 
         BottomSheetScaffold(
             scaffoldState = scaffoldState,
@@ -171,7 +174,7 @@ object MainSheet {
         state: MainSheetState,
         fraction: Float,
         isTariffValidWithOptions: Boolean,
-        onIntent: (MainBottomSheetIntent) -> Unit
+        onIntent: (MainSheetIntent) -> Unit
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             OrderTaxiPage(
@@ -228,5 +231,5 @@ object MainSheet {
     val setLoading: (Boolean) -> Unit = viewModel::setLoading
 
     // Used by ViewModel to emit intents
-    internal val mutableIntentFlow: MutableSharedFlow<MainBottomSheetIntent> get() = _intentFlow
+    internal val mutableIntentFlow: MutableSharedFlow<MainSheetIntent> get() = _intentFlow
 }

@@ -30,7 +30,7 @@ import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
 import uz.yalla.client.feature.order.presentation.components.OptionsButton
 import uz.yalla.client.feature.order.presentation.main.model.MainSheetState
-import uz.yalla.client.feature.order.presentation.main.view.MainBottomSheetIntent.FooterIntent
+import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.FooterIntent
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

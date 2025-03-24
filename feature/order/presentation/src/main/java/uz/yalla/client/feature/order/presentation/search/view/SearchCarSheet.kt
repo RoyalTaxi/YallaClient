@@ -4,8 +4,10 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -22,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.onSizeChanged
@@ -52,6 +55,7 @@ object SearchCarSheet {
     @Composable
     fun View(
         point: MapPoint,
+        orderId: Int,
         tariffId: Int
     ) {
         val density = LocalDensity.current
@@ -67,6 +71,7 @@ object SearchCarSheet {
             launch(Dispatchers.IO) {
                 viewModel.setPoint(point)
                 viewModel.setTariffId(tariffId)
+                viewModel.setOrderId(orderId)
             }
 
             launch(Dispatchers.Default) {
@@ -75,80 +80,79 @@ object SearchCarSheet {
                     currentTime += 1
                 }
             }
-
-            launch(Dispatchers.IO) {
-                while (true) {
-                    viewModel.searchCar()
-                    delay(5.seconds)
-                }
-            }
         }
-        Column(
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-            modifier = Modifier
-                .background(
-                    color = YallaTheme.color.gray2,
-                    shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
-                )
-                .navigationBarsPadding()
-                .onSizeChanged {
-                    with(density) {
-                        viewModel.onIntent(SearchCarSheetIntent.SetSheetHeight(it.height.toDp()))
-                    }
-                }
+
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.BottomCenter
         ) {
             Column(
+                verticalArrangement = Arrangement.spacedBy(10.dp),
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .onSizeChanged {
+                        with(density) {
+                            viewModel.onIntent(SearchCarSheetIntent.SetSheetHeight(it.height.toDp()))
+                        }
+                    }
                     .background(
-                        color = YallaTheme.color.white,
-                        shape = RoundedCornerShape(30.dp)
+                        color = YallaTheme.color.gray2,
+                        shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
+                    )
+                    .navigationBarsPadding()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            color = YallaTheme.color.white,
+                            shape = RoundedCornerShape(30.dp)
+                        )
+
+                        .padding(20.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.search_cars),
+                        color = YallaTheme.color.black,
+                        style = YallaTheme.font.title
                     )
 
-                    .padding(20.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.search_cars),
-                    color = YallaTheme.color.black,
-                    style = YallaTheme.font.title
-                )
+                    Spacer(modifier = Modifier.height(10.dp))
 
-                Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        text = stringResource(
+                            R.string.it_takes_around_x_minute,
+                            state.cars?.timeout.or0()
+                        ),
+                        color = YallaTheme.color.gray,
+                        style = YallaTheme.font.label
+                    )
 
-                Text(
-                    text = stringResource(
-                        R.string.it_takes_around_x_minute,
-                        state.cars?.timeout.or0()
-                    ),
-                    color = YallaTheme.color.gray,
-                    style = YallaTheme.font.label
-                )
+                    Spacer(modifier = Modifier.height(20.dp))
 
-                Spacer(modifier = Modifier.height(20.dp))
+                    YallaProgressBar(
+                        progress = progress / (state.setting?.orderCancelTime ?: 1),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
 
-                YallaProgressBar(
-                    progress = progress / (state.setting?.orderCancelTime ?: 1),
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(30.dp))
+                        .background(YallaTheme.color.white)
+                ) {
+                    SearchCarItem(
+                        text = stringResource(R.string.cancel_order),
+                        imageVector = Icons.Default.Close,
+                        onClick = { viewModel.setCancelBottomSheetVisibility(true) }
+                    )
 
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(30.dp))
-                    .background(YallaTheme.color.white)
-            ) {
-                SearchCarItem(
-                    text = stringResource(R.string.cancel_order),
-                    imageVector = Icons.Default.Close,
-                    onClick = { viewModel.setCancelBottomSheetVisibility(true) }
-                )
-
-                SearchCarItem(
-                    text = stringResource(R.string.order_details),
-                    imageVector = Icons.Outlined.Info,
-                    onClick = { viewModel.setDetailsBottomSheetVisibility(true) }
-                )
+                    SearchCarItem(
+                        text = stringResource(R.string.order_details),
+                        imageVector = Icons.Outlined.Info,
+                        onClick = { viewModel.setDetailsBottomSheetVisibility(true) }
+                    )
+                }
             }
         }
     }

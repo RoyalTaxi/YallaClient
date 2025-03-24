@@ -1,5 +1,8 @@
 package uz.yalla.client.feature.map.presentation.view
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
@@ -7,10 +10,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import uz.yalla.client.core.common.map.MapStrategy
 import uz.yalla.client.core.common.state.HamburgerButtonState
@@ -30,9 +33,14 @@ fun MapScreen(
 ) {
     val density = LocalDensity.current
 
-    val effectiveSheetHeight = remember(state.sheetHeight) {
-        if (state.sheetHeight <= 0.dp) 300.dp else state.sheetHeight
-    }
+    val animatedSheetHeight by animateDpAsState(
+        targetValue = state.sheetHeight,
+        animationSpec = tween(
+            durationMillis = 200,
+            easing = FastOutSlowInEasing
+        ),
+        label = "sheet_height_animation"
+    )
 
     Box(modifier = Modifier.fillMaxSize()) {
         map.Map(
@@ -42,13 +50,13 @@ fun MapScreen(
             contentPadding = with(density) {
                 PaddingValues(
                     top = WindowInsets.statusBars.getTop(density).toDp(),
-                    bottom = effectiveSheetHeight
+                    bottom = state.sheetHeight
                 )
             }
         )
 
         MapOverlay(
-            modifier = Modifier.padding(bottom = effectiveSheetHeight),
+            modifier = Modifier.padding(bottom = state.sheetHeight),
             state = state,
             moveCameraButtonState = moveCameraButtonState,
             hamburgerButtonState = hamburgerButtonState,

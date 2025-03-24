@@ -37,13 +37,13 @@ import uz.yalla.client.feature.order.presentation.R
 import uz.yalla.client.feature.order.presentation.components.TariffItem
 import uz.yalla.client.feature.order.presentation.components.TariffItemShimmer
 import uz.yalla.client.feature.order.presentation.main.model.MainSheetState
-import uz.yalla.client.feature.order.presentation.main.view.MainBottomSheetIntent.OrderTaxiBottomSheetIntent
+import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.OrderTaxiSheetIntent
 
 @Composable
 fun OrderTaxiPage(
     state: MainSheetState,
     modifier: Modifier = Modifier,
-    onIntent: (OrderTaxiBottomSheetIntent) -> Unit
+    onIntent: (OrderTaxiSheetIntent) -> Unit
 ) {
     val density = LocalDensity.current
 
@@ -115,7 +115,7 @@ fun OrderTaxiPage(
                 with(density) {
                     size.height.toDp().let { height ->
                         if (height != state.sheetHeight)
-                            onIntent(OrderTaxiBottomSheetIntent.SetSheetHeight(height))
+                            onIntent(OrderTaxiSheetIntent.SetSheetHeight(height))
                     }
                 }
             }
@@ -131,7 +131,7 @@ fun OrderTaxiPage(
         ) {
             SelectCurrentLocationButton(
                 modifier = Modifier.padding(horizontal = 20.dp),
-                onClick = { onIntent(OrderTaxiBottomSheetIntent.CurrentLocationClick) },
+                onClick = { onIntent(OrderTaxiSheetIntent.CurrentLocationClick) },
                 text = if (state.loading.not() && state.selectedLocation?.name != null) {
                     state.selectedLocation.name.orEmpty()
                 } else {
@@ -152,8 +152,8 @@ fun OrderTaxiPage(
             SelectDestinationButton(
                 destinations = state.destinations,
                 modifier = Modifier.padding(horizontal = 20.dp),
-                onClick = { onIntent(OrderTaxiBottomSheetIntent.DestinationClick) },
-                onAddNewLocation = { onIntent(OrderTaxiBottomSheetIntent.AddNewDestinationClick) }
+                onClick = { onIntent(OrderTaxiSheetIntent.DestinationClick) },
+                onAddNewLocation = { onIntent(OrderTaxiSheetIntent.AddNewDestinationClick) }
             )
 
             LazyRow(
@@ -174,7 +174,7 @@ fun OrderTaxiPage(
                             onSelect = { wasSelected ->
                                 coroutineScope.launch {
                                     onIntent(
-                                        OrderTaxiBottomSheetIntent.SelectTariff(
+                                        OrderTaxiSheetIntent.SelectTariff(
                                             tariff,
                                             wasSelected
                                         )

@@ -11,9 +11,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.common.button.MapButton
 import uz.yalla.client.core.common.marker.YallaMarker
+import uz.yalla.client.core.common.marker.YallaMarkerState
 import uz.yalla.client.core.common.state.HamburgerButtonState
 import uz.yalla.client.core.common.state.MoveCameraButtonState
-import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.map.presentation.R
 import uz.yalla.client.feature.map.presentation.components.button.ShowActiveOrdersButton
@@ -40,7 +40,7 @@ fun BoxScope.MapOverlay(
                 .statusBarsPadding()
         )
 
-        if (state.selectedOrder?.status !in OrderStatus.nonInteractive) {
+        if (state.markerState !is YallaMarkerState.Searching) {
             MapButton(
                 painter = painterResource(
                     if (moveCameraButtonState == MoveCameraButtonState.MyRouteView)
