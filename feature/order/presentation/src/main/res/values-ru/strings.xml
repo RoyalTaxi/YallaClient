@@ -24,9 +24,13 @@
     <string name="ready">Готово</string>
     <string name="comment">Комментарий</string>
     <string name="close">Закрыть</string>
-
+    <string name="clean">Oчистить </string>
     <string name="cancel_order_question">Вы уверены, что хотите отменить свой заказ?</string>
     <string name="cancel_order_definition">Ищем машину для вас, но если отмените сейчас, поиск новой займет больше времени.</string>
     <string name="cancel">Отменить</string>
     <string name="wait">Дожтаться</string>
+    <string name="status">Статус</string>
+    <string name="payment">Оплата</string>
+    <string name="car">Автомобиль</string>
+    <string name="driver">Водитель</string>
 </resources>

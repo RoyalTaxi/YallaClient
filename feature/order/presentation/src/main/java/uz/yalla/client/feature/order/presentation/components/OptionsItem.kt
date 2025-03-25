@@ -18,12 +18,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
-import uz.yalla.client.feature.order.domain.model.response.tarrif.GetTariffsModel
 
 @Composable
 fun OptionsItem(
     isSelected: Boolean,
-    option: GetTariffsModel.Tariff.Service,
+    option: String,
     modifier: Modifier = Modifier,
     onChecked: (Boolean) -> Unit
 ) {
@@ -45,13 +44,13 @@ fun OptionsItem(
         ) {
             Column {
                 Text(
-                    text = option.name,
+                    text = option,
                     color = YallaTheme.color.black,
                     style = YallaTheme.font.labelSemiBold
                 )
 
                 Text(
-                    text = stringResource(R.string.fixed_cost, option.cost),
+                    text = stringResource(R.string.fixed_cost, option),
                     color = YallaTheme.color.gray,
                     style = YallaTheme.font.bodySmall
                 )

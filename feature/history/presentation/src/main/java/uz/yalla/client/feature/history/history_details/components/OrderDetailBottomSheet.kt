@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.common.item.CarNumberItem
+import uz.yalla.client.core.common.item.LocationItem
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.history.R
 import uz.yalla.client.feature.domain.model.OrderHistoryModel

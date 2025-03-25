@@ -47,6 +47,7 @@ import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
 import uz.yalla.client.feature.order.presentation.components.SearchCarItem
+import uz.yalla.client.feature.order.presentation.main.view.sheet.OrderDetailsBottomSheet
 import uz.yalla.client.feature.order.presentation.search.model.SearchCarSheetViewModel
 import kotlin.time.Duration.Companion.seconds
 
@@ -68,6 +69,7 @@ object SearchCarSheet {
         val scope = rememberCoroutineScope()
         var currentTime by rememberSaveable { mutableIntStateOf(0) }
         val cancelOrderSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        val orderDetailsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         val progress by animateFloatAsState(
             targetValue = currentTime.toFloat(),
             animationSpec = tween(durationMillis = 1000),
@@ -184,6 +186,18 @@ object SearchCarSheet {
                     }
                 }
             )
+        }
+
+        if (state.detailsBottomSheetVisibility) {
+            state.order?.let {
+                OrderDetailsBottomSheet (
+                    order = it,
+                    sheetState = orderDetailsSheetState,
+                    onDismissRequest = {
+                        viewModel.setDetailsBottomSheetVisibility(false)
+                    }
+                )
+            }
         }
     }
 }

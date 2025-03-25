@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,7 +20,9 @@ import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.map.presentation.R
 import uz.yalla.client.feature.map.presentation.components.button.ShowActiveOrdersButton
 import uz.yalla.client.feature.map.presentation.model.MapUIState
+import uz.yalla.client.feature.map.presentation.view.sheets.ActiveOrdersBottomSheet
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BoxScope.MapOverlay(
     modifier: Modifier,
@@ -27,6 +31,8 @@ fun BoxScope.MapOverlay(
     hamburgerButtonState: HamburgerButtonState,
     onIntent: (MapOverlayIntent) -> Unit
 ) {
+    val activeOrdersSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
     Box(
         modifier = modifier
             .matchParentSize()
@@ -85,5 +91,14 @@ fun BoxScope.MapOverlay(
             onClick = { onIntent(MapOverlayIntent.ClickShowOrders) },
             modifier = Modifier.align(Alignment.BottomCenter)
         )
+
+        if (state.isActiveOrdersSheetVisibility) {
+            ActiveOrdersBottomSheet(
+                sheetState = activeOrdersSheetState,
+                orders = state.orders,
+                onSelectOrder = { onIntent(MapOverlayIntent.SetShowingOrder(it.id)) },
+                onDismissRequest = { onIntent(MapOverlayIntent.OnDismissActiveOrders) }
+            )
+        }
     }
 }

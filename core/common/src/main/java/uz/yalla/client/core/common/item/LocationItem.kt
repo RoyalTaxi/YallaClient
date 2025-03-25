@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.history.history_details.components
+package uz.yalla.client.core.common.item
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 
 @Composable
-internal fun LocationItem(
+fun LocationItem(
     location: String,
     isFirst: Boolean,
     isLast: Boolean,

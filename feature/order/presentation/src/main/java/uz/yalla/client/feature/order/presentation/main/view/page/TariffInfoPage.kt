@@ -114,7 +114,7 @@ fun TariffInfoPage(
                 Column(modifier = Modifier.clip(RoundedCornerShape(30.dp))) {
                     state.options.forEach { service ->
                         OptionsItem(
-                            option = service,
+                            option = service.name,
                             isSelected = newSelectedOptions.any {
                                 it.name == service.name && it.cost == service.cost
                             },

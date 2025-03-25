@@ -8,7 +8,6 @@ import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.Executor
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.SelectedLocation
-import uz.yalla.client.feature.map.domain.model.response.PolygonRemoteItem
 import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 import uz.yalla.client.feature.profile.domain.model.response.GetMeModel
 
@@ -32,5 +31,6 @@ data class MapUIState(
     val sheetHeight: Dp = 0.dp,
     val moveCameraButtonState: MoveCameraButtonState = MoveCameraButtonState.MyLocationView,
     val loading: Boolean = false,
-    val markerState: YallaMarkerState = YallaMarkerState.LOADING
+    val markerState: YallaMarkerState = YallaMarkerState.LOADING,
+    val isActiveOrdersSheetVisibility: Boolean = false
 )

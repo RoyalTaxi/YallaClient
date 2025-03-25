@@ -29,7 +29,6 @@ import uz.yalla.client.feature.order.domain.usecase.order.GetShowOrderUseCase
 import uz.yalla.client.feature.order.domain.usecase.tariff.GetTimeOutUseCase
 import uz.yalla.client.feature.order.presentation.main.view.MainSheet
 import uz.yalla.client.feature.profile.domain.usecase.GetMeUseCase
-import kotlin.math.log
 import kotlin.time.Duration.Companion.seconds
 
 class MapViewModel(
@@ -223,5 +222,9 @@ class MapViewModel(
                 timeout = null
             )
         }
+    }
+
+    fun setActiveOrdersSheetVisibility(isVisible: Boolean) {
+        _uiState.update { it.copy(isActiveOrdersSheetVisibility = isVisible) }
     }
 }

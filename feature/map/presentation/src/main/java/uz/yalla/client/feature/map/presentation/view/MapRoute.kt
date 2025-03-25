@@ -253,6 +253,11 @@ fun MapRoute(
             ) { intent ->
                 when (intent) {
                     is MapOverlayIntent.ClickShowOrders -> {
+                        vm.setActiveOrdersSheetVisibility(true)
+                    }
+
+                    is MapOverlayIntent.OnDismissActiveOrders -> {
+                        vm.setActiveOrdersSheetVisibility(false)
                     }
 
                     is MapOverlayIntent.MoveToFirstLocation -> {
@@ -276,6 +281,9 @@ fun MapRoute(
                         scope.launch(Dispatchers.Main) {
                             drawerState.open()
                         }
+                    }
+                    is MapOverlayIntent.SetShowingOrder -> {
+                        vm.updateState(state.copy(showingOrderId = intent.orderId))
                     }
                 }
             }

@@ -120,7 +120,7 @@ private fun CommentHeader(
 
         TextButton(onClick = onClearClick) {
             Text(
-                text = "Clear",
+                text = stringResource(R.string.clean),
                 color = YallaTheme.color.black,
                 style = YallaTheme.font.label,
                 textDecoration = TextDecoration.Underline
