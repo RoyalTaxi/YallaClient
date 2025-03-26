@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -83,8 +82,8 @@ class MainSheetViewModel(
     init {
         viewModelScope.launch(Dispatchers.IO) {
             uiState
-                .distinctUntilChangedBy { it.selectedLocation?.point }
-                .collectLatest { state ->
+                .distinctUntilChangedBy { it.selectedLocation }
+                .collect { state ->
                     state.selectedLocation?.let { location ->
                         val point = location.point ?: return@let
                         val (isInsidePolygon, addressId) = isPointInsidePolygon(point)

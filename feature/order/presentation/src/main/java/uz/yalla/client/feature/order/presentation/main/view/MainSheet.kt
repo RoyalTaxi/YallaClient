@@ -94,6 +94,10 @@ object MainSheet {
             }
         }
 
+        LaunchedEffect(state.selectedLocation) {
+            val addressId = state.selectedLocation?.addressId
+        }
+
         LaunchedEffect(Unit) {
             launch(Dispatchers.IO) {
                 viewModel.getPolygon()

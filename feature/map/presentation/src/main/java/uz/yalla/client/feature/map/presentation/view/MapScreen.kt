@@ -41,12 +41,7 @@ fun MapScreen(
     Box(modifier = Modifier.fillMaxSize()) {
         map.Map(
             startingPoint = state.selectedLocation?.point,
-            modifier = Modifier
-                .fillMaxSize()
-                .then(
-                    if (isMapEnabled) Modifier
-                    else Modifier.pointerInput(Unit) {}
-                ),
+            modifier = Modifier.fillMaxSize(),
             enabled = isMapEnabled,
             contentPadding = with(density) {
                 PaddingValues(
@@ -54,6 +49,12 @@ fun MapScreen(
                     bottom = state.sheetHeight
                 )
             }
+        )
+
+        if (isMapEnabled.not()) Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .pointerInput(Unit) {}
         )
 
         MapOverlay(
