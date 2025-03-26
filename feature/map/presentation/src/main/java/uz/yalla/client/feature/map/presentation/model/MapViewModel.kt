@@ -67,12 +67,10 @@ class MapViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             uiState
                 .distinctUntilChangedBy { it.showingOrderId }
-                .collectLatest { showingOrderId ->
-                    while (true) {
+                .collectLatest { state ->
+                    while (state.showingOrderId != null) {
                         getShowOrder()
                         delay(5.seconds)
-
-                        if (uiState.value.showingOrderId != showingOrderId.showingOrderId) break
                     }
                 }
         }
