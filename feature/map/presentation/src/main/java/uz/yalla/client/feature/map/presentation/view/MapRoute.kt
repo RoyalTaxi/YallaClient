@@ -181,7 +181,10 @@ fun MapRoute(
                         )
 
                         navController.navigateToSearchForCarBottomSheet(
-                            point = map.mapPoint.value,
+                            point = when {
+                                state.route.isEmpty() -> map.mapPoint.value
+                                else -> state.route.first()
+                            },
                             orderId = intent.orderId,
                             tariffId = state.selectedTariffId.or0(),
                             navOptions = navOptions {
@@ -206,7 +209,10 @@ fun MapRoute(
                         vm.updateState(
                             state.copy(
                                 selectedOrder = null,
-                                showingOrderId = null
+                                showingOrderId = null,
+                                selectedLocation = null,
+                                destinations = emptyList(),
+                                route = emptyList()
                             )
                         )
                         onCancel(intent.orderId)
@@ -218,10 +224,11 @@ fun MapRoute(
 
                     is SearchCarSheetIntent.SetSheetHeight -> {
                         vm.updateState(state.copy(sheetHeight = intent.height))
-
                         awaitFrame()
-                        map.mapPoint.value.let {
-                            map.move(to = it)
+                        state.selectedOrder?.taxi?.routes?.firstOrNull()?.coords?.let { coordinate ->
+                            map.move(to = MapPoint(coordinate.lat, coordinate.lng))
+                        } ?: run {
+                            map.move(to = map.mapPoint.value)
                         }
                     }
                 }
@@ -274,7 +281,7 @@ fun MapRoute(
             map.updateRoute(state.route)
             if (state.route.isEmpty()) {
                 state.selectedLocation?.point?.let { map.animate(it) }
-            } else {
+            } else if (state.selectedOrder?.status !in OrderStatus.nonInteractive) {
                 map.animateToFitBounds(state.route)
             }
         }

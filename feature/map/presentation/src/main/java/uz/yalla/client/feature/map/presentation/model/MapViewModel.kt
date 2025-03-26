@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import uz.yalla.client.core.common.marker.YallaMarkerState
 import uz.yalla.client.core.common.state.HamburgerButtonState
+import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.core.domain.model.SelectedLocation
@@ -179,7 +180,24 @@ class MapViewModel(
         val showingOrderId = uiState.value.showingOrderId ?: return
         viewModelScope.launch(Dispatchers.IO) {
             getShowOrderUseCase(showingOrderId).onSuccess { order ->
-                _uiState.update { it.copy(selectedOrder = order) }
+                _uiState.update {
+                    it.copy(
+                        selectedOrder = order,
+                        selectedLocation = SelectedLocation(
+                            name = order.taxi.routes.firstOrNull()?.fullAddress,
+                            addressId = null,
+                            point = order.taxi.routes.firstOrNull()?.coords?.let { c ->
+                                MapPoint(c.lat, c.lng)
+                            }
+                        ),
+                        destinations = order.taxi.routes.drop(0).map { d ->
+                            Destination(
+                                name = d.fullAddress,
+                                point = MapPoint(d.coords.lat, d.coords.lng)
+                            )
+                        }
+                    )
+                }
             }
         }
     }
