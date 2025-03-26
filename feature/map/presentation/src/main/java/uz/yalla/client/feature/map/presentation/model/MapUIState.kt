@@ -12,7 +12,6 @@ import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 import uz.yalla.client.feature.profile.domain.model.response.GetMeModel
 
 data class MapUIState(
-    val markerSelectedLocation: SelectedLocation? = null,
     val selectedLocation: SelectedLocation? = null,
     val destinations: List<Destination> = emptyList(),
 

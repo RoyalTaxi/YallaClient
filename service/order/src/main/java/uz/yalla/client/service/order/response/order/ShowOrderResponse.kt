@@ -63,6 +63,7 @@ data class ShowOrderResponse(
         val services: List<String>?,
         val start_price: Int?,
         val tariff: String?,
+        val tariff_id: Int?,
         val total_price: Int?
     ) {
         @Serializable

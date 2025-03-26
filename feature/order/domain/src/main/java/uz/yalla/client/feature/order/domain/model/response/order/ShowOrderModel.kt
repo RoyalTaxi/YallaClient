@@ -57,6 +57,7 @@ data class ShowOrderModel(
         val services: List<String>,
         val startPrice: Int,
         val tariff: String,
+        val tariffId: Int,
         val totalPrice: Int
     ) {
         data class Route(

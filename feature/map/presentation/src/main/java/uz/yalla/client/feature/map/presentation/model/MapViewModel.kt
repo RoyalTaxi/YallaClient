@@ -1,6 +1,5 @@
 package uz.yalla.client.feature.map.presentation.model
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -12,7 +11,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -25,6 +23,7 @@ import uz.yalla.client.core.domain.model.SelectedLocation
 import uz.yalla.client.feature.map.domain.model.request.GetRoutingDtoItem
 import uz.yalla.client.feature.map.domain.usecase.GetAddressNameUseCase
 import uz.yalla.client.feature.map.domain.usecase.GetRoutingUseCase
+import uz.yalla.client.feature.order.domain.usecase.order.GetActiveOrdersUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.GetShowOrderUseCase
 import uz.yalla.client.feature.order.domain.usecase.tariff.GetTimeOutUseCase
 import uz.yalla.client.feature.order.presentation.main.view.MainSheet
@@ -36,7 +35,8 @@ class MapViewModel(
     private val getTimeOutUseCase: GetTimeOutUseCase,
     private val getShowOrderUseCase: GetShowOrderUseCase,
     private val getMeUseCase: GetMeUseCase,
-    private val getRoutingUseCase: GetRoutingUseCase
+    private val getRoutingUseCase: GetRoutingUseCase,
+    private val getActiveOrdersUseCase: GetActiveOrdersUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MapUIState())
@@ -55,14 +55,26 @@ class MapViewModel(
             }
             .distinctUntilChanged()
 
-        viewModelScope.launch(Dispatchers.IO) {
-            uiState.onEach { state ->
-                while (state.showingOrderId != null) {
-                    getShowOrder()
-                    delay(5.seconds)
-                    yield()
-                }
+        val hasLocationChanged = uiState
+            .map { state ->
+                Pair(
+                    state.selectedLocation,
+                    state.destinations,
+                )
             }
+            .distinctUntilChanged()
+
+        viewModelScope.launch(Dispatchers.IO) {
+            uiState
+                .distinctUntilChangedBy { it.showingOrderId }
+                .collectLatest { showingOrderId ->
+                    while (true) {
+                        getShowOrder()
+                        delay(5.seconds)
+
+                        if (uiState.value.showingOrderId != showingOrderId.showingOrderId) break
+                    }
+                }
         }
 
         viewModelScope.launch(Dispatchers.Main) {
@@ -73,6 +85,14 @@ class MapViewModel(
                         MainSheet.setLocation(location)
                         location.point?.let { l -> getTimeout(l) }
                     }
+                }
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            uiState
+                .distinctUntilChangedBy { it.destinations }
+                .collectLatest { state ->
+                    MainSheet.setDestination(state.destinations)
                 }
         }
 
@@ -92,10 +112,24 @@ class MapViewModel(
                 }
             }
         }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            hasLocationChanged.collectLatest {
+                getRouting()
+            }
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            while (true) {
+                getActiveOrders()
+                delay(5.seconds)
+                yield()
+            }
+        }
     }
 
     val hamburgerButtonState = uiState
-        .distinctUntilChangedBy { it.selectedOrder }
+        .distinctUntilChangedBy { Pair(it.selectedOrder, it.showingOrderId) }
         .map { state ->
             if (state.selectedOrder == null) HamburgerButtonState.OpenDrawer
             else HamburgerButtonState.NavigateBack
@@ -110,7 +144,7 @@ class MapViewModel(
         .map { state ->
             when {
                 state.markerState == YallaMarkerState.Searching -> false
-                state.showingOrderId != null -> false
+                state.showingOrderId != null -> true
                 OrderStatus.nonInteractive.contains(state.selectedOrder?.status) -> false
                 else -> true
             }
@@ -139,7 +173,6 @@ class MapViewModel(
                         )
                     )
                 }
-                Log.d("snap back to the reality", "getAddressName: $point")
             }
         }
     }
@@ -163,13 +196,24 @@ class MapViewModel(
         }
     }
 
-    fun getRouting() {
+    private fun getActiveOrders() {
+        viewModelScope.launch(Dispatchers.IO) {
+            getActiveOrdersUseCase().onSuccess { activeOrders ->
+                _uiState.update { it.copy(orders = activeOrders.list) }
+            }
+        }
+    }
+
+    private fun getRouting() {
         val points = listOfNotNull(
             uiState.value.selectedLocation?.point,
             *uiState.value.destinations.map { it.point }.toTypedArray()
         )
 
-        if (points.size < 2) return
+        if (points.size < 2) {
+            _uiState.update { it.copy(route = emptyList()) }
+            return
+        }
 
         viewModelScope.launch(Dispatchers.IO) {
             val addresses = mutableListOf<GetRoutingDtoItem>()
@@ -222,9 +266,5 @@ class MapViewModel(
                 timeout = null
             )
         }
-    }
-
-    fun setActiveOrdersSheetVisibility(isVisible: Boolean) {
-        _uiState.update { it.copy(isActiveOrdersSheetVisibility = isVisible) }
     }
 }

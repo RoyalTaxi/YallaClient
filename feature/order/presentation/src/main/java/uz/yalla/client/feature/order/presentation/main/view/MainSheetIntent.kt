@@ -3,6 +3,9 @@ package uz.yalla.client.feature.order.presentation.main.view
 import androidx.compose.ui.unit.Dp
 import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 import uz.yalla.client.core.data.enums.PaymentType
+import uz.yalla.client.core.domain.model.Destination
+import uz.yalla.client.core.domain.model.MapPoint
+import uz.yalla.client.core.domain.model.SelectedLocation
 import uz.yalla.client.feature.order.domain.model.response.tarrif.GetTariffsModel
 
 sealed interface MainSheetIntent {
@@ -12,6 +15,11 @@ sealed interface MainSheetIntent {
         data object AddNewDestinationClick : OrderTaxiSheetIntent
         data class SetSheetHeight(val height: Dp) : OrderTaxiSheetIntent
         data class OrderCreated(val orderId: Int) : OrderTaxiSheetIntent
+        data class SetSelectedLocation(val selectedLocation: SelectedLocation) :
+            OrderTaxiSheetIntent
+
+        data class SetDestinations(val destinations: List<Destination>) : OrderTaxiSheetIntent
+
         data class SelectTariff(
             val tariff: GetTariffsModel.Tariff,
             val wasSelected: Boolean
@@ -33,8 +41,6 @@ sealed interface MainSheetIntent {
         data class SetFooterHeight(val height: Dp) : FooterIntent
         data class ChangeSheetVisibility(val isExtended: Boolean) : FooterIntent
     }
-
-    data class UpdateActiveOrders(val orders: List<ShowOrderModel>) : MainSheetIntent
 
     sealed interface PaymentMethodSheetIntent : MainSheetIntent {
         data object OnAddNewCard : PaymentMethodSheetIntent

@@ -30,7 +30,10 @@ fun CancelReasonRoute(
         launch(Dispatchers.Main) {
             viewModel.actionState.collectLatest { action ->
                 when (action) {
-                    CancelReasonActionState.Error -> loading = false
+                    CancelReasonActionState.Error -> {
+                        loading = false
+                        onNavigateBack()
+                    }
                     CancelReasonActionState.GettingSuccess -> loading = false
                     CancelReasonActionState.Loading -> loading = true
                     CancelReasonActionState.SettingSuccess -> {

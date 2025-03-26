@@ -101,7 +101,7 @@ fun OrderTaxiPage(
     }
 
     LaunchedEffect(selectedIndex, state.tariffs, viewportWidthPx.intValue) {
-            centerItemInList(selectedIndex)
+        centerItemInList(selectedIndex)
     }
 
     Column(

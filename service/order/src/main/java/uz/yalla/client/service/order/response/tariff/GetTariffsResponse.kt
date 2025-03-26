@@ -23,20 +23,14 @@ data class GetTariffsResponse(
     @Serializable
     data class Tariff(
         val category: Category?,
-        val city_km_cost: Int?,
         val cost: Int?,
         val description: String?,
         val fixed_price: Int?,
         val fixed_type: Boolean?,
         val icon: String?,
         val id: Int?,
-        val in_city_location: Boolean?,
-        val included_km: Double?,
         val index: Int?,
-        val min_out_city_cost: Int?,
-        val modification: String?,
         val name: String?,
-        val out_city_km_cost: Int?,
         val photo: String?,
         val second_address: Boolean?,
         val services: List<Service>?

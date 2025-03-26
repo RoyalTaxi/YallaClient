@@ -16,20 +16,14 @@ data class GetTariffsModel(
     }
     data class Tariff(
         val category: Category,
-        val cityKmCost: Int,
         val cost: Int,
         val description: String,
         val fixedPrice: Int,
         val fixedType: Boolean,
         val icon: String,
         val id: Int,
-        val inCityLocation: Boolean,
-        val includedKm: Double,
         val index: Int,
-        val minOutCityCost: Int,
-        val modification: String,
         val name: String,
-        val outCityKmCost: Int,
         val photo: String,
         val isSecondAddressMandatory: Boolean,
         val services: List<Service>

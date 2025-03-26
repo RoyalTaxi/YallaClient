@@ -1,5 +1,6 @@
 package uz.yalla.client.feature.order.presentation.search.view
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -89,6 +90,10 @@ object SearchCarSheet {
                     currentTime += 1
                 }
             }
+        }
+
+        BackHandler {
+            viewModel.setCancelBottomSheetVisibility(true)
         }
 
         Box(
@@ -190,7 +195,7 @@ object SearchCarSheet {
 
         if (state.detailsBottomSheetVisibility) {
             state.order?.let {
-                OrderDetailsBottomSheet (
+                OrderDetailsBottomSheet(
                     order = it,
                     sheetState = orderDetailsSheetState,
                     onDismissRequest = {

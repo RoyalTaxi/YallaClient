@@ -4,8 +4,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,13 +14,13 @@ import uz.yalla.client.core.common.marker.YallaMarker
 import uz.yalla.client.core.common.marker.YallaMarkerState
 import uz.yalla.client.core.common.state.HamburgerButtonState
 import uz.yalla.client.core.common.state.MoveCameraButtonState
+import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.map.presentation.R
 import uz.yalla.client.feature.map.presentation.components.button.ShowActiveOrdersButton
 import uz.yalla.client.feature.map.presentation.model.MapUIState
-import uz.yalla.client.feature.map.presentation.view.sheets.ActiveOrdersBottomSheet
+import uz.yalla.client.feature.map.presentation.view.MapScreenIntent.MapOverlayIntent
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BoxScope.MapOverlay(
     modifier: Modifier,
@@ -31,14 +29,16 @@ fun BoxScope.MapOverlay(
     hamburgerButtonState: HamburgerButtonState,
     onIntent: (MapOverlayIntent) -> Unit
 ) {
-    val activeOrdersSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
     Box(
         modifier = modifier
             .matchParentSize()
             .padding(20.dp)
     ) {
-        YallaMarker(
+        if (
+            OrderStatus.nonInteractive.contains(state.selectedOrder?.status)
+            ||
+            (state.destinations.isEmpty() && state.showingOrderId == null)
+        ) YallaMarker(
             state = state.markerState,
             color = YallaTheme.color.primary,
             modifier = Modifier
@@ -49,10 +49,8 @@ fun BoxScope.MapOverlay(
         if (state.markerState !is YallaMarkerState.Searching) {
             MapButton(
                 painter = painterResource(
-                    if (moveCameraButtonState == MoveCameraButtonState.MyRouteView)
-                        R.drawable.ic_route
-                    else
-                        R.drawable.ic_location
+                    if (moveCameraButtonState == MoveCameraButtonState.MyRouteView) R.drawable.ic_route
+                    else R.drawable.ic_location
                 ),
                 modifier = Modifier.align(Alignment.BottomEnd),
                 onClick = {
@@ -66,19 +64,17 @@ fun BoxScope.MapOverlay(
 
             MapButton(
                 painter = painterResource(
-                    if (hamburgerButtonState == HamburgerButtonState.OpenDrawer)
-                        R.drawable.ic_hamburger
-                    else
-                        R.drawable.ic_arrow_back
+                    if (hamburgerButtonState == HamburgerButtonState.OpenDrawer) R.drawable.ic_hamburger
+                    else R.drawable.ic_arrow_back
                 ),
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .statusBarsPadding(),
                 onClick = {
-                    if (hamburgerButtonState == HamburgerButtonState.OpenDrawer)
-                        onIntent(MapOverlayIntent.OpenDrawer)
-                    else
-                        onIntent(MapOverlayIntent.NavigateBack)
+                    if (hamburgerButtonState == HamburgerButtonState.OpenDrawer) onIntent(
+                        MapOverlayIntent.OpenDrawer
+                    )
+                    else onIntent(MapOverlayIntent.NavigateBack)
                 }
             )
         }
@@ -91,14 +87,5 @@ fun BoxScope.MapOverlay(
             onClick = { onIntent(MapOverlayIntent.ClickShowOrders) },
             modifier = Modifier.align(Alignment.BottomCenter)
         )
-
-        if (state.isActiveOrdersSheetVisibility) {
-            ActiveOrdersBottomSheet(
-                sheetState = activeOrdersSheetState,
-                orders = state.orders,
-                onSelectOrder = { onIntent(MapOverlayIntent.SetShowingOrder(it.id)) },
-                onDismissRequest = { onIntent(MapOverlayIntent.OnDismissActiveOrders) }
-            )
-        }
     }
 }

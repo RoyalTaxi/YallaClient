@@ -31,9 +31,11 @@ import uz.yalla.client.core.data.enums.MapType
 import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.domain.model.MapPoint
+import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.feature.map.presentation.model.MapViewModel
 import uz.yalla.client.feature.map.presentation.view.drawer.MapDrawer
 import uz.yalla.client.feature.map.presentation.view.drawer.MapDrawerIntent
+import uz.yalla.client.feature.order.presentation.main.MAIN_SHEET_ROUTE
 import uz.yalla.client.feature.order.presentation.main.navigateToMainSheet
 import uz.yalla.client.feature.order.presentation.main.view.MainSheet
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent
@@ -84,12 +86,25 @@ fun MapRoute(
         when {
             drawerState.isOpen -> scope.launch { drawerState.close() }
 
-            state.route.isNotEmpty() -> {
-                MainSheet.setDestination(emptyList())
-                state.selectedLocation?.point?.let { there -> map.animate(to = there) }
+            state.route.isNotEmpty() && state.destinations.isNotEmpty() -> {
+                val updatedDestinations = state.destinations.dropLast(1)
+                vm.updateState(state.copy(destinations = updatedDestinations))
+                MainSheet.setDestination(updatedDestinations)
+                if (updatedDestinations.isEmpty()) {
+                    state.selectedLocation?.point?.let { there ->
+                        map.animate(to = there)
+                    }
+                }
             }
 
-            state.selectedOrder == null -> (context as? Activity)?.finish()
+            state.route.isNotEmpty() -> {
+                vm.updateState(state.copy(destinations = emptyList()))
+                state.selectedLocation?.point?.let { there ->
+                    map.animate(to = there)
+                }
+            }
+
+            state.selectedOrder == null || state.showingOrderId == null -> (context as? Activity)?.finish()
         }
     }
 
@@ -100,29 +115,23 @@ fun MapRoute(
     }
 
     LaunchedEffect(Unit) {
-        launch(Dispatchers.Main) {
-            navController.navigateToMainSheet(
-                navOptions {
-                    restoreState = false
-                }
-            )
-        }
-
         launch(Dispatchers.IO) {
             vm.getMe()
         }
 
         launch(Dispatchers.Main) {
             map.isMarkerMoving.collectLatest { isMarkerMoving ->
-                when {
-                    isMarkerMoving.not() && state.showingOrderId == null -> {
-                        withContext(Dispatchers.IO) {
-                            vm.getAddressName(map.mapPoint.value)
+                if (state.destinations.isEmpty()) {
+                    when {
+                        isMarkerMoving.not() && state.showingOrderId == null -> {
+                            withContext(Dispatchers.IO) {
+                                vm.getAddressName(map.mapPoint.value)
+                            }
                         }
-                    }
 
-                    state.route.isEmpty() && state.selectedOrder?.status == null && state.showingOrderId == null -> {
-                        vm.setStateToNotFound()
+                        state.route.isEmpty() && state.selectedOrder?.status == null && state.showingOrderId == null -> {
+                            vm.setStateToNotFound()
+                        }
                     }
                 }
             }
@@ -131,18 +140,38 @@ fun MapRoute(
         launch(Dispatchers.Main) {
             MainSheet.intentFlow.collect { intent ->
                 when (intent) {
-                    is MainSheetIntent.UpdateActiveOrders -> {
-                        vm.updateState(state.copy(orders = intent.orders))
-                    }
-
                     is MainSheetIntent.OrderTaxiSheetIntent.SetSheetHeight -> {
                         vm.updateState(state.copy(sheetHeight = intent.height))
                         map.move(to = map.mapPoint.value)
                     }
 
+                    is MainSheetIntent.OrderTaxiSheetIntent.SetSelectedLocation -> {
+
+                        vm.updateState(
+                            state.copy(
+                                selectedLocation = intent.selectedLocation
+                            )
+                        )
+
+
+                        if (state.route.isEmpty()) {
+                            intent.selectedLocation.point?.let {
+                                scope.launch(Dispatchers.Main) {
+                                    map.animate(to = it)
+                                }
+                            }
+                        }
+                    }
+
+                    is MainSheetIntent.OrderTaxiSheetIntent.SetDestinations -> {
+                        vm.updateState(
+                            state.copy(
+                                destinations = intent.destinations
+                            )
+                        )
+                    }
+
                     is MainSheetIntent.OrderTaxiSheetIntent.AddNewDestinationClick -> TODO()
-                    is MainSheetIntent.OrderTaxiSheetIntent.CurrentLocationClick -> TODO()
-                    is MainSheetIntent.OrderTaxiSheetIntent.DestinationClick -> TODO()
                     is MainSheetIntent.OrderTaxiSheetIntent.OrderCreated -> {
                         vm.updateState(
                             state.copy(
@@ -161,8 +190,6 @@ fun MapRoute(
                         )
                     }
 
-                    is MainSheetIntent.TariffInfoSheetIntent.ClickComment -> {}
-
                     is MainSheetIntent.PaymentMethodSheetIntent.OnAddNewCard -> {
                         onAddNewCard()
                     }
@@ -176,11 +203,17 @@ fun MapRoute(
             SearchCarSheet.intentFlow.collectLatest { intent ->
                 when (intent) {
                     is SearchCarSheetIntent.OnCancelled -> {
+                        vm.updateState(
+                            state.copy(
+                                selectedOrder = null,
+                                showingOrderId = null
+                            )
+                        )
                         onCancel(intent.orderId)
                     }
 
                     is SearchCarSheetIntent.OnFoundCars -> {
-                        // TODO: update cars
+
                     }
 
                     is SearchCarSheetIntent.SetSheetHeight -> {
@@ -190,6 +223,46 @@ fun MapRoute(
                         map.mapPoint.value.let {
                             map.move(to = it)
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(state.selectedOrder) {
+        launch(Dispatchers.Main.immediate) {
+            val order = state.selectedOrder
+            when (order?.status) {
+                OrderStatus.Appointed -> {}
+                OrderStatus.AtAddress -> {}
+                OrderStatus.Canceled -> {}
+                OrderStatus.Completed -> {}
+                OrderStatus.InFetters -> {}
+
+                null -> {
+                    val currentDestination = navController.currentDestination?.route
+                    if (currentDestination != MAIN_SHEET_ROUTE) {
+                        navController.navigateToMainSheet(
+                            navOptions {
+                                restoreState = false
+                            }
+                        )
+                    }
+                }
+
+                else -> {
+                    order.taxi.routes.firstOrNull()?.coords?.let { coordinate ->
+                        navController.navigateToSearchForCarBottomSheet(
+                            tariffId = order.taxi.tariffId,
+                            orderId = order.id,
+                            point = MapPoint(
+                                lat = coordinate.lat,
+                                lng = coordinate.lng
+                            ),
+                            navOptions = navOptions {
+                                restoreState = false
+                            }
+                        )
                     }
                 }
             }
@@ -208,7 +281,7 @@ fun MapRoute(
     }
 
     LaunchedEffect(state.selectedLocation, state.destinations) {
-        launch(Dispatchers.Main) {
+        launch(Dispatchers.Default) {
             val start = state.selectedLocation?.point?.let {
                 MapPoint(it.lat, it.lng)
             }
@@ -216,7 +289,10 @@ fun MapRoute(
                 it.point?.let { point -> MapPoint(point.lat, point.lng) }
             }
             val locations = listOfNotNull(start) + dest
-            map.updateLocations(locations)
+
+            withContext(Dispatchers.Main) {
+                map.updateLocations(locations)
+            }
         }
     }
 
@@ -252,43 +328,76 @@ fun MapRoute(
                 navController = navController
             ) { intent ->
                 when (intent) {
-                    is MapOverlayIntent.ClickShowOrders -> {
-                        vm.setActiveOrdersSheetVisibility(true)
+                    is MapScreenIntent.MapOverlayIntent.ClickShowOrders -> {
+                        vm.updateState(state.copy(isActiveOrdersSheetVisibility = true))
                     }
 
-                    is MapOverlayIntent.OnDismissActiveOrders -> {
-                        vm.setActiveOrdersSheetVisibility(false)
+                    is MapScreenIntent.OnDismissActiveOrders -> {
+                        vm.updateState(state.copy(isActiveOrdersSheetVisibility = false))
                     }
 
-                    is MapOverlayIntent.MoveToFirstLocation -> {
+                    is MapScreenIntent.MapOverlayIntent.MoveToFirstLocation -> {
                         state.selectedLocation?.point?.let {
                             map.animate(it)
                         }
                     }
 
-                    is MapOverlayIntent.MoveToMyLocation -> {
+                    is MapScreenIntent.MapOverlayIntent.MoveToMyLocation -> {
                         map.animateToMyLocation()
                     }
 
-                    is MapOverlayIntent.MoveToMyRoute -> {
+                    is MapScreenIntent.MapOverlayIntent.MoveToMyRoute -> {
                         map.animateToFitBounds(state.route)
                     }
 
-                    is MapOverlayIntent.NavigateBack -> {
+                    is MapScreenIntent.MapOverlayIntent.NavigateBack -> {
+
+                        when {
+                            state.route.isNotEmpty() && state.destinations.isNotEmpty() -> {
+                                val updatedDestinations = state.destinations.dropLast(1)
+                                vm.updateState(state.copy(destinations = updatedDestinations))
+                                MainSheet.setDestination(updatedDestinations)
+
+                                if (updatedDestinations.isEmpty()) {
+                                    state.selectedLocation?.point?.let { there ->
+                                        scope.launch(Dispatchers.Main) {
+                                            map.animate(to = there)
+                                        }
+                                    }
+                                }
+                            }
+
+                            state.route.isNotEmpty() -> {
+                                vm.updateState(state.copy(destinations = emptyList()))
+                                state.selectedLocation?.point?.let { there ->
+                                    scope.launch(Dispatchers.Main) {
+                                        map.animate(to = there)
+                                    }
+                                }
+                            }
+                        }
                     }
 
-                    is MapOverlayIntent.OpenDrawer -> {
+                    is MapScreenIntent.MapOverlayIntent.OpenDrawer -> {
                         scope.launch(Dispatchers.Main) {
                             drawerState.open()
                         }
                     }
-                    is MapOverlayIntent.SetShowingOrder -> {
-                        vm.updateState(state.copy(showingOrderId = intent.orderId))
+
+                    is MapScreenIntent.SetShowingOrder -> {
+                        vm.updateState(
+                            state.copy(
+                                selectedOrder = intent.order,
+                                showingOrderId = intent.order.id
+                            )
+                        )
                     }
                 }
             }
         }
     )
 
-    if (state.loading) LoadingDialog()
+    if (state.loading) {
+        LoadingDialog()
+    }
 }

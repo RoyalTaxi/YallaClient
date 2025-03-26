@@ -8,7 +8,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -20,7 +19,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.yield
+import uz.yalla.client.core.common.sheet.search_address.SearchByNameSheetValue
 import uz.yalla.client.core.data.enums.PaymentType
 import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.core.data.mapper.orFalse
@@ -30,7 +29,6 @@ import uz.yalla.client.core.domain.model.SelectedLocation
 import uz.yalla.client.feature.map.domain.model.response.PolygonRemoteItem
 import uz.yalla.client.feature.map.domain.usecase.GetPolygonUseCase
 import uz.yalla.client.feature.order.domain.model.response.tarrif.GetTariffsModel
-import uz.yalla.client.feature.order.domain.usecase.order.GetActiveOrdersUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.OrderTaxiUseCase
 import uz.yalla.client.feature.order.domain.usecase.tariff.GetTariffsUseCase
 import uz.yalla.client.feature.order.presentation.main.view.MainSheet
@@ -41,14 +39,12 @@ import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.Orde
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.PaymentMethodSheetIntent
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.TariffInfoSheetIntent
 import uz.yalla.client.feature.payment.domain.usecase.GetCardListUseCase
-import kotlin.time.Duration.Companion.seconds
 
 class MainSheetViewModel(
     private val getPolygonUseCase: GetPolygonUseCase,
     private val getTariffsUseCase: GetTariffsUseCase,
     private val orderTaxiUseCase: OrderTaxiUseCase,
     private val getCardListUseCase: GetCardListUseCase,
-    private val getActiveOrdersUseCase: GetActiveOrdersUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainSheetState())
@@ -102,14 +98,6 @@ class MainSheetViewModel(
                     }
                 }
         }
-
-        viewModelScope.launch(Dispatchers.IO) {
-            while (true) {
-                getActiveOrders()
-                delay(5.seconds)
-                yield()
-            }
-        }
     }
 
     fun onIntent(intent: MainSheetIntent) {
@@ -124,6 +112,14 @@ class MainSheetViewModel(
                 }
 
                 is OrderTaxiSheetIntent.SetSheetHeight -> setSheetHeight(intent.height)
+                is OrderTaxiSheetIntent.CurrentLocationClick -> setSearchByNameSheetVisibility(
+                    SearchByNameSheetValue.FOR_START
+                )
+
+                is OrderTaxiSheetIntent.DestinationClick -> setSearchByNameSheetVisibility(
+                    SearchByNameSheetValue.FOR_DEST
+                )
+
                 is TariffInfoSheetIntent.ClearOptions -> setSelectedOptions(emptyList())
                 is TariffInfoSheetIntent.OptionsChange -> setSelectedOptions(intent.options)
                 is TariffInfoSheetIntent.ChangeShadowVisibility -> {
@@ -183,6 +179,13 @@ class MainSheetViewModel(
 
     fun setSelectedLocation(selectedLocation: SelectedLocation) {
         _uiState.update { it.copy(selectedLocation = selectedLocation) }
+
+    }
+
+    fun addDestination(destination: Destination) {
+        val destinations = uiState.value.destinations.toMutableList()
+        destinations.add(destination)
+        _uiState.update { it.copy(destinations = destinations) }
     }
 
     fun setDestination(destinations: List<Destination>) {
@@ -239,7 +242,7 @@ class MainSheetViewModel(
             }
         }
 
-        results.awaitAll().firstOrNull { it.first } ?: Pair(false, 0)
+        results.awaitAll().lastOrNull { it.first } ?: Pair(false, 0)
     }
 
     private fun isPointInPolygon(
@@ -282,17 +285,6 @@ class MainSheetViewModel(
         }
     }
 
-    private fun getActiveOrders() {
-        viewModelScope.launch(Dispatchers.IO) {
-            getActiveOrdersUseCase().onSuccess { activeOrders ->
-                MainSheet.mutableIntentFlow.emit(
-                    MainSheetIntent.UpdateActiveOrders(
-                        activeOrders.list
-                    )
-                )
-            }
-        }
-    }
 
     private fun handleTariffsSuccess(tariffsModel: GetTariffsModel) {
         _uiState.update { currentState ->
@@ -353,4 +345,8 @@ class MainSheetViewModel(
     }
 
     private fun MapPoint.toPair() = Pair(lat, lng)
+
+    fun setSearchByNameSheetVisibility(value: SearchByNameSheetValue) {
+        _uiState.update { it.copy(searchByNameSheetVisible = value) }
+    }
 }

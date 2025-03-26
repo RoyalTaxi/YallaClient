@@ -12,6 +12,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
@@ -32,13 +33,17 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.getKoin
+import uz.yalla.client.core.common.sheet.search_address.SearchByNameBottomSheet
+import uz.yalla.client.core.common.sheet.search_address.SearchByNameSheetValue
 import uz.yalla.client.core.common.state.SheetValue
 import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.core.domain.model.Destination
+import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.SelectedLocation
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.main.model.MainSheetState
 import uz.yalla.client.feature.order.presentation.main.model.MainSheetViewModel
+import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.OrderTaxiSheetIntent
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.PaymentMethodSheetIntent
 import uz.yalla.client.feature.order.presentation.main.view.page.OrderTaxiPage
 import uz.yalla.client.feature.order.presentation.main.view.page.TariffInfoPage
@@ -56,13 +61,13 @@ object MainSheet {
         val state by viewModel.uiState.collectAsState()
         val buttonAndOptionsState by viewModel.buttonAndOptionsState.collectAsState()
         val lifecycleOwner = LocalLifecycleOwner.current
-
-        val partialSheetHeight = state.sheetHeight + state.footerHeight
+        val scope = rememberCoroutineScope()
 
         val scaffoldState = rememberBottomSheetScaffoldState(
             rememberBottomSheetState(
                 initialValue = SheetValue.PartiallyExpanded,
                 defineValues = {
+                    val partialSheetHeight = state.sheetHeight + state.footerHeight
                     SheetValue.PartiallyExpanded at height(partialSheetHeight)
                     SheetValue.Expanded at
                             if (state.selectedTariff != null) contentHeight
@@ -76,6 +81,10 @@ object MainSheet {
         )
 
         val orderCommentSheetState = rememberModalBottomSheetState(
+            skipPartiallyExpanded = true
+        )
+
+        val searchByNameSheetState = rememberModalBottomSheetState(
             skipPartiallyExpanded = true
         )
 
@@ -102,7 +111,7 @@ object MainSheet {
 
             lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 mutableIntentFlow.emit(
-                    MainSheetIntent.OrderTaxiSheetIntent.SetSheetHeight(
+                    OrderTaxiSheetIntent.SetSheetHeight(
                         height = state.sheetHeight + state.footerHeight
                     )
                 )
@@ -123,13 +132,17 @@ object MainSheet {
             }
         }
 
-        LaunchedEffect(state.selectedTariff) {
+        LaunchedEffect(state.sheetHeight) {
             launch(Dispatchers.Main) {
                 scaffoldState.sheetState.refreshValues()
             }
         }
 
-        LaunchedEffect(state.orderId) { }
+        LaunchedEffect(state.selectedTariff) {
+            launch(Dispatchers.Main) {
+                scaffoldState.sheetState.refreshValues()
+            }
+        }
 
         BottomSheetScaffold(
             scaffoldState = scaffoldState,
@@ -177,6 +190,61 @@ object MainSheet {
                 sheetState = orderCommentSheetState,
                 comment = state.comment,
                 onIntent = viewModel::onIntent
+            )
+        }
+
+        if (state.searchByNameSheetVisible != SearchByNameSheetValue.INVISIBLE) {
+            SearchByNameBottomSheet(
+                sheetState = searchByNameSheetState,
+                initialAddress = state.selectedLocation?.name,
+                initialDestination = state.destinations.lastOrNull()?.name,
+                isForDestination = state.searchByNameSheetVisible == SearchByNameSheetValue.FOR_DEST,
+                onAddressSelected = { name, lat, lng, addressId ->
+                    scope.launch(Dispatchers.IO) {
+                        mutableIntentFlow.emit(
+                            OrderTaxiSheetIntent.SetSelectedLocation(
+                                selectedLocation = SelectedLocation(
+                                    name = name,
+                                    point = MapPoint(lat, lng),
+                                    addressId = addressId
+                                )
+                            )
+                        )
+                    }
+                },
+                onDestinationSelected = { name, lat, lng, _ ->
+                    scope.launch(Dispatchers.IO) {
+                        mutableIntentFlow.emit(
+                            OrderTaxiSheetIntent.SetDestinations(
+                                destinations = listOf(
+                                    Destination(
+                                        name = name,
+                                        point = MapPoint(lat, lng)
+                                    )
+                                )
+                            )
+                        )
+                    }
+                },
+                onDismissRequest = {
+                    viewModel.setSearchByNameSheetVisibility(SearchByNameSheetValue.INVISIBLE)
+                },
+                onClickMap = { forDestination ->
+
+                },
+                deleteDestination = {
+                    val currentDestinations = state.destinations
+                    if (currentDestinations.isNotEmpty()) {
+                        val updatedDestinations = currentDestinations.drop(1)
+                        scope.launch(Dispatchers.IO) {
+                            mutableIntentFlow.emit(
+                                OrderTaxiSheetIntent.SetDestinations(
+                                    destinations = updatedDestinations
+                                )
+                            )
+                        }
+                    }
+                }
             )
         }
     }

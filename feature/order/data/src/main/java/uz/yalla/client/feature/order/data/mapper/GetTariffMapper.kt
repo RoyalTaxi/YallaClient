@@ -34,20 +34,14 @@ object GetTariffMapper {
         { remote ->
             GetTariffsModel.Tariff(
                 category = remote?.category.let(tariffCategoryMapper),
-                cityKmCost = remote?.city_km_cost.or0(),
                 cost = remote?.cost.or0(),
                 description = remote?.description.orEmpty(),
                 fixedPrice = remote?.fixed_price.or0(),
                 fixedType = remote?.fixed_type.orFalse(),
                 icon = remote?.icon.orEmpty(),
                 id = remote?.id.or0(),
-                inCityLocation = remote?.in_city_location.orFalse(),
-                includedKm = remote?.included_km.or0(),
                 index = remote?.index.or0(),
-                minOutCityCost = remote?.min_out_city_cost.or0(),
-                modification = remote?.modification.orEmpty(),
                 name = remote?.name.orEmpty(),
-                outCityKmCost = remote?.out_city_km_cost.or0(),
                 photo = remote?.photo.orEmpty(),
                 isSecondAddressMandatory = remote?.second_address.orFalse(),
                 services = remote?.services?.map(tariffServiceMapper).orEmpty()

@@ -40,7 +40,10 @@ fun ActiveOrdersBottomSheet(
                     time = order.dateTime,
                     totalPrice = order.taxi.totalPrice.toString(),
                     status = order.status.value,
-                    onClick = { onSelectOrder(order) }
+                    onClick = {
+                        onSelectOrder(order)
+                        onDismissRequest()
+                    }
                 )
             }
         }

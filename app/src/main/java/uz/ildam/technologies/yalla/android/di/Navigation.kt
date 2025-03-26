@@ -5,6 +5,7 @@ import org.koin.dsl.module
 import uz.ildam.technologies.yalla.android.activity.MainViewModel
 import uz.ildam.technologies.yalla.android.connectivity.AndroidConnectivityObserver
 import uz.ildam.technologies.yalla.android.connectivity.ConnectivityObserver
+import uz.yalla.client.core.common.di.Common
 import uz.yalla.client.feature.auth.di.Auth
 import uz.yalla.client.feature.contact.di.Contact
 import uz.yalla.client.feature.history.di.History
@@ -31,6 +32,7 @@ object Navigation {
     val modules = listOf(
         androidServices,
         viewModelModule,
+        Common.module,
         *Intro.modules.toTypedArray(),
         *Auth.modules.toTypedArray(),
         *Registration.modules.toTypedArray(),

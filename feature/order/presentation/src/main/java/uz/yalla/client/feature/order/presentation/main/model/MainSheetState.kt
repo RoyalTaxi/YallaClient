@@ -2,6 +2,7 @@ package uz.yalla.client.feature.order.presentation.main.model
 
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import uz.yalla.client.core.common.sheet.search_address.SearchByNameSheetValue
 import uz.yalla.client.core.data.enums.PaymentType
 import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.core.domain.model.Destination
@@ -36,9 +37,9 @@ data class MainSheetState(
     val isSecondaryAddressMandatory: Boolean = false,
     val shadowVisibility: Boolean = false,
     val isPaymentMethodSheetVisible: Boolean = false,
-    val isOrderCommentSheetVisible: Boolean = false
+    val isOrderCommentSheetVisible: Boolean = false,
+    val searchByNameSheetVisible: SearchByNameSheetValue = SearchByNameSheetValue.INVISIBLE,
 ) {
-
     fun getBadgeText(): String? = when {
         selectedOptions.isNotEmpty() -> selectedOptions.size.toString()
         comment.isNotBlank() -> ""

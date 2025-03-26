@@ -82,6 +82,7 @@ object ShowOrderMapper {
             services = remote?.services.orEmpty(),
             startPrice = remote?.start_price.or0(),
             tariff = remote?.tariff.orEmpty(),
+            tariffId = remote?.tariff_id.or0(),
             totalPrice = remote?.total_price.or0()
         )
     }
