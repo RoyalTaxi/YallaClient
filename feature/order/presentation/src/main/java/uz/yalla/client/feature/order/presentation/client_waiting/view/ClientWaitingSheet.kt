@@ -2,10 +2,12 @@ package uz.yalla.client.feature.order.presentation.client_waiting.view
 
 import android.content.Intent
 import android.content.Intent.ACTION_DIAL
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -15,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
@@ -52,74 +55,84 @@ object ClientWaitingSheet {
             }
         }
 
-        Column(
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    color = YallaTheme.color.gray2,
-                    shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
-                )
-                .onSizeChanged {
-                    with(density) {
-                        viewModel.onIntent(ClientWaitingIntent.SetSheetHeight(it.height.toDp()))
-                    }
-                }
+        BackHandler {
+
+        }
+
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.BottomCenter
         ) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(10.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(
-                        color = YallaTheme.color.white,
-                        shape = RoundedCornerShape(30.dp)
-                    )
-                    .padding(20.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.coming_to_you),
-                    style = YallaTheme.font.title,
-                    color = YallaTheme.color.black
-                )
-
-                state.selectedDriver?.let { executor ->
-                    Text(
-                        text = "${executor.driver.color.name} ${executor.driver.mark} ${executor.driver.model}",
-                        style = YallaTheme.font.label,
-                        color = YallaTheme.color.gray
-                    )
-
-                    CarNumberItem(
-                        code = executor.driver.stateNumber.slice(0..<2),
-                        number = "(\\d+|[A-Za-z]+)"
-                            .toRegex()
-                            .findAll(executor.driver.stateNumber)
-                            .map { it.value }
-                            .toList()
-                    )
-                }
-            }
-
-            Box(
-                modifier = Modifier
-                    .background(
-                        color = YallaTheme.color.white,
+                        color = YallaTheme.color.gray2,
                         shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
                     )
-                    .padding(20.dp)
-                    .navigationBarsPadding()
-
-            ) {
-                CallButton(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = {
-                        val phoneNumber = state.selectedDriver?.phone ?: return@CallButton
-                        val intent = Intent(ACTION_DIAL).apply { data = "tel:$phoneNumber".toUri() }
-                        if (intent.resolveActivity(context.packageManager) != null) {
-                            context.startActivity(intent)
+                    .onSizeChanged {
+                        with(density) {
+                            viewModel.onIntent(ClientWaitingIntent.SetSheetHeight(it.height.toDp()))
                         }
                     }
-                )
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            color = YallaTheme.color.white,
+                            shape = RoundedCornerShape(30.dp)
+                        )
+                        .padding(20.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.coming_to_you),
+                        style = YallaTheme.font.title,
+                        color = YallaTheme.color.black
+                    )
+
+                    state.selectedDriver?.let { executor ->
+                        Text(
+                            text = "${executor.driver.color.name} ${executor.driver.mark} ${executor.driver.model}",
+                            style = YallaTheme.font.label,
+                            color = YallaTheme.color.gray
+                        )
+
+                        CarNumberItem(
+                            code = executor.driver.stateNumber.slice(0..<2),
+                            number = "(\\d+|[A-Za-z]+)"
+                                .toRegex()
+                                .findAll(executor.driver.stateNumber)
+                                .map { it.value }
+                                .toList()
+                        )
+                    }
+                }
+
+                Box(
+                    modifier = Modifier
+                        .background(
+                            color = YallaTheme.color.white,
+                            shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
+                        )
+                        .padding(20.dp)
+                        .navigationBarsPadding()
+
+                ) {
+                    CallButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {
+                            val phoneNumber = state.selectedDriver?.phone ?: return@CallButton
+                            val intent =
+                                Intent(ACTION_DIAL).apply { data = "tel:$phoneNumber".toUri() }
+                            if (intent.resolveActivity(context.packageManager) != null) {
+                                context.startActivity(intent)
+                            }
+                        }
+                    )
+                }
             }
         }
     }

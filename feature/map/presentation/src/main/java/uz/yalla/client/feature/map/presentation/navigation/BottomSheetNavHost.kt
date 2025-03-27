@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import uz.yalla.client.feature.order.presentation.client_waiting.clientWaitingBottomSheet
 import uz.yalla.client.feature.order.presentation.main.MAIN_SHEET_ROUTE
 import uz.yalla.client.feature.order.presentation.main.mainSheet
 import uz.yalla.client.feature.order.presentation.order_canceled.orderCanceledBottomSheet
@@ -22,5 +23,6 @@ fun BottomSheetNavHost(
         mainSheet()
         searchForCarBottomSheet()
         orderCanceledBottomSheet()
+        clientWaitingBottomSheet()
     }
 }

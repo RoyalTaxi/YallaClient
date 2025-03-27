@@ -2,7 +2,6 @@ package uz.yalla.client.feature.map.presentation.view
 
 import android.Manifest
 import android.app.Activity
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.rememberDrawerState
@@ -15,7 +14,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.flow.collectLatest
@@ -36,12 +34,15 @@ import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.feature.map.presentation.model.MapViewModel
 import uz.yalla.client.feature.map.presentation.view.drawer.MapDrawer
 import uz.yalla.client.feature.map.presentation.view.drawer.MapDrawerIntent
+import uz.yalla.client.feature.order.presentation.client_waiting.navigateToClientWaitingSheet
+import uz.yalla.client.feature.order.presentation.client_waiting.view.ClientWaitingIntent
+import uz.yalla.client.feature.order.presentation.client_waiting.view.ClientWaitingSheet
 import uz.yalla.client.feature.order.presentation.main.MAIN_SHEET_ROUTE
 import uz.yalla.client.feature.order.presentation.main.navigateToMainSheet
 import uz.yalla.client.feature.order.presentation.main.view.MainSheet
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent
-import uz.yalla.client.feature.order.presentation.order_canceled.navigateToCanceledOrder
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.OrderTaxiSheetIntent
+import uz.yalla.client.feature.order.presentation.order_canceled.navigateToCanceledOrder
 import uz.yalla.client.feature.order.presentation.order_canceled.view.OrderCanceledSheet
 import uz.yalla.client.feature.order.presentation.order_canceled.view.OrderCanceledSheetIntent
 import uz.yalla.client.feature.order.presentation.search.navigateToSearchForCarBottomSheet
@@ -191,10 +192,7 @@ fun MapRoute(
                                 else -> state.route.first()
                             },
                             orderId = intent.orderId,
-                            tariffId = state.selectedTariffId.or0(),
-                            navOptions = navOptions {
-                                restoreState = false
-                            }
+                            tariffId = state.selectedTariffId.or0()
                         )
                     }
 
@@ -249,6 +247,22 @@ fun MapRoute(
         }
 
         launch(Dispatchers.Main) {
+            ClientWaitingSheet.intentFlow.collectLatest { intent ->
+                when (intent) {
+                    is ClientWaitingIntent.SetSheetHeight -> {
+                        vm.updateState(state.copy(sheetHeight = intent.height))
+                        awaitFrame()
+                        state.selectedOrder?.taxi?.routes?.firstOrNull()?.coords?.let { coordinate ->
+                            map.move(to = MapPoint(coordinate.lat, coordinate.lng))
+                        } ?: run {
+                            map.move(to = map.mapPoint.value)
+                        }
+                    }
+                }
+            }
+        }
+
+        launch(Dispatchers.Main) {
             OrderCanceledSheet.intentFlow.collectLatest { intent ->
                 when (intent) {
                     is OrderCanceledSheetIntent.SetSheetHeight -> {
@@ -271,11 +285,7 @@ fun MapRoute(
                             )
                         )
 
-                        navController.navigateToMainSheet(
-                            navOptions {
-                                restoreState = false
-                            }
-                        )
+                        navController.navigateToMainSheet()
                     }
                 }
             }
@@ -286,14 +296,13 @@ fun MapRoute(
         launch(Dispatchers.Main.immediate) {
             val order = state.selectedOrder
             when (order?.status) {
-                OrderStatus.Appointed -> {}
+                OrderStatus.Appointed -> {
+                    navController.navigateToClientWaitingSheet(orderID = order.id)
+                }
+
                 OrderStatus.AtAddress -> {}
                 OrderStatus.Canceled -> {
-                    navController.navigateToCanceledOrder(
-                        navOptions {
-                            restoreState = false
-                        }
-                    )
+                    navController.navigateToCanceledOrder()
                 }
 
                 OrderStatus.Completed -> {}
@@ -302,11 +311,7 @@ fun MapRoute(
                 null -> {
                     val currentDestination = navController.currentDestination?.route
                     if (currentDestination != MAIN_SHEET_ROUTE) {
-                        navController.navigateToMainSheet(
-                            navOptions {
-                                restoreState = false
-                            }
-                        )
+                        navController.navigateToMainSheet()
                     }
                 }
 
@@ -318,10 +323,7 @@ fun MapRoute(
                             point = MapPoint(
                                 lat = coordinate.lat,
                                 lng = coordinate.lng
-                            ),
-                            navOptions = navOptions {
-                                restoreState = false
-                            }
+                            )
                         )
                     }
                 }

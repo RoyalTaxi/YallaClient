@@ -4,6 +4,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import androidx.navigation.navOptions
 import uz.yalla.client.core.presentation.navigation.safeNavigate
 import uz.yalla.client.feature.order.presentation.main.view.MainSheet
 
@@ -15,6 +16,10 @@ fun NavGraphBuilder.mainSheet() {
     }
 }
 
-fun NavController.navigateToMainSheet(
-    navOptions: NavOptions
-) = safeNavigate(MAIN_SHEET_ROUTE, navOptions)
+fun NavController.navigateToMainSheet() = safeNavigate(
+    MAIN_SHEET_ROUTE,
+    navOptions {
+        launchSingleTop = true
+        restoreState = false
+    }
+)

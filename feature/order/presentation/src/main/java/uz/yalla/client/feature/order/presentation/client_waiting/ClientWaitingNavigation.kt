@@ -1,19 +1,18 @@
 package uz.yalla.client.feature.order.presentation.client_waiting
 
-import android.os.Build
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavOptions
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import androidx.navigation.navOptions
 import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.presentation.navigation.safeNavigate
 import uz.yalla.client.feature.order.presentation.client_waiting.view.ClientWaitingSheet
 
 const val ORDER_ID = "order_id"
 const val CLIENT_WAITING_ROUTE_BASE = "client_waiting_bottom_sheet"
-const val CLIENT_WAITING_ROUTE = "$CLIENT_WAITING_ROUTE_BASE?$ORDER_ID"
+const val CLIENT_WAITING_ROUTE = "$CLIENT_WAITING_ROUTE_BASE?$ORDER_ID={$ORDER_ID}"
 
 fun NavGraphBuilder.clientWaitingBottomSheet() {
     composable(
@@ -27,9 +26,14 @@ fun NavGraphBuilder.clientWaitingBottomSheet() {
 }
 
 fun NavController.navigateToClientWaitingSheet(
-    orderID: Int,
-    navOptions: NavOptions
+    orderID: Int
 ) {
     val route = "$CLIENT_WAITING_ROUTE_BASE?$ORDER_ID=$orderID"
-    safeNavigate(route, navOptions)
+    safeNavigate(
+        route,
+        navOptions {
+            launchSingleTop = true
+            restoreState = false
+        }
+    )
 }

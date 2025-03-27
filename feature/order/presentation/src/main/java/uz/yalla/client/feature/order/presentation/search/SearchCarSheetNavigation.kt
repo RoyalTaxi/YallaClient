@@ -7,6 +7,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import androidx.navigation.navOptions
 import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.presentation.navigation.safeNavigate
@@ -60,9 +61,14 @@ fun NavGraphBuilder.searchForCarBottomSheet() {
 fun NavController.navigateToSearchForCarBottomSheet(
     point: MapPoint,
     tariffId: Int,
-    orderId: Int,
-    navOptions: NavOptions
+    orderId: Int
 ) {
     val route = "$SEARCH_CAR_ROUTE_BASE?$POINT=$point&$TARIFF_ID=$tariffId&$ORDER_ID=$orderId"
-    safeNavigate(route, navOptions)
+    safeNavigate(
+        route,
+        navOptions {
+            launchSingleTop = true
+            restoreState = false
+        }
+    )
 }
