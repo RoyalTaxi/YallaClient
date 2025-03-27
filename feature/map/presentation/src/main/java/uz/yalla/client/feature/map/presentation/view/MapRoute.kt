@@ -40,7 +40,10 @@ import uz.yalla.client.feature.order.presentation.main.MAIN_SHEET_ROUTE
 import uz.yalla.client.feature.order.presentation.main.navigateToMainSheet
 import uz.yalla.client.feature.order.presentation.main.view.MainSheet
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent
+import uz.yalla.client.feature.order.presentation.order_canceled.navigateToCanceledOrder
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.OrderTaxiSheetIntent
+import uz.yalla.client.feature.order.presentation.order_canceled.view.OrderCanceledSheet
+import uz.yalla.client.feature.order.presentation.order_canceled.view.OrderCanceledSheetIntent
 import uz.yalla.client.feature.order.presentation.search.navigateToSearchForCarBottomSheet
 import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheet
 import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheetIntent
@@ -244,6 +247,39 @@ fun MapRoute(
                 }
             }
         }
+
+        launch(Dispatchers.Main) {
+            OrderCanceledSheet.intentFlow.collectLatest { intent ->
+                when (intent) {
+                    is OrderCanceledSheetIntent.SetSheetHeight -> {
+                        vm.updateState(state.copy(sheetHeight = intent.height))
+                        awaitFrame()
+                        state.selectedOrder?.taxi?.routes?.firstOrNull()?.coords?.let { coordinate ->
+                            map.move(to = MapPoint(coordinate.lat, coordinate.lng))
+                        } ?: run {
+                            map.move(to = map.mapPoint.value)
+                        }
+                    }
+
+                    is OrderCanceledSheetIntent.StartNewOrder -> {
+                        vm.updateState(
+                            state.copy(
+                                showingOrderId = null,
+                                selectedLocation = null,
+                                destinations = emptyList(),
+                                route = emptyList()
+                            )
+                        )
+
+                        navController.navigateToMainSheet(
+                            navOptions {
+                                restoreState = false
+                            }
+                        )
+                    }
+                }
+            }
+        }
     }
 
     LaunchedEffect(state.selectedOrder) {
@@ -253,7 +289,11 @@ fun MapRoute(
                 OrderStatus.Appointed -> {}
                 OrderStatus.AtAddress -> {}
                 OrderStatus.Canceled -> {
-
+                    navController.navigateToCanceledOrder(
+                        navOptions {
+                            restoreState = false
+                        }
+                    )
                 }
 
                 OrderStatus.Completed -> {}

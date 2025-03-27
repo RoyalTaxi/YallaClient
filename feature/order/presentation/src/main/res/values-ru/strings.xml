@@ -33,4 +33,11 @@
     <string name="payment">Оплата</string>
     <string name="car">Автомобиль</string>
     <string name="driver">Водитель</string>
+    <string name="no_service_massage">К сожалению, пока не работаем в этом регионе</string>
+    <string name="new_address">Новый адрес</string>
+    <string name="waiting_for_you">Вас ждёт</string>
+    <string name="on_the_way">В пути</string>
+    <string name="canceled">Отменено</string>
+    <string name="order_canceled">Заказ отменен</string>
+    <string name="new_order">Новый заказ</string>
 </resources>

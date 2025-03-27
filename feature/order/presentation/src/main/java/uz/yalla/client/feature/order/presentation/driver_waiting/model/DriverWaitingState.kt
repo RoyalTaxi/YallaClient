@@ -1,8 +1,7 @@
-package uz.yalla.client.feature.order.presentation.client_waiting.model
+package uz.yalla.client.feature.order.presentation.driver_waiting.model
 
 import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 
-data class ClientWaitingState (
-    val orderId: Int? = null,
+data class DriverWaitingState (
     val selectedDriver: ShowOrderModel.Executor? = null
 )
