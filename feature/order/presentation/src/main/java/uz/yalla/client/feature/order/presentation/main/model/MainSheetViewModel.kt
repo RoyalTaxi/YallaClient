@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uz.yalla.client.core.common.sheet.search_address.SearchByNameSheetValue
+import uz.yalla.client.core.common.sheet.select_from_map.SelectFromMapViewValue
 import uz.yalla.client.core.data.enums.PaymentType
 import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.core.data.mapper.orFalse
@@ -391,5 +392,9 @@ class MainSheetViewModel(
 
     fun setSearchByNameSheetVisibility(value: SearchByNameSheetValue) {
         _uiState.update { it.copy(searchByNameSheetVisible = value) }
+    }
+
+    fun setSelectFromMapViewVisibility(value: SelectFromMapViewValue) {
+        _uiState.update { it.copy(selectFromMapViewVisible = value) }
     }
 }

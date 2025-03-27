@@ -35,6 +35,8 @@ import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.getKoin
 import uz.yalla.client.core.common.sheet.search_address.SearchByNameBottomSheet
 import uz.yalla.client.core.common.sheet.search_address.SearchByNameSheetValue
+import uz.yalla.client.core.common.sheet.select_from_map.SelectFromMapView
+import uz.yalla.client.core.common.sheet.select_from_map.SelectFromMapViewValue
 import uz.yalla.client.core.common.state.SheetValue
 import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.core.domain.model.Destination
@@ -230,7 +232,10 @@ object MainSheet {
                     viewModel.setSearchByNameSheetVisibility(SearchByNameSheetValue.INVISIBLE)
                 },
                 onClickMap = { forDestination ->
-
+                    viewModel.setSelectFromMapViewVisibility(
+                        if (forDestination) SelectFromMapViewValue.FOR_DEST
+                        else SelectFromMapViewValue.FOR_START
+                    )
                 },
                 deleteDestination = {
                     val currentDestinations = state.destinations
@@ -244,6 +249,40 @@ object MainSheet {
                             )
                         }
                     }
+                }
+            )
+        }
+
+        if (state.selectFromMapViewVisible != SelectFromMapViewValue.INVISIBLE) {
+            SelectFromMapView(
+                viewValue = state.selectFromMapViewVisible,
+                startingPoint = when {
+                    state.destinations.isEmpty() -> state.selectedLocation?.point
+                    else -> state.destinations.lastOrNull()?.point
+                },
+                onSelectLocation = { location ->
+                    when (state.selectFromMapViewVisible) {
+                        SelectFromMapViewValue.FOR_START -> {
+                            scope.launch(Dispatchers.Main) {
+                                mutableIntentFlow.emit(
+                                    OrderTaxiSheetIntent.SetSelectedLocation(location)
+                                )
+                            }
+                        }
+
+                        SelectFromMapViewValue.FOR_DEST -> {
+                            scope.launch(Dispatchers.Main) {
+                                mutableIntentFlow.emit(
+                                    OrderTaxiSheetIntent.SetDestinations(listOf(location.mapToDestination()))
+                                )
+                            }
+                        }
+
+                        else -> {}
+                    }
+                },
+                onDismissRequest = {
+                    viewModel.setSelectFromMapViewVisibility(SelectFromMapViewValue.INVISIBLE)
                 }
             )
         }

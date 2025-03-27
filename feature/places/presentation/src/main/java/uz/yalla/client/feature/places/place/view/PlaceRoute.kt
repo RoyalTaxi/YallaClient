@@ -23,17 +23,18 @@ import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
 import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.core.common.sheet.AddDestinationBottomSheet
 import uz.yalla.client.core.common.sheet.ConfirmationBottomSheet
+import uz.yalla.client.core.common.sheet.select_from_map.SelectFromMapView
+import uz.yalla.client.core.common.sheet.select_from_map.SelectFromMapViewValue
+import uz.yalla.client.core.data.mapper.or0
+import uz.yalla.client.feature.order.domain.model.type.PlaceType
 import uz.yalla.client.feature.places.place.model.PlaceActionState
 import uz.yalla.client.feature.places.place.model.PlaceUIState
 import uz.yalla.client.feature.places.place.model.PlaceViewModel
 import uz.yalla.client.feature.places.presentation.R
-import uz.yalla.client.core.common.sheet.select_from_map.SelectFromMapBottomSheet
-import uz.yalla.client.feature.order.domain.model.type.PlaceType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -141,18 +142,21 @@ internal fun AddressRoute(
         )
     }
 
-    if (openMapVisibility) SelectFromMapBottomSheet(
+    if (openMapVisibility) SelectFromMapView(
         startingPoint = null,
-        isForDestination = false,
-        isForNewDestination = false,
-        onSelectLocation = { name, lat, lng, _ ->
-            viewModel.updateSelectedAddress(
-                PlaceUIState.Location(
-                    name = name,
-                    lat = lat,
-                    lng = lng
-                )
-            )
+        viewValue = SelectFromMapViewValue.FOR_START,
+        onSelectLocation = { location ->
+            location.name?.let { name ->
+                location.point?.let { point ->
+                    viewModel.updateSelectedAddress(
+                        PlaceUIState.Location(
+                            name = name,
+                            lat = point.lat.or0(),
+                            lng = point.lng.or0()
+                        )
+                    )
+                }
+            }
         },
         onDismissRequest = { openMapVisibility = false }
     )
