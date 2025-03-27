@@ -1,5 +1,6 @@
 package uz.yalla.client.feature.map.presentation.model
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -69,7 +70,7 @@ class MapViewModel(
                 .distinctUntilChangedBy { it.showingOrderId }
                 .collectLatest { state ->
                     while (state.showingOrderId != null) {
-                        getShowOrder()
+                        getShowOrder(state.showingOrderId)
                         delay(5.seconds)
                     }
                 }
@@ -189,13 +190,13 @@ class MapViewModel(
         }
     }
 
-    private fun getShowOrder() {
-        val showingOrderId = uiState.value.showingOrderId ?: return
+    private fun getShowOrder(showingOrderId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             getShowOrderUseCase(showingOrderId).onSuccess { order ->
                 _uiState.update {
                     it.copy(
                         selectedOrder = order,
+                        showingOrderId = order.id,
                         selectedLocation = SelectedLocation(
                             name = order.taxi.routes.firstOrNull()?.fullAddress,
                             addressId = null,

@@ -104,11 +104,13 @@ class SearchCarSheetViewModel(
     }
 
     fun cancelRide() {
-        val orderId = uiState.value.orderId ?: return
+        val orderId = uiState.value.orderId
         viewModelScope.launch(Dispatchers.IO) {
-            cancelRideUseCase(orderId).onSuccess {
-                onIntent(SearchCarSheetIntent.OnCancelled(orderId))
+            if (orderId != null) {
+                cancelRideUseCase(orderId)
             }
+        }.invokeOnCompletion {
+            onIntent(SearchCarSheetIntent.OnCancelled(uiState.value.orderId))
         }
     }
 

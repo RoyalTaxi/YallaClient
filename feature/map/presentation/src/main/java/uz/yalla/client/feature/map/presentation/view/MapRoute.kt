@@ -2,6 +2,7 @@ package uz.yalla.client.feature.map.presentation.view
 
 import android.Manifest
 import android.app.Activity
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.rememberDrawerState
@@ -218,14 +219,13 @@ fun MapRoute(
                     is SearchCarSheetIntent.OnCancelled -> {
                         vm.updateState(
                             state.copy(
-                                selectedOrder = null,
                                 showingOrderId = null,
                                 selectedLocation = null,
                                 destinations = emptyList(),
                                 route = emptyList()
                             )
                         )
-                        onCancel(intent.orderId)
+                        intent.orderId?.let { onCancel(it) }
                     }
 
                     is SearchCarSheetIntent.OnFoundCars -> {
@@ -255,6 +255,7 @@ fun MapRoute(
                 OrderStatus.Canceled -> {
 
                 }
+
                 OrderStatus.Completed -> {}
                 OrderStatus.InFetters -> {}
 
@@ -406,7 +407,6 @@ fun MapRoute(
                     is MapScreenIntent.SetShowingOrder -> {
                         vm.updateState(
                             state.copy(
-                                selectedOrder = intent.order,
                                 showingOrderId = intent.order.id
                             )
                         )
