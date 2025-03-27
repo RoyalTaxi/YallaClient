@@ -92,22 +92,10 @@ fun MapRoute(
         when {
             drawerState.isOpen -> scope.launch { drawerState.close() }
 
-            state.route.isNotEmpty() && state.destinations.isNotEmpty() -> {
-                val updatedDestinations = state.destinations.dropLast(1)
-                vm.updateState(state.copy(destinations = updatedDestinations))
-                MainSheet.setDestination(updatedDestinations)
-                if (updatedDestinations.isEmpty()) {
-                    state.selectedLocation?.point?.let { there ->
-                        map.animate(to = there)
-                    }
-                }
-            }
-
-            state.route.isNotEmpty() -> {
-                vm.updateState(state.copy(destinations = emptyList()))
-                state.selectedLocation?.point?.let { there ->
-                    map.animate(to = there)
-                }
+            state.destinations.isNotEmpty() -> {
+                val destinations = state.destinations.toMutableList()
+                destinations.removeAt(0)
+                vm.updateState(state.copy(destinations = destinations))
             }
 
             state.selectedOrder == null || state.showingOrderId == null -> (context as? Activity)?.finish()

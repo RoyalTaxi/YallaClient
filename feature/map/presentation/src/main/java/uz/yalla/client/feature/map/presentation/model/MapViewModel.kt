@@ -112,8 +112,8 @@ class MapViewModel(
 
         viewModelScope.launch(Dispatchers.IO) {
             hasLocationChanged.collectLatest { (_, destination) ->
-                if (destination.isNotEmpty())
-                    getRouting()
+                if (destination.isNotEmpty()) getRouting()
+                else _uiState.update { it.copy(route = emptyList()) }
             }
         }
 
