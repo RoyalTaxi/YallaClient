@@ -151,7 +151,6 @@ fun MapRoute(
                     }
 
                     is OrderTaxiSheetIntent.SetSelectedLocation -> {
-
                         vm.updateState(
                             state.copy(
                                 selectedLocation = intent.selectedLocation
@@ -262,15 +261,6 @@ fun MapRoute(
                     }
 
                     is OrderCanceledSheetIntent.StartNewOrder -> {
-                        vm.updateState(
-                            state.copy(
-                                showingOrderId = null,
-                                selectedLocation = null,
-                                destinations = emptyList(),
-                                route = emptyList()
-                            )
-                        )
-
                         navController.navigateToMainSheet(
                             navOptions {
                                 restoreState = false
@@ -289,6 +279,15 @@ fun MapRoute(
                 OrderStatus.Appointed -> {}
                 OrderStatus.AtAddress -> {}
                 OrderStatus.Canceled -> {
+                    vm.updateState(
+                        state.copy(
+                            showingOrderId = null,
+                            selectedOrder = null,
+                            selectedLocation = null,
+                            destinations = emptyList(),
+                            route = emptyList()
+                        )
+                    )
                     navController.navigateToCanceledOrder(
                         navOptions {
                             restoreState = false
