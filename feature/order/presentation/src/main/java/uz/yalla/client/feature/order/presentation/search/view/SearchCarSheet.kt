@@ -83,9 +83,11 @@ object SearchCarSheet {
                 viewModel.setTariffId(tariffId)
                 viewModel.setOrderId(orderId)
             }
+        }
 
+        LaunchedEffect(state.setting) {
             launch(Dispatchers.Default) {
-                while (currentTime > state.setting?.orderCancelTime.or0()) {
+                while (currentTime < (state.setting?.orderCancelTime ?: 1)) {
                     delay(1.seconds)
                     currentTime += 1
                 }
@@ -135,7 +137,7 @@ object SearchCarSheet {
                     Text(
                         text = stringResource(
                             R.string.it_takes_around_x_minute,
-                            state.cars?.timeout.or0()
+                            state.timeout.or0()
                         ),
                         color = YallaTheme.color.gray,
                         style = YallaTheme.font.label

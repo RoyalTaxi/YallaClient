@@ -6,6 +6,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
@@ -13,24 +15,30 @@ import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.feature.order.domain.usecase.order.CancelRideUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.GetSettingUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.GetShowOrderUseCase
-import uz.yalla.client.feature.order.domain.usecase.order.SearchCarUseCase
+import uz.yalla.client.feature.order.domain.usecase.tariff.GetTimeOutUseCase
 import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheet.mutableIntentFlow
 import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheetIntent
 import kotlin.time.Duration.Companion.seconds
 
 class SearchCarSheetViewModel(
-    private val searchCarUseCase: SearchCarUseCase,
-    private val getSettingUseCase: GetSettingUseCase,
     private val cancelRideUseCase: CancelRideUseCase,
-    private val getShowOrderUseCase: GetShowOrderUseCase
+    private val getShowOrderUseCase: GetShowOrderUseCase,
+    private val getTimeOutUseCase: GetTimeOutUseCase,
+    private val getSettingUseCase: GetSettingUseCase
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(SearchCarSheetState())
     val uiState = _uiState.asStateFlow()
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
+            while (uiState.value.setting?.orderCancelTime == null) {
+                getSetting()
+                delay(5.seconds)
+            }
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
             while (true) {
-                searchCar()
                 delay(5.seconds)
                 yield()
             }
@@ -43,6 +51,21 @@ class SearchCarSheetViewModel(
                 yield()
             }
         }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            uiState
+                .distinctUntilChangedBy { Pair(it.searchingAddressPoint, it.tariffId) }
+                .collectLatest { state ->
+                    while (true) {
+                        state.searchingAddressPoint?.let { point ->
+                            state.tariffId?.let { tariffId ->
+                                getTimeout(point = point, tariffId = tariffId)
+                            }
+                        }
+                        delay(5.seconds)
+                    }
+                }
+        }
     }
 
     fun onIntent(intent: SearchCarSheetIntent) {
@@ -51,17 +74,14 @@ class SearchCarSheetViewModel(
         }
     }
 
-    private fun searchCar() {
-        val point = uiState.value.searchingAddressPoint ?: return
-        val tariffId = uiState.value.tariffId ?: return
+    private fun getTimeout(point: MapPoint, tariffId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            searchCarUseCase(
-                lat = point.lat,
-                lng = point.lng,
-                tariffId = tariffId
-            ).onSuccess { cars ->
-                onIntent(SearchCarSheetIntent.OnFoundCars(cars))
-                _uiState.update { it.copy(cars = cars) }
+            getTimeOutUseCase(point.lat, point.lng, tariffId).onSuccess { data ->
+                _uiState.update {
+                    it.copy(
+                        timeout = data.timeout.takeIf { timeout -> timeout != 0 } ?: 1
+                    )
+                }
             }
         }
     }
@@ -75,7 +95,7 @@ class SearchCarSheetViewModel(
         }
     }
 
-    fun getSetting() {
+    private fun getSetting() {
         viewModelScope.launch(Dispatchers.IO) {
             getSettingUseCase().onSuccess { setting ->
                 _uiState.update { it.copy(setting = setting) }

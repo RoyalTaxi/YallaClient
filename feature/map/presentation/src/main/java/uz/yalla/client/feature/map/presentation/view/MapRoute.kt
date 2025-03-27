@@ -39,6 +39,7 @@ import uz.yalla.client.feature.order.presentation.main.MAIN_SHEET_ROUTE
 import uz.yalla.client.feature.order.presentation.main.navigateToMainSheet
 import uz.yalla.client.feature.order.presentation.main.view.MainSheet
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent
+import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.OrderTaxiSheetIntent
 import uz.yalla.client.feature.order.presentation.search.navigateToSearchForCarBottomSheet
 import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheet
 import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheetIntent
@@ -140,12 +141,12 @@ fun MapRoute(
         launch(Dispatchers.Main) {
             MainSheet.intentFlow.collect { intent ->
                 when (intent) {
-                    is MainSheetIntent.OrderTaxiSheetIntent.SetSheetHeight -> {
+                    is OrderTaxiSheetIntent.SetSheetHeight -> {
                         vm.updateState(state.copy(sheetHeight = intent.height))
                         map.move(to = map.mapPoint.value)
                     }
 
-                    is MainSheetIntent.OrderTaxiSheetIntent.SetSelectedLocation -> {
+                    is OrderTaxiSheetIntent.SetSelectedLocation -> {
 
                         vm.updateState(
                             state.copy(
@@ -163,7 +164,7 @@ fun MapRoute(
                         }
                     }
 
-                    is MainSheetIntent.OrderTaxiSheetIntent.SetDestinations -> {
+                    is OrderTaxiSheetIntent.SetDestinations -> {
                         vm.updateState(
                             state.copy(
                                 destinations = intent.destinations
@@ -171,8 +172,8 @@ fun MapRoute(
                         )
                     }
 
-                    is MainSheetIntent.OrderTaxiSheetIntent.AddNewDestinationClick -> TODO()
-                    is MainSheetIntent.OrderTaxiSheetIntent.OrderCreated -> {
+                    is OrderTaxiSheetIntent.AddNewDestinationClick -> TODO()
+                    is OrderTaxiSheetIntent.OrderCreated -> {
                         vm.updateState(
                             state.copy(
                                 showingOrderId = intent.orderId,
@@ -195,6 +196,15 @@ fun MapRoute(
 
                     is MainSheetIntent.PaymentMethodSheetIntent.OnAddNewCard -> {
                         onAddNewCard()
+                    }
+
+                    is OrderTaxiSheetIntent.SetTimeout -> {
+                        vm.updateState(
+                            state.copy(
+                                timeout = intent.timeout,
+                                drivers = intent.drivers
+                            )
+                        )
                     }
 
                     else -> {}
@@ -242,7 +252,9 @@ fun MapRoute(
             when (order?.status) {
                 OrderStatus.Appointed -> {}
                 OrderStatus.AtAddress -> {}
-                OrderStatus.Canceled -> {}
+                OrderStatus.Canceled -> {
+
+                }
                 OrderStatus.Completed -> {}
                 OrderStatus.InFetters -> {}
 

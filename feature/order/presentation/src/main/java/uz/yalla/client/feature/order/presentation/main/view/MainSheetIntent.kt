@@ -4,6 +4,7 @@ import androidx.compose.ui.unit.Dp
 import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 import uz.yalla.client.core.data.enums.PaymentType
 import uz.yalla.client.core.domain.model.Destination
+import uz.yalla.client.core.domain.model.Executor
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.SelectedLocation
 import uz.yalla.client.feature.order.domain.model.response.tarrif.GetTariffsModel
@@ -19,6 +20,11 @@ sealed interface MainSheetIntent {
             OrderTaxiSheetIntent
 
         data class SetDestinations(val destinations: List<Destination>) : OrderTaxiSheetIntent
+
+        data class SetTimeout(
+            val timeout: Int?,
+            val drivers: List<Executor>
+        ) : OrderTaxiSheetIntent
 
         data class SelectTariff(
             val tariff: GetTariffsModel.Tariff,

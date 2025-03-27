@@ -9,10 +9,10 @@ data class SearchCarSheetState(
     val loading: Boolean = false,
     val tariffId: Int? = null,
     val orderId: Int? = null,
-    val cars: SearchCarModel? = null,
     val searchingAddressPoint: MapPoint? = null,
     val order: ShowOrderModel? = null,
     val detailsBottomSheetVisibility: Boolean = false,
     val cancelBottomSheetVisibility: Boolean = false,
-    val setting: SettingModel? = null
+    val setting: SettingModel? = null,
+    val timeout: Int? = null
 )

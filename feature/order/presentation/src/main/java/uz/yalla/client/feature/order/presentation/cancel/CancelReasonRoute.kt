@@ -8,10 +8,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import uz.yalla.client.core.common.dialog.LoadingDialog
+import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun CancelReasonRoute(
@@ -34,6 +36,7 @@ fun CancelReasonRoute(
                         loading = false
                         onNavigateBack()
                     }
+
                     CancelReasonActionState.GettingSuccess -> loading = false
                     CancelReasonActionState.Loading -> loading = true
                     CancelReasonActionState.SettingSuccess -> {
@@ -41,6 +44,15 @@ fun CancelReasonRoute(
                         onNavigateBack()
                     }
                 }
+            }
+        }
+    }
+
+    LaunchedEffect(loading) {
+        launch(Dispatchers.Main) {
+            if (loading) {
+                delay(5.seconds)
+                onNavigateBack()
             }
         }
     }

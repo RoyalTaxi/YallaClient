@@ -8,10 +8,12 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -30,6 +32,7 @@ import uz.yalla.client.feature.map.domain.usecase.GetPolygonUseCase
 import uz.yalla.client.feature.order.domain.model.response.tarrif.GetTariffsModel
 import uz.yalla.client.feature.order.domain.usecase.order.OrderTaxiUseCase
 import uz.yalla.client.feature.order.domain.usecase.tariff.GetTariffsUseCase
+import uz.yalla.client.feature.order.domain.usecase.tariff.GetTimeOutUseCase
 import uz.yalla.client.feature.order.presentation.main.view.MainSheet
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.FooterIntent
@@ -38,12 +41,14 @@ import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.Orde
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.PaymentMethodSheetIntent
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.TariffInfoSheetIntent
 import uz.yalla.client.feature.payment.domain.usecase.GetCardListUseCase
+import kotlin.time.Duration.Companion.seconds
 
 class MainSheetViewModel(
     private val getPolygonUseCase: GetPolygonUseCase,
     private val getTariffsUseCase: GetTariffsUseCase,
     private val orderTaxiUseCase: OrderTaxiUseCase,
     private val getCardListUseCase: GetCardListUseCase,
+    private val getTimeOutUseCase: GetTimeOutUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainSheetState())
@@ -82,19 +87,29 @@ class MainSheetViewModel(
     init {
         viewModelScope.launch(Dispatchers.IO) {
             uiState
-                .distinctUntilChangedBy { it.selectedLocation }
-                .collect { state ->
-                    state.selectedLocation?.let { location ->
-                        val point = location.point ?: return@let
-                        val (isInsidePolygon, addressId) = isPointInsidePolygon(point)
-                        if (isInsidePolygon) {
-                            getTariffs(addressId)
-                            setSelectedLocation(location.copy(addressId = addressId))
-                        } else {
-                            setSelectedTariff(null)
-                            handleTariffsFailure()
-                        }
-                    }
+                .distinctUntilChangedBy { Pair(it.selectedTariff, it.selectedLocation) }
+                .collectLatest { state ->
+                    state.selectedLocation?.point?.let { getTimeout(it) }
+                }
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            while (true) {
+                delay(10.seconds)
+                uiState.value.selectedLocation?.point?.let { getTimeout(it) }
+            }
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            uiState
+                .distinctUntilChangedBy { Pair(it.drivers, it.timeout) }
+                .collectLatest { state ->
+                    MainSheet.mutableIntentFlow.emit(
+                        OrderTaxiSheetIntent.SetTimeout(
+                            timeout = state.timeout,
+                            drivers = state.drivers
+                        )
+                    )
                 }
         }
     }
@@ -177,8 +192,23 @@ class MainSheetViewModel(
     }
 
     fun setSelectedLocation(selectedLocation: SelectedLocation) {
-        _uiState.update { it.copy(selectedLocation = selectedLocation) }
+        viewModelScope.launch(Dispatchers.IO) {
+            val updatedLocation = selectedLocation.point?.let { point ->
+                val (isInsidePolygon, addressId) = isPointInsidePolygon(point)
+                if (isInsidePolygon) {
+                    getTariffs(addressId)
+                    selectedLocation.copy(addressId = addressId)
+                } else {
+                    setSelectedTariff(null)
+                    handleTariffsFailure()
+                    selectedLocation
+                }
+            } ?: selectedLocation
 
+            _uiState.update {
+                it.copy(selectedLocation = updatedLocation)
+            }
+        }
     }
 
     fun addDestination(destination: Destination) {
@@ -284,6 +314,20 @@ class MainSheetViewModel(
         }
     }
 
+    private fun getTimeout(point: MapPoint) {
+        viewModelScope.launch(Dispatchers.IO) {
+            uiState.value.selectedTariff?.id?.let { tariffId ->
+                getTimeOutUseCase(point.lat, point.lng, tariffId).onSuccess { timeout ->
+                    _uiState.update {
+                        it.copy(
+                            timeout = timeout.timeout,
+                            drivers = timeout.executors
+                        )
+                    }
+                }
+            }
+        }
+    }
 
     private fun handleTariffsSuccess(tariffsModel: GetTariffsModel) {
         _uiState.update { currentState ->

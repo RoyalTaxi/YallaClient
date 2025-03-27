@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import uz.yalla.client.core.common.marker.YallaMarkerState
 import uz.yalla.client.core.common.state.HamburgerButtonState
+import uz.yalla.client.core.common.state.MoveCameraButtonState
 import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.OrderStatus
@@ -26,14 +27,12 @@ import uz.yalla.client.feature.map.domain.usecase.GetAddressNameUseCase
 import uz.yalla.client.feature.map.domain.usecase.GetRoutingUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.GetActiveOrdersUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.GetShowOrderUseCase
-import uz.yalla.client.feature.order.domain.usecase.tariff.GetTimeOutUseCase
 import uz.yalla.client.feature.order.presentation.main.view.MainSheet
 import uz.yalla.client.feature.profile.domain.usecase.GetMeUseCase
 import kotlin.time.Duration.Companion.seconds
 
 class MapViewModel(
     private val getAddressNameUseCase: GetAddressNameUseCase,
-    private val getTimeOutUseCase: GetTimeOutUseCase,
     private val getShowOrderUseCase: GetShowOrderUseCase,
     private val getMeUseCase: GetMeUseCase,
     private val getRoutingUseCase: GetRoutingUseCase,
@@ -82,7 +81,6 @@ class MapViewModel(
                 .collectLatest { state ->
                     state.selectedLocation?.let { location ->
                         MainSheet.setLocation(location)
-                        location.point?.let { l -> getTimeout(l) }
                     }
                 }
         }
@@ -124,6 +122,21 @@ class MapViewModel(
                 delay(5.seconds)
                 yield()
             }
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            uiState
+                .distinctUntilChangedBy { it.route }
+                .collectLatest { state ->
+                    _uiState.update {
+                        it.copy(
+                            moveCameraButtonState = when {
+                                state.route.isEmpty() -> MoveCameraButtonState.MyLocationView
+                                else -> MoveCameraButtonState.MyRouteView
+                            }
+                        )
+                    }
+                }
         }
     }
 
@@ -202,15 +215,6 @@ class MapViewModel(
         }
     }
 
-    private fun getTimeout(point: MapPoint) {
-        viewModelScope.launch(Dispatchers.IO) {
-            uiState.value.selectedTariffId?.let { tariffId ->
-                getTimeOutUseCase(point.lat, point.lng, tariffId).onSuccess { timeout ->
-                    _uiState.update { it.copy(timeout = timeout.timeout) }
-                }
-            }
-        }
-    }
 
     private fun getActiveOrders() {
         viewModelScope.launch(Dispatchers.IO) {
