@@ -31,6 +31,8 @@ import uz.yalla.client.core.common.field.SearchLocationField
 import uz.yalla.client.core.common.item.FoundAddressItem
 import uz.yalla.client.core.common.sheet.search_address.SearchByNameBottomSheetViewModel
 import uz.yalla.client.core.data.mapper.or0
+import uz.yalla.client.core.domain.model.MapPoint
+import uz.yalla.client.core.domain.model.SelectedLocation
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -39,7 +41,7 @@ fun AddDestinationBottomSheet(
     onClickMap: () -> Unit,
     sheetState: SheetState,
     onDismissRequest: () -> Unit,
-    onAddressSelected: (String, Double, Double, Int) -> Unit,
+    onAddressSelected: (SelectedLocation) -> Unit,
     viewModel: SearchByNameBottomSheetViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -110,7 +112,13 @@ fun AddDestinationBottomSheet(
                 FoundAddressItem(
                     foundAddress = foundAddress,
                     onClick = {
-                        onAddressSelected(it.name, it.lat, it.lng, it.addressId.or0())
+                        onAddressSelected(
+                            SelectedLocation(
+                                name = it.name,
+                                point = MapPoint(it.lat, it.lng),
+                                addressId = it.addressId.or0()
+                            )
+                        )
                         viewModel.setQuery("")
                         viewModel.setFoundAddresses(emptyList())
                         onDismissRequest()

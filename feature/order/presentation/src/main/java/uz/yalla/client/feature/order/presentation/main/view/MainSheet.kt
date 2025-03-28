@@ -33,6 +33,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.getKoin
+import uz.yalla.client.core.common.sheet.AddDestinationBottomSheet
 import uz.yalla.client.core.common.sheet.search_address.SearchByNameBottomSheet
 import uz.yalla.client.core.common.sheet.search_address.SearchByNameSheetValue
 import uz.yalla.client.core.common.sheet.select_from_map.SelectFromMapView
@@ -43,6 +44,7 @@ import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.SelectedLocation
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
+import uz.yalla.client.feature.order.presentation.di.Order
 import uz.yalla.client.feature.order.presentation.main.model.MainSheetState
 import uz.yalla.client.feature.order.presentation.main.model.MainSheetViewModel
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.OrderTaxiSheetIntent
@@ -87,6 +89,10 @@ object MainSheet {
         )
 
         val searchByNameSheetState = rememberModalBottomSheetState(
+            skipPartiallyExpanded = true
+        )
+
+        val addDestinationSheetState = rememberModalBottomSheetState(
             skipPartiallyExpanded = true
         )
 
@@ -278,11 +284,41 @@ object MainSheet {
                             }
                         }
 
-                        else -> {}
+                        else -> {
+                            scope.launch(Dispatchers.Main) {
+                                mutableIntentFlow.emit(
+                                    OrderTaxiSheetIntent.AddDestination(
+                                        destination = location.mapToDestination()
+                                    )
+                                )
+                            }
+                        }
                     }
                 },
                 onDismissRequest = {
                     viewModel.setSelectFromMapViewVisibility(SelectFromMapViewValue.INVISIBLE)
+                }
+            )
+        }
+
+        if (state.addDestinationSheetVisible) {
+            AddDestinationBottomSheet(
+                sheetState = addDestinationSheetState,
+                onClickMap = {
+                    viewModel.setSelectFromMapViewVisibility(SelectFromMapViewValue.FOR_NEW_DEST)
+                },
+                onDismissRequest = {
+                    viewModel.setAddDestinationSheetVisibility(false)
+                    scope.launch { addDestinationSheetState.hide() }
+                },
+                onAddressSelected = { location ->
+                    scope.launch(Dispatchers.Main) {
+                        mutableIntentFlow.emit(
+                            OrderTaxiSheetIntent.AddDestination(
+                                destination = location.mapToDestination()
+                            )
+                        )
+                    }
                 }
             )
         }

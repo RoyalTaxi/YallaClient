@@ -78,9 +78,7 @@ fun MapScreen(
             onSelectOrder = { onIntent(MapScreenIntent.SetShowingOrder(it)) },
             onDismissRequest = {
                 onIntent(MapScreenIntent.OnDismissActiveOrders)
-                scope.launch(Dispatchers.Main) {
-                    activeOrdersSheetState.hide()
-                }
+                scope.launch(Dispatchers.Main) { activeOrdersSheetState.hide() }
             }
         )
     }

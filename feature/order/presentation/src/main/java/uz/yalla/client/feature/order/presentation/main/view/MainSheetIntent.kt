@@ -20,6 +20,8 @@ sealed interface MainSheetIntent {
             OrderTaxiSheetIntent
 
         data class SetDestinations(val destinations: List<Destination>) : OrderTaxiSheetIntent
+        data class AddDestination(val destination: Destination) : OrderTaxiSheetIntent
+        data class SetServiceState(val available: Boolean) : OrderTaxiSheetIntent
 
         data class SetTimeout(
             val timeout: Int?,

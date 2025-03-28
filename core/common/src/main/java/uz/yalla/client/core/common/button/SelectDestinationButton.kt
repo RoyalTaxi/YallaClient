@@ -95,19 +95,18 @@ fun SelectDestinationButton(
 
                 destinations.size == 2 && firstTakesMoreSpace -> {
 
-                    Row(modifier = Modifier.weight(1f)) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.weight(0.5f)
-                        ) {
-                            Text(
-                                text = destinations[0].name.orEmpty(),
-                                color = YallaTheme.color.black,
-                                style = YallaTheme.font.labelLarge,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            modifier = Modifier.weight(.5f),
+                            text = destinations[0].name.orEmpty(),
+                            color = YallaTheme.color.black,
+                            style = YallaTheme.font.labelLarge,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
 
                         Spacer(modifier = Modifier.width(4.dp))
 
