@@ -210,7 +210,7 @@ class MapViewModel(
                                 MapPoint(c.lat, c.lng)
                             }
                         ),
-                        destinations = order.taxi.routes.drop(0).map { d ->
+                        destinations = order.taxi.routes.drop(1).map { d ->
                             Destination(
                                 name = d.fullAddress,
                                 point = MapPoint(d.coords.lat, d.coords.lng)
@@ -285,6 +285,18 @@ class MapViewModel(
 
     fun updateState(state: MapUIState) {
         _uiState.update { state }
+    }
+
+    fun clearState(){
+        _uiState.update {
+            it.copy(
+                showingOrderId = null,
+                selectedOrder = null,
+                selectedLocation = null,
+                destinations = emptyList(),
+                route = emptyList()
+            )
+        }
     }
 
     fun setStateToNotFound() {

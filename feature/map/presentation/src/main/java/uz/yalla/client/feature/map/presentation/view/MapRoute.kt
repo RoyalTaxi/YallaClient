@@ -226,14 +226,7 @@ fun MapRoute(
             SearchCarSheet.intentFlow.collectLatest { intent ->
                 when (intent) {
                     is SearchCarSheetIntent.OnCancelled -> {
-                        vm.updateState(
-                            state.copy(
-                                showingOrderId = null,
-                                selectedLocation = null,
-                                destinations = emptyList(),
-                                route = emptyList()
-                            )
-                        )
+                        vm.clearState()
                         intent.orderId?.let { onCancel(it) }
                     }
 
@@ -270,14 +263,7 @@ fun MapRoute(
             DriverWaitingSheet.intentFlow.collectLatest { intent ->
                 when (intent) {
                     is DriverWaitingIntent.OnCancelled -> {
-                        vm.updateState(
-                            state.copy(
-                                showingOrderId = null,
-                                selectedLocation = null,
-                                destinations = emptyList(),
-                                route = emptyList()
-                            )
-                        )
+                        vm.clearState()
                         intent.orderId?.let { onCancel(it) }
                     }
 
@@ -344,14 +330,7 @@ fun MapRoute(
                     }
 
                     is FeedbackSheetIntent.OnCompleteOrder -> {
-                        vm.updateState(
-                            state.copy(
-                                showingOrderId = null,
-                                selectedLocation = null,
-                                destinations = emptyList(),
-                                route = emptyList()
-                            )
-                        )
+                        vm.clearState()
                         navController.navigateToMainSheet()
                     }
                 }
@@ -360,7 +339,7 @@ fun MapRoute(
     }
 
     LaunchedEffect(state.hasServiceProvided) {
-        launch(Dispatchers.IO) {
+        launch(Dispatchers.Main) {
             if (state.hasServiceProvided == true) {
                 navController.navigateToMainSheet()
             } else if (state.hasServiceProvided == false) {
@@ -391,15 +370,7 @@ fun MapRoute(
                 }
 
                 OrderStatus.Canceled -> {
-                    vm.updateState(
-                        state.copy(
-                            showingOrderId = null,
-                            selectedOrder = null,
-                            selectedLocation = null,
-                            destinations = emptyList(),
-                            route = emptyList()
-                        )
-                    )
+                    vm.clearState()
                     navController.navigateToCanceledOrder()
                 }
 
@@ -516,15 +487,8 @@ fun MapRoute(
                     }
 
                     is MapScreenIntent.MapOverlayIntent.NavigateBack -> {
-                        when {
-                            state.destinations.isNotEmpty() -> {
-                                val destinations = state.destinations.toMutableList()
-                                destinations.removeAt(destinations.lastIndex)
-                                vm.updateState(state.copy(destinations = destinations))
-                            }
-
-                            state.selectedOrder == null || state.showingOrderId == null -> (context as? Activity)?.finish()
-                        }
+                        vm.clearState()
+                        navController.navigateToMainSheet()
                     }
 
                     is MapScreenIntent.MapOverlayIntent.OpenDrawer -> {
