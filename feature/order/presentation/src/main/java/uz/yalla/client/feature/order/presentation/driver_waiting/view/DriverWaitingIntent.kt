@@ -5,7 +5,6 @@ import uz.yalla.client.feature.order.presentation.client_waiting.view.ClientWait
 import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheetIntent
 
 sealed interface DriverWaitingIntent {
-    data class OnCallDriver(val phoneNumber: String): DriverWaitingIntent
-    data class OnCancelled(val orderId: Int) : DriverWaitingIntent
+    data class OnCancelled(val orderId: Int?) : DriverWaitingIntent
     data class SetSheetHeight(val height: Dp) : DriverWaitingIntent
 }

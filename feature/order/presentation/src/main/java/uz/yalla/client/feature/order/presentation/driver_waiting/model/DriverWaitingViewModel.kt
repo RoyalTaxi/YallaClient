@@ -1,27 +1,33 @@
 package uz.yalla.client.feature.order.presentation.driver_waiting.model
 
-import android.content.Context
-import android.content.Intent
-import android.content.Intent.ACTION_DIAL
-import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
+import uz.yalla.client.feature.order.domain.usecase.order.CancelRideUseCase
+import uz.yalla.client.feature.order.domain.usecase.order.GetShowOrderUseCase
 import uz.yalla.client.feature.order.presentation.driver_waiting.view.DriverWaitingIntent
 import uz.yalla.client.feature.order.presentation.driver_waiting.view.DriverWaitingSheet.mutableIntentFlow
+import kotlin.time.Duration.Companion.seconds
 
-class DriverWaitingViewModel : ViewModel() {
+class DriverWaitingViewModel(
+    private val cancelRideUseCase: CancelRideUseCase,
+    private val getShowOrderUseCase: GetShowOrderUseCase
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DriverWaitingState())
     val uiState = _uiState.asStateFlow()
 
-    fun setSelectedDriver(driver: ShowOrderModel.Executor) {
-        _uiState.update { it.copy(selectedDriver = driver) }
+    fun setOrderId(orderId: Int) {
+        _uiState.update { it.copy(orderId = orderId) }
+        getOrderDetails()
     }
 
     fun onIntent(intent: DriverWaitingIntent) {
@@ -30,8 +36,48 @@ class DriverWaitingViewModel : ViewModel() {
         }
     }
 
-    fun createDialIntent(context: Context): (String) -> Unit = { number ->
-        val intent = Intent(ACTION_DIAL).apply { data = "tel:$number".toUri() }
-        if (intent.resolveActivity(context.packageManager) != null) context.startActivity(intent)
+    private fun getOrderDetails() {
+        val orderId = uiState.value.orderId ?: return
+        viewModelScope.launch(Dispatchers.IO) {
+            getShowOrderUseCase(orderId).onSuccess { data ->
+                _uiState.update { it.copy(selectedDriver = data) }
+            }
+        }
+    }
+
+    fun cancelRide() {
+        val orderId = uiState.value.orderId
+        viewModelScope.launch(Dispatchers.IO) {
+            if (orderId != null) {
+                cancelRideUseCase(orderId)
+            }
+        }.invokeOnCompletion {
+            onIntent(DriverWaitingIntent.OnCancelled(uiState.value.orderId))
+        }
+    }
+
+    fun timer(range: IntRange) = flow {
+        for (second in range) {
+            delay(1.seconds)
+            emit(second)
+            if (!currentCoroutineContext().isActive) return@flow
+        }
+    }
+
+    fun infiniteTimer(isActive: Boolean) = flow {
+        var seconds = 0
+        while (isActive && currentCoroutineContext().isActive) {
+            delay(1.seconds)
+            emit(seconds)
+            seconds++
+        }
+    }
+
+    fun setDetailsBottomSheetVisibility(isVisible: Boolean) {
+        _uiState.update { it.copy(detailsBottomSheetVisibility = isVisible) }
+    }
+
+    fun setCancelBottomSheetVisibility(isVisible: Boolean) {
+        _uiState.update { it.copy(cancelBottomSheetVisibility = isVisible) }
     }
 }

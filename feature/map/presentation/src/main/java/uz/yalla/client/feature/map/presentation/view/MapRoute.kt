@@ -34,14 +34,24 @@ import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.feature.map.presentation.model.MapViewModel
 import uz.yalla.client.feature.map.presentation.view.drawer.MapDrawer
 import uz.yalla.client.feature.map.presentation.view.drawer.MapDrawerIntent
+import uz.yalla.client.feature.order.domain.model.response.order.toCommonExecutor
 import uz.yalla.client.feature.order.presentation.client_waiting.navigateToClientWaitingSheet
 import uz.yalla.client.feature.order.presentation.client_waiting.view.ClientWaitingIntent
 import uz.yalla.client.feature.order.presentation.client_waiting.view.ClientWaitingSheet
+import uz.yalla.client.feature.order.presentation.driver_waiting.navigateToDriverWaitingSheet
+import uz.yalla.client.feature.order.presentation.driver_waiting.view.DriverWaitingIntent
+import uz.yalla.client.feature.order.presentation.driver_waiting.view.DriverWaitingSheet
+import uz.yalla.client.feature.order.presentation.feedback.navigateToFeedbackSheet
+import uz.yalla.client.feature.order.presentation.feedback.view.FeedbackSheet
+import uz.yalla.client.feature.order.presentation.feedback.view.FeedbackSheetIntent
 import uz.yalla.client.feature.order.presentation.main.MAIN_SHEET_ROUTE
 import uz.yalla.client.feature.order.presentation.main.navigateToMainSheet
 import uz.yalla.client.feature.order.presentation.main.view.MainSheet
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.OrderTaxiSheetIntent
+import uz.yalla.client.feature.order.presentation.on_the_ride.navigateToOnTheRideSheet
+import uz.yalla.client.feature.order.presentation.on_the_ride.view.OnTheRideSheet
+import uz.yalla.client.feature.order.presentation.on_the_ride.view.OnTheRideSheetIntent
 import uz.yalla.client.feature.order.presentation.order_canceled.navigateToCanceledOrder
 import uz.yalla.client.feature.order.presentation.order_canceled.view.OrderCanceledSheet
 import uz.yalla.client.feature.order.presentation.order_canceled.view.OrderCanceledSheetIntent
@@ -92,19 +102,8 @@ fun MapRoute(
         when {
             drawerState.isOpen -> scope.launch { drawerState.close() }
 
-            state.route.isNotEmpty() && state.destinations.isNotEmpty() -> {
-                val updatedDestinations = state.destinations.dropLast(1)
-                vm.updateState(state.copy(destinations = updatedDestinations))
-                MainSheet.setDestination(updatedDestinations)
-                if (updatedDestinations.isEmpty()) {
-                    state.selectedLocation?.point?.let { there ->
-                        map.animate(to = there)
-                    }
-                }
-            }
-
-            state.route.isNotEmpty() -> {
-                vm.updateState(state.copy(destinations = emptyList()))
+            state.destinations.isNotEmpty() -> {
+                vm.updateState(state.copy(destinations = state.destinations.drop(0)))
                 state.selectedLocation?.point?.let { there ->
                     map.animate(to = there)
                 }
@@ -262,6 +261,50 @@ fun MapRoute(
         }
 
         launch(Dispatchers.Main) {
+            DriverWaitingSheet.intentFlow.collectLatest { intent ->
+                when (intent) {
+                    is DriverWaitingIntent.OnCancelled -> {
+                        vm.updateState(
+                            state.copy(
+                                showingOrderId = null,
+                                selectedLocation = null,
+                                destinations = emptyList(),
+                                route = emptyList()
+                            )
+                        )
+                        intent.orderId?.let { onCancel(it) }
+                    }
+
+                    is DriverWaitingIntent.SetSheetHeight -> {
+                        vm.updateState(state.copy(sheetHeight = intent.height))
+                        awaitFrame()
+                        state.selectedOrder?.taxi?.routes?.firstOrNull()?.coords?.let { coordinate ->
+                            map.move(to = MapPoint(coordinate.lat, coordinate.lng))
+                        } ?: run {
+                            map.move(to = map.mapPoint.value)
+                        }
+                    }
+                }
+            }
+        }
+
+        launch(Dispatchers.Main) {
+            OnTheRideSheet.intentFlow.collectLatest { intent ->
+                when (intent) {
+                    is OnTheRideSheetIntent.SetSheetHeight -> {
+                        vm.updateState(state.copy(sheetHeight = intent.height))
+                        awaitFrame()
+                        state.selectedOrder?.taxi?.routes?.firstOrNull()?.coords?.let { coordinate ->
+                            map.move(to = MapPoint(coordinate.lat, coordinate.lng))
+                        } ?: run {
+                            map.move(to = map.mapPoint.value)
+                        }
+                    }
+                }
+            }
+        }
+
+        launch(Dispatchers.Main) {
             OrderCanceledSheet.intentFlow.collectLatest { intent ->
                 when (intent) {
                     is OrderCanceledSheetIntent.SetSheetHeight -> {
@@ -280,17 +323,57 @@ fun MapRoute(
                 }
             }
         }
+
+        launch(Dispatchers.Main) {
+            FeedbackSheet.intentFlow.collectLatest { intent ->
+                when (intent) {
+                    is FeedbackSheetIntent.SetSheetHeight -> {
+                        vm.updateState(state.copy(sheetHeight = intent.height))
+                        awaitFrame()
+                        state.selectedOrder?.taxi?.routes?.firstOrNull()?.coords?.let { coordinate ->
+                            map.move(to = MapPoint(coordinate.lat, coordinate.lng))
+                        } ?: run {
+                            map.move(to = map.mapPoint.value)
+                        }
+                    }
+
+                    is FeedbackSheetIntent.OnCompleteOrder -> {
+                        vm.updateState(
+                            state.copy(
+                                showingOrderId = null,
+                                selectedLocation = null,
+                                destinations = emptyList(),
+                                route = emptyList()
+                            )
+                        )
+                        navController.navigateToMainSheet()
+                    }
+                }
+            }
+        }
     }
 
     LaunchedEffect(state.selectedOrder) {
         launch(Dispatchers.Main.immediate) {
             val order = state.selectedOrder
+
+            if (order?.status !in OrderStatus.nonInteractive) order?.let {
+                vm.updateState(
+                    state.copy(
+                        drivers = listOf(order.executor.toCommonExecutor())
+                    )
+                )
+            }
+
             when (order?.status) {
                 OrderStatus.Appointed -> {
                     navController.navigateToClientWaitingSheet(orderID = order.id)
                 }
 
-                OrderStatus.AtAddress -> {}
+                OrderStatus.AtAddress -> {
+                    navController.navigateToDriverWaitingSheet(orderID = order.id)
+                }
+
                 OrderStatus.Canceled -> {
                     vm.updateState(
                         state.copy(
@@ -304,8 +387,13 @@ fun MapRoute(
                     navController.navigateToCanceledOrder()
                 }
 
-                OrderStatus.Completed -> {}
-                OrderStatus.InFetters -> {}
+                OrderStatus.Completed -> {
+                    navController.navigateToFeedbackSheet(orderId = order.id)
+                }
+
+                OrderStatus.InFetters -> {
+                    navController.navigateToOnTheRideSheet(orderId = order.id)
+                }
 
                 null -> {
                     val currentDestination = navController.currentDestination?.route

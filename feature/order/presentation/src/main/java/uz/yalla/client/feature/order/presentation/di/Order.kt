@@ -1,12 +1,14 @@
 package uz.yalla.client.feature.order.presentation.di
 
-import androidx.lifecycle.viewmodel.compose.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import uz.yalla.client.feature.order.data.di.OrderData
 import uz.yalla.client.feature.order.presentation.cancel.CancelReasonViewModel
 import uz.yalla.client.feature.order.presentation.client_waiting.model.ClientWaitingViewModel
+import uz.yalla.client.feature.order.presentation.driver_waiting.model.DriverWaitingViewModel
+import uz.yalla.client.feature.order.presentation.feedback.model.FeedbackSheetViewModel
 import uz.yalla.client.feature.order.presentation.main.model.MainSheetViewModel
+import uz.yalla.client.feature.order.presentation.on_the_ride.model.OnTheRideSheetViewModel
 import uz.yalla.client.feature.order.presentation.order_canceled.model.OrderCanceledSheetViewModel
 import uz.yalla.client.feature.order.presentation.search.model.SearchCarSheetViewModel
 
@@ -17,6 +19,9 @@ object Order {
         viewModelOf(::CancelReasonViewModel)
         viewModelOf(::OrderCanceledSheetViewModel)
         viewModelOf(::ClientWaitingViewModel)
+        viewModelOf(::DriverWaitingViewModel)
+        viewModelOf(::OnTheRideSheetViewModel)
+        viewModelOf(::FeedbackSheetViewModel)
     }
 
     val modules = listOf(
