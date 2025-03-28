@@ -10,4 +10,6 @@ dependencies {
     implementation(projects.core.data)
     implementation(projects.service.profile)
     implementation(projects.feature.profile.domain)
+    implementation(projects.service.auth)
+    implementation(projects.feature.auth.domain)
 }
