@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.profile.edit_profile.view
+package uz.yalla.client.feature.edit_profile.view
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -29,12 +29,9 @@ import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.core.common.sheet.ConfirmationBottomSheet
 import uz.yalla.client.core.common.system.isFileSizeTooLarge
 import uz.yalla.client.core.common.system.isImageDimensionTooLarge
-import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.feature.cancel.R
 import uz.yalla.client.feature.edit_profile.model.EditProfileActionState
 import uz.yalla.client.feature.edit_profile.model.EditProfileViewModel
-import uz.yalla.client.feature.edit_profile.view.EditProfileIntent
-import uz.yalla.client.feature.edit_profile.view.EditProfileScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -97,6 +94,13 @@ internal fun EditProfileRoute(
                         onNavigateBack()
                         false
                     }
+
+                    EditProfileActionState.LogoutSuccess -> {
+                        onNavigateToStart()
+                        false
+                    }
+
+                    EditProfileActionState.LogoutError -> false
                 }
             }
         }
@@ -161,8 +165,8 @@ internal fun EditProfileRoute(
             scope.launch { sheetState.hide() }
         },
         onConfirm = {
-            AppPreferences.clear()
-            onNavigateToStart()
+            loading = true
+            viewModel.logout()
         }
     )
 

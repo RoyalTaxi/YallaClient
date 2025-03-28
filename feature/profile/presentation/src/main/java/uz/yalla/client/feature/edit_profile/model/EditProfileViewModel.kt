@@ -15,10 +15,12 @@ import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.format.DateTimeParseException
 import uz.yalla.client.core.common.formation.formatWithDotsDMY
+import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.feature.edit_profile.components.Gender
 import uz.yalla.client.feature.edit_profile.components.uriToByteArray
 import uz.yalla.client.feature.profile.domain.model.request.UpdateMeDto
 import uz.yalla.client.feature.profile.domain.usecase.GetMeUseCase
+import uz.yalla.client.feature.profile.domain.usecase.LogoutUseCase
 import uz.yalla.client.feature.profile.domain.usecase.UpdateAvatarUseCase
 import uz.yalla.client.feature.profile.domain.usecase.UpdateMeUseCase
 import java.util.Locale
@@ -26,7 +28,8 @@ import java.util.Locale
 internal class EditProfileViewModel(
     private val updateMeUseCase: UpdateMeUseCase,
     private val getMeUseCase: GetMeUseCase,
-    private val updateAvatarUseCase: UpdateAvatarUseCase
+    private val updateAvatarUseCase: UpdateAvatarUseCase,
+    private val logoutUseCase: LogoutUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(EditProfileUIState())
@@ -84,7 +87,7 @@ internal class EditProfileViewModel(
         else _actionState.emit(EditProfileActionState.Error)
     }
 
-    fun parseBirthdayOrNull(birthdayStr: String?): LocalDate? {
+    private fun parseBirthdayOrNull(birthdayStr: String?): LocalDate? {
         if (birthdayStr.isNullOrBlank()) return null
 
         val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.getDefault())
@@ -113,5 +116,16 @@ internal class EditProfileViewModel(
 
     fun changeGender(gender: Gender) {
         _uiState.update { it.copy(gender = gender) }
+    }
+
+    fun logout() {
+        viewModelScope.launch(Dispatchers.IO) {
+            logoutUseCase().onSuccess {
+                AppPreferences.clear()
+                _actionState.emit(EditProfileActionState.LogoutSuccess)
+            }.onFailure {
+                _actionState.emit(EditProfileActionState.LogoutError)
+            }
+        }
     }
 }
