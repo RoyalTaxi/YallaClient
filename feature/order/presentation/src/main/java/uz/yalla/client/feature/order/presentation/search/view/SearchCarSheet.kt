@@ -181,16 +181,12 @@ object SearchCarSheet {
                 dismissText = stringResource(R.string.wait),
                 onDismissRequest = {
                     viewModel.setCancelBottomSheetVisibility(false)
-                    scope.launch {
-                        cancelOrderSheetState.hide()
-                    }
+                    scope.launch { cancelOrderSheetState.hide() }
                 },
                 onConfirm = {
                     viewModel.cancelRide()
                     viewModel.setCancelBottomSheetVisibility(false)
-                    scope.launch {
-                        cancelOrderSheetState.hide()
-                    }
+                    scope.launch { cancelOrderSheetState.hide() }
                 }
             )
         }

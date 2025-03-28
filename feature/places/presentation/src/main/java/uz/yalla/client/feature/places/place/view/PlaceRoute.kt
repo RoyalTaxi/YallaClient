@@ -120,27 +120,26 @@ internal fun AddressRoute(
         }
     )
 
-    AnimatedVisibility(
-        visible = searchLocationVisibility,
-        enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
-        exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
-    ) {
+
         if (searchLocationVisibility) AddDestinationBottomSheet(
             sheetState = searchLocationState,
-            onAddressSelected = { name, lat, lng, _ ->
+            onAddressSelected = { location ->
                 searchLocationVisibility = false
-                viewModel.updateSelectedAddress(
-                    PlaceUIState.Location(
-                        name = name,
-                        lat = lat,
-                        lng = lng
-                    )
-                )
+                location.name?.let { name ->
+                    location.point?.let { point ->
+                        viewModel.updateSelectedAddress(
+                            PlaceUIState.Location(
+                                name = name,
+                                lat = point.lat.or0(),
+                                lng = point.lng.or0()
+                            )
+                        )
+                    }
+                }
             },
             onClickMap = { openMapVisibility = true },
             onDismissRequest = { searchLocationVisibility = false },
         )
-    }
 
     if (openMapVisibility) SelectFromMapView(
         startingPoint = null,

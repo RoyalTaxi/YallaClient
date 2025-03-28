@@ -253,7 +253,7 @@ class MapViewModel(
                 )
             )
 
-            for (i in 1 until addresses.size - 1) {
+            for (i in 1 until points.lastIndex) {
                 addresses.add(
                     GetRoutingDtoItem(
                         type = GetRoutingDtoItem.POINT,

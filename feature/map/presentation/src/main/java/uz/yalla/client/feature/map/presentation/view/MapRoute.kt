@@ -104,7 +104,7 @@ fun MapRoute(
 
             state.destinations.isNotEmpty() -> {
                 val destinations = state.destinations.toMutableList()
-                destinations.removeAt(0)
+                destinations.removeAt(destinations.lastIndex)
                 vm.updateState(state.copy(destinations = destinations))
             }
 
@@ -174,6 +174,14 @@ fun MapRoute(
                         )
                     }
 
+                    is OrderTaxiSheetIntent.AddDestination -> {
+                        vm.updateState(
+                            state.copy(
+                                destinations = state.destinations + intent.destination
+                            )
+                        )
+                    }
+
                     is OrderTaxiSheetIntent.OrderCreated -> {
                         vm.updateState(
                             state.copy(
@@ -192,10 +200,6 @@ fun MapRoute(
                         )
                     }
 
-                    is MainSheetIntent.PaymentMethodSheetIntent.OnAddNewCard -> {
-                        onAddNewCard()
-                    }
-
                     is OrderTaxiSheetIntent.SetTimeout -> {
                         vm.updateState(
                             state.copy(
@@ -203,6 +207,14 @@ fun MapRoute(
                                 drivers = intent.drivers
                             )
                         )
+                    }
+
+                    is OrderTaxiSheetIntent.SetServiceState -> {
+                        vm.updateState(state.copy(hasServiceProvided = intent.available))
+                    }
+
+                    is MainSheetIntent.PaymentMethodSheetIntent.OnAddNewCard -> {
+                        onAddNewCard()
                     }
 
                     else -> {}
@@ -343,6 +355,16 @@ fun MapRoute(
                         navController.navigateToMainSheet()
                     }
                 }
+            }
+        }
+    }
+
+    LaunchedEffect(state.hasServiceProvided) {
+        launch(Dispatchers.IO) {
+            if (state.hasServiceProvided == true) {
+                navController.navigateToMainSheet()
+            } else if (state.hasServiceProvided == false) {
+                // TODO: navigate to no service sheet
             }
         }
     }
@@ -494,30 +516,14 @@ fun MapRoute(
                     }
 
                     is MapScreenIntent.MapOverlayIntent.NavigateBack -> {
-
                         when {
-                            state.route.isNotEmpty() && state.destinations.isNotEmpty() -> {
-                                val updatedDestinations = state.destinations.dropLast(1)
-                                vm.updateState(state.copy(destinations = updatedDestinations))
-                                MainSheet.setDestination(updatedDestinations)
-
-                                if (updatedDestinations.isEmpty()) {
-                                    state.selectedLocation?.point?.let { there ->
-                                        scope.launch(Dispatchers.Main) {
-                                            map.animate(to = there)
-                                        }
-                                    }
-                                }
+                            state.destinations.isNotEmpty() -> {
+                                val destinations = state.destinations.toMutableList()
+                                destinations.removeAt(destinations.lastIndex)
+                                vm.updateState(state.copy(destinations = destinations))
                             }
 
-                            state.route.isNotEmpty() -> {
-                                vm.updateState(state.copy(destinations = emptyList()))
-                                state.selectedLocation?.point?.let { there ->
-                                    scope.launch(Dispatchers.Main) {
-                                        map.animate(to = there)
-                                    }
-                                }
-                            }
+                            state.selectedOrder == null || state.showingOrderId == null -> (context as? Activity)?.finish()
                         }
                     }
 

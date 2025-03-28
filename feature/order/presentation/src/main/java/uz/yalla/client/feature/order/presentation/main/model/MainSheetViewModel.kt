@@ -126,39 +126,20 @@ class MainSheetViewModel(
                     }
                 }
 
-                is OrderTaxiSheetIntent.SetSheetHeight -> setSheetHeight(intent.height)
-                is OrderTaxiSheetIntent.CurrentLocationClick -> setSearchByNameSheetVisibility(
-                    SearchByNameSheetValue.FOR_START
-                )
-
-                is OrderTaxiSheetIntent.DestinationClick -> setSearchByNameSheetVisibility(
-                    SearchByNameSheetValue.FOR_DEST
-                )
-
-                is TariffInfoSheetIntent.ClearOptions -> setSelectedOptions(emptyList())
-                is TariffInfoSheetIntent.OptionsChange -> setSelectedOptions(intent.options)
-                is TariffInfoSheetIntent.ChangeShadowVisibility -> {
-                    _uiState.update { it.copy(shadowVisibility = intent.visible) }
+                is OrderTaxiSheetIntent.SetSheetHeight -> {
+                    setSheetHeight(intent.height)
                 }
 
-                is TariffInfoSheetIntent.ClickComment -> {
-                    _uiState.update { it.copy(isOrderCommentSheetVisible = true) }
+                is OrderTaxiSheetIntent.CurrentLocationClick -> {
+                    setSearchByNameSheetVisibility(SearchByNameSheetValue.FOR_START)
                 }
 
-                is FooterIntent.SetFooterHeight -> setFooterHeight(intent.height)
-                is FooterIntent.ClearOptions -> setSelectedOptions(emptyList())
-                is FooterIntent.CreateOrder -> orderTaxi()
-                is FooterIntent.ClickPaymentButton -> {
-                    _uiState.update { it.copy(isPaymentMethodSheetVisible = true) }
+                is OrderTaxiSheetIntent.DestinationClick -> {
+                    setSearchByNameSheetVisibility(SearchByNameSheetValue.FOR_DEST)
                 }
 
-                is PaymentMethodSheetIntent.OnDismissRequest -> {
-                    _uiState.update { it.copy(isPaymentMethodSheetVisible = false) }
-                }
-
-                is PaymentMethodSheetIntent.OnSelectPaymentType -> {
-                    AppPreferences.paymentType = intent.paymentType
-                    setPaymentType(intent.paymentType)
+                is OrderTaxiSheetIntent.AddNewDestinationClick -> {
+                    setAddDestinationSheetVisibility(true)
                 }
 
                 is OrderCommentSheetIntent.OnDismissRequest -> {
@@ -170,8 +151,54 @@ class MainSheetViewModel(
                     }
                 }
 
-                is FooterIntent.ChangeSheetVisibility -> _sheetVisibilityListener.send(Unit)
-                else -> MainSheet.mutableIntentFlow.emit(intent)
+                is TariffInfoSheetIntent.ClearOptions -> {
+                    setSelectedOptions(emptyList())
+                }
+
+                is TariffInfoSheetIntent.OptionsChange -> {
+                    setSelectedOptions(intent.options)
+                }
+
+                is TariffInfoSheetIntent.ChangeShadowVisibility -> {
+                    _uiState.update { it.copy(shadowVisibility = intent.visible) }
+                }
+
+                is TariffInfoSheetIntent.ClickComment -> {
+                    _uiState.update { it.copy(isOrderCommentSheetVisible = true) }
+                }
+
+                is FooterIntent.SetFooterHeight -> {
+                    setFooterHeight(intent.height)
+                }
+
+                is FooterIntent.ClearOptions -> {
+                    setSelectedOptions(emptyList())
+                }
+
+                is FooterIntent.CreateOrder -> {
+                    orderTaxi()
+                }
+
+                is FooterIntent.ClickPaymentButton -> {
+                    _uiState.update { it.copy(isPaymentMethodSheetVisible = true) }
+                }
+
+                is FooterIntent.ChangeSheetVisibility -> {
+                    _sheetVisibilityListener.send(Unit)
+                }
+
+                is PaymentMethodSheetIntent.OnDismissRequest -> {
+                    _uiState.update { it.copy(isPaymentMethodSheetVisible = false) }
+                }
+
+                is PaymentMethodSheetIntent.OnSelectPaymentType -> {
+                    AppPreferences.paymentType = intent.paymentType
+                    setPaymentType(intent.paymentType)
+                }
+
+                else -> {
+                    MainSheet.mutableIntentFlow.emit(intent)
+                }
             }
         }
     }
@@ -206,16 +233,12 @@ class MainSheetViewModel(
                 }
             } ?: selectedLocation
 
-            _uiState.update {
-                it.copy(selectedLocation = updatedLocation)
-            }
-        }
-    }
+            MainSheet.mutableIntentFlow.emit(
+                OrderTaxiSheetIntent.SetServiceState(updatedLocation.addressId != null)
+            )
 
-    fun addDestination(destination: Destination) {
-        val destinations = uiState.value.destinations.toMutableList()
-        destinations.add(destination)
-        _uiState.update { it.copy(destinations = destinations) }
+            _uiState.update { it.copy(selectedLocation = updatedLocation) }
+        }
     }
 
     fun setDestination(destinations: List<Destination>) {
@@ -396,5 +419,9 @@ class MainSheetViewModel(
 
     fun setSelectFromMapViewVisibility(value: SelectFromMapViewValue) {
         _uiState.update { it.copy(selectFromMapViewVisible = value) }
+    }
+
+    fun setAddDestinationSheetVisibility(visible: Boolean) {
+        _uiState.update { it.copy(addDestinationSheetVisible = visible) }
     }
 }

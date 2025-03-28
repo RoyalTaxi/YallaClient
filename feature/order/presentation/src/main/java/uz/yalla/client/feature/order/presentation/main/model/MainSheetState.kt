@@ -11,7 +11,6 @@ import uz.yalla.client.core.domain.model.Executor
 import uz.yalla.client.core.domain.model.SelectedLocation
 import uz.yalla.client.feature.map.domain.model.response.PolygonRemoteItem
 import uz.yalla.client.feature.order.domain.model.request.OrderTaxiDto
-import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 import uz.yalla.client.feature.order.domain.model.response.tarrif.GetTariffsModel
 import uz.yalla.client.feature.payment.domain.model.CardListItemModel
 
@@ -45,7 +44,8 @@ data class MainSheetState(
     val isPaymentMethodSheetVisible: Boolean = false,
     val isOrderCommentSheetVisible: Boolean = false,
     val searchByNameSheetVisible: SearchByNameSheetValue = SearchByNameSheetValue.INVISIBLE,
-    val selectFromMapViewVisible: SelectFromMapViewValue = SelectFromMapViewValue.INVISIBLE
+    val selectFromMapViewVisible: SelectFromMapViewValue = SelectFromMapViewValue.INVISIBLE,
+    val addDestinationSheetVisible: Boolean = false
 ) {
     fun getBadgeText(): String? = when {
         selectedOptions.isNotEmpty() -> selectedOptions.size.toString()
