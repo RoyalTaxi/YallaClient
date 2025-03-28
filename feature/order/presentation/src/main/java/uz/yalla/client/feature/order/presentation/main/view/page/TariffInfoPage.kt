@@ -40,6 +40,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import uz.yalla.client.core.domain.model.ServiceModel
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.domain.model.response.tarrif.GetTariffsModel
 import uz.yalla.client.feature.order.presentation.R
@@ -114,7 +115,7 @@ fun TariffInfoPage(
                 Column(modifier = Modifier.clip(RoundedCornerShape(30.dp))) {
                     state.options.forEach { service ->
                         OptionsItem(
-                            option = service.name,
+                            option = service.name.orEmpty(),
                             isSelected = newSelectedOptions.any {
                                 it.name == service.name && it.cost == service.cost
                             },
@@ -275,8 +276,8 @@ fun InvalidOptionsSection(
 
 }
 
-private fun MutableList<GetTariffsModel.Tariff.Service>.toggle(
-    item: GetTariffsModel.Tariff.Service,
+private fun MutableList<ServiceModel>.toggle(
+    item: ServiceModel,
     shouldAdd: Boolean
 ) {
     if (shouldAdd) {

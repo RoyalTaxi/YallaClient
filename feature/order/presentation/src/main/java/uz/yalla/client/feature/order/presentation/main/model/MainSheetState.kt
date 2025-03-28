@@ -9,6 +9,7 @@ import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.Executor
 import uz.yalla.client.core.domain.model.SelectedLocation
+import uz.yalla.client.core.domain.model.ServiceModel
 import uz.yalla.client.feature.map.domain.model.response.PolygonRemoteItem
 import uz.yalla.client.feature.order.domain.model.request.OrderTaxiDto
 import uz.yalla.client.feature.order.domain.model.response.tarrif.GetTariffsModel
@@ -30,8 +31,8 @@ data class MainSheetState(
     val selectedLocation: SelectedLocation? = null,
     val destinations: List<Destination> = emptyList(),
 
-    val selectedOptions: List<GetTariffsModel.Tariff.Service> = emptyList(),
-    val options: List<GetTariffsModel.Tariff.Service> = emptyList(),
+    val selectedOptions: List<ServiceModel> = emptyList(),
+    val options: List<ServiceModel> = emptyList(),
 
     val comment: String = "",
     val cardList: List<CardListItemModel> = emptyList(),
@@ -70,7 +71,7 @@ data class MainSheetState(
             }
         val selectedTariff = selectedTariff ?: return null
         val selectedCardId = (selectedPaymentType as? PaymentType.CARD)?.cardId
-        val selectedOptionsIds = selectedOptions.map { it.id }
+        val selectedOptionsIds = selectedOptions.mapNotNull { it.id }
         return OrderTaxiDto(
             dontCallMe = false,
             service = selectedService,

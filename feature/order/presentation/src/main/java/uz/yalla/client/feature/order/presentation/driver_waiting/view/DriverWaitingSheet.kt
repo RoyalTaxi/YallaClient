@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -55,6 +56,8 @@ import uz.yalla.client.feature.order.presentation.R
 import uz.yalla.client.feature.order.presentation.components.SearchCarItem
 import uz.yalla.client.feature.order.presentation.driver_waiting.model.DriverWaitingViewModel
 import uz.yalla.client.feature.order.presentation.main.view.sheet.OrderDetailsBottomSheet
+import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheet
+import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheetIntent
 import java.util.Locale
 import kotlin.time.Duration.Companion.seconds
 
@@ -166,6 +169,12 @@ object DriverWaitingSheet {
                         text = stringResource(R.string.order_details),
                         imageVector = Icons.Outlined.Info,
                         onClick = { viewModel.setDetailsBottomSheetVisibility(true) })
+
+                    SearchCarItem(
+                        text = stringResource(R.string.add_order),
+                        imageVector = Icons.Default.Add,
+                        onClick = { viewModel.onIntent(DriverWaitingIntent.AddNewOrder)}
+                    )
 
                     SearchCarItem(
                         text = stringResource(R.string.cancel_order),

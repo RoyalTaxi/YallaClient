@@ -7,4 +7,5 @@ import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheetInte
 sealed interface DriverWaitingIntent {
     data class OnCancelled(val orderId: Int?) : DriverWaitingIntent
     data class SetSheetHeight(val height: Dp) : DriverWaitingIntent
+    data object AddNewOrder : DriverWaitingIntent
 }

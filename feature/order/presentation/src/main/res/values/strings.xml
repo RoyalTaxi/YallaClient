@@ -45,4 +45,5 @@
     <string name="rate_the_trip">Safarni baholang</string>
     <string name="create_new_order">Yangi buyurtma berish</string>
     <string name="rate">Baholash</string>
+    <string name="add_order">Qo\'shimcha buyurtma berish</string>
 </resources>

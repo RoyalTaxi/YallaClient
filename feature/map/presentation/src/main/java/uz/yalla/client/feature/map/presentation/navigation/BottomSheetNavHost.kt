@@ -9,6 +9,7 @@ import uz.yalla.client.feature.order.presentation.driver_waiting.driverWaitingBo
 import uz.yalla.client.feature.order.presentation.feedback.feedbackBottomSheet
 import uz.yalla.client.feature.order.presentation.main.MAIN_SHEET_ROUTE
 import uz.yalla.client.feature.order.presentation.main.mainSheet
+import uz.yalla.client.feature.order.presentation.no_service.noServiceSheet
 import uz.yalla.client.feature.order.presentation.on_the_ride.onTheRideBottomSheet
 import uz.yalla.client.feature.order.presentation.order_canceled.orderCanceledBottomSheet
 import uz.yalla.client.feature.order.presentation.search.searchForCarBottomSheet
@@ -30,5 +31,6 @@ fun BottomSheetNavHost(
         driverWaitingBottomSheet()
         onTheRideBottomSheet()
         feedbackBottomSheet()
+        noServiceSheet()
     }
 }

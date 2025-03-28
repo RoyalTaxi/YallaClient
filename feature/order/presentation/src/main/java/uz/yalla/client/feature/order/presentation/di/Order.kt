@@ -8,6 +8,7 @@ import uz.yalla.client.feature.order.presentation.client_waiting.model.ClientWai
 import uz.yalla.client.feature.order.presentation.driver_waiting.model.DriverWaitingViewModel
 import uz.yalla.client.feature.order.presentation.feedback.model.FeedbackSheetViewModel
 import uz.yalla.client.feature.order.presentation.main.model.MainSheetViewModel
+import uz.yalla.client.feature.order.presentation.no_service.model.NoServiceViewModel
 import uz.yalla.client.feature.order.presentation.on_the_ride.model.OnTheRideSheetViewModel
 import uz.yalla.client.feature.order.presentation.order_canceled.model.OrderCanceledSheetViewModel
 import uz.yalla.client.feature.order.presentation.search.model.SearchCarSheetViewModel
@@ -22,6 +23,7 @@ object Order {
         viewModelOf(::DriverWaitingViewModel)
         viewModelOf(::OnTheRideSheetViewModel)
         viewModelOf(::FeedbackSheetViewModel)
+        viewModelOf(::NoServiceViewModel)
     }
 
     val modules = listOf(

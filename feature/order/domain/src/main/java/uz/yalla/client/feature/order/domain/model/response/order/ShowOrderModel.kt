@@ -2,6 +2,7 @@ package uz.yalla.client.feature.order.domain.model.response.order
 
 import uz.yalla.client.core.domain.model.Executor
 import uz.yalla.client.core.domain.model.OrderStatus
+import uz.yalla.client.core.domain.model.ServiceModel
 
 
 data class ShowOrderModel(
@@ -24,9 +25,6 @@ data class ShowOrderModel(
         val phone: String,
         val surName: String
     ) {
-
-
-
         data class Coords(
             val heading: Double,
             val lat: Double,
@@ -58,7 +56,7 @@ data class ShowOrderModel(
         val distance: Double,
         val fixedPrice: Boolean,
         val routes: List<Route>,
-        val services: List<String>,
+        val services: List<ServiceModel>,
         val startPrice: Int,
         val tariff: String,
         val tariffId: Int,

@@ -294,6 +294,7 @@ class MapViewModel(
                 selectedOrder = null,
                 selectedLocation = null,
                 destinations = emptyList(),
+
                 route = emptyList()
             )
         }

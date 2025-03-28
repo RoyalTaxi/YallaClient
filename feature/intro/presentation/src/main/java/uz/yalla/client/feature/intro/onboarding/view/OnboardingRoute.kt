@@ -41,17 +41,17 @@ internal fun OnboardingRoute(
         mutableStateOf(
             listOf(
                 Page(
-                    R.drawable.img_onboarding_1,
+                    R.drawable.ic_onboarding_1,
                     R.string.onboarding_1,
                     R.string.onboarding_1_desc
                 ),
                 Page(
-                    R.drawable.img_onboarding_2,
+                    R.drawable.ic_onboarding_2,
                     R.string.onboarding_2,
                     R.string.onboarding_2_desc
                 ),
                 Page(
-                    R.drawable.img_onboarding_3,
+                    R.drawable.ic_onboarding_3,
                     R.string.onboarding_3,
                     R.string.onboarding_3_desc
                 )

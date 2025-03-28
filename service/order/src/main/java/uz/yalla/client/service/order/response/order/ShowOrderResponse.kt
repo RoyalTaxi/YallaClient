@@ -1,6 +1,7 @@
 package uz.yalla.client.service.order.response.order
 
 import kotlinx.serialization.Serializable
+import uz.yalla.client.core.service.model.ServiceRemoteModel
 
 @Serializable
 data class ShowOrderResponse(
@@ -60,7 +61,7 @@ data class ShowOrderResponse(
         val distance: Double?,
         val fixed_price: Boolean,
         val routes: List<RouteData>?,
-        val services: List<String>?,
+        val services: List<ServiceRemoteModel>?,
         val start_price: Int?,
         val tariff: String?,
         val tariff_id: Int?,

@@ -1,6 +1,7 @@
 package uz.yalla.client.service.order.response.tariff
 
 import kotlinx.serialization.Serializable
+import uz.yalla.client.core.service.model.ServiceRemoteModel
 
 @Serializable
 data class GetTariffsResponse(
@@ -33,7 +34,7 @@ data class GetTariffsResponse(
         val name: String?,
         val photo: String?,
         val second_address: Boolean?,
-        val services: List<Service>?
+        val services: List<ServiceRemoteModel>?
     ) {
         @Serializable
         data class Category(
@@ -41,12 +42,6 @@ data class GetTariffsResponse(
             val name: String?
         )
 
-        @Serializable
-        data class Service(
-            val cost: Int?,
-            val cost_type: String?,
-            val id: Int?,
-            val name: String?,
-        )
+
     }
 }

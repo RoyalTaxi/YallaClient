@@ -1,6 +1,7 @@
 package uz.yalla.client.feature.order.data.mapper
 
 import uz.yalla.client.core.data.mapper.Mapper
+import uz.yalla.client.core.data.mapper.ServiceMapper
 import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.data.mapper.orFalse
 import uz.yalla.client.core.domain.formations.TimeFormation.toFormattedTime
@@ -79,7 +80,7 @@ object ShowOrderMapper {
             distance = remote?.distance.or0(),
             fixedPrice = remote?.fixed_price.orFalse(),
             routes = remote?.routes?.map(routeMapper).orEmpty(),
-            services = remote?.services.orEmpty(),
+            services = remote?.services?.map(ServiceMapper.mapper).orEmpty(),
             startPrice = remote?.start_price.or0(),
             tariff = remote?.tariff.orEmpty(),
             tariffId = remote?.tariff_id.or0(),
@@ -103,4 +104,6 @@ object ShowOrderMapper {
                 lng = remote?.lng.or0()
             )
         }
+
+
 }

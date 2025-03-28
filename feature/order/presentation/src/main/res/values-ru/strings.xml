@@ -45,4 +45,5 @@
     <string name="rate_the_trip">Оценит поездку</string>
     <string name="create_new_order">Новый заказ</string>
     <string name="rate">Оценить</string>
+    <string name="add_order">Заказать ещё</string>
 </resources>

@@ -49,6 +49,9 @@ import uz.yalla.client.feature.order.presentation.main.navigateToMainSheet
 import uz.yalla.client.feature.order.presentation.main.view.MainSheet
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.OrderTaxiSheetIntent
+import uz.yalla.client.feature.order.presentation.no_service.navigateToNoServiceSheet
+import uz.yalla.client.feature.order.presentation.no_service.view.NoServiceIntent
+import uz.yalla.client.feature.order.presentation.no_service.view.NoServiceSheet
 import uz.yalla.client.feature.order.presentation.on_the_ride.navigateToOnTheRideSheet
 import uz.yalla.client.feature.order.presentation.on_the_ride.view.OnTheRideSheet
 import uz.yalla.client.feature.order.presentation.on_the_ride.view.OnTheRideSheetIntent
@@ -146,6 +149,7 @@ fun MapRoute(
                 when (intent) {
                     is OrderTaxiSheetIntent.SetSheetHeight -> {
                         vm.updateState(state.copy(sheetHeight = intent.height))
+                        awaitFrame()
                         map.move(to = map.mapPoint.value)
                     }
 
@@ -239,6 +243,11 @@ fun MapRoute(
                             state.selectedLocation?.point?.let { map.move(to = it) }
                         }
                     }
+
+                    SearchCarSheetIntent.AddNewOrder -> {
+                        vm.clearState()
+                        navController.navigateToMainSheet()
+                    }
                 }
             }
         }
@@ -275,6 +284,11 @@ fun MapRoute(
                         } ?: run {
                             map.move(to = map.mapPoint.value)
                         }
+                    }
+
+                    DriverWaitingIntent.AddNewOrder -> {
+                        vm.clearState()
+                        navController.navigateToMainSheet()
                     }
                 }
             }
@@ -336,6 +350,26 @@ fun MapRoute(
                 }
             }
         }
+
+        launch(Dispatchers.Main) {
+            NoServiceSheet.intentFlow.collectLatest { intent ->
+                when (intent) {
+                    is NoServiceIntent.SetSheetHeight -> {
+                        vm.updateState(state.copy(sheetHeight = intent.height))
+                        awaitFrame()
+                        state.selectedOrder?.taxi?.routes?.firstOrNull()?.coords?.let { coordinate ->
+                            map.move(to = MapPoint(coordinate.lat, coordinate.lng))
+                        } ?: run {
+                            map.move(to = map.mapPoint.value)
+                        }
+                    }
+
+                    is NoServiceIntent.SetSelectedLocation -> {
+                        intent.location.point?.let { map.animate(to = it) }
+                    }
+                }
+            }
+        }
     }
 
     LaunchedEffect(state.hasServiceProvided) {
@@ -343,7 +377,7 @@ fun MapRoute(
             if (state.hasServiceProvided == true) {
                 navController.navigateToMainSheet()
             } else if (state.hasServiceProvided == false) {
-                // TODO: navigate to no service sheet
+                navController.navigateToNoServiceSheet()
             }
         }
     }

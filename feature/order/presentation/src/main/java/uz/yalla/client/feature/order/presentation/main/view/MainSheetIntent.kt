@@ -1,12 +1,11 @@
 package uz.yalla.client.feature.order.presentation.main.view
 
 import androidx.compose.ui.unit.Dp
-import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 import uz.yalla.client.core.data.enums.PaymentType
 import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.Executor
-import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.SelectedLocation
+import uz.yalla.client.core.domain.model.ServiceModel
 import uz.yalla.client.feature.order.domain.model.response.tarrif.GetTariffsModel
 
 sealed interface MainSheetIntent {
@@ -38,7 +37,7 @@ sealed interface MainSheetIntent {
         data object ClickComment : TariffInfoSheetIntent()
         data object ClearOptions : TariffInfoSheetIntent()
         data class ChangeShadowVisibility(val visible: Boolean) : TariffInfoSheetIntent()
-        data class OptionsChange(val options: List<GetTariffsModel.Tariff.Service>) :
+        data class OptionsChange(val options: List<ServiceModel>) :
             TariffInfoSheetIntent()
     }
 

@@ -3,6 +3,8 @@ package uz.yalla.client.feature.order.data.mapper
 import uz.yalla.client.core.data.mapper.Mapper
 import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.data.mapper.orFalse
+import uz.yalla.client.core.domain.model.ServiceModel
+import uz.yalla.client.core.service.model.ServiceRemoteModel
 import uz.yalla.client.feature.order.domain.model.response.tarrif.GetTariffsModel
 import uz.yalla.client.service.order.response.tariff.GetTariffsResponse
 
@@ -44,7 +46,7 @@ object GetTariffMapper {
                 name = remote?.name.orEmpty(),
                 photo = remote?.photo.orEmpty(),
                 isSecondAddressMandatory = remote?.second_address.orFalse(),
-                services = remote?.services?.map(tariffServiceMapper).orEmpty()
+                services = remote?.services?.map(tariffServiceRemoteModelMapper).orEmpty()
             )
         }
 
@@ -56,9 +58,9 @@ object GetTariffMapper {
             )
         }
 
-    private val tariffServiceMapper: Mapper<GetTariffsResponse.Tariff.Service?, GetTariffsModel.Tariff.Service> =
+    private val tariffServiceRemoteModelMapper: Mapper<ServiceRemoteModel?, ServiceModel> =
         { remote ->
-            GetTariffsModel.Tariff.Service(
+            ServiceModel(
                 cost = remote?.cost.or0(),
                 costType = remote?.cost_type.orEmpty(),
                 id = remote?.id.or0(),

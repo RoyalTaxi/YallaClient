@@ -28,6 +28,7 @@ import uz.yalla.client.core.data.mapper.orFalse
 import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.SelectedLocation
+import uz.yalla.client.core.domain.model.ServiceModel
 import uz.yalla.client.feature.map.domain.model.response.PolygonRemoteItem
 import uz.yalla.client.feature.map.domain.usecase.GetPolygonUseCase
 import uz.yalla.client.feature.order.domain.model.response.tarrif.GetTariffsModel
@@ -234,7 +235,9 @@ class MainSheetViewModel(
             } ?: selectedLocation
 
             MainSheet.mutableIntentFlow.emit(
-                OrderTaxiSheetIntent.SetServiceState(updatedLocation.addressId != null)
+                OrderTaxiSheetIntent.SetServiceState(
+                    available = updatedLocation.addressId.takeIf { it != 0 } != null
+                )
             )
 
             _uiState.update { it.copy(selectedLocation = updatedLocation) }
@@ -266,7 +269,7 @@ class MainSheetViewModel(
         }
     }
 
-    private fun setSelectedOptions(options: List<GetTariffsModel.Tariff.Service>) {
+    private fun setSelectedOptions(options: List<ServiceModel>) {
         _uiState.update { it.copy(selectedOptions = options) }
     }
 
@@ -325,7 +328,7 @@ class MainSheetViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             val from = uiState.value.selectedLocation?.point?.toPair() ?: return@launch
             val to = uiState.value.destinations.mapNotNull { it.point?.toPair() }
-            val selectedOptionsIds = uiState.value.selectedOptions.map { it.id }
+            val selectedOptionsIds = uiState.value.selectedOptions.mapNotNull { it.id }
 
             getTariffsUseCase(
                 addressId = addressId,

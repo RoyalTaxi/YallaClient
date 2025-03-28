@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -161,6 +162,12 @@ object SearchCarSheet {
                         text = stringResource(R.string.cancel_order),
                         imageVector = Icons.Default.Close,
                         onClick = { viewModel.setCancelBottomSheetVisibility(true) }
+                    )
+
+                    SearchCarItem(
+                        text = stringResource(R.string.add_order),
+                        imageVector = Icons.Default.Add,
+                        onClick = { viewModel.onIntent(SearchCarSheetIntent.AddNewOrder)}
                     )
 
                     SearchCarItem(
