@@ -1,6 +1,5 @@
 package uz.yalla.client.feature.map.presentation.model
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -112,8 +111,9 @@ class MapViewModel(
         }
 
         viewModelScope.launch(Dispatchers.IO) {
-            hasLocationChanged.collectLatest {
-                getRouting()
+            hasLocationChanged.collectLatest { (_, destination) ->
+                if (destination.isNotEmpty()) getRouting()
+                else _uiState.update { it.copy(route = emptyList()) }
             }
         }
 
@@ -170,7 +170,13 @@ class MapViewModel(
 
     fun getMe() {
         viewModelScope.launch(Dispatchers.IO) {
-            getMeUseCase().onSuccess { user -> _uiState.update { it.copy(user = user) } }
+            getMeUseCase().onSuccess { user ->
+                _uiState.update {
+                    it.copy(
+                        user = user
+                    )
+                }
+            }
         }
     }
 
@@ -228,7 +234,7 @@ class MapViewModel(
     private fun getRouting() {
         val points = listOfNotNull(
             uiState.value.selectedLocation?.point,
-            *uiState.value.destinations.map { it.point }.toTypedArray()
+            *uiState.value.destinations.mapNotNull { it.point }.toTypedArray()
         )
 
         if (points.size < 2) {
@@ -247,11 +253,13 @@ class MapViewModel(
                 )
             )
 
-            for (address in 1..<addresses.lastIndex) {
-                GetRoutingDtoItem(
-                    type = GetRoutingDtoItem.START,
-                    lat = points[address].lat,
-                    lng = points[address].lng
+            for (i in 1 until addresses.size - 1) {
+                addresses.add(
+                    GetRoutingDtoItem(
+                        type = GetRoutingDtoItem.POINT,
+                        lat = points[i].lat,
+                        lng = points[i].lng
+                    )
                 )
             }
 

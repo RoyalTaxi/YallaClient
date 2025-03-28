@@ -103,10 +103,9 @@ fun MapRoute(
             drawerState.isOpen -> scope.launch { drawerState.close() }
 
             state.destinations.isNotEmpty() -> {
-                vm.updateState(state.copy(destinations = state.destinations.drop(0)))
-                state.selectedLocation?.point?.let { there ->
-                    map.animate(to = there)
-                }
+                val destinations = state.destinations.toMutableList()
+                destinations.removeAt(0)
+                vm.updateState(state.copy(destinations = destinations))
             }
 
             state.selectedOrder == null || state.showingOrderId == null -> (context as? Activity)?.finish()
@@ -175,7 +174,6 @@ fun MapRoute(
                         )
                     }
 
-                    is OrderTaxiSheetIntent.AddNewDestinationClick -> TODO()
                     is OrderTaxiSheetIntent.OrderCreated -> {
                         vm.updateState(
                             state.copy(
@@ -185,12 +183,12 @@ fun MapRoute(
                         )
 
                         navController.navigateToSearchForCarBottomSheet(
+                            orderId = intent.orderId,
+                            tariffId = state.selectedTariffId.or0(),
                             point = when {
                                 state.route.isEmpty() -> map.mapPoint.value
                                 else -> state.route.first()
-                            },
-                            orderId = intent.orderId,
-                            tariffId = state.selectedTariffId.or0()
+                            }
                         )
                     }
 
@@ -227,17 +225,13 @@ fun MapRoute(
                         intent.orderId?.let { onCancel(it) }
                     }
 
-                    is SearchCarSheetIntent.OnFoundCars -> {
-
-                    }
-
                     is SearchCarSheetIntent.SetSheetHeight -> {
                         vm.updateState(state.copy(sheetHeight = intent.height))
                         awaitFrame()
                         state.selectedOrder?.taxi?.routes?.firstOrNull()?.coords?.let { coordinate ->
                             map.move(to = MapPoint(coordinate.lat, coordinate.lng))
                         } ?: run {
-                            map.move(to = map.mapPoint.value)
+                            state.selectedLocation?.point?.let { map.move(to = it) }
                         }
                     }
                 }
