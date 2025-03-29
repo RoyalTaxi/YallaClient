@@ -102,8 +102,7 @@ private fun PaymentMethodContent(
         item {
             SelectPaymentTypeItem(
                 isSelected = selectedPaymentType == PaymentType.CASH,
-                tint = YallaTheme.color.gray,
-                painter = painterResource(R.drawable.ic_money),
+                painter = painterResource(R.drawable.img_money),
                 text = stringResource(R.string.cash),
                 onSelect = {
                     onIntent(
@@ -121,7 +120,7 @@ private fun PaymentMethodContent(
                     id = when (card.cardId.length) {
                         16 -> R.drawable.img_logo_humo
                         32 -> R.drawable.img_logo_uzcard
-                        else -> R.drawable.ic_money
+                        else -> R.drawable.img_money
                     }
                 ),
                 text = card.maskedPan,
