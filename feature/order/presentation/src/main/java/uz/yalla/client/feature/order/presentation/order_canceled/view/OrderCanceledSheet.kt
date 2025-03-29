@@ -25,6 +25,8 @@ import org.koin.java.KoinJavaComponent.getKoin
 import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
+import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
+import uz.yalla.client.feature.order.presentation.order_canceled.ORDER_CANCELED_ROUTE
 import uz.yalla.client.feature.order.presentation.order_canceled.model.OrderCanceledSheetViewModel
 
 object OrderCanceledSheet {
@@ -45,7 +47,10 @@ object OrderCanceledSheet {
                 modifier = Modifier
                     .onSizeChanged {
                         with(density) {
-                            viewModel.onIntent(OrderCanceledSheetIntent.SetSheetHeight(it.height.toDp()))
+                            SheetCoordinator.updateSheetHeight(
+                                route = ORDER_CANCELED_ROUTE,
+                                height = it.height.toDp()
+                            )
                         }
                     }
                     .background(
@@ -73,7 +78,7 @@ object OrderCanceledSheet {
                     Spacer(modifier = Modifier.height(10.dp))
 
                     Text(
-                        text = stringResource(R.string.order_canceled,),
+                        text = stringResource(R.string.order_canceled),
                         color = YallaTheme.color.gray,
                         style = YallaTheme.font.label
                     )

@@ -11,9 +11,9 @@
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 12,
-      "versionName": "1.2",
-      "outputFile": "android-release.apk"
+      "versionCode": 17,
+      "versionName": "1.7",
+      "outputFile": "app-release.apk"
     }
   ],
   "elementType": "File",
@@ -22,14 +22,14 @@
       "minApi": 28,
       "maxApi": 30,
       "baselineProfiles": [
-        "baselineProfiles/1/android-release.dm"
+        "baselineProfiles/1/app-release.dm"
       ]
     },
     {
       "minApi": 31,
       "maxApi": 2147483647,
       "baselineProfiles": [
-        "baselineProfiles/0/android-release.dm"
+        "baselineProfiles/0/app-release.dm"
       ]
     }
   ],

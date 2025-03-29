@@ -1,6 +1,5 @@
 package uz.yalla.client.feature.order.presentation.main.view
 
-import androidx.compose.ui.unit.Dp
 import uz.yalla.client.core.data.enums.PaymentType
 import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.Executor
@@ -13,7 +12,6 @@ sealed interface MainSheetIntent {
         data object CurrentLocationClick : OrderTaxiSheetIntent
         data object DestinationClick : OrderTaxiSheetIntent
         data object AddNewDestinationClick : OrderTaxiSheetIntent
-        data class SetSheetHeight(val height: Dp) : OrderTaxiSheetIntent
         data class OrderCreated(val orderId: Int) : OrderTaxiSheetIntent
         data class SetSelectedLocation(val selectedLocation: SelectedLocation) :
             OrderTaxiSheetIntent
@@ -45,7 +43,6 @@ sealed interface MainSheetIntent {
         data object ClickPaymentButton : FooterIntent
         data object CreateOrder : FooterIntent
         data object ClearOptions : FooterIntent
-        data class SetFooterHeight(val height: Dp) : FooterIntent
         data class ChangeSheetVisibility(val isExtended: Boolean) : FooterIntent
     }
 

@@ -27,11 +27,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,7 +41,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -54,12 +51,11 @@ import uz.yalla.client.core.common.sheet.ConfirmationBottomSheet
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
 import uz.yalla.client.feature.order.presentation.components.SearchCarItem
+import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
+import uz.yalla.client.feature.order.presentation.driver_waiting.DRIVER_WAITING_ROUTE
 import uz.yalla.client.feature.order.presentation.driver_waiting.model.DriverWaitingViewModel
 import uz.yalla.client.feature.order.presentation.main.view.sheet.OrderDetailsBottomSheet
-import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheet
-import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheetIntent
 import java.util.Locale
-import kotlin.time.Duration.Companion.seconds
 
 object DriverWaitingSheet {
     private val viewModel: DriverWaitingViewModel by lazy { getKoin().get() }
@@ -110,7 +106,10 @@ object DriverWaitingSheet {
                     )
                     .onSizeChanged {
                         with(density) {
-                            viewModel.onIntent(DriverWaitingIntent.SetSheetHeight(it.height.toDp()))
+                            SheetCoordinator.updateSheetHeight(
+                                route = DRIVER_WAITING_ROUTE,
+                                height = it.height.toDp()
+                            )
                         }
                     }
             ) {
@@ -173,13 +172,13 @@ object DriverWaitingSheet {
                     SearchCarItem(
                         text = stringResource(R.string.add_order),
                         imageVector = Icons.Default.Add,
-                        onClick = { viewModel.onIntent(DriverWaitingIntent.AddNewOrder)}
+                        onClick = { viewModel.onIntent(DriverWaitingIntent.AddNewOrder) }
                     )
 
                     SearchCarItem(
                         text = stringResource(R.string.cancel_order),
                         imageVector = Icons.Default.Close,
-                        onClick = { viewModel.setCancelBottomSheetVisibility(true)})
+                        onClick = { viewModel.setCancelBottomSheetVisibility(true) })
                 }
 
                 Row(
@@ -204,7 +203,9 @@ object DriverWaitingSheet {
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxHeight(),
-                        onClick = { val phoneNumber = state.selectedDriver?.executor?.phone ?: return@CallButton
+                        onClick = {
+                            val phoneNumber =
+                                state.selectedDriver?.executor?.phone ?: return@CallButton
                             val intent =
                                 Intent(ACTION_DIAL).apply { data = "tel:$phoneNumber".toUri() }
                             if (intent.resolveActivity(context.packageManager) != null) {

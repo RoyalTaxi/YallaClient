@@ -22,10 +22,8 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.getKoin
 import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.common.sheet.AddDestinationBottomSheet
@@ -33,8 +31,8 @@ import uz.yalla.client.core.common.sheet.select_from_map.SelectFromMapView
 import uz.yalla.client.core.common.sheet.select_from_map.SelectFromMapViewValue
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
-import uz.yalla.client.feature.order.presentation.main.view.MainSheet
-import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.OrderTaxiSheetIntent
+import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
+import uz.yalla.client.feature.order.presentation.no_service.NO_SERVICE_ROUTE
 import uz.yalla.client.feature.order.presentation.no_service.model.NoServiceViewModel
 
 object NoServiceSheet {
@@ -67,7 +65,10 @@ object NoServiceSheet {
                     )
                     .onSizeChanged {
                         with(density) {
-                            viewModel.onIntent(NoServiceIntent.SetSheetHeight(it.height.toDp()))
+                            SheetCoordinator.updateSheetHeight(
+                                route = NO_SERVICE_ROUTE,
+                                height = it.height.toDp()
+                            )
                         }
                     }
             ) {

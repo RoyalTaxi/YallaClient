@@ -22,6 +22,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -49,7 +50,9 @@ import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
 import uz.yalla.client.feature.order.presentation.components.SearchCarItem
+import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
 import uz.yalla.client.feature.order.presentation.main.view.sheet.OrderDetailsBottomSheet
+import uz.yalla.client.feature.order.presentation.search.SEARCH_CAR_ROUTE
 import uz.yalla.client.feature.order.presentation.search.model.SearchCarSheetViewModel
 import kotlin.time.Duration.Companion.seconds
 
@@ -108,7 +111,10 @@ object SearchCarSheet {
                 modifier = Modifier
                     .onSizeChanged {
                         with(density) {
-                            viewModel.onIntent(SearchCarSheetIntent.SetSheetHeight(it.height.toDp()))
+                            SheetCoordinator.updateSheetHeight(
+                                route = SEARCH_CAR_ROUTE,
+                                height = it.height.toDp()
+                            )
                         }
                     }
                     .background(
@@ -167,7 +173,7 @@ object SearchCarSheet {
                     SearchCarItem(
                         text = stringResource(R.string.add_order),
                         imageVector = Icons.Default.Add,
-                        onClick = { viewModel.onIntent(SearchCarSheetIntent.AddNewOrder)}
+                        onClick = { viewModel.onIntent(SearchCarSheetIntent.AddNewOrder) }
                     )
 
                     SearchCarItem(
@@ -207,6 +213,12 @@ object SearchCarSheet {
                         viewModel.setDetailsBottomSheetVisibility(false)
                     }
                 )
+            }
+        }
+
+        DisposableEffect(Unit) {
+            onDispose {
+                viewModel.onCleared()
             }
         }
     }

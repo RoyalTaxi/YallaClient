@@ -42,7 +42,7 @@ import uz.yalla.client.core.common.R
 import uz.yalla.client.core.common.button.MapButton
 import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.common.button.SelectCurrentLocationButton
-import uz.yalla.client.core.common.map.ConcreteGisMap
+//import uz.yalla.client.core.common.map.ConcreteGisMap
 import uz.yalla.client.core.common.map.ConcreteGoogleMap
 import uz.yalla.client.core.common.map.MapStrategy
 import uz.yalla.client.core.common.marker.YallaMarker
@@ -147,7 +147,7 @@ private fun rememberMapImplementation(): MapStrategy {
     return remember(AppPreferences.mapType) {
         when (AppPreferences.mapType) {
             MapType.Google -> ConcreteGoogleMap()
-            MapType.Gis -> ConcreteGisMap()
+            MapType.Gis -> ConcreteGoogleMap()
         }
     }
 }

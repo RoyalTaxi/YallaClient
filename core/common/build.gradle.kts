@@ -8,7 +8,6 @@ android {
 }
 
 dependencies {
-    implementation(projects.core.dgis)
     api(projects.core.data)
     api(projects.core.domain)
     api(projects.core.presentation)

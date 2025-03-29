@@ -16,6 +16,7 @@ import uz.yalla.client.feature.order.domain.usecase.order.CancelRideUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.GetSettingUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.GetShowOrderUseCase
 import uz.yalla.client.feature.order.domain.usecase.tariff.GetTimeOutUseCase
+import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheet
 import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheet.mutableIntentFlow
 import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheetIntent
 import kotlin.time.Duration.Companion.seconds
@@ -39,15 +40,9 @@ class SearchCarSheetViewModel(
 
         viewModelScope.launch(Dispatchers.IO) {
             while (true) {
-                delay(5.seconds)
-                yield()
-            }
-        }
-
-        viewModelScope.launch(Dispatchers.IO) {
-            while (true) {
                 getOrderDetails()
                 delay(5.seconds)
+                mutableIntentFlow.emit(SearchCarSheetIntent.ZoomOut)
                 yield()
             }
         }
@@ -132,5 +127,9 @@ class SearchCarSheetViewModel(
 
     fun setOrderId(orderId: Int) {
         _uiState.update { it.copy(orderId = orderId) }
+    }
+
+    public override fun onCleared() {
+        super.onCleared()
     }
 }

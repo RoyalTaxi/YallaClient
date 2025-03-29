@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import uz.yalla.client.core.common.dialog.LoadingDialog
-import uz.yalla.client.core.common.map.ConcreteGisMap
+//import uz.yalla.client.core.common.map.ConcreteGisMap
 import uz.yalla.client.core.common.map.ConcreteGoogleMap
 import uz.yalla.client.core.common.map.MapStrategy
 import uz.yalla.client.core.data.enums.MapType
@@ -33,7 +33,7 @@ internal fun HistoryDetailsRoute(
 
     val map: MapStrategy = when (AppPreferences.mapType) {
         MapType.Google -> ConcreteGoogleMap()
-        MapType.Gis -> ConcreteGisMap()
+        MapType.Gis -> ConcreteGoogleMap()
     }
 
     LaunchedEffect(uiState.orderDetails, loading) {

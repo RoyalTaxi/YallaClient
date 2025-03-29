@@ -21,6 +21,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.morfly.compose.bottomsheet.material3.BottomSheetState
 import uz.yalla.client.core.common.button.PrimaryButton
@@ -39,6 +40,7 @@ fun MainSheetFooter(
     isTariffValidWithOptions: Boolean,
     sheetState: BottomSheetState<SheetValue>,
     state: MainSheetState,
+    onHeightChanged: (Dp) -> Unit,
     onIntent: (FooterIntent) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -77,8 +79,9 @@ fun MainSheetFooter(
             .onSizeChanged {
                 with(density) {
                     it.height.toDp().let { height ->
-                        if (height != state.footerHeight)
-                            onIntent(FooterIntent.SetFooterHeight(height))
+                        if (height != state.footerHeight) {
+                            onHeightChanged(height)
+                        }
                     }
                 }
             }

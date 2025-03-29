@@ -36,6 +36,8 @@ import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
 import uz.yalla.client.feature.order.presentation.components.RatingStarsItem
+import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
+import uz.yalla.client.feature.order.presentation.feedback.FEEDBACK_ROUTE
 import uz.yalla.client.feature.order.presentation.feedback.model.FeedbackSheetViewModel
 
 object FeedbackSheet {
@@ -72,7 +74,10 @@ object FeedbackSheet {
                     )
                     .onSizeChanged {
                         with(density) {
-                            viewModel.onIntent(FeedbackSheetIntent.SetSheetHeight(it.height.toDp()))
+                            SheetCoordinator.updateSheetHeight(
+                                route = FEEDBACK_ROUTE,
+                                height = it.height.toDp()
+                            )
                         }
                     }) {
                 Column(

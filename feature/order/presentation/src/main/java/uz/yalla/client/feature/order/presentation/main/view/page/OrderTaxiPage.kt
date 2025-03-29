@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -43,6 +44,7 @@ import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.Orde
 fun OrderTaxiPage(
     state: MainSheetState,
     modifier: Modifier = Modifier,
+    onHeightChanged: (Dp) -> Unit,
     onIntent: (OrderTaxiSheetIntent) -> Unit
 ) {
     val density = LocalDensity.current
@@ -114,8 +116,9 @@ fun OrderTaxiPage(
             .onSizeChanged { size ->
                 with(density) {
                     size.height.toDp().let { height ->
-                        if (height != state.sheetHeight)
-                            onIntent(OrderTaxiSheetIntent.SetSheetHeight(height))
+                        if (height != state.sheetHeight) {
+                            onHeightChanged(height)
+                        }
                     }
                 }
             }

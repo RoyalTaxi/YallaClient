@@ -29,6 +29,8 @@ import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.getKoin
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
+import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
+import uz.yalla.client.feature.order.presentation.on_the_ride.ON_THE_RIDE_ROUTE
 import uz.yalla.client.feature.order.presentation.on_the_ride.model.OnTheRideSheetViewModel
 
 object OnTheRideSheet {
@@ -65,7 +67,10 @@ object OnTheRideSheet {
                     )
                     .onSizeChanged {
                         with(density) {
-                            viewModel.onIntent(OnTheRideSheetIntent.SetSheetHeight(it.height.toDp()))
+                            SheetCoordinator.updateSheetHeight(
+                                route = ON_THE_RIDE_ROUTE,
+                                height = it.height.toDp()
+                            )
                         }
                     }
             ) {

@@ -40,12 +40,11 @@ include(
     ":core:service",
     ":core:presentation",
     ":core:common",
-    ":core:dgis"
+//    ":core:dgis"
 )
 
 include(":feature:auth:data", ":feature:auth:domain", ":feature:auth:presentation")
 include(":feature:contact:presentation")
-include(":feature:dgis")
 include(":feature:history:data", ":feature:history:domain", ":feature:history:presentation")
 include(":feature:info:presentation")
 include(":feature:intro:presentation")

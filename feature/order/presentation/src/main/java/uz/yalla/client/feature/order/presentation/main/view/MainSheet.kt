@@ -44,7 +44,8 @@ import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.SelectedLocation
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
-import uz.yalla.client.feature.order.presentation.di.Order
+import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
+import uz.yalla.client.feature.order.presentation.main.MAIN_SHEET_ROUTE
 import uz.yalla.client.feature.order.presentation.main.model.MainSheetState
 import uz.yalla.client.feature.order.presentation.main.model.MainSheetViewModel
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.OrderTaxiSheetIntent
@@ -56,7 +57,7 @@ import uz.yalla.client.feature.order.presentation.main.view.sheet.PaymentMethodB
 
 object MainSheet {
     private val viewModel: MainSheetViewModel by lazy { getKoin().get() }
-    private val _intentFlow = MutableSharedFlow<MainSheetIntent>(1)
+    private val _intentFlow = MutableSharedFlow<MainSheetIntent>()
     val intentFlow = _intentFlow.asSharedFlow()
 
     @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -118,10 +119,9 @@ object MainSheet {
             }
 
             lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                mutableIntentFlow.emit(
-                    OrderTaxiSheetIntent.SetSheetHeight(
-                        height = state.sheetHeight + state.footerHeight
-                    )
+                SheetCoordinator.updateSheetHeight(
+                    route = MAIN_SHEET_ROUTE,
+                    height = state.sheetHeight + state.footerHeight
                 )
             }
         }
@@ -178,6 +178,7 @@ object MainSheet {
                 primaryButtonState = buttonAndOptionsState.isButtonEnabled,
                 isTariffValidWithOptions = buttonAndOptionsState.isTariffValidWithOptions,
                 onIntent = viewModel::onIntent,
+                onHeightChanged = viewModel::setFooterHeight,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .zIndex(2f)
@@ -335,6 +336,7 @@ object MainSheet {
             OrderTaxiPage(
                 state = state,
                 onIntent = onIntent,
+                onHeightChanged = viewModel::setSheetHeight,
                 modifier = Modifier
                     .graphicsLayer { alpha = 1f - fraction }
                     .zIndex(if (fraction < 0.5f) 1f else 0f)
