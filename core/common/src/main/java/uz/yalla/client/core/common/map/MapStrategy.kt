@@ -33,4 +33,5 @@ interface MapStrategy {
     fun updateRoute(route: List<MapPoint>)
     fun updateOrderStatus(status: OrderStatus)
     fun updateLocations(locations: List<MapPoint>)
+    fun zoomOut()
 }

@@ -1,5 +1,6 @@
 package uz.yalla.client.feature.order.presentation.main.model
 
+import android.util.Log
 import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -35,6 +36,8 @@ import uz.yalla.client.feature.order.domain.model.response.tarrif.GetTariffsMode
 import uz.yalla.client.feature.order.domain.usecase.order.OrderTaxiUseCase
 import uz.yalla.client.feature.order.domain.usecase.tariff.GetTariffsUseCase
 import uz.yalla.client.feature.order.domain.usecase.tariff.GetTimeOutUseCase
+import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
+import uz.yalla.client.feature.order.presentation.main.MAIN_SHEET_ROUTE
 import uz.yalla.client.feature.order.presentation.main.view.MainSheet
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.FooterIntent
@@ -70,7 +73,7 @@ class MainSheetViewModel(
             val isButtonEnabled = !state.loading &&
                     state.selectedTariff != null &&
                     isTariffValidWithOptions &&
-                    !(state.selectedTariff.isSecondAddressMandatory && state.destinations.isNotEmpty())
+                    !(state.selectedTariff.isSecondAddressMandatory && state.destinations.isEmpty())
 
             ButtonAndOptionsState(
                 isButtonEnabled = isButtonEnabled,
@@ -91,6 +94,7 @@ class MainSheetViewModel(
             uiState
                 .distinctUntilChangedBy { Pair(it.selectedTariff, it.selectedLocation) }
                 .collectLatest { state ->
+                    state.selectedLocation?.let { MainSheet.setLocation(it) }
                     state.selectedLocation?.point?.let { getTimeout(it) }
                 }
         }
@@ -114,6 +118,24 @@ class MainSheetViewModel(
                     )
                 }
         }
+
+        // Try to get the last known location and load tariffs on startup
+        viewModelScope.launch(Dispatchers.IO) {
+            getPolygon()
+            AppPreferences.entryLocation.let { (lat, lng) ->
+                if (lat != 0.0 && lng != 0.0) {
+                    Log.d("MainSheetViewModel", "Initial location from preferences: lat=$lat, lng=$lng")
+                    val initialLocation = SelectedLocation(
+                        name = null,
+                        point = MapPoint(lat, lng),
+                        addressId = 0 // Will be set during setSelectedLocation
+                    )
+                    setSelectedLocation(initialLocation)
+                } else {
+                    Log.d("MainSheetViewModel", "No saved location found in preferences")
+                }
+            }
+        }
     }
 
     fun onIntent(intent: MainSheetIntent) {
@@ -125,10 +147,6 @@ class MainSheetViewModel(
                     } else {
                         setSelectedTariff(intent.tariff)
                     }
-                }
-
-                is OrderTaxiSheetIntent.SetSheetHeight -> {
-                    setSheetHeight(intent.height)
                 }
 
                 is OrderTaxiSheetIntent.CurrentLocationClick -> {
@@ -168,10 +186,6 @@ class MainSheetViewModel(
                     _uiState.update { it.copy(isOrderCommentSheetVisible = true) }
                 }
 
-                is FooterIntent.SetFooterHeight -> {
-                    setFooterHeight(intent.height)
-                }
-
                 is FooterIntent.ClearOptions -> {
                     setSelectedOptions(emptyList())
                 }
@@ -207,7 +221,10 @@ class MainSheetViewModel(
     fun getPolygon() {
         viewModelScope.launch(Dispatchers.IO) {
             getPolygonUseCase().onSuccess { polygon ->
+                Log.d("MainSheetViewModel", "Polygon loaded: ${polygon.size} regions")
                 _uiState.update { it.copy(polygon = polygon) }
+            }.onFailure {
+                Log.e("MainSheetViewModel", "Failed to load polygon", it)
             }
         }
     }
@@ -222,26 +239,55 @@ class MainSheetViewModel(
 
     fun setSelectedLocation(selectedLocation: SelectedLocation) {
         viewModelScope.launch(Dispatchers.IO) {
-            val updatedLocation = selectedLocation.point?.let { point ->
-                val (isInsidePolygon, addressId) = isPointInsidePolygon(point)
-                if (isInsidePolygon) {
-                    getTariffs(addressId)
-                    selectedLocation.copy(addressId = addressId)
+            val point = selectedLocation.point
+
+            if (point == null) {
+                // Handle case where point is null - use last known location or default
+                val lastLat = AppPreferences.entryLocation.first
+                val lastLng = AppPreferences.entryLocation.second
+
+                if (lastLat != 0.0 && lastLng != 0.0) {
+                    Log.d("MainSheetViewModel", "Using saved location since point is null")
+                    val updatedLocation = selectedLocation.copy(
+                        point = MapPoint(lastLat, lastLng)
+                    )
+                    processLocation(updatedLocation)
                 } else {
-                    setSelectedTariff(null)
-                    handleTariffsFailure()
-                    selectedLocation
+                    // If no location at all, just update state without processing
+                    _uiState.update { it.copy(selectedLocation = selectedLocation) }
                 }
-            } ?: selectedLocation
-
-            MainSheet.mutableIntentFlow.emit(
-                OrderTaxiSheetIntent.SetServiceState(
-                    available = updatedLocation.addressId.takeIf { it != 0 } != null
-                )
-            )
-
-            _uiState.update { it.copy(selectedLocation = updatedLocation) }
+            } else {
+                // Process location normally
+                processLocation(selectedLocation)
+            }
         }
+    }
+
+    // Helper to avoid duplicating the location processing logic
+    private suspend fun processLocation(selectedLocation: SelectedLocation) {
+        val point = selectedLocation.point ?: return
+
+        Log.d("MainSheetViewModel", "Processing location: $point")
+
+        val (isInsidePolygon, addressId) = isPointInsidePolygon(point)
+        Log.d("MainSheetViewModel", "Is inside polygon: $isInsidePolygon, addressId: $addressId")
+
+        val updatedLocation = if (isInsidePolygon) {
+            getTariffs(addressId)
+            selectedLocation.copy(addressId = addressId)
+        } else {
+            setSelectedTariff(null)
+            handleTariffsFailure()
+            selectedLocation
+        }
+
+        MainSheet.mutableIntentFlow.emit(
+            OrderTaxiSheetIntent.SetServiceState(
+                available = updatedLocation.addressId.takeIf { it != 0 } != null
+            )
+        )
+
+        _uiState.update { it.copy(selectedLocation = updatedLocation) }
     }
 
     fun setDestination(destinations: List<Destination>) {
@@ -273,25 +319,30 @@ class MainSheetViewModel(
         _uiState.update { it.copy(selectedOptions = options) }
     }
 
-    private fun setFooterHeight(height: Dp) {
+    fun setFooterHeight(height: Dp) {
         _uiState.update { it.copy(footerHeight = height) }
-        viewModelScope.launch(Dispatchers.Main) {
-            MainSheet.mutableIntentFlow.emit(
-                OrderTaxiSheetIntent.SetSheetHeight(height = height + uiState.value.sheetHeight)
-            )
-        }
+        SheetCoordinator.updateSheetHeight(
+            route = MAIN_SHEET_ROUTE,
+            height = height + uiState.value.sheetHeight
+        )
     }
 
-    private fun setSheetHeight(height: Dp) {
+    fun setSheetHeight(height: Dp) {
         _uiState.update { it.copy(sheetHeight = height) }
-        viewModelScope.launch(Dispatchers.Main) {
-            MainSheet.mutableIntentFlow.emit(
-                OrderTaxiSheetIntent.SetSheetHeight(height = height + uiState.value.footerHeight)
-            )
-        }
+        SheetCoordinator.updateSheetHeight(
+            route = MAIN_SHEET_ROUTE,
+            height = height + uiState.value.footerHeight
+        )
     }
 
     private suspend fun isPointInsidePolygon(point: MapPoint): Pair<Boolean, Int> = coroutineScope {
+        val polygon = uiState.value.polygon
+        if (polygon.isEmpty()) {
+            Log.d("MainSheetViewModel", "Polygon is empty, waiting for it to load...")
+            // Wait for polygon to load
+            delay(500)
+        }
+
         val results = uiState.value.polygon.map { polygonItem ->
             async(Dispatchers.Default) {
                 isPointInPolygon(point, polygonItem)
@@ -330,13 +381,21 @@ class MainSheetViewModel(
             val to = uiState.value.destinations.mapNotNull { it.point?.toPair() }
             val selectedOptionsIds = uiState.value.selectedOptions.mapNotNull { it.id }
 
+            Log.d("MainSheetViewModel", "Getting tariffs: addressId=$addressId, from=$from, to=$to")
+
             getTariffsUseCase(
                 addressId = addressId,
                 optionIds = selectedOptionsIds,
                 coords = listOf(from, *to.toTypedArray())
             ).fold(
-                onSuccess = { tariffsModel -> handleTariffsSuccess(tariffsModel) },
-                onFailure = { handleTariffsFailure() }
+                onSuccess = { tariffsModel ->
+                    Log.d("MainSheetViewModel", "Tariffs received: ${tariffsModel.tariff.size}")
+                    handleTariffsSuccess(tariffsModel)
+                },
+                onFailure = {
+                    Log.e("MainSheetViewModel", "Failed to get tariffs", it)
+                    handleTariffsFailure()
+                }
             )
         }
     }

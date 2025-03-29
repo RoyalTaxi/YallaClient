@@ -5,14 +5,14 @@ plugins {
 }
 
 android {
-    namespace = "uz.ildam.technologies.yalla.android"
+    namespace = "uz.yalla.client"
     compileSdk = 35
     defaultConfig {
         applicationId = "uz.yalla.client"
         minSdk = 24
         targetSdk = 35
-        versionCode = 17
-        versionName = "1.7"
+        versionCode = 20
+        versionName = "2.0"
         resourceConfigurations.plus(listOf("uz", "ru"))
     }
     buildFeatures {
@@ -57,7 +57,6 @@ dependencies {
 
     implementation(projects.feature.setting.domain)
     implementation(projects.feature.auth.presentation)
-    implementation(projects.feature.dgis)
     implementation(projects.feature.intro.presentation)
     implementation(projects.feature.registration.presentation)
     implementation(projects.feature.payment.presentation)

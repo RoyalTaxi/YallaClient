@@ -34,7 +34,9 @@ import uz.yalla.client.core.common.button.CallButton
 import uz.yalla.client.core.common.item.CarNumberItem
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
+import uz.yalla.client.feature.order.presentation.client_waiting.CLIENT_WAITING_ROUTE
 import uz.yalla.client.feature.order.presentation.client_waiting.model.ClientWaitingViewModel
+import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
 
 object ClientWaitingSheet {
     private val viewModel: ClientWaitingViewModel by lazy { getKoin().get() }
@@ -71,7 +73,10 @@ object ClientWaitingSheet {
                     )
                     .onSizeChanged {
                         with(density) {
-                            viewModel.onIntent(ClientWaitingIntent.SetSheetHeight(it.height.toDp()))
+                            SheetCoordinator.updateSheetHeight(
+                                route = CLIENT_WAITING_ROUTE,
+                                height = it.height.toDp()
+                            )
                         }
                     }
             ) {

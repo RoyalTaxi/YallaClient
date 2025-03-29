@@ -254,6 +254,29 @@ class ConcreteGoogleMap : MapStrategy {
         this.locations.clear()
         this.locations.addAll(locations)
     }
+
+    override fun zoomOut() {
+        if (::cameraPositionState.isInitialized) {
+            val currentPosition = cameraPositionState.position
+            val currentTarget = currentPosition.target
+
+            if (currentPosition.zoom > 13) {
+                val newCameraPosition = CameraPosition.Builder()
+                    .target(currentTarget)
+                    .zoom(currentPosition.zoom.minus(1))
+                    .bearing(currentPosition.bearing)
+                    .tilt(currentPosition.tilt)
+                    .build()
+
+                coroutineScope.launch {
+                    cameraPositionState.animate(
+                        update = CameraUpdateFactory.newCameraPosition(newCameraPosition),
+                        durationMs = 1000
+                    )
+                }
+            }
+        }
+    }
 }
 
 @Composable
