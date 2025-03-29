@@ -99,10 +99,10 @@ fun MainSheetFooter(
                     is PaymentType.CARD -> when (state.selectedPaymentType.cardId.length) {
                         16 -> R.drawable.img_logo_humo
                         32 -> R.drawable.img_logo_uzcard
-                        else -> R.drawable.img_money
+                        else -> R.drawable.ic_money_color
                     }
 
-                    else -> R.drawable.img_money
+                    else -> R.drawable.ic_money_color
                 }
             ),
             onClick = { onIntent(FooterIntent.ClickPaymentButton) }
@@ -126,7 +126,7 @@ fun MainSheetFooter(
                 when {
                     isTariffValidWithOptions.not() -> R.drawable.ic_x
                     sheetState.targetValue == SheetValue.Expanded -> R.drawable.ic_arrow_vertical
-                    else -> R.drawable.img_options
+                    else -> R.drawable.ic_options
                 }
             ),
             onClick = {
