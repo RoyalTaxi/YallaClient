@@ -85,10 +85,10 @@ fun MapDrawer(
                                 is PaymentType.CARD -> when (paymentType.cardId.length) {
                                     16 -> R.drawable.img_logo_humo
                                     32 -> R.drawable.img_logo_uzcard
-                                    else -> R.drawable.img_money
+                                    else -> uz.yalla.client.feature.order.presentation.R.drawable.ic_money
                                 }
 
-                                is PaymentType.CASH -> R.drawable.img_money
+                                is PaymentType.CASH -> R.drawable.ic_money
                             }
                         ),
                         onClick = { onIntent(MapDrawerIntent.PaymentType) }

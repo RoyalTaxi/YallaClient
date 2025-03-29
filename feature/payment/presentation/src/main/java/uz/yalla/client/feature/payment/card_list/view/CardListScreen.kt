@@ -85,9 +85,8 @@ private fun CardListContent(
         item {
             SelectPaymentTypeItem(
                 isSelected = uiState.selectedPaymentType == PaymentType.CASH,
-                tint = YallaTheme.color.gray,
                 text = stringResource(R.string.cash),
-                painter = painterResource(R.drawable.ic_money),
+                painter = painterResource(R.drawable.img_money),
                 onSelect = { onSelectItem(PaymentType.CASH) }
             )
         }
