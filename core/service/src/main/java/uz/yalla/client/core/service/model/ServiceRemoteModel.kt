@@ -20,13 +20,4 @@ data class ServiceRemoteModel(
         fun isPercentType(type: String?): Boolean =
             type?.equals(COST_TYPE_PERCENT, ignoreCase = true) ?: false
     }
-
-    val isPercentCost: Boolean
-        get() = isPercentType(costType)
-
-    val normalizedCostType: String
-        get() = when (costType?.lowercase()) {
-            COST_TYPE_PERCENT -> COST_TYPE_PERCENT
-            else -> COST_TYPE_COST
-        }
 }
