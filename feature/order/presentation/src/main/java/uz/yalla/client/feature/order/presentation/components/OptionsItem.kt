@@ -16,13 +16,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import uz.yalla.client.core.domain.model.ServiceModel
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
 
 @Composable
 fun OptionsItem(
     isSelected: Boolean,
-    option: String,
+    option: ServiceModel,
     modifier: Modifier = Modifier,
     onChecked: (Boolean) -> Unit
 ) {
@@ -44,13 +45,19 @@ fun OptionsItem(
         ) {
             Column {
                 Text(
-                    text = option,
+                    text = option.name,
                     color = YallaTheme.color.black,
                     style = YallaTheme.font.labelSemiBold
                 )
 
                 Text(
-                    text = stringResource(R.string.fixed_cost, option),
+                    text = if (option.isPercentCost) stringResource(
+                        R.string.fixed_percent,
+                        option.cost.toString()
+                    ) else stringResource(
+                        R.string.fixed_cost,
+                        option.cost.toString()
+                    ),
                     color = YallaTheme.color.gray,
                     style = YallaTheme.font.bodySmall
                 )

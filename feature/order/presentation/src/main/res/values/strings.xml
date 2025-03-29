@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="fixed_percent" translatable="false">%s %%</string>
     <string name="loading">Yuklanmoqda</string>
     <string name="choose">Tanlash</string>
     <string name="fixed_cost">%s so\'m</string>

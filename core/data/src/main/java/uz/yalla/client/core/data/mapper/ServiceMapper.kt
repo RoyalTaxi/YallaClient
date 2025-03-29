@@ -7,7 +7,7 @@ object ServiceMapper {
     val mapper: Mapper<ServiceRemoteModel?, ServiceModel> = { remote ->
         ServiceModel(
             cost = remote?.cost.or0(),
-            costType = remote?.cost_type.orEmpty(),
+            costType = remote?.costType ?: ServiceModel.COST_TYPE_COST,
             id = remote?.id.or0(),
             name = remote?.name.orEmpty()
         )

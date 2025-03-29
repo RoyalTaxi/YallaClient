@@ -122,13 +122,11 @@ fun OrderDetailsBottomSheet(
                 }
 
                 order.taxi.services.forEach { service ->
-                    service.name?.let {
-                        OptionsItem(
-                            option = it,
-                            isSelected = true,
-                            onChecked = {}
-                        )
-                    }
+                    OptionsItem(
+                        option = service,
+                        isSelected = true,
+                        onChecked = {}
+                    )
                 }
             }
 
