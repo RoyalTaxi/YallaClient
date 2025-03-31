@@ -1,7 +1,10 @@
 package uz.yalla.client.feature.contact.view
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -39,7 +42,6 @@ internal fun ContactUsScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(paddingValues)
-                    .padding(20.dp)
             )
         }
     )
@@ -52,13 +54,6 @@ private fun TopAppBar(
 ) {
     CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
-        title = {
-            Text(
-                text = stringResource(R.string.contuct_us),
-                style = YallaTheme.font.labelLarge,
-                color = YallaTheme.color.black
-            )
-        },
         navigationIcon = {
             IconButton(onClick = onNavigateBack) {
                 Icon(
@@ -66,7 +61,8 @@ private fun TopAppBar(
                     contentDescription = null
                 )
             }
-        }
+        },
+        title = {}
     )
 }
 
@@ -76,32 +72,45 @@ private fun SocialNetworksList(
     onIntent: (ContactUsIntent) -> Unit,
     modifier: Modifier
 ) {
-    LazyColumn(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        items(uiState.socialNetworks) { socialNetwork ->
-            ContactUsCard(
-                socialNetwork = socialNetwork,
-                onClick = {
-                    when (socialNetwork.third) {
-                        R.string.email -> onIntent(
-                            ContactUsIntent.OnClickEmail(socialNetwork.second)
-                        )
 
-                        R.string.contuct_us -> onIntent(
-                            ContactUsIntent.OnClickPhone(socialNetwork.second)
-                        )
+    Column(modifier = modifier) {
+        Spacer(modifier = Modifier.height(40.dp))
 
-                        else -> onIntent(
-                            ContactUsIntent.OnClickUrl(
-                                socialNetwork.third,
-                                socialNetwork.second
+        Text(
+            text = stringResource(R.string.contuct_us),
+            color = YallaTheme.color.black,
+            style = YallaTheme.font.headline,
+            modifier = Modifier.padding(horizontal = 20.dp)
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            items(uiState.socialNetworks) { socialNetwork ->
+                ContactUsCard(
+                    socialNetwork = socialNetwork,
+                    onClick = {
+                        when (socialNetwork.third) {
+                            R.string.email -> onIntent(
+                                ContactUsIntent.OnClickEmail(socialNetwork.second)
                             )
-                        )
+
+                            R.string.contuct_us -> onIntent(
+                                ContactUsIntent.OnClickPhone(socialNetwork.second)
+                            )
+
+                            else -> onIntent(
+                                ContactUsIntent.OnClickUrl(
+                                    socialNetwork.third,
+                                    socialNetwork.second
+                                )
+                            )
+                        }
                     }
-                }
-            )
+                )
+            }
         }
     }
 }
