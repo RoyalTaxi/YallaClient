@@ -155,9 +155,8 @@ fun MapRoute(
         }
     }
 
-    // Main Sheet Intents - Only listen when on main sheet
     LaunchedEffect(currentRoute) {
-        if (currentRoute == MAIN_SHEET_ROUTE) {
+        if (currentRoute == MAIN_SHEET_ROUTE || currentRoute == NO_SERVICE_ROUTE) {
             MainSheet.intentFlow.collect { intent ->
                 when (intent) {
                     is OrderTaxiSheetIntent.SetSelectedLocation -> {
@@ -243,7 +242,6 @@ fun MapRoute(
         }
     }
 
-    // Client Waiting Sheet Intents - Only listen when on client waiting sheet
     LaunchedEffect(currentRoute) {
         if (currentRoute.contains(CLIENT_WAITING_ROUTE)) {
             ClientWaitingSheet.intentFlow.collectLatest { intent ->
@@ -252,7 +250,6 @@ fun MapRoute(
         }
     }
 
-    // Driver Waiting Sheet Intents - Only listen when on driver waiting sheet
     LaunchedEffect(currentRoute) {
         if (currentRoute.contains(DRIVER_WAITING_ROUTE)) {
             DriverWaitingSheet.intentFlow.collectLatest { intent ->
@@ -407,10 +404,8 @@ fun MapRoute(
 
     LaunchedEffect(Unit) {
         SheetCoordinator.currentSheetState.collectLatest { sheetState ->
-            sheetState?.let { (route, height) ->
+            sheetState?.let { (_, height) ->
                 handleSheetHeightChange(height, map, vm, state)
-                if (route == MAIN_SHEET_ROUTE)
-                    map.moveToMyLocation()
             }
         }
     }

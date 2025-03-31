@@ -384,7 +384,6 @@ object MainSheet {
 
     val setDestination: (List<Destination>) -> Unit = viewModel::setDestination
     val setLocation: (SelectedLocation) -> Unit = viewModel::setSelectedLocation
-    val setLoading: (Boolean) -> Unit = viewModel::setLoading
 
     internal val mutableIntentFlow: MutableSharedFlow<MainSheetIntent> get() = _intentFlow
 }
