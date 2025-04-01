@@ -27,7 +27,7 @@ class App : Application() {
             printLogger(level = org.koin.core.logger.Level.DEBUG)
             modules(
                 *Common.modules.toTypedArray(),
-                *Navigation.modules.toTypedArray(),
+                *Navigation.modules.toTypedArray()
             )
         }
     }

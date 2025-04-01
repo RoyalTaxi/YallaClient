@@ -8,7 +8,6 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
-import uz.yalla.client.ui.screens.offline.OfflineScreen
 import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.core.presentation.navigation.safePopBackStack
 import uz.yalla.client.feature.auth.authModule
@@ -39,17 +38,23 @@ import uz.yalla.client.feature.setting.navigation.navigateToSettings
 import uz.yalla.client.feature.setting.navigation.settingsScreen
 import uz.yalla.client.feature.web.navigateToWebScreen
 import uz.yalla.client.feature.web.webScreen
+import uz.yalla.client.ui.screens.offline.OfflineScreen
 
 @Composable
 fun Navigation(
-    isConnected: Boolean
+    isConnected: Boolean,
+    shouldGoForPermission: Boolean
 ) {
     val navController = rememberNavController()
 
     NavHost(
         modifier = Modifier.fillMaxSize(),
         navController = navController,
-        startDestination = if (AppPreferences.isDeviceRegistered) MAP_ROUTE else INTRO_ROUTE,
+        startDestination =
+            when {
+                shouldGoForPermission || AppPreferences.isDeviceRegistered.not() -> INTRO_ROUTE
+                else -> MAP_ROUTE
+            },
         enterTransition = { slideInHorizontally(initialOffsetX = { it }) },
         popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) },
         exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) },
@@ -58,7 +63,10 @@ fun Navigation(
 
         introModule(
             navController = navController,
-            onPermissionGranted = navController::navigateToAuthModule,
+            onPermissionGranted = {
+                if (AppPreferences.isDeviceRegistered) navController.navigateToMapScreen()
+                else navController.navigateToAuthModule()
+            }
         )
 
         authModule(

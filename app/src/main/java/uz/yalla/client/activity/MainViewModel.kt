@@ -26,7 +26,7 @@ class MainViewModel(
             true
         )
 
-    private val _isReady = MutableStateFlow(false)
+    private val _isReady = MutableStateFlow<Boolean?>(null)
     val isReady = _isReady.asStateFlow()
 
     init {
@@ -42,9 +42,19 @@ class MainViewModel(
     }
 
     fun getLocationAndSave(context: Context) = viewModelScope.launch(Dispatchers.IO) {
-        getCurrentLocation(context) { location ->
-            AppPreferences.entryLocation = Pair(location.latitude, location.longitude)
-        }
-        _isReady.emit(true)
+        getCurrentLocation(
+            context,
+            onLocationFetched = { location ->
+                AppPreferences.entryLocation = Pair(location.latitude, location.longitude)
+                this.launch(Dispatchers.Main) {
+                    _isReady.emit(true)
+                }
+            },
+            onPermissionDenied = {
+                this.launch(Dispatchers.Main) {
+                    _isReady.emit(false)
+                }
+            }
+        )
     }
 }

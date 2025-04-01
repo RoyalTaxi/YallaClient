@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity() {
         content.viewTreeObserver.addOnPreDrawListener(
             object : ViewTreeObserver.OnPreDrawListener {
                 override fun onPreDraw(): Boolean {
-                    return if (viewModel.isReady.value) {
+                    return if (viewModel.isReady.value != null) {
                         content.viewTreeObserver.removeOnPreDrawListener(this)
                         true
                     } else false
@@ -61,7 +61,10 @@ class MainActivity : AppCompatActivity() {
 
         setContent {
             val isConnected by viewModel.isConnected.collectAsState()
-            Navigation(isConnected)
+            Navigation(
+                isConnected = isConnected,
+                shouldGoForPermission = viewModel.isReady.value == false
+            )
         }
 
         if (!BuildConfig.DEBUG) {
