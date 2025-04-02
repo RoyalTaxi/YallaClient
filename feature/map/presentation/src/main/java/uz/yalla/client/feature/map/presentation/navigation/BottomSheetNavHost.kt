@@ -1,5 +1,7 @@
 package uz.yalla.client.feature.map.presentation.navigation
 
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -22,7 +24,11 @@ fun BottomSheetNavHost(
     NavHost(
         modifier = modifier,
         navController = navController,
-        startDestination = MAIN_SHEET_ROUTE
+        startDestination = MAIN_SHEET_ROUTE,
+        enterTransition = { slideInHorizontally(initialOffsetX = { it }) },
+        popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) },
+        exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) },
+        popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) }
     ) {
         mainSheet()
         searchForCarBottomSheet()
