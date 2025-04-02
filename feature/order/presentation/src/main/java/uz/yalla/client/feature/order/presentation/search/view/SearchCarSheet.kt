@@ -17,7 +17,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -51,7 +50,6 @@ import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
 import uz.yalla.client.feature.order.presentation.components.SearchCarItem
 import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
-import uz.yalla.client.feature.order.presentation.main.view.sheet.OrderDetailsBottomSheet
 import uz.yalla.client.feature.order.presentation.search.SEARCH_CAR_ROUTE
 import uz.yalla.client.feature.order.presentation.search.model.SearchCarSheetViewModel
 import kotlin.time.Duration.Companion.seconds
@@ -74,7 +72,6 @@ object SearchCarSheet {
         val scope = rememberCoroutineScope()
         var currentTime by rememberSaveable { mutableIntStateOf(0) }
         val cancelOrderSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-        val orderDetailsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         val progress by animateFloatAsState(
             targetValue = currentTime.toFloat(),
             animationSpec = tween(durationMillis = 1000),
@@ -175,12 +172,6 @@ object SearchCarSheet {
                         imageVector = Icons.Default.Add,
                         onClick = { viewModel.onIntent(SearchCarSheetIntent.AddNewOrder) }
                     )
-
-                    SearchCarItem(
-                        text = stringResource(R.string.order_details),
-                        imageVector = Icons.Outlined.Info,
-                        onClick = { viewModel.setDetailsBottomSheetVisibility(true) }
-                    )
                 }
             }
         }
@@ -202,18 +193,6 @@ object SearchCarSheet {
                     scope.launch { cancelOrderSheetState.hide() }
                 }
             )
-        }
-
-        if (state.detailsBottomSheetVisibility) {
-            state.order?.let {
-                OrderDetailsBottomSheet(
-                    order = it,
-                    sheetState = orderDetailsSheetState,
-                    onDismissRequest = {
-                        viewModel.setDetailsBottomSheetVisibility(false)
-                    }
-                )
-            }
         }
 
         DisposableEffect(Unit) {
