@@ -260,10 +260,10 @@ class ConcreteGoogleMap : MapStrategy {
             val currentPosition = cameraPositionState.position
             val currentTarget = currentPosition.target
 
-            if (currentPosition.zoom > 13) {
+            if (currentPosition.zoom > 14) {
                 val newCameraPosition = CameraPosition.Builder()
                     .target(currentTarget)
-                    .zoom(currentPosition.zoom.minus(1))
+                    .zoom(currentPosition.zoom.minus(0.2).toFloat())
                     .bearing(currentPosition.bearing)
                     .tilt(currentPosition.tilt)
                     .build()
