@@ -12,6 +12,7 @@ import androidx.compose.material3.SheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.common.item.HistoryOrderItem
+import uz.yalla.client.core.common.utils.getOrderStatusText
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 
@@ -40,7 +41,7 @@ fun ActiveOrdersBottomSheet(
                     secondAddress = order.taxi.routes.lastOrNull()?.fullAddress,
                     time = order.dateTime,
                     totalPrice = order.taxi.totalPrice.toString(),
-                    status = order.status.value,
+                    status = getOrderStatusText(order.status),
                     onClick = {
                         onSelectOrder(order)
                         onDismissRequest()

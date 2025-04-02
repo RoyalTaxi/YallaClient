@@ -13,4 +13,13 @@
     <string name="contuct_us">Связаться с нами</string>
     <string name="settings">Настройки</string>
     <string name="about_app">О приложении</string>
+    <string name="order_new">Новый</string>
+    <string name="sending">Ищем водителя</string>
+    <string name="user_sending">Ищем водителя</string>
+    <string name="non_stop_sending">Ищем водителя</string>
+    <string name="at_address">Вас ожидает</string>
+    <string name="in_fetters">В пути</string>
+    <string name="appointed">Назначен</string>
+    <string name="completed">Отменен</string>
+    <string name="canceled">Отменен</string>
 </resources>

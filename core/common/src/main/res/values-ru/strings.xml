@@ -10,4 +10,13 @@
     <string name="fixed_cost">%s сум</string>
     <string name="destination_count">%s направления</string>
     <string name="call">Позвонить</string>
+    <string name="order_new">Новый</string>
+    <string name="sending">Ищем водителя</string>
+    <string name="user_sending">Ищем водителя</string>
+    <string name="non_stop_sending">Ищем водителя</string>
+    <string name="at_address">Вас ожидает</string>
+    <string name="in_fetters">В пути</string>
+    <string name="appointed">Назначен</string>
+    <string name="completed">Отменен</string>
+    <string name="canceled">Отменен</string>
 </resources>

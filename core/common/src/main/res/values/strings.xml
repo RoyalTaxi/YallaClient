@@ -12,4 +12,13 @@
     <string name="fixed_cost">%s so\'m</string>
     <string name="destination_count">%s ta manzil</string>
     <string name="call">Qo\'ng\'iroq qilish</string>
+    <string name="order_new">Yangi</string>
+    <string name="sending">Haydovchi qidirmoqda</string>
+    <string name="user_sending">Haydovchi qidirmoqda</string>
+    <string name="non_stop_sending">Haydovchi qidirmoqda</string>
+    <string name="at_address">Sizni kutmoqda</string>
+    <string name="in_fetters">Yo\'lda</string>
+    <string name="appointed">Biriktirildi</string>
+    <string name="completed">Bekor qilindi</string>
+    <string name="canceled">Bekor qilindi</string>
 </resources>

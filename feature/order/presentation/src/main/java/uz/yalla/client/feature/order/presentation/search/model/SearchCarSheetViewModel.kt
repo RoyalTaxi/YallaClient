@@ -14,16 +14,13 @@ import kotlinx.coroutines.yield
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.feature.order.domain.usecase.order.CancelRideUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.GetSettingUseCase
-import uz.yalla.client.feature.order.domain.usecase.order.GetShowOrderUseCase
 import uz.yalla.client.feature.order.domain.usecase.tariff.GetTimeOutUseCase
-import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheet
 import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheet.mutableIntentFlow
 import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheetIntent
 import kotlin.time.Duration.Companion.seconds
 
 class SearchCarSheetViewModel(
     private val cancelRideUseCase: CancelRideUseCase,
-    private val getShowOrderUseCase: GetShowOrderUseCase,
     private val getTimeOutUseCase: GetTimeOutUseCase,
     private val getSettingUseCase: GetSettingUseCase
 ) : ViewModel() {
@@ -40,7 +37,6 @@ class SearchCarSheetViewModel(
 
         viewModelScope.launch(Dispatchers.IO) {
             while (true) {
-                getOrderDetails()
                 delay(5.seconds)
                 mutableIntentFlow.emit(SearchCarSheetIntent.ZoomOut)
                 yield()
@@ -81,15 +77,6 @@ class SearchCarSheetViewModel(
         }
     }
 
-    private fun getOrderDetails() {
-        val orderId = uiState.value.orderId ?: return
-        viewModelScope.launch(Dispatchers.IO) {
-            getShowOrderUseCase(orderId).onSuccess { data ->
-                _uiState.update { it.copy(order = data) }
-            }
-        }
-    }
-
     private fun getSetting() {
         viewModelScope.launch(Dispatchers.IO) {
             getSettingUseCase().onSuccess { setting ->
@@ -107,10 +94,6 @@ class SearchCarSheetViewModel(
         }.invokeOnCompletion {
             onIntent(SearchCarSheetIntent.OnCancelled(orderId))
         }
-    }
-
-    fun setDetailsBottomSheetVisibility(isVisible: Boolean) {
-        _uiState.update { it.copy(detailsBottomSheetVisibility = isVisible) }
     }
 
     fun setCancelBottomSheetVisibility(isVisible: Boolean) {
