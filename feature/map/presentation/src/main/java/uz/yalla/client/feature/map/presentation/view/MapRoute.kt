@@ -61,6 +61,7 @@ import uz.yalla.client.feature.order.presentation.no_service.view.NoServiceSheet
 import uz.yalla.client.feature.order.presentation.on_the_ride.ON_THE_RIDE_ROUTE
 import uz.yalla.client.feature.order.presentation.on_the_ride.navigateToOnTheRideSheet
 import uz.yalla.client.feature.order.presentation.on_the_ride.view.OnTheRideSheet
+import uz.yalla.client.feature.order.presentation.on_the_ride.view.OnTheRideSheetIntent
 import uz.yalla.client.feature.order.presentation.order_canceled.ORDER_CANCELED_ROUTE
 import uz.yalla.client.feature.order.presentation.order_canceled.navigateToCanceledOrder
 import uz.yalla.client.feature.order.presentation.order_canceled.view.OrderCanceledSheet
@@ -316,7 +317,12 @@ fun MapRoute(
     LaunchedEffect(currentRoute) {
         if (currentRoute.contains(ON_THE_RIDE_ROUTE)) {
             OnTheRideSheet.intentFlow.collectLatest { intent ->
-
+                when (intent) {
+                    is OnTheRideSheetIntent.AddNewOrder -> {
+                        vm.clearState()
+                        navController.navigateToMainSheet()
+                    }
+                }
             }
         }
     }
