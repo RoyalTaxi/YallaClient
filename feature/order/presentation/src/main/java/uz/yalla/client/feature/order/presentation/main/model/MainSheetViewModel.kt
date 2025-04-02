@@ -34,6 +34,7 @@ import uz.yalla.client.core.domain.model.ServiceModel
 import uz.yalla.client.feature.map.domain.model.response.PolygonRemoteItem
 import uz.yalla.client.feature.map.domain.usecase.GetPolygonUseCase
 import uz.yalla.client.feature.order.domain.model.response.tarrif.GetTariffsModel
+import uz.yalla.client.feature.order.domain.usecase.order.GetShowOrderUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.OrderTaxiUseCase
 import uz.yalla.client.feature.order.domain.usecase.tariff.GetTariffsUseCase
 import uz.yalla.client.feature.order.domain.usecase.tariff.GetTimeOutUseCase
@@ -54,7 +55,8 @@ class MainSheetViewModel(
     private val getTariffsUseCase: GetTariffsUseCase,
     private val orderTaxiUseCase: OrderTaxiUseCase,
     private val getCardListUseCase: GetCardListUseCase,
-    private val getTimeOutUseCase: GetTimeOutUseCase
+    private val getTimeOutUseCase: GetTimeOutUseCase,
+    private val getShowOrderUseCase: GetShowOrderUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainSheetState())
@@ -116,6 +118,12 @@ class MainSheetViewModel(
         }
 
         viewModelScope.launch(Dispatchers.IO) {
+            uiState.distinctUntilChangedBy {
+                it.orderId
+            }
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
             uiState
                 .distinctUntilChangedBy { Pair(it.drivers, it.timeout) }
                 .collectLatest { state ->
@@ -125,6 +133,14 @@ class MainSheetViewModel(
                             drivers = state.drivers
                         )
                     )
+                }
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            uiState
+                .distinctUntilChangedBy { it.orderId }
+                .collect { state ->
+                    getShowOrder(state.orderId)
                 }
         }
 
@@ -471,6 +487,22 @@ class MainSheetViewModel(
         }
     }
 
+    private fun getShowOrder(showingOrderId: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            getShowOrderUseCase(showingOrderId).onSuccess { order ->
+                MainSheet.mutableIntentFlow.emit(OrderTaxiSheetIntent.OrderCreated(order))
+                _uiState.update {
+                    it.copy(
+                        order = order,
+                        loading = false
+                    )
+                }
+            }.onFailure {
+                _uiState.update { it.copy(loading = false) }
+            }
+        }
+    }
+
     private fun handleTariffsSuccess(tariffsModel: GetTariffsModel) {
         _uiState.update { currentState ->
             val currentSelectedTariff = currentState.selectedTariff
@@ -516,13 +548,13 @@ class MainSheetViewModel(
     }
 
     private fun orderTaxi() {
+        _uiState.update { it.copy(loading = true) }
         viewModelScope.launch(Dispatchers.IO) {
             uiState.value.mapToOrderTaxiDto()?.let { model ->
                 orderTaxiUseCase(model).onSuccess { order ->
                     _uiState.update { it.copy(orderId = order.orderId) }
-                    MainSheet.mutableIntentFlow.emit(
-                        OrderTaxiSheetIntent.OrderCreated(order.orderId)
-                    )
+                }.onFailure {
+                    _uiState.update { it.copy(loading = false) }
                 }
             }
         }

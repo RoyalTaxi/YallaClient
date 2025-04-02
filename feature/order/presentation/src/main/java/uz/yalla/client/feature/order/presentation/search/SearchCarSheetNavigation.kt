@@ -69,6 +69,7 @@ fun NavController.navigateToSearchForCarBottomSheet(
         navOptions {
             launchSingleTop = true
             restoreState = false
+            popUpTo(0) { inclusive = true }
         }
     )
 }

@@ -18,12 +18,9 @@ fun NavGraphBuilder.mainSheet() {
 
 fun NavController.navigateToMainSheet() = safeNavigate(
     MAIN_SHEET_ROUTE,
-    navOptions {
-        launchSingleTop = true
-        restoreState = false
-        popBackStack(
-            route = NO_SERVICE_ROUTE,
-            inclusive = true
-        )
-    }
+        navOptions {
+            launchSingleTop = true
+            restoreState = false
+            popUpTo(0) { inclusive = false }
+        }
 )

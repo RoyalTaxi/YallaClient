@@ -58,20 +58,18 @@ fun MainSheetFooter(
             .height(IntrinsicSize.Min)
             .then(
                 if (state.shadowVisibility) {
-                    Modifier
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(
-                            brush = Brush.verticalGradient(
-                                startY = 0f,
-                                endY = with(density) { 20.dp.toPx() },
-                                tileMode = TileMode.Clamp,
-                                colors = listOf(
-                                    Color.Transparent,
-                                    Color.Black.copy(.03f),
-                                    Color.Black.copy(.09f)
-                                )
+                    Modifier.background(
+                        brush = Brush.verticalGradient(
+                            startY = 0f,
+                            endY = with(density) { 40.dp.toPx() },
+                            tileMode = TileMode.Clamp,
+                            colors = listOf(
+                                Color.Transparent,
+                                Color.Black.copy(.03f),
+                                Color.Black.copy(.09f)
                             )
                         )
+                    )
                 } else {
                     Modifier
                 }

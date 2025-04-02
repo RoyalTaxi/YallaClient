@@ -16,4 +16,6 @@ dependencies {
 
     api(project.dependencies.platform(libs.koin.bom))
     api(libs.koin.core)
+
+    testApi(projects.core.test)
 }

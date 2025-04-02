@@ -13,10 +13,6 @@ dependencies {
     api(libs.androidx.core.ktx)
     api(libs.androidx.appcompat)
     api(libs.material)
-    testApi(libs.junit)
-    androidTestApi(libs.androidx.junit)
-    androidTestApi(libs.androidx.espresso.core)
-
     api(libs.compose.ui)
     api(libs.compose.ui.tooling.preview)
     api(libs.compose.material3)

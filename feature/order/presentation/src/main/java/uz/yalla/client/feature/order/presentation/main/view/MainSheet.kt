@@ -33,6 +33,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.getKoin
+import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.core.common.sheet.AddDestinationBottomSheet
 import uz.yalla.client.core.common.sheet.search_address.SearchByNameBottomSheet
 import uz.yalla.client.core.common.sheet.search_address.SearchByNameSheetValue
@@ -323,6 +324,8 @@ object MainSheet {
                 }
             )
         }
+
+        if (state.loading) LoadingDialog()
     }
 
     @Composable

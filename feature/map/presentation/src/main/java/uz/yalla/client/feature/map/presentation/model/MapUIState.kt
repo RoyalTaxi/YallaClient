@@ -22,7 +22,6 @@ data class MapUIState(
 
     val orders: List<ShowOrderModel> = emptyList(),
     val selectedOrder: ShowOrderModel? = null,
-    val showingOrderId: Int? = null,
     val user: GetMeModel? = null,
 
     val drivers: List<Executor> = emptyList(),
