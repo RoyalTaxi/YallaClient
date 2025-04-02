@@ -3,6 +3,7 @@ package uz.yalla.client.feature.map.presentation.model
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import uz.yalla.client.core.common.marker.YallaMarkerState
 import uz.yalla.client.core.common.state.HamburgerButtonState
@@ -25,6 +27,7 @@ import uz.yalla.client.core.domain.model.SelectedLocation
 import uz.yalla.client.feature.map.domain.model.request.GetRoutingDtoItem
 import uz.yalla.client.feature.map.domain.usecase.GetAddressNameUseCase
 import uz.yalla.client.feature.map.domain.usecase.GetRoutingUseCase
+import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 import uz.yalla.client.feature.order.domain.usecase.order.GetActiveOrdersUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.GetShowOrderUseCase
 import uz.yalla.client.feature.order.presentation.main.view.MainSheet
@@ -41,6 +44,11 @@ class MapViewModel(
 
     private val _uiState = MutableStateFlow(MapUIState())
     val uiState = _uiState.asStateFlow()
+
+    private val pollingOrderId = MutableStateFlow<Int?>(null)
+
+    // Track the polling job to be able to cancel it
+    private var pollingJob: Job? = null
 
     init {
         getMe()
@@ -64,16 +72,29 @@ class MapViewModel(
             }
             .distinctUntilChanged()
 
+        // We'll directly update pollingOrderId in setSelectedOrder,
+        // so we only need the polling mechanism here
         viewModelScope.launch(Dispatchers.IO) {
-            uiState
-                .distinctUntilChangedBy { it.showingOrderId }
-                .collectLatest { state ->
-                    while (state.showingOrderId != null) {
-                        getShowOrder(state.showingOrderId)
+            pollingOrderId.collectLatest { orderId ->
+                // Cancel any existing polling job
+                pollingJob?.cancel()
+
+                orderId ?: return@collectLatest
+
+                // Start a new polling job and keep the reference
+                pollingJob = viewModelScope.launch(Dispatchers.IO) {
+                    while (true) {
+                        getShowOrder(orderId)
                         delay(5.seconds)
+
+                        // Check if we should continue polling for this order
+                        if (pollingOrderId.value != orderId) break
                     }
                 }
+            }
         }
+
+        // Remove the automatic flow collection that was causing the issue
 
         viewModelScope.launch(Dispatchers.Main) {
             uiState
@@ -142,7 +163,7 @@ class MapViewModel(
     }
 
     val hamburgerButtonState = uiState
-        .distinctUntilChangedBy { Pair(it.selectedOrder, it.showingOrderId) }
+        .distinctUntilChangedBy { it.selectedOrder }
         .map { state ->
             if (state.selectedOrder == null) HamburgerButtonState.OpenDrawer
             else HamburgerButtonState.NavigateBack
@@ -157,8 +178,8 @@ class MapViewModel(
         .map { state ->
             when {
                 state.markerState == YallaMarkerState.Searching -> false
-                state.showingOrderId != null -> true
-                OrderStatus.nonInteractive.contains(state.selectedOrder?.status) -> false
+                state.selectedOrder == null -> true
+                OrderStatus.nonInteractive.contains(state.selectedOrder.status) -> false
                 else -> true
             }
         }
@@ -199,29 +220,32 @@ class MapViewModel(
     private fun getShowOrder(showingOrderId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             getShowOrderUseCase(showingOrderId).onSuccess { order ->
-                _uiState.update {
-                    it.copy(
-                        selectedOrder = order,
-                        showingOrderId = order.id,
-                        selectedLocation = SelectedLocation(
-                            name = order.taxi.routes.firstOrNull()?.fullAddress,
-                            addressId = null,
-                            point = order.taxi.routes.firstOrNull()?.coords?.let { c ->
-                                MapPoint(c.lat, c.lng)
-                            }
-                        ),
-                        destinations = order.taxi.routes.drop(1).map { d ->
-                            Destination(
-                                name = d.fullAddress,
-                                point = MapPoint(d.coords.lat, d.coords.lng)
+                if (pollingOrderId.value == showingOrderId) {
+                    withContext(Dispatchers.Main.immediate) {
+                        _uiState.update {
+                            it.copy(
+                                selectedOrder = order,
+                                selectedTariffId = order.taxi.tariffId,
+                                selectedLocation = SelectedLocation(
+                                    name = order.taxi.routes.firstOrNull()?.fullAddress,
+                                    addressId = null,
+                                    point = order.taxi.routes.firstOrNull()?.coords?.let { c ->
+                                        MapPoint(c.lat, c.lng)
+                                    }
+                                ),
+                                destinations = order.taxi.routes.drop(1).map { d ->
+                                    Destination(
+                                        name = d.fullAddress,
+                                        point = MapPoint(d.coords.lat, d.coords.lng)
+                                    )
+                                }
                             )
                         }
-                    )
+                    }
                 }
             }
         }
     }
-
 
     private fun getActiveOrders() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -287,17 +311,21 @@ class MapViewModel(
         _uiState.update { state }
     }
 
-    fun clearState(){
+    fun clearState() {
+        // First update the UI state to clear the order and related data
         _uiState.update {
             it.copy(
-                showingOrderId = null,
                 selectedOrder = null,
                 selectedLocation = null,
                 destinations = emptyList(),
-
+                selectedTariffId = null,
                 route = emptyList()
             )
         }
+
+        // Then cancel any ongoing polling and set the polling ID to null
+        pollingJob?.cancel()
+        pollingOrderId.value = null
     }
 
     fun setStateToNotFound() {
@@ -308,5 +336,21 @@ class MapViewModel(
                 timeout = null
             )
         }
+    }
+
+    fun setSelectedOrder(order: ShowOrderModel) {
+        viewModelScope.launch(Dispatchers.Main.immediate) {
+            // First update the UI state - this is important to prevent null emission
+            _uiState.update { it.copy(selectedOrder = order) }
+
+            // Then update the polling order ID to trigger the change in polling
+            pollingOrderId.value = order.id
+        }
+    }
+
+    // Ensure we cancel polling when the ViewModel is cleared
+    override fun onCleared() {
+        pollingJob?.cancel()
+        super.onCleared()
     }
 }

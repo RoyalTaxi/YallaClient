@@ -34,6 +34,7 @@ fun NavController.navigateToDriverWaitingSheet(
         navOptions {
             launchSingleTop = true
             restoreState = false
+            popUpTo(0) { inclusive = true }
         }
     )
 }

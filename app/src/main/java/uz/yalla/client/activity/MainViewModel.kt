@@ -43,7 +43,7 @@ class MainViewModel(
 
     fun getLocationAndSave(context: Context) = viewModelScope.launch(Dispatchers.IO) {
         getCurrentLocation(
-            context,
+            context = context,
             onLocationFetched = { location ->
                 AppPreferences.entryLocation = Pair(location.latitude, location.longitude)
                 this.launch(Dispatchers.Main) {

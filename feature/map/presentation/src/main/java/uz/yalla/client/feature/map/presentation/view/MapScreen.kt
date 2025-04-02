@@ -1,5 +1,6 @@
 package uz.yalla.client.feature.map.presentation.view
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
@@ -75,7 +76,10 @@ fun MapScreen(
         ActiveOrdersBottomSheet(
             sheetState = activeOrdersSheetState,
             orders = state.orders,
-            onSelectOrder = { onIntent(MapScreenIntent.SetShowingOrder(it)) },
+            onSelectOrder = {
+                onIntent(MapScreenIntent.SetShowingOrder(it))
+                Log.d("sho'ving o'rder", "MapScreen: $it")
+            },
             onDismissRequest = {
                 onIntent(MapScreenIntent.OnDismissActiveOrders)
                 scope.launch(Dispatchers.Main) { activeOrdersSheetState.hide() }

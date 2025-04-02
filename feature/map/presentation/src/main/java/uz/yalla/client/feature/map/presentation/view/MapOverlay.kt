@@ -37,7 +37,7 @@ fun BoxScope.MapOverlay(
         if (
             OrderStatus.nonInteractive.contains(state.selectedOrder?.status)
             ||
-            (state.destinations.isEmpty() && state.showingOrderId == null)
+            (state.destinations.isEmpty() && state.selectedOrder == null)
         ) YallaMarker(
             state = state.markerState,
             color = YallaTheme.color.primary,
@@ -81,7 +81,7 @@ fun BoxScope.MapOverlay(
 
         if (
             state.orders.size > 1 ||
-            (state.orders.isNotEmpty() && state.showingOrderId == null)
+            (state.orders.isNotEmpty() && state.selectedOrder == null)
         ) ShowActiveOrdersButton(
             orderCount = state.orders.size,
             onClick = { onIntent(MapOverlayIntent.ClickShowOrders) },

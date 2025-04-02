@@ -105,7 +105,7 @@ class SearchCarSheetViewModel(
                 cancelRideUseCase(orderId)
             }
         }.invokeOnCompletion {
-            onIntent(SearchCarSheetIntent.OnCancelled(uiState.value.orderId))
+            onIntent(SearchCarSheetIntent.OnCancelled(orderId))
         }
     }
 

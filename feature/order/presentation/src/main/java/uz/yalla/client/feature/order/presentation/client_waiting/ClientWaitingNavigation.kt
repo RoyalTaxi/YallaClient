@@ -9,6 +9,7 @@ import androidx.navigation.navOptions
 import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.presentation.navigation.safeNavigate
 import uz.yalla.client.feature.order.presentation.client_waiting.view.ClientWaitingSheet
+import uz.yalla.client.feature.order.presentation.no_service.NO_SERVICE_ROUTE
 
 const val ORDER_ID = "order_id"
 const val CLIENT_WAITING_ROUTE_BASE = "client_waiting_bottom_sheet"
@@ -34,6 +35,7 @@ fun NavController.navigateToClientWaitingSheet(
         navOptions {
             launchSingleTop = true
             restoreState = false
+            popUpTo(0) { inclusive = true }
         }
     )
 }
