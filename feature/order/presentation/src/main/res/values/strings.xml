@@ -4,7 +4,7 @@
     <string name="loading">Yuklanmoqda</string>
     <string name="choose">Tanlash</string>
     <string name="fixed_cost">%s so\'m</string>
-    <string name="starting_cost">%s so\'mdan boshlab</string>
+    <string name="starting_cost">%s so\'mdan</string>
     <string name="options_not_valid">Tanlangan variantlar ushbu tarifda mavjud emas</string>
     <string name="required_second_address">Ushbu tarif uchun ikkinchi manzil talab qilinadi.</string>
     <string name="invalid_options">Ba\'zi variantlar ushbu tarifda amal qilmaydi</string>
