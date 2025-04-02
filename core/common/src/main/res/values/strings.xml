@@ -3,7 +3,7 @@
     <string name="number_prefix" translatable="false">+998\u00A0</string>
     <string name="number_example" translatable="false">91 123 45 67</string>
     <string name="choose_date">Sanani tanlang</string>
-    <string name="where_to_go">Qayerga boramiz?</string>
+    <string name="where_to_go">Qayerga?</string>
     <string name="enter_the_address">Manzilni kiriting</string>
     <string name="map">Xarita</string>
     <string name="min">daq</string>
