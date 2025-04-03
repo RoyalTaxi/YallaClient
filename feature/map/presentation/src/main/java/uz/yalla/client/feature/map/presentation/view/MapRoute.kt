@@ -316,9 +316,10 @@ fun MapRoute(
                 SearchCarSheet.intentFlow.collectLatest { intent ->
                     when (intent) {
                         is SearchCarSheetIntent.OnCancelled -> {
-                            vm.clearState()
                             navController.navigateToMainSheet()
                             intent.orderId?.let { onCancel(state.selectedOrder?.id ?: it) }
+                            vm.clearState()
+
                         }
 
                         is SearchCarSheetIntent.AddNewOrder -> {
@@ -353,9 +354,9 @@ fun MapRoute(
                 DriverWaitingSheet.intentFlow.collectLatest { intent ->
                     when (intent) {
                         is DriverWaitingIntent.OnCancelled -> {
-                            vm.clearState()
                             navController.navigateToMainSheet()
                             intent.orderId?.let { onCancel(state.selectedOrder?.id ?: it) }
+                            vm.clearState()
                         }
 
                         is DriverWaitingIntent.AddNewOrder -> {

@@ -2,7 +2,6 @@ package uz.yalla.client.feature.order.presentation.cancel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -21,33 +20,68 @@ class CancelReasonViewModel(
     private val _uiState = MutableStateFlow(CancelReasonUIState())
     val uiState = _uiState.asStateFlow()
 
-    private val _actionState = MutableSharedFlow<CancelReasonActionState>()
+    private val _actionState = MutableSharedFlow<CancelReasonActionState>(replay = 1)
     val actionState = _actionState.asSharedFlow()
 
-    fun getSetting() = viewModelScope.launch(Dispatchers.IO) {
-        _actionState.emit(CancelReasonActionState.Loading)
-        getSettingUseCase()
-            .onSuccess { result ->
-                _uiState.update { it.copy(reasons = result.reasons) }
-                _actionState.emit(CancelReasonActionState.GettingSuccess)
-            }
-            .onFailure {
-                _actionState.emit(CancelReasonActionState.Error)
-            }
+    init {
+        loadReasons()
     }
 
-    fun cancelReason(orderId: Int) = viewModelScope.launch(Dispatchers.IO) {
-        _actionState.emit(CancelReasonActionState.Loading)
-        uiState.value.selectedReason?.apply {
-            cancelReasonUseCase(
-                orderId = orderId,
-                reasonId = id,
-                reasonComment = name
-            ).onSuccess { _actionState.emit(CancelReasonActionState.SettingSuccess) }
-                .onFailure { _actionState.emit(CancelReasonActionState.Error) }
+    private fun loadReasons() {
+        viewModelScope.launch {
+            if (uiState.value.reasons.isEmpty()) {
+                getSetting()
+            } else {
+                _actionState.emit(CancelReasonActionState.GettingSuccess)
+            }
         }
     }
 
-    fun updateSelectedReason(reason: SettingModel.CancelReason) =
-        _uiState.update { it.copy(selectedReason = reason) }
+    private fun getSetting() {
+        viewModelScope.launch {
+            _actionState.emit(CancelReasonActionState.Loading)
+
+            try {
+                val result = getSettingUseCase()
+                result.onSuccess { settingResult ->
+                    _uiState.update { it.copy(reasons = settingResult.reasons) }
+                    _actionState.emit(CancelReasonActionState.GettingSuccess)
+                }.onFailure { error ->
+                    _actionState.emit(CancelReasonActionState.Error(error.message))
+                }
+            } catch (e: Exception) {
+                _actionState.emit(CancelReasonActionState.Error(e.message))
+            }
+        }
+    }
+
+    fun cancelReason(orderId: Int) {
+        viewModelScope.launch {
+            uiState.value.selectedReason?.let { reason ->
+                _actionState.emit(CancelReasonActionState.Loading)
+
+                try {
+                    cancelReasonUseCase(
+                        orderId = orderId,
+                        reasonId = reason.id,
+                        reasonComment = reason.name
+                    ).onSuccess {
+                        _actionState.emit(CancelReasonActionState.SettingSuccess)
+                    }.onFailure { error ->
+                        _actionState.emit(CancelReasonActionState.Error(error.message))
+                    }
+                } catch (e: Exception) {
+                    _actionState.emit(CancelReasonActionState.Error(e.message))
+                }
+            } ?: run {
+                _actionState.emit(CancelReasonActionState.Error("No reason selected"))
+            }
+        }
+    }
+
+    fun updateSelectedReason(reason: SettingModel.CancelReason) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(selectedReason = reason) }
+        }
+    }
 }
