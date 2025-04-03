@@ -92,7 +92,6 @@ object OnTheRideSheet {
                             color = YallaTheme.color.white,
                             shape = RoundedCornerShape(30.dp)
                         )
-                        .navigationBarsPadding()
                         .padding(20.dp)
                 ) {
                     Row(
