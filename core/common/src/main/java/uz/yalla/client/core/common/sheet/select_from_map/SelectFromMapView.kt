@@ -28,10 +28,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.android.awaitFrame
@@ -42,7 +44,7 @@ import uz.yalla.client.core.common.R
 import uz.yalla.client.core.common.button.MapButton
 import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.common.button.SelectCurrentLocationButton
-//import uz.yalla.client.core.common.map.ConcreteGisMap
+import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.core.common.map.ConcreteGoogleMap
 import uz.yalla.client.core.common.map.MapStrategy
 import uz.yalla.client.core.common.marker.YallaMarker
@@ -63,6 +65,7 @@ fun SelectFromMapView(
 ) {
     val density = LocalDensity.current
     val uiState by viewModel.uiState.collectAsState()
+    var loading by remember { mutableStateOf(true) }
     var mapBottomPadding by remember { mutableStateOf(0.dp) }
     var isMarkerMoving by remember { mutableStateOf(false) }
 
@@ -109,15 +112,29 @@ fun SelectFromMapView(
         }
     }
 
+    val topCornerShape = remember { RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp) }
+    val bottomCornerShape = remember { RoundedCornerShape(bottomStart = 30.dp, bottomEnd = 30.dp) }
+    val standardPadding = remember { 10.dp }
+    val boxPadding = remember { 20.dp }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(YallaTheme.color.gray2)
     ) {
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .pointerInput(Unit) {}
+        )
+
         MapContent(
             map = map,
             mapBottomPadding = mapBottomPadding,
-            startingPoint = startingPoint
+            startingPoint = startingPoint,
+            onMapReady = {
+                loading = false
+            }
         )
 
         MapControlsLayer(
@@ -125,7 +142,8 @@ fun SelectFromMapView(
             mapBottomPadding = mapBottomPadding,
             isMarkerMoving = isMarkerMoving,
             selectedLocationName = uiState.selectedLocation?.name,
-            onBackClick = onDismissRequest
+            onBackClick = onDismissRequest,
+            boxPadding = boxPadding
         )
 
         BottomPanel(
@@ -137,9 +155,14 @@ fun SelectFromMapView(
                     onSelectLocation(it)
                     onDismissRequest()
                 }
-            }
+            },
+            topCornerShape = topCornerShape,
+            bottomCornerShape = bottomCornerShape,
+            standardPadding = standardPadding
         )
     }
+
+    if (loading) LoadingDialog()
 }
 
 @Composable
@@ -169,29 +192,32 @@ private fun initializeMapPosition(
 @Composable
 private fun BoxScope.MapContent(
     map: MapStrategy,
-    mapBottomPadding: androidx.compose.ui.unit.Dp,
-    startingPoint: MapPoint?
+    mapBottomPadding: Dp,
+    startingPoint: MapPoint?,
+    onMapReady: () -> Unit
 ) {
     map.Map(
         startingPoint = startingPoint,
         modifier = Modifier.matchParentSize(),
         enabled = true,
-        contentPadding = PaddingValues(bottom = mapBottomPadding)
+        contentPadding = PaddingValues(bottom = mapBottomPadding),
+        onMapReady = onMapReady
     )
 }
 
 @Composable
 private fun BoxScope.MapControlsLayer(
     map: MapStrategy,
-    mapBottomPadding: androidx.compose.ui.unit.Dp,
+    mapBottomPadding: Dp,
     isMarkerMoving: Boolean,
     selectedLocationName: String?,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    boxPadding: Dp
 ) {
     Box(
         modifier = Modifier
             .matchParentSize()
-            .padding(20.dp)
+            .padding(boxPadding)
             .padding(bottom = mapBottomPadding)
     ) {
         MapButton(
@@ -200,15 +226,18 @@ private fun BoxScope.MapControlsLayer(
             onClick = map::animateToMyLocation
         )
 
+        val markerState = if (isMarkerMoving) {
+            YallaMarkerState.LOADING
+        } else {
+            YallaMarkerState.IDLE(
+                title = selectedLocationName,
+                timeout = null
+            )
+        }
+
         YallaMarker(
             color = YallaTheme.color.black,
-            state = if (isMarkerMoving)
-                YallaMarkerState.LOADING
-            else
-                YallaMarkerState.IDLE(
-                    title = selectedLocationName,
-                    timeout = null
-                ),
+            state = markerState,
             modifier = Modifier
                 .matchParentSize()
                 .align(Alignment.Center)
@@ -229,46 +258,61 @@ private fun BoxScope.BottomPanel(
     selectedLocationName: String?,
     isButtonEnabled: Boolean,
     onSizeChanged: (Int) -> Unit,
-    onConfirmClick: () -> Unit
+    onConfirmClick: () -> Unit,
+    topCornerShape: RoundedCornerShape,
+    bottomCornerShape: RoundedCornerShape,
+    standardPadding: Dp
 ) {
     Column(
         modifier = Modifier
             .align(Alignment.BottomCenter)
-            .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
+            .clip(topCornerShape)
             .background(YallaTheme.color.gray2)
             .onSizeChanged { onSizeChanged(it.height) }
     ) {
-        LocationDisplaySection(selectedLocationName)
+        LocationDisplaySection(
+            selectedLocationName = selectedLocationName,
+            bottomCornerShape = bottomCornerShape,
+            standardPadding = standardPadding
+        )
 
         Spacer(modifier = Modifier.height(10.dp))
 
         ActionButtonSection(
             isEnabled = isButtonEnabled,
-            onClick = onConfirmClick
+            onClick = onConfirmClick,
+            topCornerShape = topCornerShape,
+            standardPadding = standardPadding
         )
     }
 }
 
 @Composable
-private fun LocationDisplaySection(selectedLocationName: String?) {
+private fun LocationDisplaySection(
+    selectedLocationName: String?,
+    bottomCornerShape: RoundedCornerShape,
+    standardPadding: Dp
+) {
+    val circleShape = remember { CircleShape }
+
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .fillMaxWidth()
             .background(
                 color = YallaTheme.color.white,
-                shape = RoundedCornerShape(bottomStart = 30.dp, bottomEnd = 30.dp)
+                shape = bottomCornerShape
             )
     ) {
         SelectCurrentLocationButton(
-            modifier = Modifier.padding(10.dp),
+            modifier = Modifier.padding(standardPadding),
             text = selectedLocationName ?: stringResource(R.string.loading),
             leadingIcon = {
                 Box(
                     modifier = Modifier
                         .size(8.dp)
                         .border(
-                            shape = CircleShape,
+                            shape = circleShape,
                             width = 1.dp,
                             color = YallaTheme.color.gray
                         )
@@ -282,7 +326,9 @@ private fun LocationDisplaySection(selectedLocationName: String?) {
 @Composable
 private fun ActionButtonSection(
     isEnabled: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    topCornerShape: RoundedCornerShape,
+    standardPadding: Dp
 ) {
     Box(
         contentAlignment = Alignment.Center,
@@ -290,14 +336,14 @@ private fun ActionButtonSection(
             .fillMaxWidth()
             .background(
                 color = YallaTheme.color.white,
-                shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
+                shape = topCornerShape
             )
             .navigationBarsPadding()
     ) {
         PrimaryButton(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp),
+                .padding(standardPadding),
             enabled = isEnabled,
             text = stringResource(R.string.choose),
             onClick = onClick

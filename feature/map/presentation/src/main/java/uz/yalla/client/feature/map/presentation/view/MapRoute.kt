@@ -1,6 +1,5 @@
 package uz.yalla.client.feature.map.presentation.view
 
-//import uz.yalla.client.core.common.map.ConcreteGisMap
 import android.Manifest
 import android.app.Activity
 import androidx.activity.compose.BackHandler
@@ -37,6 +36,7 @@ import uz.yalla.client.feature.map.presentation.model.MapViewModel
 import uz.yalla.client.feature.map.presentation.view.drawer.MapDrawer
 import uz.yalla.client.feature.map.presentation.view.drawer.MapDrawerIntent
 import uz.yalla.client.feature.order.domain.model.response.order.toCommonExecutor
+import uz.yalla.client.feature.order.presentation.cancel.ORDER_ID
 import uz.yalla.client.feature.order.presentation.client_waiting.CLIENT_WAITING_ROUTE
 import uz.yalla.client.feature.order.presentation.client_waiting.navigateToClientWaitingSheet
 import uz.yalla.client.feature.order.presentation.client_waiting.view.ClientWaitingSheet
@@ -116,13 +116,11 @@ fun MapRoute(
     BackHandler {
         when {
             drawerState.isOpen -> scope.launch { drawerState.close() }
-
             state.destinations.isNotEmpty() -> {
                 val destinations = state.destinations.toMutableList()
                 destinations.removeAt(destinations.lastIndex)
                 vm.updateState(state.copy(destinations = destinations))
             }
-
             state.selectedOrder == null -> (context as? Activity)?.finish()
         }
     }
@@ -141,11 +139,18 @@ fun MapRoute(
                                 vm.getAddressName(map.mapPoint.value)
                             }
                         }
-
                         state.route.isEmpty() && state.selectedOrder?.status == null -> {
                             vm.setStateToNotFound()
                         }
                     }
+                }
+            }
+        }
+
+        launch(Dispatchers.Main.immediate) {
+            SheetCoordinator.currentSheetState.collectLatest { sheetState ->
+                sheetState?.let { (_, height) ->
+                    handleSheetHeightChange(height, map, vm, state)
                 }
             }
         }
@@ -155,8 +160,21 @@ fun MapRoute(
         }
     }
 
+    fun shouldNavigateToSheet(routePattern: String, orderId: Int): Boolean {
+        val currentDestination = navController.currentDestination
+        val thisRoute = currentDestination?.route ?: ""
 
-    LaunchedEffect(state.selectedOrder?.id, state.selectedOrder?.status) {
+        if (!thisRoute.contains(routePattern)) {
+            return true
+        }
+
+        val currentBackStackEntry = navController.currentBackStackEntry
+        val currentOrderId = currentBackStackEntry?.arguments?.getInt(ORDER_ID, -1) ?: -1
+
+        return currentOrderId != orderId
+    }
+
+    LaunchedEffect(state.selectedOrder) {
         val order = state.selectedOrder
 
         if (order?.status !in OrderStatus.nonInteractive) order?.let {
@@ -169,195 +187,186 @@ fun MapRoute(
 
         when (order?.status) {
             OrderStatus.Appointed -> {
-                navController.navigateToClientWaitingSheet(orderID = order.id)
-            }
-
-            OrderStatus.AtAddress -> {
-                navController.navigateToDriverWaitingSheet(orderID = order.id)
-            }
-
-            OrderStatus.Canceled -> {
-                vm.clearState()
-                navController.navigateToCanceledOrder()
-            }
-
-            OrderStatus.Completed -> {
-                navController.navigateToFeedbackSheet(orderId = order.id)
-            }
-
-            OrderStatus.InFetters -> {
-                navController.navigateToOnTheRideSheet(orderId = order.id)
-            }
-
-            null -> {
-                map.updateLocations(emptyList())
-                navController.navigateToMainSheet()
-            }
-
-            else -> {
-                order.taxi.routes.firstOrNull()?.coords?.let { coordinate ->
-                    navController.navigateToSearchForCarBottomSheet(
-                        tariffId = order.taxi.tariffId,
-                        orderId = order.id,
-                        point = MapPoint(
-                            lat = coordinate.lat,
-                            lng = coordinate.lng
-                        )
-                    )
+                if (shouldNavigateToSheet(CLIENT_WAITING_ROUTE, order.id)) {
+                    navController.navigateToClientWaitingSheet(orderId = order.id)
                 }
             }
-        }
+            OrderStatus.AtAddress -> {
+                if (shouldNavigateToSheet(DRIVER_WAITING_ROUTE, order.id)) {
+                    navController.navigateToDriverWaitingSheet(orderId = order.id)
+                }
+            }
+            OrderStatus.Canceled -> {
+                val currentDestination = navController.currentDestination?.route ?: ""
+                if (!currentDestination.contains(ORDER_CANCELED_ROUTE)) {
+                    vm.clearState()
+                    navController.navigateToCanceledOrder()
+                }
+            }
+            OrderStatus.Completed -> {
+                if (shouldNavigateToSheet(FEEDBACK_ROUTE, order.id)) {
+                    navController.navigateToFeedbackSheet(orderId = order.id)
+                }
+            }
+            OrderStatus.InFetters -> {
+                if (shouldNavigateToSheet(ON_THE_RIDE_ROUTE, order.id)) {
+                    navController.navigateToOnTheRideSheet(orderId = order.id)
+                }
+            }
+            null -> {
+                map.updateLocations(emptyList())
+                val currentDestination = navController.currentDestination?.route ?: ""
+                val isInOrderFlow = listOf(
+                    CLIENT_WAITING_ROUTE, DRIVER_WAITING_ROUTE, ON_THE_RIDE_ROUTE,
+                    FEEDBACK_ROUTE, SEARCH_CAR_ROUTE, ORDER_CANCELED_ROUTE
+                ).any { currentDestination.contains(it) }
 
-        order?.taxi?.routes?.firstOrNull()?.coords.let { coords ->
-            if (coords?.lat != null && coords?.lng != null)
-                map.move(to = MapPoint(coords.lat, coords.lng))
-        }
-    }
-
-    LaunchedEffect(currentRoute) {
-        if (currentRoute == MAIN_SHEET_ROUTE || currentRoute == NO_SERVICE_ROUTE) {
-            MainSheet.intentFlow.collect { intent ->
-                when (intent) {
-                    is OrderTaxiSheetIntent.SetSelectedLocation -> {
-                        vm.updateState(state.copy(selectedLocation = intent.selectedLocation))
-
-                        if (state.route.isEmpty()) {
-                            intent.selectedLocation.point?.let {
-                                scope.launch(Dispatchers.Main) {
-                                    map.animate(to = it)
-                                }
-                            }
-                        }
-                    }
-
-                    is OrderTaxiSheetIntent.SetDestinations -> {
-                        vm.updateState(state.copy(destinations = intent.destinations))
-                    }
-
-                    is OrderTaxiSheetIntent.AddDestination -> {
-                        vm.updateState(state.copy(destinations = state.destinations + intent.destination))
-                    }
-
-                    is OrderTaxiSheetIntent.OrderCreated -> {
-                        vm.setSelectedOrder(intent.order)
-                        vm.updateState(state.copy(markerState = YallaMarkerState.Searching))
-                    }
-
-                    is OrderTaxiSheetIntent.SetTimeout -> {
-                        vm.updateState(
-                            state.copy(
-                                timeout = intent.timeout,
-                                drivers = intent.drivers
+                if (!currentDestination.contains(MAIN_SHEET_ROUTE) &&
+                    !currentDestination.contains(NO_SERVICE_ROUTE) &&
+                    !isInOrderFlow
+                ) {
+                    navController.navigateToMainSheet()
+                }
+            }
+            else -> {
+                if (shouldNavigateToSheet(SEARCH_CAR_ROUTE, order.id)) {
+                    order.taxi.routes.firstOrNull()?.coords?.let { coordinate ->
+                        navController.navigateToSearchForCarBottomSheet(
+                            tariffId = order.taxi.tariffId,
+                            orderId = order.id,
+                            point = MapPoint(
+                                lat = coordinate.lat,
+                                lng = coordinate.lng
                             )
                         )
                     }
-
-                    is OrderTaxiSheetIntent.SetServiceState -> {
-                        vm.updateState(state.copy(hasServiceProvided = intent.available))
-                    }
-
-                    is PaymentMethodSheetIntent.OnAddNewCard -> {
-                        onAddNewCard()
-                    }
-
-                    else -> {}
                 }
             }
         }
+
+        order?.taxi?.routes?.firstOrNull()?.coords.let { coordinate ->
+            if (coordinate?.lat != null)
+                map.move(to = MapPoint(coordinate.lat, coordinate.lng))
+        }
     }
 
     LaunchedEffect(currentRoute) {
-        if (currentRoute.contains(SEARCH_CAR_ROUTE)) {
-            SearchCarSheet.intentFlow.collectLatest { intent ->
-                when (intent) {
-                    is SearchCarSheetIntent.OnCancelled -> {
-                        vm.clearState()
-                        intent.orderId?.let { onCancel(it) }
-                    }
+        when {
+            currentRoute == MAIN_SHEET_ROUTE || currentRoute == NO_SERVICE_ROUTE -> {
+                MainSheet.intentFlow.collect { intent ->
+                    when (intent) {
+                        is OrderTaxiSheetIntent.SetSelectedLocation -> {
+                            vm.updateState(state.copy(selectedLocation = intent.selectedLocation))
 
-                    is SearchCarSheetIntent.AddNewOrder -> {
-                        vm.clearState()
-                        navController.navigateToMainSheet()
-                    }
-
-                    is SearchCarSheetIntent.ZoomOut -> {
-                        map.zoomOut()
+                            if (state.route.isEmpty()) {
+                                intent.selectedLocation.point?.let {
+                                    scope.launch(Dispatchers.Main) {
+                                        map.animate(to = it)
+                                    }
+                                }
+                            }
+                        }
+                        is OrderTaxiSheetIntent.SetDestinations -> {
+                            vm.updateState(state.copy(destinations = intent.destinations))
+                        }
+                        is OrderTaxiSheetIntent.AddDestination -> {
+                            vm.updateState(state.copy(destinations = state.destinations + intent.destination))
+                        }
+                        is OrderTaxiSheetIntent.OrderCreated -> {
+                            vm.setSelectedOrder(intent.order)
+                            vm.updateState(state.copy(markerState = YallaMarkerState.Searching))
+                        }
+                        is OrderTaxiSheetIntent.SetTimeout -> {
+                            vm.updateState(
+                                state.copy(
+                                    timeout = intent.timeout,
+                                    drivers = intent.drivers
+                                )
+                            )
+                        }
+                        is OrderTaxiSheetIntent.SetServiceState -> {
+                            vm.updateState(state.copy(hasServiceProvided = intent.available))
+                        }
+                        is PaymentMethodSheetIntent.OnAddNewCard -> {
+                            onAddNewCard()
+                        }
+                        else -> {}
                     }
                 }
             }
-        }
-    }
-
-    LaunchedEffect(currentRoute) {
-        if (currentRoute.contains(CLIENT_WAITING_ROUTE)) {
-            ClientWaitingSheet.intentFlow.collectLatest { intent ->
-
-            }
-        }
-    }
-
-    LaunchedEffect(currentRoute) {
-        if (currentRoute.contains(DRIVER_WAITING_ROUTE)) {
-            DriverWaitingSheet.intentFlow.collectLatest { intent ->
-                when (intent) {
-                    is DriverWaitingIntent.OnCancelled -> {
-                        vm.clearState()
-                        intent.orderId?.let { onCancel(it) }
-                    }
-
-                    is DriverWaitingIntent.AddNewOrder -> {
-                        vm.clearState()
-                        navController.navigateToMainSheet()
+            currentRoute.contains(SEARCH_CAR_ROUTE) -> {
+                SearchCarSheet.intentFlow.collectLatest { intent ->
+                    when (intent) {
+                        is SearchCarSheetIntent.OnCancelled -> {
+                            vm.clearState()
+                            navController.navigateToMainSheet()
+                            intent.orderId?.let { onCancel(state.selectedOrder?.id ?: it) }
+                        }
+                        is SearchCarSheetIntent.AddNewOrder -> {
+                            vm.clearState()
+                            navController.navigateToMainSheet()
+                        }
+                        is SearchCarSheetIntent.ZoomOut -> {
+                            map.zoomOut()
+                        }
                     }
                 }
             }
-        }
-    }
-
-    LaunchedEffect(currentRoute) {
-        if (currentRoute.contains(ON_THE_RIDE_ROUTE)) {
-            OnTheRideSheet.intentFlow.collectLatest { intent ->
-                when (intent) {
-                    is OnTheRideSheetIntent.AddNewOrder -> {
-                        vm.clearState()
-                        navController.navigateToMainSheet()
+            currentRoute.contains(CLIENT_WAITING_ROUTE) -> {
+                ClientWaitingSheet.intentFlow.collectLatest { _ ->
+                    // Handle client waiting intents if needed
+                }
+            }
+            currentRoute.contains(DRIVER_WAITING_ROUTE) -> {
+                DriverWaitingSheet.intentFlow.collectLatest { intent ->
+                    when (intent) {
+                        is DriverWaitingIntent.OnCancelled -> {
+                            vm.clearState()
+                            navController.navigateToMainSheet()
+                            intent.orderId?.let { onCancel(state.selectedOrder?.id ?: it) }
+                        }
+                        is DriverWaitingIntent.AddNewOrder -> {
+                            vm.clearState()
+                            navController.navigateToMainSheet()
+                        }
                     }
                 }
             }
-        }
-    }
-
-    LaunchedEffect(currentRoute) {
-        if (currentRoute.contains(ORDER_CANCELED_ROUTE)) {
-            OrderCanceledSheet.intentFlow.collectLatest { intent ->
-                when (intent) {
-                    is OrderCanceledSheetIntent.StartNewOrder -> {
-                        navController.navigateToMainSheet()
+            currentRoute.contains(ON_THE_RIDE_ROUTE) -> {
+                OnTheRideSheet.intentFlow.collectLatest { intent ->
+                    when (intent) {
+                        is OnTheRideSheetIntent.AddNewOrder -> {
+                            vm.clearState()
+                            navController.navigateToMainSheet()
+                        }
                     }
                 }
             }
-        }
-    }
-
-    LaunchedEffect(currentRoute) {
-        if (currentRoute.contains(FEEDBACK_ROUTE)) {
-            FeedbackSheet.intentFlow.collectLatest { intent ->
-                when (intent) {
-                    is FeedbackSheetIntent.OnCompleteOrder -> {
-                        vm.clearState()
-                        navController.navigateToMainSheet()
+            currentRoute.contains(ORDER_CANCELED_ROUTE) -> {
+                OrderCanceledSheet.intentFlow.collectLatest { intent ->
+                    when (intent) {
+                        is OrderCanceledSheetIntent.StartNewOrder -> {
+                            navController.navigateToMainSheet()
+                        }
                     }
                 }
             }
-        }
-    }
-
-    LaunchedEffect(currentRoute) {
-        if (currentRoute.contains(NO_SERVICE_ROUTE)) {
-            NoServiceSheet.intentFlow.collectLatest { intent ->
-                when (intent) {
-                    is NoServiceIntent.SetSelectedLocation -> {
-                        intent.location.point?.let { map.animate(to = it) }
+            currentRoute.contains(FEEDBACK_ROUTE) -> {
+                FeedbackSheet.intentFlow.collectLatest { intent ->
+                    when (intent) {
+                        is FeedbackSheetIntent.OnCompleteOrder -> {
+                            vm.clearState()
+                            navController.navigateToMainSheet()
+                        }
+                    }
+                }
+            }
+            currentRoute.contains(NO_SERVICE_ROUTE) -> {
+                NoServiceSheet.intentFlow.collectLatest { intent ->
+                    when (intent) {
+                        is NoServiceIntent.SetSelectedLocation -> {
+                            intent.location.point?.let { map.animate(to = it) }
+                        }
                     }
                 }
             }
@@ -366,12 +375,23 @@ fun MapRoute(
 
     LaunchedEffect(state.hasServiceProvided, state.selectedLocation) {
         if (state.hasServiceProvided == true) {
-            val currentDestination = navController.currentDestination?.route
-            if (currentDestination != MAIN_SHEET_ROUTE) {
-                navController.navigateToMainSheet()
+            val currentDestination = navController.currentDestination?.route ?: ""
+            if (!currentDestination.contains(MAIN_SHEET_ROUTE)) {
+                val orderRelatedRoutes = listOf(
+                    CLIENT_WAITING_ROUTE, DRIVER_WAITING_ROUTE, ON_THE_RIDE_ROUTE,
+                    FEEDBACK_ROUTE, SEARCH_CAR_ROUTE, ORDER_CANCELED_ROUTE
+                )
+                val isInOrderFlow = orderRelatedRoutes.any { currentDestination.contains(it) }
+
+                if (!isInOrderFlow) {
+                    navController.navigateToMainSheet()
+                }
             }
         } else if (state.hasServiceProvided == false) {
-            navController.navigateToNoServiceSheet()
+            val currentDestination = navController.currentDestination?.route ?: ""
+            if (!currentDestination.contains(NO_SERVICE_ROUTE)) {
+                navController.navigateToNoServiceSheet()
+            }
         }
     }
 
@@ -398,14 +418,6 @@ fun MapRoute(
 
     LaunchedEffect(state.drivers) {
         map.updateDrivers(state.drivers)
-    }
-
-    LaunchedEffect(Unit) {
-        SheetCoordinator.currentSheetState.collectLatest { sheetState ->
-            sheetState?.let { (_, height) ->
-                handleSheetHeightChange(height, map, vm, state)
-            }
-        }
     }
 
     MapDrawer(
@@ -437,36 +449,29 @@ fun MapRoute(
                     is MapScreenIntent.MapOverlayIntent.ClickShowOrders -> {
                         vm.updateState(state.copy(isActiveOrdersSheetVisibility = true))
                     }
-
                     is MapScreenIntent.OnDismissActiveOrders -> {
                         vm.updateState(state.copy(isActiveOrdersSheetVisibility = false))
                     }
-
                     is MapScreenIntent.MapOverlayIntent.MoveToFirstLocation -> {
                         state.selectedLocation?.point?.let {
                             map.animate(it)
                         }
                     }
-
                     is MapScreenIntent.MapOverlayIntent.MoveToMyLocation -> {
                         map.animateToMyLocation()
                     }
-
                     is MapScreenIntent.MapOverlayIntent.MoveToMyRoute -> {
                         map.animateToFitBounds(state.route)
                     }
-
                     is MapScreenIntent.MapOverlayIntent.NavigateBack -> {
                         vm.clearState()
                         navController.navigateToMainSheet()
                     }
-
                     is MapScreenIntent.MapOverlayIntent.OpenDrawer -> {
                         scope.launch {
                             drawerState.open()
                         }
                     }
-
                     is MapScreenIntent.SetShowingOrder -> {
                         vm.setSelectedOrder(intent.order)
                     }

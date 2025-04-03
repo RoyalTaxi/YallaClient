@@ -19,7 +19,8 @@ interface MapStrategy {
         startingPoint: MapPoint?,
         enabled: Boolean,
         modifier: Modifier,
-        contentPadding: PaddingValues
+        contentPadding: PaddingValues,
+        onMapReady: () -> Unit
     )
 
     fun move(to: MapPoint)

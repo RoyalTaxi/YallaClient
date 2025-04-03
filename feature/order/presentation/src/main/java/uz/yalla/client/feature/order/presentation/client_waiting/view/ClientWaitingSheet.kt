@@ -57,8 +57,6 @@ object ClientWaitingSheet {
             }
         }
 
-        BackHandler { }
-
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.BottomCenter

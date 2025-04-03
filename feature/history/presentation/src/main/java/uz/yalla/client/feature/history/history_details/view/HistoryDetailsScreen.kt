@@ -49,6 +49,7 @@ internal fun HistoryDetailsScreen(
                         startingPoint = null,
                         contentPadding = PaddingValues(0.dp),
                         enabled = false,
+                        onMapReady = {},
                         modifier = Modifier
                             .fillMaxWidth()
                             .aspectRatio(1f)

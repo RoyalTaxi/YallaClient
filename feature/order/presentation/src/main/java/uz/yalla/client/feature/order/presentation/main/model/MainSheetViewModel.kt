@@ -266,7 +266,6 @@ class MainSheetViewModel(
 
             try {
                 getPolygonUseCase().onSuccess { polygon ->
-                    Log.d("MainSheetViewModel", "Polygon loaded: ${polygon.size} regions")
                     _uiState.update { it.copy(polygon = polygon) }
 
                     uiState.value.selectedLocation?.let { location ->

@@ -78,7 +78,8 @@ class ConcreteGoogleMap : MapStrategy {
         startingPoint: MapPoint?,
         enabled: Boolean,
         modifier: Modifier,
-        contentPadding: PaddingValues
+        contentPadding: PaddingValues,
+        onMapReady: () -> Unit
     ) {
         context = LocalContext.current
         mapPadding = dpToPx(context, 100)
@@ -132,6 +133,8 @@ class ConcreteGoogleMap : MapStrategy {
                 startingPoint
                     ?.let { move(to = it) }
                     ?: run { moveToMyLocation() }
+
+                onMapReady()
             }
         ) {
             if (

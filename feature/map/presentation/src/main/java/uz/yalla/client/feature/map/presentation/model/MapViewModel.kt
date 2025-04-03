@@ -46,8 +46,8 @@ class MapViewModel(
     val uiState = _uiState.asStateFlow()
 
     private val pollingOrderId = MutableStateFlow<Int?>(null)
+    private val hasProcessedFirstActiveOrders = MutableStateFlow(false)
 
-    // Track the polling job to be able to cancel it
     private var pollingJob: Job? = null
 
     init {
@@ -72,29 +72,22 @@ class MapViewModel(
             }
             .distinctUntilChanged()
 
-        // We'll directly update pollingOrderId in setSelectedOrder,
-        // so we only need the polling mechanism here
         viewModelScope.launch(Dispatchers.IO) {
             pollingOrderId.collectLatest { orderId ->
-                // Cancel any existing polling job
                 pollingJob?.cancel()
 
                 orderId ?: return@collectLatest
 
-                // Start a new polling job and keep the reference
                 pollingJob = viewModelScope.launch(Dispatchers.IO) {
                     while (true) {
                         getShowOrder(orderId)
                         delay(5.seconds)
 
-                        // Check if we should continue polling for this order
                         if (pollingOrderId.value != orderId) break
                     }
                 }
             }
         }
-
-        // Remove the automatic flow collection that was causing the issue
 
         viewModelScope.launch(Dispatchers.Main) {
             uiState
@@ -250,6 +243,14 @@ class MapViewModel(
     private fun getActiveOrders() {
         viewModelScope.launch(Dispatchers.IO) {
             getActiveOrdersUseCase().onSuccess { activeOrders ->
+                if (hasProcessedFirstActiveOrders.value.not()) {
+                    hasProcessedFirstActiveOrders.value = true
+                    if (activeOrders.list.size == 1) {
+                        setSelectedOrder(activeOrders.list.first())
+                    } else if (activeOrders.list.size > 1) {
+                        _uiState.update { it.copy(isActiveOrdersSheetVisibility = true) }
+                    }
+                }
                 _uiState.update { it.copy(orders = activeOrders.list) }
             }
         }
@@ -312,7 +313,6 @@ class MapViewModel(
     }
 
     fun clearState() {
-        // First update the UI state to clear the order and related data
         _uiState.update {
             it.copy(
                 selectedOrder = null,
@@ -323,7 +323,6 @@ class MapViewModel(
             )
         }
 
-        // Then cancel any ongoing polling and set the polling ID to null
         pollingJob?.cancel()
         pollingOrderId.value = null
     }
@@ -340,15 +339,12 @@ class MapViewModel(
 
     fun setSelectedOrder(order: ShowOrderModel) {
         viewModelScope.launch(Dispatchers.Main.immediate) {
-            // First update the UI state - this is important to prevent null emission
             _uiState.update { it.copy(selectedOrder = order) }
 
-            // Then update the polling order ID to trigger the change in polling
             pollingOrderId.value = order.id
         }
     }
 
-    // Ensure we cancel polling when the ViewModel is cleared
     override fun onCleared() {
         pollingJob?.cancel()
         super.onCleared()

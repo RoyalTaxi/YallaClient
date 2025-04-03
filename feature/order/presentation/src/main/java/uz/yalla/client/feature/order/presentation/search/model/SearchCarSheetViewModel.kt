@@ -37,7 +37,7 @@ class SearchCarSheetViewModel(
 
         viewModelScope.launch(Dispatchers.IO) {
             while (true) {
-                delay(5.seconds)
+                delay(10.seconds)
                 mutableIntentFlow.emit(SearchCarSheetIntent.ZoomOut)
                 yield()
             }

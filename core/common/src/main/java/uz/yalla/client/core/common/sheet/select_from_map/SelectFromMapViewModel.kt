@@ -28,6 +28,8 @@ class SelectFromMapViewModel(
 
     private var polygonPollingJob: Job? = null
 
+    private val polygonVerticesCache = mutableMapOf<Int, List<Pair<Double, Double>>>()
+
     init {
         startPolygonPolling()
     }
@@ -46,6 +48,12 @@ class SelectFromMapViewModel(
         getPolygonUseCase().onSuccess { result ->
             _uiState.update { it.copy(polygon = result) }
             if (result.isNotEmpty()) {
+                // Precompute and cache the polygon vertices when fetched
+                result.forEach { polygonItem ->
+                    polygonVerticesCache[polygonItem.addressId] = polygonItem.polygons.map {
+                        Pair(it.lat, it.lng)
+                    }
+                }
                 polygonPollingJob?.cancel()
             }
         }
@@ -90,22 +98,29 @@ class SelectFromMapViewModel(
         point: MapPoint,
         polygonItem: PolygonRemoteItem
     ): Pair<Boolean, Int?> {
-        val vertices = polygonItem.polygons.map { Pair(it.lat, it.lng) }
+        // Get cached vertices or compute them if not available
+        val vertices = polygonVerticesCache[polygonItem.addressId] ?:
+        polygonItem.polygons.map { Pair(it.lat, it.lng) }.also {
+            polygonVerticesCache[polygonItem.addressId] = it
+        }
+
         if (vertices.isEmpty()) return Pair(false, null)
 
         var isInside = false
+        val pointLng = point.lng
+        val pointLat = point.lat
 
         for (i in vertices.indices) {
             val j = if (i == 0) vertices.lastIndex else i - 1
             val (lat1, lng1) = vertices[i]
             val (lat2, lng2) = vertices[j]
 
-            val hasVerticalCrossing = (lng1 > point.lng) != (lng2 > point.lng)
+            val hasVerticalCrossing = (lng1 > pointLng) != (lng2 > pointLng)
             if (hasVerticalCrossing) {
                 if (lng2 - lng1 == 0.0) continue
 
-                val intersectionLatitude = (lat2 - lat1) * (point.lng - lng1) / (lng2 - lng1) + lat1
-                if (point.lat < intersectionLatitude) {
+                val intersectionLatitude = (lat2 - lat1) * (pointLng - lng1) / (lng2 - lng1) + lat1
+                if (pointLat < intersectionLatitude) {
                     isInside = !isInside
                 }
             }
@@ -121,6 +136,7 @@ class SelectFromMapViewModel(
     override fun onCleared() {
         super.onCleared()
         polygonPollingJob?.cancel()
+        polygonVerticesCache.clear()
     }
 
     fun changeStateToNotFound() {

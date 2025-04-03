@@ -1,6 +1,5 @@
 package uz.yalla.client.feature.map.presentation.view.sheets
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyColumn
@@ -45,8 +44,6 @@ fun ActiveOrdersBottomSheet(
                     onClick = {
                         onSelectOrder(order)
                         onDismissRequest()
-
-                        Log.d("Mening MapRouteim", "ActiveOrdersBottomSheet: $order")
                     }
                 )
             }

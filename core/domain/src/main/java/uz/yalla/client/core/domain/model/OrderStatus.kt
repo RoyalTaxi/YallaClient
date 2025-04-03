@@ -27,6 +27,6 @@ sealed class OrderStatus(val value: String) {
             }
         }
 
-        val nonInteractive = setOf(New, Sending, UserSending, NonStopSending)
+        val nonInteractive = setOfNotNull(New, Sending, UserSending, NonStopSending)
     }
 }

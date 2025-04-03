@@ -114,10 +114,7 @@ fun Navigation(
         )
 
         cancelReasonScreen(
-            onNavigateBack = {
-                navController.clearBackStack(MAP_ROUTE)
-                navController.navigateToMapScreen()
-            }
+            onNavigateBack = navController::safePopBackStack
         )
 
         addressModule(

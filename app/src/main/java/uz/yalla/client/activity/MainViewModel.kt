@@ -4,11 +4,14 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import uz.yalla.client.connectivity.ConnectivityObserver
 import uz.yalla.client.core.common.utils.getCurrentLocation
 import uz.yalla.client.core.data.local.AppPreferences
@@ -29,6 +32,12 @@ class MainViewModel(
     private val _isReady = MutableStateFlow<Boolean?>(null)
     val isReady = _isReady.asStateFlow()
 
+    // Maximum number of location retrieval attempts
+    private val MAX_LOCATION_ATTEMPTS = 3
+
+    // Timeout for location retrieval in milliseconds
+    private val LOCATION_TIMEOUT = 5000L
+
     init {
         getConfig()
     }
@@ -42,19 +51,62 @@ class MainViewModel(
     }
 
     fun getLocationAndSave(context: Context) = viewModelScope.launch(Dispatchers.IO) {
-        getCurrentLocation(
-            context = context,
-            onLocationFetched = { location ->
-                AppPreferences.entryLocation = Pair(location.latitude, location.longitude)
-                this.launch(Dispatchers.Main) {
-                    _isReady.emit(true)
-                }
-            },
-            onPermissionDenied = {
-                this.launch(Dispatchers.Main) {
-                    _isReady.emit(false)
+        var locationRetrieved = false
+        var attempts = 0
+
+        while (attempts < MAX_LOCATION_ATTEMPTS) {
+            attempts++
+
+            val result = withTimeoutOrNull(LOCATION_TIMEOUT) {
+                try {
+                    var locationResult = false
+                    getCurrentLocation(
+                        context = context,
+                        onLocationFetched = { location ->
+                            AppPreferences.entryLocation =
+                                Pair(location.latitude, location.longitude)
+                            locationResult = true
+                        },
+                        onPermissionDenied = {
+                            viewModelScope.launch(Dispatchers.Main.immediate) {
+                                _isReady.emit(false)
+                            }
+                        }
+                    )
+                    locationResult
+                } catch (e: Exception) {
+                    false
                 }
             }
-        )
+
+            locationRetrieved = result == true
+
+            if (locationRetrieved) {
+                withContext(Dispatchers.Main) {
+                    _isReady.emit(true)
+                }
+                break
+            }
+        }
+
+        if (!locationRetrieved) {
+            withContext(Dispatchers.Main) {
+                _isReady.emit(false)
+            }
+        }
+    }
+
+    fun releaseSplashScreenAfterTimeout() = viewModelScope.launch {
+        withTimeoutOrNull(LOCATION_TIMEOUT) {
+            while (_isReady.value == null) {
+                delay(100)
+            }
+        }
+
+        if (_isReady.value == null) {
+            withContext(Dispatchers.Main) {
+                _isReady.emit(false)
+            }
+        }
     }
 }

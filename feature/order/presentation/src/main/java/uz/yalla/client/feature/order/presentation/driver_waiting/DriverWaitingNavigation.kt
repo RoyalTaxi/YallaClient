@@ -26,9 +26,9 @@ fun NavGraphBuilder.driverWaitingBottomSheet() {
 }
 
 fun NavController.navigateToDriverWaitingSheet(
-    orderID: Int
+    orderId: Int
 ) {
-    val route = "$DRIVER_WAITING_ROUTE_BASE?$ORDER_ID=$orderID"
+    val route = "$DRIVER_WAITING_ROUTE_BASE?$ORDER_ID=$orderId"
     safeNavigate(
         route,
         navOptions {

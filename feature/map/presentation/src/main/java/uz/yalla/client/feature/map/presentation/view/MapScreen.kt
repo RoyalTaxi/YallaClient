@@ -1,6 +1,5 @@
 package uz.yalla.client.feature.map.presentation.view
 
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
@@ -10,7 +9,7 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
@@ -36,14 +35,23 @@ fun MapScreen(
     onIntent: (MapScreenIntent) -> Unit
 ) {
     val density = LocalDensity.current
-    val scope = rememberCoroutineScope()
     val activeOrdersSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    LaunchedEffect(state.isActiveOrdersSheetVisibility) {
+        launch(Dispatchers.Main.immediate) {
+            if (state.isActiveOrdersSheetVisibility) activeOrdersSheetState.show()
+            else activeOrdersSheetState.hide()
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         map.Map(
             startingPoint = state.selectedLocation?.point,
             modifier = Modifier.fillMaxSize(),
             enabled = isMapEnabled,
+            onMapReady = {
+
+            },
             contentPadding = with(density) {
                 PaddingValues(
                     top = WindowInsets.statusBars.getTop(density).toDp(),
@@ -78,11 +86,9 @@ fun MapScreen(
             orders = state.orders,
             onSelectOrder = {
                 onIntent(MapScreenIntent.SetShowingOrder(it))
-                Log.d("sho'ving o'rder", "MapScreen: $it")
             },
             onDismissRequest = {
                 onIntent(MapScreenIntent.OnDismissActiveOrders)
-                scope.launch(Dispatchers.Main) { activeOrdersSheetState.hide() }
             }
         )
     }
