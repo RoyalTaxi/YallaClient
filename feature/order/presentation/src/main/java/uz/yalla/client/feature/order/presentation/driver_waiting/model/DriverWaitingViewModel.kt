@@ -56,14 +56,6 @@ class DriverWaitingViewModel(
         }
     }
 
-    fun timer(range: IntRange) = flow {
-        for (second in range) {
-            delay(1.seconds)
-            emit(second)
-            if (!currentCoroutineContext().isActive) return@flow
-        }
-    }
-
     fun infiniteTimer(isActive: Boolean) = flow {
         var seconds = 0
         while (isActive && currentCoroutineContext().isActive) {
