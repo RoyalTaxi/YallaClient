@@ -33,8 +33,12 @@ class OnTheRideSheetViewModel(
         val orderId = uiState.value.orderId ?: return
         viewModelScope.launch(Dispatchers.IO) {
             getShowOrderUseCase(orderId).onSuccess { data ->
-                _uiState.update { it.copy(selectedDriver = data.executor) }
+                _uiState.update { it.copy(selectedDriver = data) }
             }
         }
+    }
+
+    fun setDetailsBottomSheetVisibility(isVisible: Boolean) {
+        _uiState.update { it.copy(detailsBottomSheetVisibility = isVisible) }
     }
 }
