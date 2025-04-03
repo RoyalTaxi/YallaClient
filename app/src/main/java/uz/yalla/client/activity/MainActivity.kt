@@ -1,9 +1,13 @@
 package uz.yalla.client.activity
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.ViewTreeObserver
+import android.widget.Toast
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -16,6 +20,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.auth.api.phone.SmsRetriever
 import com.google.android.play.core.appupdate.AppUpdateManager
@@ -34,11 +39,25 @@ class MainActivity : AppCompatActivity() {
     private val appUpdateManager: AppUpdateManager by lazy { AppUpdateManagerFactory.create(this) }
     private val viewModel: MainViewModel by viewModel()
 
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted.not()) {
+            Toast.makeText(
+                this,
+                "Bildirishnomalar o'chiq. Kerakli habarlani o'tkizib yuborishingiz mumkin",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         viewModel.getLocationAndSave(this)
         viewModel.releaseSplashScreenAfterTimeout()
+
+        viewModel.initializeFcm()
 
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.light(
@@ -86,6 +105,10 @@ class MainActivity : AppCompatActivity() {
 
         val client = SmsRetriever.getClient(this)
         client.startSmsUserConsent(null)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            checkNotificationPermission()
+        }
     }
 
     private fun checkForImmediateUpdate() {
@@ -119,5 +142,17 @@ class MainActivity : AppCompatActivity() {
             .setCancelable(false)
             .setNegativeButton("Закрыть") { _, _ -> finish() }
             .show()
+    }
+
+    private fun checkNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
     }
 }

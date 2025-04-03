@@ -48,13 +48,20 @@ internal fun VerificationRoute(
     val errorMessage = stringResource(R.string.error_message)
     val context = LocalContext.current
     val smsRetriever = remember { SmsRetriever.getClient(context) }
+
     val smsRetrieverLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
         onResult = {
             it.data?.let { data ->
                 if (it.resultCode != Activity.RESULT_OK) return@let
                 val message = data.getStringExtra(SmsRetriever.EXTRA_SMS_MESSAGE)
-                vm.updateUiState(code = extractCode(message))
+                val extractedCode = extractCode(message)
+                if (extractedCode.isNotEmpty()) {
+                    vm.updateUiState(
+                        code = extractedCode,
+                        buttonState = uiState.hasRemainingTime && extractedCode.length == 5
+                    )
+                }
             }
         }
     )
@@ -160,14 +167,18 @@ internal fun VerificationRoute(
         snackbarHostState = snackbarHostState,
         onIntent = { intent ->
             when (intent) {
-                VerificationIntent.ClearFocus -> focusManager.clearFocus(true)
                 VerificationIntent.NavigateBack -> onBack()
                 is VerificationIntent.ResendCode -> vm.resendAuthCode(SignatureHelper.get(context))
                 is VerificationIntent.VerifyCode -> vm.verifyAuthCode()
                 is VerificationIntent.SetCode -> {
-                    if (intent.code.all { char -> char.isDigit() }) vm.updateUiState(code = intent.code)
-                    vm.updateUiState(buttonState = uiState.hasRemainingTime && intent.code.length == 5)
-                    if (intent.code.length == 5) focusManager.clearFocus(true)
+                    val newCode = intent.code.filter { it.isDigit() }
+                    vm.updateUiState(
+                        code = newCode,
+                        buttonState = uiState.hasRemainingTime && newCode.length == 5
+                    )
+                    if (newCode.length == 5) {
+                        focusManager.clearFocus(true)
+                    }
                 }
             }
         }

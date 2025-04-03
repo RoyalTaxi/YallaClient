@@ -1,8 +1,10 @@
 package uz.yalla.client.activity
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,10 +18,12 @@ import uz.yalla.client.connectivity.ConnectivityObserver
 import uz.yalla.client.core.common.utils.getCurrentLocation
 import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.feature.setting.domain.usecase.GetConfigUseCase
+import uz.yalla.client.feature.setting.domain.usecase.SendFCMTokenUseCase
 
 class MainViewModel(
     connectivityObserver: ConnectivityObserver,
-    private val getConfigUseCase: GetConfigUseCase
+    private val getConfigUseCase: GetConfigUseCase,
+    private val sendFCMTokenUseCase: SendFCMTokenUseCase
 ) : ViewModel() {
     val isConnected = connectivityObserver
         .isConnected
@@ -107,6 +111,23 @@ class MainViewModel(
             withContext(Dispatchers.Main) {
                 _isReady.emit(false)
             }
+        }
+    }
+
+    fun initializeFcm() {
+        viewModelScope.launch(Dispatchers.IO) {
+            FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    AppPreferences.firebaseToken = task.result
+                    if (AppPreferences.accessToken.isNotBlank()) sendFCMToken(task.result)
+                }
+            }
+        }
+    }
+
+    private fun sendFCMToken(token: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            sendFCMTokenUseCase(token)
         }
     }
 }

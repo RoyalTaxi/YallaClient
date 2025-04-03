@@ -2,6 +2,7 @@ package uz.yalla.client.feature.auth.verification.model
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
@@ -16,11 +17,13 @@ import kotlinx.coroutines.launch
 import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.feature.auth.domain.usecase.auth.SendCodeUseCase
 import uz.yalla.client.feature.auth.domain.usecase.auth.VerifyCodeUseCase
+import uz.yalla.client.feature.setting.domain.usecase.SendFCMTokenUseCase
 import kotlin.time.Duration.Companion.seconds
 
 class VerificationViewModel(
     private val verifyCodeUseCase: VerifyCodeUseCase,
-    private val sendCodeUseCase: SendCodeUseCase
+    private val sendCodeUseCase: SendCodeUseCase,
+    private val sendFCMTokenUseCase: SendFCMTokenUseCase
 ) : ViewModel() {
 
     private val _actionFlow = MutableSharedFlow<VerificationActionState>()
@@ -65,6 +68,7 @@ class VerificationViewModel(
                         AppPreferences.firstName = client.givenNames
                         AppPreferences.lastName = client.surname
                     }
+                    getFCMToken()
                     _actionFlow.emit(VerificationActionState.VerifySuccess(result))
                 }
                 .onFailure {
@@ -91,6 +95,23 @@ class VerificationViewModel(
             delay(1.seconds)
             emit(seconds)
             if (!currentCoroutineContext().isActive) return@flow
+        }
+    }
+
+    fun getFCMToken() {
+        viewModelScope.launch(Dispatchers.IO) {
+            FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    AppPreferences.firebaseToken = task.result
+                    if (AppPreferences.accessToken.isNotBlank()) sendFCMToken(task.result)
+                }
+            }
+        }
+    }
+
+    private fun sendFCMToken(token: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            sendFCMTokenUseCase(token)
         }
     }
 }

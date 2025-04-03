@@ -8,11 +8,17 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -37,18 +43,32 @@ fun OtpView(
     enabled: Boolean = true,
     password: Boolean = false,
     passwordChar: String = "",
+    onOtpTextChange: (String) -> Unit,
     keyboardOptions: KeyboardOptions = KeyboardOptions(
         keyboardType = KeyboardType.NumberPassword,
         imeAction = ImeAction.Done
-    ),
-    onOtpTextChange: (String) -> Unit
+    )
 ) {
+    val focusRequester = remember { FocusRequester() }
+
+    val textFieldValue = remember(otpText) {
+        TextFieldValue(
+            text = otpText,
+            selection = TextRange(otpText.length)
+        )
+    }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+
     BasicTextField(
-        modifier = modifier,
-        value = otpText,
-        onValueChange = {
-            if (it.length <= otpCount) {
-                onOtpTextChange.invoke(it)
+        modifier = modifier.focusRequester(focusRequester),
+        value = textFieldValue,
+        onValueChange = { newValue ->
+            if (newValue.text != otpText) {
+                val filteredText = newValue.text.filter { it.isDigit() }.take(otpCount)
+                onOtpTextChange.invoke(filteredText)
             }
         },
         cursorBrush = SolidColor(YallaTheme.color.black),
@@ -76,7 +96,7 @@ fun OtpView(
                         passwordChar = passwordChar,
                     )
 
-                    if (index != otpCount-1) Spacer(modifier = Modifier.width(16.dp))
+                    if (index != otpCount - 1) Spacer(modifier = Modifier.width(16.dp))
                 }
             }
         }

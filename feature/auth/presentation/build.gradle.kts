@@ -11,7 +11,14 @@ dependencies {
     implementation(projects.core.common)
     implementation(projects.feature.auth.data)
     implementation(projects.feature.auth.domain)
+    implementation(projects.feature.setting.domain)
 
     implementation(libs.play.services.auth)
     implementation(libs.play.services.auth.api.phone)
+
+    // Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.crashlytics.ktx)
+    implementation(libs.firebase.analytics.ktx)
+    implementation(libs.firebase.messaging.ktx)
 }

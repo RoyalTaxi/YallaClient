@@ -8,6 +8,7 @@ coreSplashscreen = "1.0.1"
 coreTesting = "2.2.0"
 coreTestingVersion = "2.1.0"
 desugar_jdk_libs = "2.1.2"
+firebaseBom = "33.12.0"
 inspektifyKtor2 = "1.0.0-beta01"
 junit = "4.13.2"
 junitVersion = "1.2.1"
@@ -48,8 +49,8 @@ playServicesAuthApiPhone = "18.1.0"
 truth = "1.1.3"
 uiTestManifest = "1.7.8"
 jetbrainsKotlinJvm = "2.0.20"
-
-
+firebaseCrashlytics = "3.0.3"
+googleServices = "4.4.1"
 [libraries]
 
 advanced-bottomsheet-material3 = { module = "io.morfly.compose:advanced-bottomsheet-material3", version.ref = "advancedBottomsheetMaterial3" }
@@ -66,6 +67,10 @@ app-update = { module = "com.google.android.play:app-update", version.ref = "app
 
 core-ktx = { module = "androidx.test:core-ktx", version.ref = "coreKtxVersion" }
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
+firebase-analytics-ktx = { module = "com.google.firebase:firebase-analytics-ktx" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-crashlytics-ktx = { module = "com.google.firebase:firebase-crashlytics-ktx" }
+firebase-messaging-ktx = { module = "com.google.firebase:firebase-messaging-ktx" }
 gradle = { module = "com.android.tools.build:gradle", version.ref = "agp" }
 junit = { module = "junit:junit", version.ref = "junit" }
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin-bom" }
@@ -130,3 +135,5 @@ compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 buildlogic = { id = "uz.yalla.client.buildlogic.service" }
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlytics" }
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }

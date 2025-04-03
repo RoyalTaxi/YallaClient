@@ -24,6 +24,12 @@ object AppPreferences {
             preferences.edit()?.putString(AppPreferences::locale.name, value)?.apply()
         }
 
+    var firebaseToken: String
+        get() = preferences.getString(AppPreferences::firebaseToken.name, "") ?: ""
+        set(value) {
+            preferences.edit()?.putString(AppPreferences::firebaseToken.name, value)?.apply()
+        }
+
     var lastOrderId: Int
         get() = preferences.getInt(AppPreferences::lastOrderId.name, -1)
         set(value) {

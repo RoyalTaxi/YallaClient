@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,12 +28,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.common.button.PrimaryButton
+import uz.yalla.client.core.common.otp.OtpView
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.auth.R
 import uz.yalla.client.feature.auth.verification.model.VerificationUIState
-import uz.yalla.client.core.common.otp.OtpView
 import java.util.Locale
 
 
@@ -40,7 +43,7 @@ import java.util.Locale
 internal fun VerificationScreen(
     uiState: VerificationUIState,
     snackbarHostState: SnackbarHostState,
-    onIntent: (VerificationIntent) -> Unit,
+    onIntent: (VerificationIntent) -> Unit
 ) {
     Scaffold(
         containerColor = YallaTheme.color.white,
