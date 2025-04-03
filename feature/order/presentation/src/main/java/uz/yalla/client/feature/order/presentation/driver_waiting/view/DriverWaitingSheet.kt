@@ -192,12 +192,6 @@ object DriverWaitingSheet {
                         .navigationBarsPadding()
                         .padding(20.dp)
                 ) {
-//            OptionsButton(
-//                modifier = Modifier.fillMaxHeight(),
-//                tint = YallaTheme.color.red,
-//                painter = painterResource(R.drawable.ic_x),
-//                onClick = onCancel
-//            )
 
                     CallButton(
                         modifier = Modifier
@@ -213,13 +207,6 @@ object DriverWaitingSheet {
                             }
                         }
                     )
-
-//            OptionsButton(
-//                modifier = Modifier.fillMaxHeight(),
-//                painter = painterResource(R.drawable.img_options),
-//                tint = YallaTheme.color.black,
-//                onClick = onOptionsClick
-//            )
                 }
             }
         }

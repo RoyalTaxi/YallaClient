@@ -39,6 +39,7 @@ import uz.yalla.client.feature.map.presentation.view.drawer.MapDrawerIntent
 import uz.yalla.client.feature.order.domain.model.response.order.toCommonExecutor
 import uz.yalla.client.feature.order.presentation.client_waiting.CLIENT_WAITING_ROUTE
 import uz.yalla.client.feature.order.presentation.client_waiting.navigateToClientWaitingSheet
+import uz.yalla.client.feature.order.presentation.client_waiting.view.ClientWaitingIntent
 import uz.yalla.client.feature.order.presentation.client_waiting.view.ClientWaitingSheet
 import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
 import uz.yalla.client.feature.order.presentation.driver_waiting.DRIVER_WAITING_ROUTE
@@ -291,7 +292,17 @@ fun MapRoute(
     LaunchedEffect(currentRoute) {
         if (currentRoute.contains(CLIENT_WAITING_ROUTE)) {
             ClientWaitingSheet.intentFlow.collectLatest { intent ->
+                when (intent) {
+                    is ClientWaitingIntent.AddNewOrder -> {
+                        vm.clearState()
+                        navController.navigateToMainSheet()
+                    }
 
+                    is ClientWaitingIntent.OnCancelled -> {
+                        vm.clearState()
+                        intent.orderId?.let { onCancel(it) }
+                    }
+                }
             }
         }
     }
