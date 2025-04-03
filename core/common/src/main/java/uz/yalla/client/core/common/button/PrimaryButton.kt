@@ -16,6 +16,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -34,12 +38,36 @@ fun PrimaryButton(
     itemArrangement: Arrangement.Horizontal = Arrangement.spacedBy(6.dp),
     onClick: () -> Unit,
 ) {
+    val density = LocalDensity.current
+    val textStyle = YallaTheme.font.labelLarge
+    val textMeasurer = rememberTextMeasurer()
 
-    val adjustedContentPadding by remember(text) {
-        mutableStateOf(
-            if (text.length > 20) PaddingValues(vertical = 6.dp, horizontal = 8.dp)
-            else contentPadding
+    val textSize = remember(text, textStyle, density) {
+        textMeasurer.measure(
+            text = text,
+            style = textStyle
         )
+    }
+
+    val layoutDirection = LocalLayoutDirection.current
+    val iconWidth = with(density) { 24.dp.toPx() }
+    val iconPadding = with(density) { 6.dp.toPx() }
+    val horizontalPadding = with(density) {
+        contentPadding.calculateLeftPadding(layoutDirection).toPx() +
+                contentPadding.calculateRightPadding(layoutDirection).toPx()
+    }
+    val leadingSpace = if (leadingIcon != null) iconWidth + iconPadding else 0f
+    val trailingSpace = if (trailingIcon != null) iconWidth + iconPadding else 0f
+
+    val estimatedButtonWidth = with(density) { (LocalConfiguration.current.screenWidthDp * 0.8).dp.toPx() }
+    val availableTextWidth = estimatedButtonWidth - horizontalPadding - leadingSpace - trailingSpace
+
+    val needsReducedPadding = textSize.size.width > availableTextWidth
+
+    val adjustedContentPadding = if (needsReducedPadding) {
+        PaddingValues(vertical = 6.dp, horizontal = 8.dp)
+    } else {
+        contentPadding
     }
 
     Button(
