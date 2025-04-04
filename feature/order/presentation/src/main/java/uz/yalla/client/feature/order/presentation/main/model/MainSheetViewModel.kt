@@ -1,6 +1,5 @@
 package uz.yalla.client.feature.order.presentation.main.model
 
-import android.util.Log
 import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -140,22 +139,8 @@ class MainSheetViewModel(
             uiState
                 .distinctUntilChangedBy { it.orderId }
                 .collect { state ->
-                    getShowOrder(state.orderId)
+                    state.orderId?.let { getShowOrder(it) }
                 }
-        }
-
-        viewModelScope.launch(Dispatchers.IO) {
-            getPolygon()
-            AppPreferences.entryLocation.let { (lat, lng) ->
-                if (lat != 0.0 && lng != 0.0) {
-                    val initialLocation = SelectedLocation(
-                        name = null,
-                        point = MapPoint(lat, lng),
-                        addressId = 0
-                    )
-                    setSelectedLocation(initialLocation)
-                }
-            }
         }
     }
 
@@ -167,13 +152,7 @@ class MainSheetViewModel(
                         _sheetVisibilityListener.send(Unit)
                     } else {
                         setSelectedTariff(intent.tariff)
-                        // Re-fetch tariffs when a tariff is selected to ensure proper sync
-                        uiState.value.selectedLocation?.point?.let { point ->
-                            uiState.value.selectedLocation?.addressId?.takeIf { it != 0 }
-                                ?.let { addressId ->
-                                    getTariffs(addressId)
-                                }
-                        }
+                        uiState.value.selectedLocationId?.let { id -> getTariffs(id) }
                     }
                 }
 
@@ -200,7 +179,6 @@ class MainSheetViewModel(
 
                 is TariffInfoSheetIntent.ClearOptions -> {
                     setSelectedOptions(emptyList())
-                    // Re-fetch tariffs when options change
                     refreshTariffsIfPossible()
                 }
 
@@ -251,10 +229,8 @@ class MainSheetViewModel(
     }
 
     private fun refreshTariffsIfPossible() {
-        uiState.value.selectedLocation?.let { location ->
-            location.addressId.takeIf { it != 0 }?.let { addressId ->
-                getTariffs(addressId)
-            }
+        uiState.value.selectedLocationId?.let { id ->
+            getTariffs(id)
         }
     }
 
@@ -269,7 +245,7 @@ class MainSheetViewModel(
                     _uiState.update { it.copy(polygon = polygon) }
 
                     uiState.value.selectedLocation?.let { location ->
-                        if (location.addressId == 0 && location.point != null) {
+                        if (location.point != null) {
                             processLocation(location)
                         }
                     }
@@ -300,11 +276,13 @@ class MainSheetViewModel(
                     val updatedLocation = selectedLocation.copy(
                         point = MapPoint(lastLat, lastLng)
                     )
+                    _uiState.update { it.copy(selectedLocation = updatedLocation) }
                     processLocation(updatedLocation)
                 } else {
                     _uiState.update { it.copy(selectedLocation = selectedLocation) }
                 }
             } else {
+                _uiState.update { it.copy(selectedLocation = selectedLocation) }
                 processLocation(selectedLocation)
             }
         }
@@ -313,6 +291,7 @@ class MainSheetViewModel(
     private suspend fun processLocation(selectedLocation: SelectedLocation) {
         val point = selectedLocation.point ?: return
 
+        // First, ensure we have polygon data
         if (uiState.value.polygon.isEmpty()) {
             if (!_isPolygonLoading.value) {
                 getPolygon()
@@ -322,24 +301,27 @@ class MainSheetViewModel(
                     retries++
                 }
             }
+
+            if (uiState.value.polygon.isEmpty()) {
+                MainSheet.mutableIntentFlow.emit(
+                    OrderTaxiSheetIntent.SetServiceState(available = false)
+                )
+                return
+            }
         }
 
         val (isInsidePolygon, addressId) = isPointInsidePolygon(point)
 
-        val updatedLocation = selectedLocation.copy(addressId = addressId)
+        _uiState.update { it.copy(selectedLocationId = addressId) }
 
-        _uiState.update { it.copy(selectedLocation = updatedLocation) }
-
-        if (isInsidePolygon && addressId != 0) {
+        if (isInsidePolygon && addressId != null) {
             suspendGetTariffs(addressId)
-
             MainSheet.mutableIntentFlow.emit(
                 OrderTaxiSheetIntent.SetServiceState(available = true)
             )
         } else {
             setSelectedTariff(null)
             handleTariffsFailure()
-
             MainSheet.mutableIntentFlow.emit(
                 OrderTaxiSheetIntent.SetServiceState(available = false)
             )
@@ -412,10 +394,10 @@ class MainSheetViewModel(
         )
     }
 
-    private suspend fun isPointInsidePolygon(point: MapPoint): Pair<Boolean, Int> = coroutineScope {
+    private suspend fun isPointInsidePolygon(point: MapPoint): Pair<Boolean, Int?> = coroutineScope {
         val polygon = uiState.value.polygon
         if (polygon.isEmpty()) {
-            return@coroutineScope Pair(false, 0)
+            return@coroutineScope Pair(false, null)
         }
 
         val results = polygon.map { polygonItem ->
@@ -424,13 +406,13 @@ class MainSheetViewModel(
             }
         }
 
-        results.awaitAll().lastOrNull { it.first } ?: Pair(false, 0)
+        results.awaitAll().lastOrNull { it.first } ?: Pair(false, null)
     }
 
     private fun isPointInPolygon(
         point: MapPoint,
         polygonItem: PolygonRemoteItem
-    ): Pair<Boolean, Int> {
+    ): Pair<Boolean, Int?> {
         val vertices = polygonItem.polygons.map { Pair(it.lat, it.lng) }
         var isInside = false
 
@@ -447,27 +429,12 @@ class MainSheetViewModel(
             }
         }
 
-        return if (isInside) Pair(true, polygonItem.addressId) else Pair(false, 0)
+        return if (isInside) Pair(true, polygonItem.addressId) else Pair(false, null)
     }
 
     private fun getTariffs(addressId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            val from = uiState.value.selectedLocation?.point?.toPair() ?: return@launch
-            val to = uiState.value.destinations.mapNotNull { it.point?.toPair() }
-            val selectedOptionsIds = uiState.value.selectedOptions.map { it.id }
-
-            getTariffsUseCase(
-                addressId = addressId,
-                optionIds = selectedOptionsIds,
-                coords = listOf(from, *to.toTypedArray())
-            ).fold(
-                onSuccess = { tariffsModel ->
-                    handleTariffsSuccess(tariffsModel)
-                },
-                onFailure = {
-                    handleTariffsFailure()
-                }
-            )
+            suspendGetTariffs(addressId)
         }
     }
 

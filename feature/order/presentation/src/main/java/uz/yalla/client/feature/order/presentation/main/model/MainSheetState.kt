@@ -29,6 +29,7 @@ data class MainSheetState(
     val timeout: Int? = null,
     val drivers: List<Executor> = emptyList(),
 
+    val selectedLocationId:Int? = null,
     val selectedLocation: SelectedLocation? = null,
     val destinations: List<Destination> = emptyList(),
 
@@ -41,7 +42,7 @@ data class MainSheetState(
     val selectedService: String = "road",
 
     val order: ShowOrderModel? = null,
-    val orderId: Int = 0,
+    val orderId: Int? = null,
     val isSecondaryAddressMandatory: Boolean = false,
     val shadowVisibility: Boolean = false,
     val isPaymentMethodSheetVisible: Boolean = false,
@@ -57,7 +58,7 @@ data class MainSheetState(
     }
 
     fun mapToOrderTaxiDto(): OrderTaxiDto? {
-        val addressId = selectedLocation?.addressId.takeIf { it != 0 } ?: return null
+        val addressId = selectedLocationId ?: return null
         val from = selectedLocation ?: return null
         val fromLat = selectedLocation.point?.lat ?: return null
         val fromLng = selectedLocation.point?.lng ?: return null
@@ -73,7 +74,7 @@ data class MainSheetState(
             }
         val selectedTariff = selectedTariff ?: return null
         val selectedCardId = (selectedPaymentType as? PaymentType.CARD)?.cardId
-        val selectedOptionsIds = selectedOptions.mapNotNull { it.id }
+        val selectedOptionsIds = selectedOptions.map { it.id }
         return OrderTaxiDto(
             dontCallMe = false,
             service = selectedService,
@@ -87,7 +88,7 @@ data class MainSheetState(
             fixedPrice = selectedTariff.fixedType,
             addresses = listOf(
                 OrderTaxiDto.Address(
-                    addressId = addressId,
+                    addressId = selectedLocation.addressId,
                     lat = fromLat,
                     lng = fromLng,
                     name = from.name.orEmpty()

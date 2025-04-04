@@ -32,7 +32,7 @@ object MapMapper {
         PlaceNameModel(
             db = remote?.db.orFalse(),
             displayName = remote?.display_name.orEmpty(),
-            id = remote?.id.or0(),
+            id = remote?.id,
             lat = remote?.lat.or0(),
             lng = remote?.lng.or0()
         )
