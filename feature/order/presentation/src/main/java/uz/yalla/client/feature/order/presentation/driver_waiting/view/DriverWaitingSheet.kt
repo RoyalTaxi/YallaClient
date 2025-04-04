@@ -21,7 +21,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,7 +49,8 @@ import uz.yalla.client.core.common.button.CallButton
 import uz.yalla.client.core.common.sheet.ConfirmationBottomSheet
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
-import uz.yalla.client.feature.order.presentation.components.SearchCarItem
+import uz.yalla.client.feature.order.presentation.components.OrderActionsItem
+import uz.yalla.client.feature.order.presentation.components.OrderSheetHeader
 import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
 import uz.yalla.client.feature.order.presentation.driver_waiting.DRIVER_WAITING_ROUTE
 import uz.yalla.client.feature.order.presentation.driver_waiting.model.DriverWaitingViewModel
@@ -113,69 +113,30 @@ object DriverWaitingSheet {
                         }
                     }
             ) {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier
-                        .background(
-                            color = YallaTheme.color.white, shape = RoundedCornerShape(30.dp)
-                        )
-                        .padding(20.dp)
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = stringResource(R.string.waiting_for_you),
-                            style = YallaTheme.font.title,
-                            color = YallaTheme.color.black
-                        )
 
-                        state.selectedDriver?.let { order ->
-                            Text(
-                                text = order.executor.driver.stateNumber,
-                                style = YallaTheme.font.labelSemiBold,
-                                color = YallaTheme.color.black
-                            )
-                        }
-                    }
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier.fillMaxWidth()
-
-                    ) {
-                        state.selectedDriver?.let { order ->
-                            Text(
-                                text = "${order.executor.driver.color.name} ${order.executor.driver.mark} ${order.executor.driver.model}",
-                                style = YallaTheme.font.label,
-                                color = YallaTheme.color.gray
-                            )
-                        }
-
-                        Text(
-                            text = timer,
-                            style = YallaTheme.font.label,
-                            color = YallaTheme.color.primary
-                        )
-                    }
-                }
+                OrderSheetHeader(
+                    text = stringResource(R.string.waiting_for_you),
+                    selectedDriver = state.selectedDriver,
+                    timer = timer
+                )
 
                 Column(
                     modifier = Modifier
                         .clip(RoundedCornerShape(30.dp))
                         .background(YallaTheme.color.white)
                 ) {
-                    SearchCarItem(
+                    OrderActionsItem(
                         text = stringResource(R.string.order_details),
                         imageVector = Icons.Outlined.Info,
                         onClick = { viewModel.setDetailsBottomSheetVisibility(true) })
 
-                    SearchCarItem(
+                    OrderActionsItem(
                         text = stringResource(R.string.add_order),
                         imageVector = Icons.Default.Add,
                         onClick = { viewModel.onIntent(DriverWaitingIntent.AddNewOrder) }
                     )
 
-                    SearchCarItem(
+                    OrderActionsItem(
                         text = stringResource(R.string.cancel_order),
                         imageVector = Icons.Default.Close,
                         onClick = { viewModel.setCancelBottomSheetVisibility(true) })
