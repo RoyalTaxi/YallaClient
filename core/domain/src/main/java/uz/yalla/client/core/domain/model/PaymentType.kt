@@ -1,4 +1,4 @@
-package uz.yalla.client.core.data.enums
+package uz.yalla.client.core.domain.model
 
 sealed class PaymentType(val typeName: String) {
     data object CASH : PaymentType("cash")

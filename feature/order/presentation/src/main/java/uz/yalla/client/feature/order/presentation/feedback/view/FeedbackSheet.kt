@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,8 +32,10 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.getKoin
 import uz.yalla.client.core.common.button.PrimaryButton
+import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
+import uz.yalla.client.feature.order.presentation.components.OrderSheetHeader
 import uz.yalla.client.feature.order.presentation.components.RatingStarsItem
 import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
 import uz.yalla.client.feature.order.presentation.feedback.FEEDBACK_ROUTE
@@ -80,42 +81,11 @@ object FeedbackSheet {
                             )
                         }
                     }) {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(
-                            color = YallaTheme.color.white, shape = RoundedCornerShape(30.dp)
-                        )
-                        .padding(20.dp)
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = stringResource(R.string.order_completed),
-                            style = YallaTheme.font.title,
-                            color = YallaTheme.color.black
-                        )
 
-                        state.order?.let { order ->
-                            Text(
-                                text = order.executor.driver.stateNumber,
-                                style = YallaTheme.font.labelSemiBold,
-                                color = YallaTheme.color.black
-                            )
-                        }
-                    }
-
-                    state.order?.let { order ->
-                        Text(
-                            text = "${order.executor.driver.color.name} ${order.executor.driver.mark} ${order.executor.driver.model}",
-                            style = YallaTheme.font.label,
-                            color = YallaTheme.color.gray
-                        )
-                    }
-                }
+                OrderSheetHeader(
+                    text = stringResource(R.string.order_completed),
+                    selectedDriver = state.order
+                )
 
                 Column(
                     verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -134,8 +104,10 @@ object FeedbackSheet {
                         )
 
                         Text(
-                            text = if (order.paymentType == "card") stringResource(R.string.with_card)
-                            else stringResource(R.string.cash),
+                            text = when (state.order?.paymentType) {
+                                is PaymentType.CARD -> stringResource(R.string.with_card)
+                                else -> stringResource(R.string.cash)
+                            },
                             style = YallaTheme.font.label,
                             color = YallaTheme.color.gray
                         )

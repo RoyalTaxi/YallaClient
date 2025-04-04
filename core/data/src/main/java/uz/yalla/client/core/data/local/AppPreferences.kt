@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import uz.yalla.client.core.data.enums.MapType
-import uz.yalla.client.core.data.enums.PaymentType
+import uz.yalla.client.core.domain.model.PaymentType
 
 object AppPreferences {
     private const val YALLA = "yalla"

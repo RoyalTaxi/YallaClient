@@ -17,6 +17,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.common.item.LocationItem
+import uz.yalla.client.core.domain.model.OrderStatus
+import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 import uz.yalla.client.feature.order.presentation.R
@@ -87,7 +89,10 @@ fun OrderDetailsBottomSheet(
 
                 OrderDetailItem(
                     title = stringResource(id = R.string.payment),
-                    bodyText = order.paymentType,
+                    bodyText = when (order.paymentType) {
+                        is PaymentType.CARD -> stringResource(R.string.with_card)
+                        else -> stringResource(R.string.cash)
+                    },
                     descriptor = stringResource(
                         R.string.fixed_cost,
                         order.taxi.totalPrice
@@ -109,14 +114,16 @@ fun OrderDetailsBottomSheet(
                     )
                 }
 
-                order.executor.driver.let {
-                    if (it.mark.isNotBlank() && it.stateNumber.isNotBlank() && it.model.isNotBlank())
-                        OrderDetailItem(
-                            title = stringResource(R.string.car),
-                            bodyText = "${it.mark} ${it.model}",
-                            carNumber = it.stateNumber
-                        )
-                }
+                if (order.status !in OrderStatus.nonInteractive) {
+                    order.executor.driver.let {
+                        if (it.mark.isNotBlank() && it.stateNumber.isNotBlank() && it.model.isNotBlank())
+                            OrderDetailItem(
+                                title = stringResource(R.string.car),
+                                bodyText = "${it.mark} ${it.model}",
+                                carNumber = it.stateNumber
+                            )
+                    }
+
 
                 order.taxi.services.forEach { service ->
                     OptionsItem(

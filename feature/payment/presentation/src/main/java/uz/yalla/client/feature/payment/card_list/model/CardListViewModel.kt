@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import uz.yalla.client.core.data.enums.PaymentType
+import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.feature.payment.domain.usecase.GetCardListUseCase
 

@@ -61,23 +61,23 @@ fun BoxScope.MapOverlay(
                     }
                 }
             )
-
-            MapButton(
-                painter = painterResource(
-                    if (hamburgerButtonState == HamburgerButtonState.OpenDrawer) R.drawable.ic_hamburger
-                    else R.drawable.ic_arrow_back
-                ),
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .statusBarsPadding(),
-                onClick = {
-                    if (hamburgerButtonState == HamburgerButtonState.OpenDrawer) onIntent(
-                        MapOverlayIntent.OpenDrawer
-                    )
-                    else onIntent(MapOverlayIntent.NavigateBack)
-                }
-            )
         }
+
+        MapButton(
+            painter = painterResource(
+                if (hamburgerButtonState == HamburgerButtonState.OpenDrawer) R.drawable.ic_hamburger
+                else R.drawable.ic_arrow_back
+            ),
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .statusBarsPadding(),
+            onClick = {
+                if (hamburgerButtonState == HamburgerButtonState.OpenDrawer) onIntent(
+                    MapOverlayIntent.OpenDrawer
+                )
+                else onIntent(MapOverlayIntent.NavigateBack)
+            }
+        )
 
         if (
             state.orders.size > 1 ||

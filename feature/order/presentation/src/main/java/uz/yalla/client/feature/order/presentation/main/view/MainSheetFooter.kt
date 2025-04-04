@@ -13,7 +13,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TileMode
@@ -26,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import io.morfly.compose.bottomsheet.material3.BottomSheetState
 import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.common.state.SheetValue
-import uz.yalla.client.core.data.enums.PaymentType
+import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
 import uz.yalla.client.feature.order.presentation.components.OptionsButton

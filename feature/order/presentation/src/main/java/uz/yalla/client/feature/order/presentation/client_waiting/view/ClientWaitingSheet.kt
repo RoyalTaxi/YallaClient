@@ -2,7 +2,6 @@ package uz.yalla.client.feature.order.presentation.client_waiting.view
 
 import android.content.Intent
 import android.content.Intent.ACTION_DIAL
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,7 +16,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,19 +37,15 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.getKoin
 import uz.yalla.client.core.common.button.CallButton
-import uz.yalla.client.core.common.item.CarNumberItem
 import uz.yalla.client.core.common.sheet.ConfirmationBottomSheet
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
 import uz.yalla.client.feature.order.presentation.client_waiting.CLIENT_WAITING_ROUTE
 import uz.yalla.client.feature.order.presentation.client_waiting.model.ClientWaitingViewModel
-import uz.yalla.client.feature.order.presentation.components.SearchCarItem
+import uz.yalla.client.feature.order.presentation.components.OrderActionsItem
+import uz.yalla.client.feature.order.presentation.components.OrderSheetHeader
 import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
-import uz.yalla.client.feature.order.presentation.driver_waiting.view.DriverWaitingIntent
-import uz.yalla.client.feature.order.presentation.driver_waiting.view.DriverWaitingSheet
 import uz.yalla.client.feature.order.presentation.main.view.sheet.OrderDetailsBottomSheet
-import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheet
-import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheetIntent
 
 object ClientWaitingSheet {
     private val viewModel: ClientWaitingViewModel by lazy { getKoin().get() }
@@ -98,57 +92,29 @@ object ClientWaitingSheet {
                         }
                     }
             ) {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(
-                            color = YallaTheme.color.white,
-                            shape = RoundedCornerShape(30.dp)
-                        )
-                        .padding(20.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.coming_to_you),
-                        style = YallaTheme.font.title,
-                        color = YallaTheme.color.black
-                    )
 
-                    state.selectedDriver?.let { driver ->
-                        Text(
-                            text = "${driver.executor.driver.color.name} ${driver.executor.driver.mark} ${driver.executor.driver.model}",
-                            style = YallaTheme.font.label,
-                            color = YallaTheme.color.gray
-                        )
-
-                        CarNumberItem(
-                            code = driver.executor.driver.stateNumber.slice(0..<2),
-                            number = "(\\d+|[A-Za-z]+)"
-                                .toRegex()
-                                .findAll(driver.executor.driver.stateNumber)
-                                .map { it.value }
-                                .toList()
-                        )
-                    }
-                }
+                OrderSheetHeader(
+                    text = stringResource(R.string.coming_to_you),
+                    selectedDriver = state.selectedDriver
+                )
 
                 Column(
                     modifier = Modifier
                         .clip(RoundedCornerShape(30.dp))
                         .background(YallaTheme.color.white)
                 ) {
-                    SearchCarItem(
+                    OrderActionsItem(
                         text = stringResource(R.string.order_details),
                         imageVector = Icons.Outlined.Info,
                         onClick = { viewModel.setDetailsBottomSheetVisibility(true) })
 
-                    SearchCarItem(
+                    OrderActionsItem(
                         text = stringResource(R.string.add_order),
                         imageVector = Icons.Default.Add,
                         onClick = { viewModel.onIntent(ClientWaitingIntent.AddNewOrder) }
                     )
 
-                    SearchCarItem(
+                    OrderActionsItem(
                         text = stringResource(R.string.cancel_order),
                         imageVector = Icons.Default.Close,
                         onClick = { viewModel.setCancelBottomSheetVisibility(true) })

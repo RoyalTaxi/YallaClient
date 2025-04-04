@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -48,8 +49,9 @@ import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
-import uz.yalla.client.feature.order.presentation.components.SearchCarItem
+import uz.yalla.client.feature.order.presentation.components.OrderActionsItem
 import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
+import uz.yalla.client.feature.order.presentation.main.view.sheet.OrderDetailsBottomSheet
 import uz.yalla.client.feature.order.presentation.search.SEARCH_CAR_ROUTE
 import uz.yalla.client.feature.order.presentation.search.model.SearchCarSheetViewModel
 import kotlin.time.Duration.Companion.seconds
@@ -72,6 +74,7 @@ object SearchCarSheet {
         val scope = rememberCoroutineScope()
         var currentTime by rememberSaveable { mutableIntStateOf(0) }
         val cancelOrderSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        val orderDetailsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         val progress by animateFloatAsState(
             targetValue = currentTime.toFloat(),
             animationSpec = tween(durationMillis = 1000),
@@ -96,7 +99,7 @@ object SearchCarSheet {
         }
 
         BackHandler {
-            viewModel.setCancelBottomSheetVisibility(true)
+            viewModel.onIntent(SearchCarSheetIntent.AddNewOrder)
         }
 
         Box(
@@ -161,18 +164,33 @@ object SearchCarSheet {
                         .clip(RoundedCornerShape(30.dp))
                         .background(YallaTheme.color.white)
                 ) {
-                    SearchCarItem(
-                        text = stringResource(R.string.cancel_order),
-                        imageVector = Icons.Default.Close,
-                        onClick = { viewModel.setCancelBottomSheetVisibility(true) }
-                    )
+                    OrderActionsItem(
+                        text = stringResource(R.string.order_details),
+                        imageVector = Icons.Outlined.Info,
+                        onClick = { viewModel.setDetailsBottomSheetVisibility(true) })
 
-                    SearchCarItem(
+                    OrderActionsItem(
                         text = stringResource(R.string.add_order),
                         imageVector = Icons.Default.Add,
                         onClick = { viewModel.onIntent(SearchCarSheetIntent.AddNewOrder) }
                     )
+
+                    OrderActionsItem(
+                        text = stringResource(R.string.cancel_order),
+                        imageVector = Icons.Default.Close,
+                        onClick = { viewModel.setCancelBottomSheetVisibility(true) }
+                    )
                 }
+            }
+        }
+
+        if (state.detailsBottomSheetVisibility) {
+            state.selectedDriver?.let {
+                OrderDetailsBottomSheet(
+                    order = it,
+                    sheetState = orderDetailsSheetState,
+                    onDismissRequest = { viewModel.setDetailsBottomSheetVisibility(false) }
+                )
             }
         }
 

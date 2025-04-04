@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 
 @Composable
-fun SearchCarItem(
+fun OrderActionsItem(
     text: String,
     imageVector: ImageVector,
     modifier: Modifier = Modifier,
