@@ -21,6 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
 import uz.yalla.client.core.common.item.OrderItem
+import uz.yalla.client.core.common.utils.getOrderStatusText
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.domain.model.OrdersHistory
 import uz.yalla.client.feature.history.R
@@ -92,7 +93,7 @@ internal fun HistoryScreen(
                                 secondAddress = order.taxi.routes.lastOrNull()?.fullAddress,
                                 time = order.time,
                                 totalPrice = order.taxi.totalPrice,
-                                status = order.status,
+                                status = getOrderStatusText(order.status),
                                 onClick = { onIntent(HistoryIntent.OnHistoryItemClick(order.id)) }
                             )
                         }

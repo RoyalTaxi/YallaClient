@@ -102,7 +102,7 @@ private fun PaymentMethodContent(
         item {
             SelectPaymentTypeItem(
                 isSelected = selectedPaymentType == PaymentType.CASH,
-                painter = painterResource(R.drawable.img_money),
+                painter = painterResource(R.drawable.ic_money_color),
                 text = stringResource(R.string.cash),
                 onSelect = {
                     onIntent(
@@ -120,7 +120,7 @@ private fun PaymentMethodContent(
                     id = when (card.cardId.length) {
                         16 -> R.drawable.img_logo_humo
                         32 -> R.drawable.img_logo_uzcard
-                        else -> R.drawable.img_money
+                        else -> R.drawable.ic_money_color
                     }
                 ),
                 text = card.maskedPan,

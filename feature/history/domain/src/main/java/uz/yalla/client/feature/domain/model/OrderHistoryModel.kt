@@ -1,11 +1,13 @@
 package uz.yalla.client.feature.domain.model
 
+import uz.yalla.client.core.domain.model.OrderStatus
+
 
 data class OrderHistoryModel(
     val date: String,
     val time: String,
     val executor: Executor,
-    val status: String,
+    val status: OrderStatus,
     val taxi: Taxi,
 ) {
     data class Executor(
