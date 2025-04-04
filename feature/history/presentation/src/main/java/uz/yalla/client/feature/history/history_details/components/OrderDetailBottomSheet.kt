@@ -15,6 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.common.item.CarNumberItem
 import uz.yalla.client.core.common.item.LocationItem
+import uz.yalla.client.core.common.utils.getOrderStatusText
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.history.R
 import uz.yalla.client.feature.domain.model.OrderHistoryModel
@@ -103,7 +104,7 @@ internal fun OrderDetailsBottomSheet(
                 )
 
                 Text(
-                    text = order.status,
+                    text = getOrderStatusText(order.status),
                     color = YallaTheme.color.primary,
                     style = YallaTheme.font.labelSemiBold
                 )

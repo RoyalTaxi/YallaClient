@@ -1,10 +1,12 @@
 package uz.yalla.client.feature.domain.model
 
+import uz.yalla.client.core.domain.model.OrderStatus
+
 data class OrdersHistoryModel(
     val dateTime: Long,
     val id: Int,
     val service: String,
-    val status: String,
+    val status: OrderStatus,
     val taxi: Taxi
 ) {
     data class Taxi(

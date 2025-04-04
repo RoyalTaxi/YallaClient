@@ -25,6 +25,7 @@ import uz.yalla.client.feature.history.R
 import uz.yalla.client.feature.history.history_details.components.OrderDetailsBottomSheet
 import uz.yalla.client.feature.history.history_details.model.HistoryDetailsUIState
 import uz.yalla.client.core.common.map.MapStrategy
+import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 
 @Composable
@@ -36,7 +37,7 @@ internal fun HistoryDetailsScreen(
 ) {
     Scaffold(
         containerColor = YallaTheme.color.white,
-        topBar = { HistoryDetailsTopApp { onIntent(HistoryDetailsIntent.NavigateBack) } },
+        topBar = { HistoryDetailsTopBar { onIntent(HistoryDetailsIntent.NavigateBack) } },
         content = { paddingValues ->
             Column(
                 modifier = Modifier
@@ -49,7 +50,9 @@ internal fun HistoryDetailsScreen(
                         startingPoint = null,
                         contentPadding = PaddingValues(0.dp),
                         enabled = false,
-                        onMapReady = {},
+                        onMapReady = {
+                            onIntent(HistoryDetailsIntent.OnMapReady)
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .aspectRatio(1f)
@@ -66,7 +69,7 @@ internal fun HistoryDetailsScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun HistoryDetailsTopApp(
+private fun HistoryDetailsTopBar(
     onNavigateBack: () -> Unit
 ) {
     CenterAlignedTopAppBar(

@@ -63,7 +63,6 @@ fun OrderDetailsBottomSheet(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-
                 if (order.taxi.routes.size > 1) {
                     LocationItem(
                         location = order.taxi.routes.last().fullAddress,
@@ -75,18 +74,18 @@ fun OrderDetailsBottomSheet(
             }
 
             Column(
+                verticalArrangement = Arrangement.spacedBy(20.dp),
                 modifier = Modifier
                     .background(
                         color = YallaTheme.color.white,
                         shape = RoundedCornerShape(30.dp)
                     )
-                    .padding(vertical = 20.dp)
+                    .padding(20.dp)
             ) {
                 OrderDetailItem(
                     title = stringResource(R.string.status),
                     descriptor = order.taxi.tariff
                 )
-
 
                 OrderDetailItem(
                     title = stringResource(id = R.string.payment),
@@ -97,9 +96,8 @@ fun OrderDetailsBottomSheet(
                     descriptor = stringResource(
                         R.string.fixed_cost,
                         order.taxi.totalPrice
-                    ),
+                    )
                 )
-
 
                 if (order.comment.isNotEmpty()) {
                     ProvideDescriptionButton(
@@ -125,7 +123,7 @@ fun OrderDetailsBottomSheet(
                                 carNumber = it.stateNumber
                             )
                     }
-                }
+
 
                 order.taxi.services.forEach { service ->
                     OptionsItem(

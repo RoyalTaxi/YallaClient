@@ -86,7 +86,7 @@ private fun CardListContent(
             SelectPaymentTypeItem(
                 isSelected = uiState.selectedPaymentType == PaymentType.CASH,
                 text = stringResource(R.string.cash),
-                painter = painterResource(R.drawable.img_money),
+                painter = painterResource(R.drawable.ic_money_color),
                 onSelect = { onSelectItem(PaymentType.CASH) }
             )
         }

@@ -24,9 +24,7 @@ fun OrderDetailItem(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(20.dp)
+        modifier = modifier.fillMaxWidth()
     ) {
         Column {
             Text(

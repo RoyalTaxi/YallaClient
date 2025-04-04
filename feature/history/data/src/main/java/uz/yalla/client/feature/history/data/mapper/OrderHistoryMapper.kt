@@ -1,9 +1,11 @@
 package uz.yalla.client.feature.history.data.mapper
 
 import uz.yalla.client.core.data.mapper.Mapper
+import uz.yalla.client.core.data.mapper.ServiceMapper
 import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.domain.formations.TimeFormation.toFormattedDate
 import uz.yalla.client.core.domain.formations.TimeFormation.toFormattedTime
+import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.feature.domain.model.OrderHistoryModel
 import uz.yalla.client.service.history.response.OrderHistoryResponse
 
@@ -13,7 +15,7 @@ object OrderHistoryMapper {
             date = remote?.date_time?.toFormattedDate().orEmpty(),
             time = remote?.date_time?.toFormattedTime().orEmpty(),
             executor = remote?.executor?.let(executorMapper) ?: defaultExecutor(),
-            status = remote?.status.orEmpty(),
+            status = OrderStatus.from(remote?.status),
             taxi = remote?.taxi?.let(taxiMapper) ?: defaultTaxi(),
         )
     }
@@ -43,7 +45,7 @@ object OrderHistoryMapper {
                 fixedPrice = remote?.fixed_price ?: false,
                 routes = remote?.routes?.map(routeMapper).orEmpty(),
                 routesForRobot = remote?.routes_for_robot?.map(routeMapper).orEmpty(),
-                services = remote?.services.orEmpty(),
+                services = remote?.services?.map(ServiceMapper.mapper) ?: emptyList(),
                 startPrice = remote?.start_price.or0(),
                 tariff = remote?.tariff.orEmpty(),
                 totalPrice = remote?.total_price.or0(),
@@ -68,10 +70,8 @@ object OrderHistoryMapper {
             )
         }
 
-    // Default objects to handle null gracefully
     private fun defaultExecutor() = OrderHistoryModel.Executor(
-        driver = defaultDriver(),
-
+        driver = defaultDriver()
     )
 
     private fun defaultDriver() = OrderHistoryModel.Executor.Driver(
@@ -87,7 +87,7 @@ object OrderHistoryMapper {
         fixedPrice = false,
         routes = emptyList(),
         routesForRobot = emptyList(),
-        services = "",
+        services = emptyList(),
         startPrice = 0,
         tariff = "",
         totalPrice = 0,
