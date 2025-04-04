@@ -36,20 +36,24 @@ internal fun HistoryDetailsRoute(
         MapType.Gis -> ConcreteGoogleMap()
     }
 
+    fun updateRoute() {
+        if (uiState.orderDetails?.taxi?.routes?.size == 1)
+            uiState.orderDetails?.taxi?.routes?.first()?.cords?.let {
+                map.updateRoute(listOf(MapPoint(it.lat, it.lng)))
+                map.updateOrderStatus(OrderStatus.Appointed)
+                map.move(MapPoint(it.lat, it.lng))
+            }
+        else if ((uiState.orderDetails?.taxi?.routes?.size ?: 0) > 1) {
+            uiState.orderDetails?.taxi?.routes?.let {
+                map.updateRoute(it.map { p -> MapPoint(p.cords.lat, p.cords.lng) })
+                map.moveToFitBounds(it.map { p -> MapPoint(p.cords.lat, p.cords.lng) })
+            }
+        }
+    }
+
     LaunchedEffect(uiState.orderDetails, loading) {
         launch(Dispatchers.Main) {
-            if (uiState.orderDetails?.taxi?.routes?.size == 1)
-                uiState.orderDetails?.taxi?.routes?.first()?.cords?.let {
-                    map.updateRoute(listOf(MapPoint(it.lat, it.lng)))
-                    map.updateOrderStatus(OrderStatus.Appointed)
-                    map.move(MapPoint(it.lat, it.lng))
-                }
-            else if ((uiState.orderDetails?.taxi?.routes?.size ?: 0) > 1) {
-                uiState.orderDetails?.taxi?.routes?.let {
-                    map.updateRoute(it.map { p -> MapPoint(p.cords.lat, p.cords.lng) })
-                    map.moveToFitBounds(it.map { p -> MapPoint(p.cords.lat, p.cords.lng) })
-                }
-            }
+            updateRoute()
         }
     }
 
@@ -80,9 +84,12 @@ internal fun HistoryDetailsRoute(
         onIntent = { intent ->
             when (intent) {
                 HistoryDetailsIntent.NavigateBack -> onNavigateBack()
+                HistoryDetailsIntent.OnMapReady -> updateRoute()
             }
         }
     )
+
+
 
     if (loading) LoadingDialog()
 }

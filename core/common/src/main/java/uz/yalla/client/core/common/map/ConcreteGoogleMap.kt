@@ -120,8 +120,8 @@ class ConcreteGoogleMap : MapStrategy {
                 isMyLocationEnabled = true
             ),
             uiSettings = MapUiSettings(
-                scrollGesturesEnabled = true,
-                zoomGesturesEnabled = true,
+                scrollGesturesEnabled = enabled,
+                zoomGesturesEnabled = enabled,
                 compassEnabled = false,
                 mapToolbarEnabled = false,
                 zoomControlsEnabled = false,
@@ -130,10 +130,7 @@ class ConcreteGoogleMap : MapStrategy {
                 scrollGesturesEnabledDuringRotateOrZoom = false
             ),
             onMapLoaded = {
-                startingPoint
-                    ?.let { move(to = it) }
-                    ?: run { moveToMyLocation() }
-
+                startingPoint?.let { move(to = it) }
                 onMapReady()
             }
         ) {

@@ -1,6 +1,7 @@
 package uz.yalla.client.service.history.response
 
 import kotlinx.serialization.Serializable
+import uz.yalla.client.core.service.model.ServiceRemoteModel
 
 @Serializable
 data class OrderHistoryResponse(
@@ -29,7 +30,7 @@ data class OrderHistoryResponse(
         val fixed_price: Boolean?,
         val routes: List<Route>?,
         val routes_for_robot: List<Route>?,
-        val services: String?,
+        val services: List<ServiceRemoteModel>?,
         val start_price: Int?,
         val tariff: String?,
         val total_price: Int?,

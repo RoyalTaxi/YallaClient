@@ -1,6 +1,7 @@
 package uz.yalla.client.feature.domain.model
 
 import uz.yalla.client.core.domain.model.OrderStatus
+import uz.yalla.client.core.domain.model.ServiceModel
 
 
 data class OrderHistoryModel(
@@ -27,7 +28,7 @@ data class OrderHistoryModel(
         val fixedPrice: Boolean,
         val routes: List<Route>,
         val routesForRobot: List<Route>,
-        val services: String,
+        val services: List<ServiceModel>,
         val startPrice: Int,
         val tariff: String,
         val totalPrice: Int,
