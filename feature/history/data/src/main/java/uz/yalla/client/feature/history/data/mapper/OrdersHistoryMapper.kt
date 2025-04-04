@@ -2,6 +2,7 @@ package uz.yalla.client.feature.history.data.mapper
 
 import uz.yalla.client.core.data.mapper.Mapper
 import uz.yalla.client.core.data.mapper.or0
+import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.feature.domain.model.OrdersHistoryModel
 import uz.yalla.client.service.history.response.OrdersHistoryResponseItem
 
@@ -11,7 +12,7 @@ object OrdersHistoryMapper {
             dateTime = remote?.date_time.or0(),
             id = remote?.id.or0(),
             service = remote?.service.orEmpty(),
-            status = remote?.status.orEmpty(),
+            status = OrderStatus.from(remote?.status),
             taxi = remote?.taxi.let(taxiMapper),
 
         )
