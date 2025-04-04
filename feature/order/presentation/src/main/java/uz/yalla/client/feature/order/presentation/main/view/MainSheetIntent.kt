@@ -1,6 +1,6 @@
 package uz.yalla.client.feature.order.presentation.main.view
 
-import uz.yalla.client.core.data.enums.PaymentType
+import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.Executor
 import uz.yalla.client.core.domain.model.SelectedLocation

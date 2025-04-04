@@ -32,6 +32,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.getKoin
 import uz.yalla.client.core.common.button.PrimaryButton
+import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
 import uz.yalla.client.feature.order.presentation.components.OrderSheetHeader
@@ -103,8 +104,10 @@ object FeedbackSheet {
                         )
 
                         Text(
-                            text = if (order.paymentType == "card") stringResource(R.string.with_card)
-                            else stringResource(R.string.cash),
+                            text = when (state.order?.paymentType) {
+                                is PaymentType.CARD -> stringResource(R.string.with_card)
+                                else -> stringResource(R.string.cash)
+                            },
                             style = YallaTheme.font.label,
                             color = YallaTheme.color.gray
                         )

@@ -6,6 +6,7 @@ import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.data.mapper.orFalse
 import uz.yalla.client.core.domain.formations.TimeFormation.toFormattedTime
 import uz.yalla.client.core.domain.model.OrderStatus
+import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 import uz.yalla.client.service.order.response.order.ShowOrderResponse
 
@@ -16,7 +17,7 @@ object ShowOrderMapper {
             dateTime = remote?.date_time?.toFormattedTime().orEmpty(),
             executor = remote?.executor.let(executorMapper),
             id = remote?.id.or0(),
-            paymentType = remote?.payment_type.orEmpty(),
+            paymentType = PaymentType.fromTypeName(remote?.payment_type.orEmpty()),
             service = remote?.service.orEmpty(),
             status = OrderStatus.from(remote?.status.orEmpty()),
             statusTime = remote?.status_time?.map(statusTimeMapper).orEmpty(),

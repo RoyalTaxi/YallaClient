@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.common.item.LocationItem
 import uz.yalla.client.core.domain.model.OrderStatus
+import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 import uz.yalla.client.feature.order.presentation.R
@@ -89,10 +90,9 @@ fun OrderDetailsBottomSheet(
 
                 OrderDetailItem(
                     title = stringResource(id = R.string.payment),
-                    bodyText = when (order.paymentType.lowercase()) {
-                        "cash" -> stringResource(R.string.cash)
-                        "card" -> stringResource(R.string.with_card)
-                        else -> order.paymentType
+                    bodyText = when (order.paymentType) {
+                        is PaymentType.CARD -> stringResource(R.string.with_card)
+                        else -> stringResource(R.string.cash)
                     },
                     descriptor = stringResource(
                         R.string.fixed_cost,

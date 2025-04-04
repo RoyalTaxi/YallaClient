@@ -2,6 +2,7 @@ package uz.yalla.client.feature.order.domain.model.response.order
 
 import uz.yalla.client.core.domain.model.Executor
 import uz.yalla.client.core.domain.model.OrderStatus
+import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.core.domain.model.ServiceModel
 
 
@@ -10,7 +11,7 @@ data class ShowOrderModel(
     val dateTime: String,
     val executor: Executor,
     val id: Int,
-    val paymentType: String,
+    val paymentType: PaymentType,
     val service: String,
     val status: OrderStatus,
     val statusTime: List<StatusTime>,
