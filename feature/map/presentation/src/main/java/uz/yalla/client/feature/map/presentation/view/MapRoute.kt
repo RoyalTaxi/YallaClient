@@ -194,11 +194,19 @@ fun MapRoute(
                 if (shouldNavigateToSheet(CLIENT_WAITING_ROUTE, order.id)) {
                     navController.navigateToClientWaitingSheet(orderId = order.id)
                 }
+
+                order.executor.coords.let { coordinate ->
+                    map.move(to = MapPoint(coordinate.lat, coordinate.lng))
+                }
             }
 
             OrderStatus.AtAddress -> {
                 if (shouldNavigateToSheet(DRIVER_WAITING_ROUTE, order.id)) {
                     navController.navigateToDriverWaitingSheet(orderId = order.id)
+                }
+
+                order.executor.coords.let { coordinate ->
+                    map.move(to = MapPoint(coordinate.lat, coordinate.lng))
                 }
             }
 
@@ -219,6 +227,10 @@ fun MapRoute(
             OrderStatus.InFetters -> {
                 if (shouldNavigateToSheet(ON_THE_RIDE_ROUTE, order.id)) {
                     navController.navigateToOnTheRideSheet(orderId = order.id)
+                }
+
+                order.executor.coords.let { coordinate ->
+                    map.move(to = MapPoint(coordinate.lat, coordinate.lng))
                 }
             }
 
@@ -251,12 +263,12 @@ fun MapRoute(
                         )
                     }
                 }
-            }
-        }
 
-        order?.taxi?.routes?.firstOrNull()?.coords.let { coordinate ->
-            if (coordinate?.lat != null)
-                map.move(to = MapPoint(coordinate.lat, coordinate.lng))
+                order.taxi.routes.firstOrNull()?.coords.let { coordinate ->
+                    if (coordinate?.lat != null)
+                        map.move(to = MapPoint(coordinate.lat, coordinate.lng))
+                }
+            }
         }
     }
 
@@ -346,6 +358,10 @@ fun MapRoute(
                             vm.clearState()
                             intent.orderId?.let { onCancel(it) }
                         }
+
+                        is ClientWaitingIntent.UpdateRoute -> {
+                            vm.updateState(state.copy(driverRoute = intent.route))
+                        }
                     }
                 }
             }
@@ -433,12 +449,21 @@ fun MapRoute(
         }
     }
 
-    LaunchedEffect(state.route) {
-        map.updateRoute(state.route)
-        if (state.route.isEmpty()) {
-            state.selectedLocation?.point?.let { map.animate(it) }
-        } else if (state.selectedOrder?.status !in OrderStatus.nonInteractive) {
-            map.animateToFitBounds(state.route)
+    LaunchedEffect(currentRoute, state.route, state.driverRoute) {
+        if (currentRoute == CLIENT_WAITING_ROUTE) {
+            map.updateRoute(state.driverRoute)
+            if (state.driverRoute.isEmpty()) {
+                state.selectedLocation?.point?.let { map.animate(it) }
+            } else if (state.selectedOrder?.status !in OrderStatus.nonInteractive) {
+                map.animateToFitBounds(state.driverRoute)
+            }
+        } else {
+            map.updateRoute(state.route)
+            if (state.route.isEmpty()) {
+                state.selectedLocation?.point?.let { map.animate(it) }
+            } else if (state.selectedOrder?.status !in OrderStatus.nonInteractive) {
+                map.animateToFitBounds(state.route)
+            }
         }
     }
 

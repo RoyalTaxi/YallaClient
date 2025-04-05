@@ -319,7 +319,8 @@ class MapViewModel(
                 selectedLocation = null,
                 destinations = emptyList(),
                 selectedTariffId = null,
-                route = emptyList()
+                route = emptyList(),
+                driverRoute = emptyList()
             )
         }
 

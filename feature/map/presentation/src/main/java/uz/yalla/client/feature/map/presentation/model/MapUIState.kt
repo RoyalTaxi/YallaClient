@@ -16,6 +16,7 @@ data class MapUIState(
     val destinations: List<Destination> = emptyList(),
 
     val route: List<MapPoint> = emptyList(),
+    val driverRoute: List<MapPoint> = emptyList(),
     val hasServiceProvided: Boolean? = null,
     val timeout: Int? = null,
     val selectedTariffId: Int? = null,

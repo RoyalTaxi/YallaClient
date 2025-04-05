@@ -18,6 +18,7 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -96,7 +97,7 @@ object ClientWaitingSheet {
 
                 OrderSheetHeader(
                     text = stringResource(R.string.coming_to_you),
-                    selectedDriver = state.selectedDriver
+                    selectedDriver = state.selectedOrder
                 )
 
                 Column(
@@ -105,7 +106,7 @@ object ClientWaitingSheet {
                         .background(YallaTheme.color.white)
                 ) {
 
-                    state.selectedDriver?.let {
+                    state.selectedOrder?.let {
                         DriverInfoItem(
                             driver = it.executor
                         )
@@ -143,7 +144,8 @@ object ClientWaitingSheet {
                     CallButton(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {
-                            val phoneNumber = state.selectedDriver?.executor?.phone ?: return@CallButton
+                            val phoneNumber =
+                                state.selectedOrder?.executor?.phone ?: return@CallButton
                             val intent =
                                 Intent(ACTION_DIAL).apply { data = "tel:$phoneNumber".toUri() }
                             if (intent.resolveActivity(context.packageManager) != null) {
@@ -179,7 +181,7 @@ object ClientWaitingSheet {
         }
 
         if (state.detailsBottomSheetVisibility) {
-            state.selectedDriver?.let {
+            state.selectedOrder?.let {
                 OrderDetailsBottomSheet(
                     order = it,
                     sheetState = orderDetailsSheetState,
@@ -187,6 +189,13 @@ object ClientWaitingSheet {
                         viewModel.setDetailsBottomSheetVisibility(false)
                     }
                 )
+            }
+        }
+
+        DisposableEffect(Unit) {
+            onDispose {
+                viewModel.onIntent(ClientWaitingIntent.UpdateRoute(emptyList()))
+                viewModel.clearState()
             }
         }
     }
