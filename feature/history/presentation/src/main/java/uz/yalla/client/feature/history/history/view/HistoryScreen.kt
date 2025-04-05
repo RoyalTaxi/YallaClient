@@ -90,7 +90,10 @@ internal fun HistoryScreen(
                         is OrdersHistory.Item -> {
                             OrderItem(
                                 firstAddress = order.taxi.routes.firstOrNull()?.fullAddress.orEmpty(),
-                                secondAddress = order.taxi.routes.lastOrNull()?.fullAddress,
+                                secondAddress = order.taxi.routes
+                                    .lastOrNull()
+                                    .takeIf { order.taxi.routes.size > 1 }
+                                    ?.fullAddress,
                                 time = order.time,
                                 totalPrice = order.taxi.totalPrice,
                                 status = getOrderStatusText(order.status),

@@ -37,7 +37,10 @@ fun ActiveOrdersBottomSheet(
             items(orders) { order ->
                 HistoryOrderItem(
                     firstAddress = order.taxi.routes.firstOrNull()?.fullAddress.orEmpty(),
-                    secondAddress = order.taxi.routes.lastOrNull()?.fullAddress,
+                    secondAddress = order.taxi.routes
+                        .lastOrNull()
+                        .takeIf { order.taxi.routes.size > 1 }
+                        ?.fullAddress,
                     time = order.dateTime,
                     totalPrice = order.taxi.totalPrice.toString(),
                     status = getOrderStatusText(order.status),

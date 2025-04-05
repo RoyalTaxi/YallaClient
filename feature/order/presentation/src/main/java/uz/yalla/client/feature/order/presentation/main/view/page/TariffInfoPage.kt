@@ -1,6 +1,7 @@
 package uz.yalla.client.feature.order.presentation.main.view.page
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -112,7 +113,9 @@ fun TariffInfoPage(
 
 
             item {
-                Column(modifier = Modifier.clip(RoundedCornerShape(30.dp))) {
+                Column(
+                    modifier = Modifier.clip(RoundedCornerShape(30.dp))
+                ) {
                     state.options.forEach { service ->
                         OptionsItem(
                             option = service,

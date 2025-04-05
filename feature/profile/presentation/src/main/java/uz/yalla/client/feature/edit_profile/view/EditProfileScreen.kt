@@ -145,7 +145,7 @@ private fun EditProfileTopBar(
                 Icon(
                     painter = painterResource(R.drawable.ic_sing_out),
                     contentDescription = null,
-                    tint = YallaTheme.color.black
+                    tint = YallaTheme.color.red
                 )
             }
         },
