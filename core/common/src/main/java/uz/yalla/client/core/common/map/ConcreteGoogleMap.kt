@@ -100,7 +100,6 @@ class ConcreteGoogleMap : MapStrategy {
 
         LaunchedEffect(cameraPositionState) {
             snapshotFlow { cameraPositionState.isMoving }
-                .debounce(100)
                 .collect { isMoving ->
                     isMarkerMoving.emit(isMoving)
                     if (!isMoving) {

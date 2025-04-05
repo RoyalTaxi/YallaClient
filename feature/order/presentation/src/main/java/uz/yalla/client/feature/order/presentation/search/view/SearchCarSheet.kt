@@ -195,6 +195,7 @@ object SearchCarSheet {
                 ) {
                     PrimaryButton(
                         text = stringResource(R.string.want_faster),
+                        enabled = state.isFasterEnabled == true,
                         containerColor = YallaTheme.color.primary,
                         modifier = Modifier.fillMaxWidth(),
                         onClick = { viewModel.orderFaster() }
@@ -204,7 +205,7 @@ object SearchCarSheet {
         }
 
         if (state.detailsBottomSheetVisibility) {
-            state.selectedDriver?.let {
+            state.selectedOrder?.let {
                 OrderDetailsBottomSheet(
                     order = it,
                     sheetState = orderDetailsSheetState,

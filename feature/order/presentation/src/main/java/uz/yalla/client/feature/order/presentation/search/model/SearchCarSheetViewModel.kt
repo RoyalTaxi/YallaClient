@@ -12,11 +12,13 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import uz.yalla.client.core.domain.model.MapPoint
+import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.feature.order.domain.usecase.order.CancelRideUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.GetSettingUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.GetShowOrderUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.OrderFasterUseCase
 import uz.yalla.client.feature.order.domain.usecase.tariff.GetTimeOutUseCase
+import uz.yalla.client.feature.order.presentation.di.Order
 import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheet.mutableIntentFlow
 import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheetIntent
 import kotlin.time.Duration.Companion.seconds
@@ -61,6 +63,17 @@ class SearchCarSheetViewModel(
                     }
                 }
         }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            uiState
+                .distinctUntilChangedBy { it.selectedOrder }
+                .collectLatest { state ->
+                    if (state.selectedOrder?.status == OrderStatus.New && state.isFasterEnabled == null) {
+                        _uiState.update { it.copy(isFasterEnabled = true) }
+                    }
+                }
+
+        }
     }
 
     fun onIntent(intent: SearchCarSheetIntent) {
@@ -85,15 +98,18 @@ class SearchCarSheetViewModel(
         val orderId = uiState.value.orderId ?: return
         viewModelScope.launch(Dispatchers.IO) {
             getShowOrderUseCase(orderId).onSuccess { data ->
-                _uiState.update { it.copy(selectedDriver = data) }
+                _uiState.update { it.copy(selectedOrder = data) }
             }
         }
     }
 
     fun orderFaster() {
         val orderId = uiState.value.orderId ?: return
+        _uiState.update { it.copy(isFasterEnabled = false) }
         viewModelScope.launch(Dispatchers.IO) {
-            orderFasterUseCase(orderId).onSuccess {  }
+            orderFasterUseCase(orderId).onFailure {
+                _uiState.update { it.copy(isFasterEnabled = true) }
+            }
         }
     }
 
