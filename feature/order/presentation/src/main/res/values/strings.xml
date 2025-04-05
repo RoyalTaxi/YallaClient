@@ -47,4 +47,5 @@
     <string name="create_new_order">Yangi buyurtma berish</string>
     <string name="rate">Baholash</string>
     <string name="add_order">Qo\'shimcha buyurtma berish</string>
+    <string name="want_faster">Tezlashtirish</string>
 </resources>

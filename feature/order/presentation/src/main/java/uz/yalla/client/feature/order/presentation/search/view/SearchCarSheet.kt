@@ -43,6 +43,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.getKoin
+import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.common.progress.YallaProgressBar
 import uz.yalla.client.core.common.sheet.ConfirmationBottomSheet
 import uz.yalla.client.core.data.mapper.or0
@@ -179,6 +180,24 @@ object SearchCarSheet {
                         text = stringResource(R.string.cancel_order),
                         imageVector = Icons.Default.Close,
                         onClick = { viewModel.setCancelBottomSheetVisibility(true) }
+                    )
+                }
+
+                Box(
+                    modifier = Modifier
+                        .background(
+                            color = YallaTheme.color.white,
+                            shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
+                        )
+                        .padding(20.dp)
+                        .navigationBarsPadding()
+
+                ) {
+                    PrimaryButton(
+                        text = stringResource(R.string.want_faster),
+                        containerColor = YallaTheme.color.primary,
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = { viewModel.orderFaster() }
                     )
                 }
             }

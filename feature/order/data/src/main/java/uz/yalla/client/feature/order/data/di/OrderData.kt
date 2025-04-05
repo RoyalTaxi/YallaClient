@@ -12,6 +12,7 @@ import uz.yalla.client.feature.order.domain.usecase.order.CancelRideUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.GetActiveOrdersUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.GetSettingUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.GetShowOrderUseCase
+import uz.yalla.client.feature.order.domain.usecase.order.OrderFasterUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.OrderTaxiUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.RateTheRideUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.SearchCarUseCase
@@ -48,6 +49,7 @@ object OrderData {
         single { GetShowOrderUseCase(get()) }
         single { RateTheRideUseCase(get()) }
         single { GetActiveOrdersUseCase(get()) }
+        single { OrderFasterUseCase(get()) }
     }
 
     val modules = listOf(serviceModule, repositoryModule, useCaseModule)

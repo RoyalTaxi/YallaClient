@@ -9,4 +9,5 @@ object OrderUrl {
     const val SHOW = "order/"
     const val RATINGS = "ratings"
     const val ACTIVE_ORDERS = "active/orders"
+    const val FASTER = "order/faster/"
 }
