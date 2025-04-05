@@ -19,6 +19,6 @@
     <string name="at_address">Sizni kutmoqda</string>
     <string name="in_fetters">Yo\'lda</string>
     <string name="appointed">Biriktirildi</string>
-    <string name="completed">Bekor qilindi</string>
+    <string name="completed">Bajarildi</string>
     <string name="canceled">Bekor qilindi</string>
 </resources>

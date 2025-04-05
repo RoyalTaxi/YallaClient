@@ -498,7 +498,7 @@ fun MapRoute(
                         }
                     }
 
-                    is MapScreenIntent.MapOverlayIntent.MoveToMyLocation -> {
+                    is MapScreenIntent.MapOverlayIntent.AnimateToMyLocation -> {
                         map.animateToMyLocation()
                     }
 
@@ -519,6 +519,10 @@ fun MapRoute(
 
                     is MapScreenIntent.SetShowingOrder -> {
                         vm.setSelectedOrder(intent.order)
+                    }
+
+                    is MapScreenIntent.MapOverlayIntent.MoveToMyLocation -> {
+                        map.moveToMyLocation()
                     }
                 }
             }

@@ -42,6 +42,7 @@ import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
 import uz.yalla.client.feature.order.presentation.client_waiting.CLIENT_WAITING_ROUTE
 import uz.yalla.client.feature.order.presentation.client_waiting.model.ClientWaitingViewModel
+import uz.yalla.client.feature.order.presentation.components.DriverInfoItem
 import uz.yalla.client.feature.order.presentation.components.OrderActionsItem
 import uz.yalla.client.feature.order.presentation.components.OrderSheetHeader
 import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
@@ -103,10 +104,18 @@ object ClientWaitingSheet {
                         .clip(RoundedCornerShape(30.dp))
                         .background(YallaTheme.color.white)
                 ) {
+
+                    state.selectedDriver?.let {
+                        DriverInfoItem(
+                            driver = it.executor
+                        )
+                    }
+
                     OrderActionsItem(
-                        text = stringResource(R.string.order_details),
-                        imageVector = Icons.Outlined.Info,
-                        onClick = { viewModel.setDetailsBottomSheetVisibility(true) })
+                        text = stringResource(R.string.cancel_order),
+                        imageVector = Icons.Default.Close,
+                        onClick = { viewModel.setCancelBottomSheetVisibility(true) }
+                    )
 
                     OrderActionsItem(
                         text = stringResource(R.string.add_order),
@@ -115,9 +124,10 @@ object ClientWaitingSheet {
                     )
 
                     OrderActionsItem(
-                        text = stringResource(R.string.cancel_order),
-                        imageVector = Icons.Default.Close,
-                        onClick = { viewModel.setCancelBottomSheetVisibility(true) })
+                        text = stringResource(R.string.order_details),
+                        imageVector = Icons.Outlined.Info,
+                        onClick = { viewModel.setDetailsBottomSheetVisibility(true) }
+                    )
                 }
 
                 Box(

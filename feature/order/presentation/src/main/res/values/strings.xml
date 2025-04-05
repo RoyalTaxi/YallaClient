@@ -16,7 +16,7 @@
     <string name="order_details">Buyurtma tafsilotlari</string>
     <string name="we_need_cause">Xizmatimizni yaxshilash uchun bekor qilish sababini bilish biz uchun muhim.</string>
     <string name="why_canceled">Nima uchun buyurtmani bekor qildingiz?</string>
-    <string name="coming_to_you">Siz tomonga kelyapti</string>
+    <string name="coming_to_you"> Sizni yoningizga kelmoqda</string>
     <string name="write_comment_here">Bu yerga fikringizni yozing. \nMasalan, "Qo\'ng\'iroq qilmang"”</string>
     <string name="payment_method">To\'lov usuli</string>
     <string name="choose_payment_method">Qulay to\'lov usulini tanlang</string>
@@ -32,11 +32,11 @@
     <string name="wait">Kutish</string>
     <string name="status">Holat</string>
     <string name="payment">To\'lov</string>
-    <string name="car">Автомобиль</string>
-    <string name="driver">Водитель</string>
+    <string name="car">Avtomobil</string>
+    <string name="driver">Xaydovchi</string>
     <string name="no_service_massage">Afsuski, biz hozirda bu hududda ishlamaymiz</string>
     <string name="new_address">Yangi manzil</string>
-    <string name="waiting_for_you">Sizni kutyapti</string>
+    <string name="waiting_for_you">Sizni kutmoqda</string>
     <string name="on_the_way">Yo\'lda</string>
     <string name="canceled">Bekor qilingan</string>
     <string name="order_canceled">Buyurtma bekor qilindi</string>
