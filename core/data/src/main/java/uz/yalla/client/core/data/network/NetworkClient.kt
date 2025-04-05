@@ -12,7 +12,7 @@ import sp.bvantur.inspektify.ktor.InspektifyKtor
 import uz.yalla.client.core.data.local.AppPreferences
 
 fun provideNetworkClient(baseUrl: String) = HttpClient(Android) {
-    install(InspektifyKtor)
+//    install(InspektifyKtor)
     defaultRequest {
         url(baseUrl)
         header("lang", AppPreferences.locale)

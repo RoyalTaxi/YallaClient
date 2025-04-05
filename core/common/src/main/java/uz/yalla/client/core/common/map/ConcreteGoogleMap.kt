@@ -37,8 +37,10 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 import uz.yalla.client.core.common.R
 import uz.yalla.client.core.common.convertor.dpToPx
@@ -73,6 +75,7 @@ class ConcreteGoogleMap : MapStrategy {
 
     private var mapPadding by Delegates.notNull<Int>()
 
+    @OptIn(FlowPreview::class)
     @Composable
     override fun Map(
         startingPoint: MapPoint?,
@@ -97,9 +100,9 @@ class ConcreteGoogleMap : MapStrategy {
 
         LaunchedEffect(cameraPositionState) {
             snapshotFlow { cameraPositionState.isMoving }
+                .debounce(100)
                 .collect { isMoving ->
                     isMarkerMoving.emit(isMoving)
-
                     if (!isMoving) {
                         val target = cameraPositionState.position.target
                         mapPoint.value = MapPoint(
