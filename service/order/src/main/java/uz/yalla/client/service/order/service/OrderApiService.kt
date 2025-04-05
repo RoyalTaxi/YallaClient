@@ -7,6 +7,10 @@ import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
+import uz.yalla.client.core.domain.error.DataError
+import uz.yalla.client.core.domain.error.Either
+import uz.yalla.client.core.service.model.ApiResponseWrapper
+import uz.yalla.client.core.service.network.safeApiCall
 import uz.yalla.client.service.order.request.order.CancelOrderReason
 import uz.yalla.client.service.order.request.order.OrderTaxiRequest
 import uz.yalla.client.service.order.request.order.RateTheRideRequest
@@ -16,10 +20,6 @@ import uz.yalla.client.service.order.response.order.SearchCarResponse
 import uz.yalla.client.service.order.response.order.SettingResponse
 import uz.yalla.client.service.order.response.order.ShowOrderResponse
 import uz.yalla.client.service.order.url.OrderUrl
-import uz.yalla.client.core.domain.error.DataError
-import uz.yalla.client.core.domain.error.Either
-import uz.yalla.client.core.service.model.ApiResponseWrapper
-import uz.yalla.client.core.service.network.safeApiCall
 
 class OrderApiService(
     private val ktorApi1: HttpClient,
@@ -90,4 +90,8 @@ class OrderApiService(
 
     suspend fun getActiveOrders(): Either<ApiResponseWrapper<ActiveOrdersResponse>, DataError.Network> =
         safeApiCall { ktorApi2.get(OrderUrl.ACTIVE_ORDERS).body() }
+
+    suspend fun makeOrderFaster(orderId: Int): Either<Unit, DataError.Network> = safeApiCall {
+        ktorApi2.put(OrderUrl.FASTER + orderId)
+    }
 }

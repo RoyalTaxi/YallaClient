@@ -15,6 +15,7 @@ import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.feature.order.domain.usecase.order.CancelRideUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.GetSettingUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.GetShowOrderUseCase
+import uz.yalla.client.feature.order.domain.usecase.order.OrderFasterUseCase
 import uz.yalla.client.feature.order.domain.usecase.tariff.GetTimeOutUseCase
 import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheet.mutableIntentFlow
 import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheetIntent
@@ -24,7 +25,8 @@ class SearchCarSheetViewModel(
     private val cancelRideUseCase: CancelRideUseCase,
     private val getTimeOutUseCase: GetTimeOutUseCase,
     private val getSettingUseCase: GetSettingUseCase,
-    private val getShowOrderUseCase: GetShowOrderUseCase
+    private val getShowOrderUseCase: GetShowOrderUseCase,
+    private val orderFasterUseCase: OrderFasterUseCase
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(SearchCarSheetState())
     val uiState = _uiState.asStateFlow()
@@ -85,6 +87,13 @@ class SearchCarSheetViewModel(
             getShowOrderUseCase(orderId).onSuccess { data ->
                 _uiState.update { it.copy(selectedDriver = data) }
             }
+        }
+    }
+
+    fun orderFaster() {
+        val orderId = uiState.value.orderId ?: return
+        viewModelScope.launch(Dispatchers.IO) {
+            orderFasterUseCase(orderId).onSuccess {  }
         }
     }
 

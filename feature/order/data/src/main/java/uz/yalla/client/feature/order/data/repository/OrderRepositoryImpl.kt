@@ -120,4 +120,11 @@ class OrderRepositoryImpl(
             is Either.Success -> Either.Success(result.data.result.let(ActiveOrdersMapper.mapper))
         }
     }
+
+    override suspend fun orderFaster(orderId: Int): Either<Unit, DataError.Network> {
+        return when (val result = orderApiService.makeOrderFaster(orderId)) {
+            is Either.Error -> Either.Error(result.error)
+            is Either.Success -> Either.Success(Unit)
+        }
+    }
 }

@@ -40,4 +40,6 @@ interface OrderRepository {
     ): Either<Unit, DataError.Network>
 
     suspend fun getActiveOrders(): Either<ActiveOrdersModel, DataError.Network>
+
+    suspend fun orderFaster(orderId: Int): Either<Unit, DataError.Network>
 }
