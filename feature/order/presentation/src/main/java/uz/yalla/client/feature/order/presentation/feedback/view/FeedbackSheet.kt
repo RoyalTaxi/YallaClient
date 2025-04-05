@@ -34,7 +34,9 @@ import org.koin.java.KoinJavaComponent.getKoin
 import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
+import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 import uz.yalla.client.feature.order.presentation.R
+import uz.yalla.client.feature.order.presentation.components.DriverInfoItem
 import uz.yalla.client.feature.order.presentation.components.OrderSheetHeader
 import uz.yalla.client.feature.order.presentation.components.RatingStarsItem
 import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
@@ -87,32 +89,9 @@ object FeedbackSheet {
                     selectedDriver = state.order
                 )
 
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(
-                            color = YallaTheme.color.white, shape = RoundedCornerShape(30.dp)
-                        )
-                        .padding(20.dp)
-                ) {
-                    state.order?.let { order ->
-                        Text(
-                            text = stringResource(R.string.fixed_cost, order.taxi.totalPrice),
-                            style = YallaTheme.font.title,
-                            color = YallaTheme.color.black
-                        )
-
-                        Text(
-                            text = when (state.order?.paymentType) {
-                                is PaymentType.CARD -> stringResource(R.string.with_card)
-                                else -> stringResource(R.string.cash)
-                            },
-                            style = YallaTheme.font.label,
-                            color = YallaTheme.color.gray
-                        )
-                    }
-                }
+                FeedbackOrderInfo(
+                    order = state.order
+                )
 
                 Column(
                     verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -134,7 +113,6 @@ object FeedbackSheet {
                     RatingStarsItem(
                         maxRating = 5,
                         currentRating = rating,
-                        modifier = Modifier.align(Alignment.CenterHorizontally),
                         onRatingChange = { rating = it })
                 }
 
@@ -158,6 +136,53 @@ object FeedbackSheet {
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun FeedbackOrderInfo(
+    order: ShowOrderModel? = null
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = YallaTheme.color.white, shape = RoundedCornerShape(30.dp)
+            )
+            .padding(20.dp)
+    ) {
+
+        Text(
+            text = stringResource(R.string.driver),
+            style = YallaTheme.font.title,
+            color = YallaTheme.color.black
+        )
+
+        Text(
+            text = "${order?.executor?.surName} ${order?.executor?.givenNames} ${order?.executor?.fatherName}",
+            style = YallaTheme.font.label,
+            color = YallaTheme.color.gray
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        order?.let { order ->
+            Text(
+                text = stringResource(R.string.fixed_cost, order.taxi.totalPrice),
+                style = YallaTheme.font.title,
+                color = YallaTheme.color.black
+            )
+
+            Text(
+                text = when (order.paymentType) {
+                    is PaymentType.CARD -> stringResource(R.string.with_card)
+                    else -> stringResource(R.string.cash)
+                },
+                style = YallaTheme.font.label,
+                color = YallaTheme.color.gray
+            )
         }
     }
 }

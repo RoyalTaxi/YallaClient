@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.order.presentation.components
+package uz.yalla.client.core.common.item
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,7 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import uz.yalla.client.core.common.item.CarNumberItem
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 
 @Composable
@@ -24,7 +23,12 @@ fun OrderDetailItem(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = 20.dp,
+                vertical = 10.dp
+        )
     ) {
         Column {
             Text(

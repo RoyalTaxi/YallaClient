@@ -32,6 +32,7 @@ import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.getKoin
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
+import uz.yalla.client.feature.order.presentation.components.DriverInfoItem
 import uz.yalla.client.feature.order.presentation.components.OrderActionsItem
 import uz.yalla.client.feature.order.presentation.components.OrderSheetHeader
 import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
@@ -95,15 +96,23 @@ object OnTheRideSheet {
                         .background(YallaTheme.color.white)
                         .navigationBarsPadding()
                 ) {
-                    OrderActionsItem(
-                        text = stringResource(R.string.order_details),
-                        imageVector = Icons.Outlined.Info,
-                        onClick = { viewModel.setDetailsBottomSheetVisibility(true) })
+
+                    state.selectedDriver?.let {
+                        DriverInfoItem(
+                            driver = it.executor
+                        )
+                    }
 
                     OrderActionsItem(
                         text = stringResource(R.string.add_order),
                         imageVector = Icons.Default.Add,
                         onClick = { viewModel.onIntent(OnTheRideSheetIntent.AddNewOrder) }
+                    )
+
+                    OrderActionsItem(
+                        text = stringResource(R.string.order_details),
+                        imageVector = Icons.Outlined.Info,
+                        onClick = { viewModel.setDetailsBottomSheetVisibility(true) }
                     )
                 }
             }

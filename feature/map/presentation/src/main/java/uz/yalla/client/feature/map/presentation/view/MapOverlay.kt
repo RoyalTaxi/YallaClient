@@ -55,7 +55,7 @@ fun BoxScope.MapOverlay(
                 modifier = Modifier.align(Alignment.BottomEnd),
                 onClick = {
                     when (moveCameraButtonState) {
-                        MoveCameraButtonState.MyLocationView -> onIntent(MapOverlayIntent.MoveToMyLocation)
+                        MoveCameraButtonState.MyLocationView -> onIntent(MapOverlayIntent.AnimateToMyLocation)
                         MoveCameraButtonState.MyRouteView -> onIntent(MapOverlayIntent.MoveToMyRoute)
                         MoveCameraButtonState.FirstLocation -> onIntent(MapOverlayIntent.MoveToFirstLocation)
                     }

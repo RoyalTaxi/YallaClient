@@ -15,6 +15,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.common.item.CarNumberItem
 import uz.yalla.client.core.common.item.LocationItem
+import uz.yalla.client.core.common.item.OrderDetailItem
+import uz.yalla.client.core.common.item.OrderDetailsStatus
 import uz.yalla.client.core.common.utils.getOrderStatusText
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.history.R
@@ -68,129 +70,42 @@ internal fun OrderDetailsBottomSheet(
                     color = YallaTheme.color.white,
                     shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
                 )
-                .padding(10.dp)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.date_and_time),
-                    color = YallaTheme.color.black,
-                    style = YallaTheme.font.labelSemiBold
+
+            OrderDetailItem(
+                title = stringResource(R.string.date_and_time),
+                descriptor = "${order.date}, ${order.time}"
+            )
+
+            OrderDetailsStatus(
+                title = stringResource(R.string.status),
+                status = order.status
+            )
+            OrderDetailItem(
+                title = stringResource(R.string.status),
+                descriptor = getOrderStatusText(order.status),
+            )
+
+            OrderDetailItem(
+                title = stringResource(R.string.payment),
+                bodyText = stringResource(R.string.cash),
+                descriptor = stringResource(
+                    R.string.fixed_cost,
+                    order.taxi.totalPrice.toString()
+                ),
+            )
+
+            if (order.executor.driver.stateNumber.isNotEmpty())
+                OrderDetailItem(
+                    title = stringResource(R.string.car),
+                    bodyText = "${order.executor.driver.mark} ${order.executor.driver.model}",
+                    carNumber = order.executor.driver.stateNumber
                 )
 
-                Text(
-                    text = "${order.date}, ${order.time}",
-                    color = YallaTheme.color.black,
-                    style = YallaTheme.font.label
-                )
-            }
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.status),
-                    color = YallaTheme.color.black,
-                    style = YallaTheme.font.labelSemiBold
-                )
-
-                Text(
-                    text = getOrderStatusText(order.status),
-                    color = YallaTheme.color.primary,
-                    style = YallaTheme.font.labelSemiBold
-                )
-            }
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp)
-            ) {
-                Column {
-                    Text(
-                        text = stringResource(R.string.payment),
-                        color = YallaTheme.color.black,
-                        style = YallaTheme.font.labelSemiBold
-                    )
-
-                    Text(
-                        text = stringResource(R.string.cash),
-                        color = YallaTheme.color.gray,
-                        style = YallaTheme.font.bodySmall
-                    )
-                }
-
-                Text(
-                    text = stringResource(
-                        R.string.fixed_cost,
-                        order.taxi.totalPrice.toString()
-                    ),
-                    color = YallaTheme.color.black,
-                    style = YallaTheme.font.label
-                )
-            }
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp)
-            ) {
-                Column {
-                    Text(
-                        text = stringResource(R.string.car),
-                        color = YallaTheme.color.black,
-                        style = YallaTheme.font.labelSemiBold
-                    )
-
-                    Text(
-                        text = "${order.executor.driver.mark} ${order.executor.driver.model}",
-                        color = YallaTheme.color.gray,
-                        style = YallaTheme.font.bodySmall
-                    )
-                }
-
-                if (order.executor.driver.stateNumber.length == 8) CarNumberItem(
-                    code = order.executor.driver.stateNumber.slice(0..<2),
-                    number = "(\\d+|[A-Za-z]+)"
-                        .toRegex()
-                        .findAll(order.executor.driver.stateNumber.slice(2..7))
-                        .map { it.value }
-                        .toList()
-                )
-            }
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.tariff),
-                    color = YallaTheme.color.black,
-                    style = YallaTheme.font.labelSemiBold
-                )
-
-                Text(
-                    text = order.taxi.tariff,
-                    color = YallaTheme.color.black,
-                    style = YallaTheme.font.label
-                )
-            }
+            OrderDetailItem(
+                title = stringResource(R.string.tariff),
+                descriptor = order.taxi.tariff,
+            )
         }
     }
 }

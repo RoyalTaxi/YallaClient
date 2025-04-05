@@ -4,6 +4,7 @@ import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 
 sealed interface MapScreenIntent {
     sealed interface MapOverlayIntent : MapScreenIntent {
+        data object AnimateToMyLocation : MapOverlayIntent
         data object MoveToMyLocation : MapOverlayIntent
         data object MoveToFirstLocation : MapOverlayIntent
         data object MoveToMyRoute : MapOverlayIntent
