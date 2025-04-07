@@ -36,7 +36,7 @@ import uz.yalla.client.feature.map.presentation.model.MapViewModel
 import uz.yalla.client.feature.map.presentation.view.drawer.MapDrawer
 import uz.yalla.client.feature.map.presentation.view.drawer.MapDrawerIntent
 import uz.yalla.client.feature.order.domain.model.response.order.toCommonExecutor
-import uz.yalla.client.feature.order.presentation.cancel.ORDER_ID
+import uz.yalla.client.feature.order.presentation.cancel_reason.ORDER_ID
 import uz.yalla.client.feature.order.presentation.client_waiting.CLIENT_WAITING_ROUTE
 import uz.yalla.client.feature.order.presentation.client_waiting.navigateToClientWaitingSheet
 import uz.yalla.client.feature.order.presentation.client_waiting.view.ClientWaitingIntent

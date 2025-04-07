@@ -22,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -36,7 +37,6 @@ import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 import uz.yalla.client.feature.order.presentation.R
-import uz.yalla.client.feature.order.presentation.components.DriverInfoItem
 import uz.yalla.client.feature.order.presentation.components.OrderSheetHeader
 import uz.yalla.client.feature.order.presentation.components.RatingStarsItem
 import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
@@ -65,12 +65,13 @@ object FeedbackSheet {
         BackHandler { viewModel.onIntent(FeedbackSheetIntent.OnCompleteOrder) }
 
         Box(
-            modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.BottomCenter
         ) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(10.dp),
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .pointerInput(Unit) {}
                     .background(
                         color = YallaTheme.color.gray2,
                         shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
@@ -82,8 +83,8 @@ object FeedbackSheet {
                                 height = it.height.toDp()
                             )
                         }
-                    }) {
-
+                    }
+            ) {
                 OrderSheetHeader(
                     text = stringResource(R.string.order_completed),
                     selectedDriver = state.order
@@ -129,7 +130,8 @@ object FeedbackSheet {
                         else stringResource(R.string.rate),
                         onClick = {
                             viewModel.onIntent(FeedbackSheetIntent.OnCompleteOrder)
-                            if (rating != 0) viewModel.rateTheRide(rating) },
+                            if (rating != 0) viewModel.rateTheRide(rating)
+                        },
                         modifier = Modifier
                             .padding(20.dp)
                             .fillMaxWidth()

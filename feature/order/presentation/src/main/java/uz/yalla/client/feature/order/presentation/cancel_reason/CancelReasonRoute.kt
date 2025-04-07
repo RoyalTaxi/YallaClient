@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.order.presentation.cancel
+package uz.yalla.client.feature.order.presentation.cancel_reason
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect

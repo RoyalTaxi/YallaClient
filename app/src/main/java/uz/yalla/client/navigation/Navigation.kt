@@ -26,8 +26,8 @@ import uz.yalla.client.feature.intro.navigateToIntroModel
 import uz.yalla.client.feature.map.presentation.navigation.MAP_ROUTE
 import uz.yalla.client.feature.map.presentation.navigation.mapScreen
 import uz.yalla.client.feature.map.presentation.navigation.navigateToMapScreen
-import uz.yalla.client.feature.order.presentation.cancel.cancelReasonScreen
-import uz.yalla.client.feature.order.presentation.cancel.navigateToCancelReasonScreen
+import uz.yalla.client.feature.order.presentation.cancel_reason.cancelReasonScreen
+import uz.yalla.client.feature.order.presentation.cancel_reason.navigateToCancelReasonScreen
 import uz.yalla.client.feature.payment.navigateToPaymentModule
 import uz.yalla.client.feature.payment.paymentModule
 import uz.yalla.client.feature.places.addressModule

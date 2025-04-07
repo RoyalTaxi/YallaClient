@@ -26,6 +26,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -80,7 +81,7 @@ object ClientWaitingSheet {
             Column(
                 verticalArrangement = Arrangement.spacedBy(10.dp),
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .pointerInput(Unit) {}
                     .background(
                         color = YallaTheme.color.gray2,
                         shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)

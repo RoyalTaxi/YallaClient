@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.order.presentation.cancel
+package uz.yalla.client.feature.order.presentation.cancel_reason
 
 sealed class CancelReasonActionState {
     data object Loading : CancelReasonActionState()
