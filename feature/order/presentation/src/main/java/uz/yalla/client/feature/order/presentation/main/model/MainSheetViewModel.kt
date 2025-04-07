@@ -161,7 +161,10 @@ class MainSheetViewModel(
                 }
 
                 is OrderTaxiSheetIntent.DestinationClick -> {
-                    setSearchByNameSheetVisibility(SearchByNameSheetValue.FOR_DEST)
+                    if (uiState.value.destinations.size > 1)
+                        setArrangeDestinationsSheetVisibility(true)
+                    else
+                        setSearchByNameSheetVisibility(SearchByNameSheetValue.FOR_DEST)
                 }
 
                 is OrderTaxiSheetIntent.AddNewDestinationClick -> {
@@ -188,7 +191,7 @@ class MainSheetViewModel(
                 }
 
                 is TariffInfoSheetIntent.ChangeShadowVisibility -> {
-                    _uiState.update { it.copy(shadowVisibility = intent.visible) }
+                    _uiState.update { it.copy(isShadowVisible = intent.visible) }
                 }
 
                 is TariffInfoSheetIntent.ClickComment -> {
@@ -394,20 +397,21 @@ class MainSheetViewModel(
         )
     }
 
-    private suspend fun isPointInsidePolygon(point: MapPoint): Pair<Boolean, Int?> = coroutineScope {
-        val polygon = uiState.value.polygon
-        if (polygon.isEmpty()) {
-            return@coroutineScope Pair(false, null)
-        }
-
-        val results = polygon.map { polygonItem ->
-            async(Dispatchers.Default) {
-                isPointInPolygon(point, polygonItem)
+    private suspend fun isPointInsidePolygon(point: MapPoint): Pair<Boolean, Int?> =
+        coroutineScope {
+            val polygon = uiState.value.polygon
+            if (polygon.isEmpty()) {
+                return@coroutineScope Pair(false, null)
             }
-        }
 
-        results.awaitAll().lastOrNull { it.first } ?: Pair(false, null)
-    }
+            val results = polygon.map { polygonItem ->
+                async(Dispatchers.Default) {
+                    isPointInPolygon(point, polygonItem)
+                }
+            }
+
+            results.awaitAll().lastOrNull { it.first } ?: Pair(false, null)
+        }
 
     private fun isPointInPolygon(
         point: MapPoint,
@@ -529,14 +533,18 @@ class MainSheetViewModel(
     private fun MapPoint.toPair() = Pair(lat, lng)
 
     fun setSearchByNameSheetVisibility(value: SearchByNameSheetValue) {
-        _uiState.update { it.copy(searchByNameSheetVisible = value) }
+        _uiState.update { it.copy(isSearchByNameSheetVisible = value) }
     }
 
     fun setSelectFromMapViewVisibility(value: SelectFromMapViewValue) {
-        _uiState.update { it.copy(selectFromMapViewVisible = value) }
+        _uiState.update { it.copy(selectFromMapViewVisibility = value) }
     }
 
     fun setAddDestinationSheetVisibility(visible: Boolean) {
-        _uiState.update { it.copy(addDestinationSheetVisible = visible) }
+        _uiState.update { it.copy(isAddDestinationSheetVisible = visible) }
+    }
+
+    fun setArrangeDestinationsSheetVisibility(visible: Boolean) {
+        _uiState.update { it.copy(isArrangeDestinationsSheetVisible = visible) }
     }
 }

@@ -44,12 +44,13 @@ data class MainSheetState(
     val order: ShowOrderModel? = null,
     val orderId: Int? = null,
     val isSecondaryAddressMandatory: Boolean = false,
-    val shadowVisibility: Boolean = false,
+    val isShadowVisible: Boolean = false,
     val isPaymentMethodSheetVisible: Boolean = false,
     val isOrderCommentSheetVisible: Boolean = false,
-    val searchByNameSheetVisible: SearchByNameSheetValue = SearchByNameSheetValue.INVISIBLE,
-    val selectFromMapViewVisible: SelectFromMapViewValue = SelectFromMapViewValue.INVISIBLE,
-    val addDestinationSheetVisible: Boolean = false
+    val isSearchByNameSheetVisible: SearchByNameSheetValue = SearchByNameSheetValue.INVISIBLE,
+    val selectFromMapViewVisibility: SelectFromMapViewValue = SelectFromMapViewValue.INVISIBLE,
+    val isAddDestinationSheetVisible: Boolean = false,
+    val isArrangeDestinationsSheetVisible: Boolean = false
 ) {
     fun getBadgeText(): String? = when {
         selectedOptions.isNotEmpty() -> selectedOptions.size.toString()

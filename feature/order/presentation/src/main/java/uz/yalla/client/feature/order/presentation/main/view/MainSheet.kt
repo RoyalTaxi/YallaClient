@@ -53,6 +53,7 @@ import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.Orde
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.PaymentMethodSheetIntent
 import uz.yalla.client.feature.order.presentation.main.view.page.OrderTaxiPage
 import uz.yalla.client.feature.order.presentation.main.view.page.TariffInfoPage
+import uz.yalla.client.feature.order.presentation.main.view.sheet.ArrangeDestinationsBottomSheet
 import uz.yalla.client.feature.order.presentation.main.view.sheet.OrderCommentBottomSheet
 import uz.yalla.client.feature.order.presentation.main.view.sheet.PaymentMethodBottomSheet
 
@@ -95,6 +96,10 @@ object MainSheet {
         )
 
         val addDestinationSheetState = rememberModalBottomSheetState(
+            skipPartiallyExpanded = true
+        )
+
+        val arrangeDestinationsSheetState = rememberModalBottomSheetState(
             skipPartiallyExpanded = true
         )
 
@@ -203,12 +208,12 @@ object MainSheet {
             )
         }
 
-        if (state.searchByNameSheetVisible != SearchByNameSheetValue.INVISIBLE) {
+        if (state.isSearchByNameSheetVisible != SearchByNameSheetValue.INVISIBLE) {
             SearchByNameBottomSheet(
                 sheetState = searchByNameSheetState,
                 initialAddress = state.selectedLocation?.name,
                 initialDestination = state.destinations.lastOrNull()?.name,
-                isForDestination = state.searchByNameSheetVisible == SearchByNameSheetValue.FOR_DEST,
+                isForDestination = state.isSearchByNameSheetVisible == SearchByNameSheetValue.FOR_DEST,
                 onAddressSelected = { name, lat, lng, addressId ->
                     scope.launch(Dispatchers.IO) {
                         mutableIntentFlow.emit(
@@ -261,15 +266,15 @@ object MainSheet {
             )
         }
 
-        if (state.selectFromMapViewVisible != SelectFromMapViewValue.INVISIBLE) {
+        if (state.selectFromMapViewVisibility != SelectFromMapViewValue.INVISIBLE) {
             SelectFromMapView(
-                viewValue = state.selectFromMapViewVisible,
+                viewValue = state.selectFromMapViewVisibility,
                 startingPoint = when {
                     state.destinations.isEmpty() -> state.selectedLocation?.point
                     else -> state.destinations.lastOrNull()?.point
                 },
                 onSelectLocation = { location ->
-                    when (state.selectFromMapViewVisible) {
+                    when (state.selectFromMapViewVisibility) {
                         SelectFromMapViewValue.FOR_START -> {
                             scope.launch(Dispatchers.Main) {
                                 mutableIntentFlow.emit(
@@ -303,7 +308,7 @@ object MainSheet {
             )
         }
 
-        if (state.addDestinationSheetVisible) {
+        if (state.isAddDestinationSheetVisible) {
             AddDestinationBottomSheet(
                 sheetState = addDestinationSheetState,
                 onClickMap = {
@@ -320,6 +325,23 @@ object MainSheet {
                                 destination = location.mapToDestination()
                             )
                         )
+                    }
+                }
+            )
+        }
+
+        if (state.isArrangeDestinationsSheetVisible) {
+            ArrangeDestinationsBottomSheet(
+                sheetState = arrangeDestinationsSheetState,
+                destinations = state.destinations,
+                onAddNewDestinationClick = {
+                    viewModel.setArrangeDestinationsSheetVisibility(false)
+                    viewModel.setAddDestinationSheetVisibility(true)
+                },
+                onDismissRequest = { destinations ->
+                    viewModel.setArrangeDestinationsSheetVisibility(false)
+                    scope.launch(Dispatchers.Main.immediate) {
+                        mutableIntentFlow.emit(OrderTaxiSheetIntent.SetDestinations(destinations))
                     }
                 }
             )

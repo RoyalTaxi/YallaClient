@@ -56,7 +56,7 @@ fun MainSheetFooter(
         modifier = modifier
             .height(IntrinsicSize.Min)
             .then(
-                if (state.shadowVisibility) {
+                if (state.isShadowVisible) {
                     Modifier.background(
                         brush = Brush.verticalGradient(
                             startY = 0f,
