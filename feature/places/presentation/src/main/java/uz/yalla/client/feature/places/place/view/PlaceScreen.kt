@@ -40,7 +40,7 @@ import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.places.place.components.AddressFormField
 import uz.yalla.client.feature.places.place.model.PlaceUIState
 import uz.yalla.client.feature.places.presentation.R
-import uz.yalla.client.feature.order.domain.model.type.PlaceType
+import uz.yalla.client.core.domain.model.type.PlaceType
 
 @Composable
 internal fun AddressScreen(

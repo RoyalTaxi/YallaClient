@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uz.yalla.client.feature.order.domain.model.request.PostOnePlaceDto
-import uz.yalla.client.feature.order.domain.model.type.PlaceType
+import uz.yalla.client.core.domain.model.type.PlaceType
 import uz.yalla.client.feature.order.domain.usecase.DeleteOnePlaceUseCase
 import uz.yalla.client.feature.order.domain.usecase.FindOnePlaceUseCase
 import uz.yalla.client.feature.order.domain.usecase.PostOnePlaceUseCase

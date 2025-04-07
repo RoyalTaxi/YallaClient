@@ -7,7 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import uz.yalla.client.core.presentation.navigation.safeNavigate
 import uz.yalla.client.feature.places.place.view.AddressRoute
-import uz.yalla.client.feature.order.domain.model.type.PlaceType
+import uz.yalla.client.core.domain.model.type.PlaceType
 
 internal const val ID = "id"
 internal const val TYPE = "type"

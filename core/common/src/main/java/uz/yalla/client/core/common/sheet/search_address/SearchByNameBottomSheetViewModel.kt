@@ -7,18 +7,19 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import uz.yalla.client.feature.order.domain.usecase.FindAllMapPlacesUseCase
+import uz.yalla.client.core.domain.model.SearchableAddress
 import uz.yalla.client.feature.map.domain.model.response.PolygonRemoteItem
 import uz.yalla.client.feature.map.domain.model.response.SearchForAddressItemModel
 import uz.yalla.client.feature.map.domain.usecase.GetPolygonUseCase
 import uz.yalla.client.feature.map.domain.usecase.SearchAddressUseCase
+import uz.yalla.client.feature.map.domain.usecase.GetSecondaryAddressedUseCase
 import uz.yalla.client.feature.order.domain.model.response.PlaceModel
-import uz.yalla.client.feature.order.domain.model.type.PlaceType
+import uz.yalla.client.core.domain.model.type.PlaceType
 
 class SearchByNameBottomSheetViewModel(
     private val searchAddressUseCase: SearchAddressUseCase,
-    private val findAllMapPlacesUseCase: FindAllMapPlacesUseCase,
-    private val getPolygonUseCase: GetPolygonUseCase
+    private val getPolygonUseCase: GetPolygonUseCase,
+    private val getSecondaryAddressedUseCase: GetSecondaryAddressedUseCase
 ) : ViewModel() {
     private var addresses = listOf<PolygonRemoteItem>()
 
@@ -26,20 +27,15 @@ class SearchByNameBottomSheetViewModel(
     val uiState = _uiState.asStateFlow()
 
     fun fetchPolygons() = viewModelScope.launch(Dispatchers.IO) {
-        getPolygonUseCase().onSuccess {result-> addresses = result }
+        getPolygonUseCase().onSuccess { result -> addresses = result }
     }
 
-    private fun searchForAddress(lat: Double, lng: Double, query: String) = viewModelScope.launch(Dispatchers.IO) {
-        searchAddressUseCase(lat, lng, query).onSuccess {result->
-            setFoundAddresses(result)
-        }.onFailure { setFoundAddresses(emptyList()) }
-    }
-
-    fun findAllMapAddresses() = viewModelScope.launch(Dispatchers.IO) {
-        findAllMapPlacesUseCase()
-            .onSuccess { result->setMapAddresses(result) }
-            .onFailure { setMapAddresses(emptyList()) }
-    }
+    private fun searchForAddress(lat: Double, lng: Double, query: String) =
+        viewModelScope.launch(Dispatchers.IO) {
+            searchAddressUseCase(lat, lng, query).onSuccess { result ->
+                setFoundAddresses(result)
+            }.onFailure { setFoundAddresses(emptyList()) }
+        }
 
     fun setFoundAddresses(addresses: List<SearchForAddressItemModel>) {
         _uiState.update {
@@ -59,10 +55,20 @@ class SearchByNameBottomSheetViewModel(
         }
     }
 
+    fun getSecondaryAddresses() {
+        val lat = uiState.value.currentLat ?: return
+        val lng = uiState.value.currentLng ?: return
+        viewModelScope.launch(Dispatchers.IO) {
+            getSecondaryAddressedUseCase(lat, lng).onSuccess { data ->
+                _uiState.update { it.copy(recommendedAddresses = data) }
+            }
+        }
+    }
+
     fun setMapAddresses(addresses: List<PlaceModel>) {
         _uiState.update {
             it.copy(
-                savedAddresses = addresses.map { address ->
+                recommendedAddresses = addresses.map { address ->
                     val (isInside, addressId) = isPointInsidePolygon(
                         lat = address.coords.lat,
                         lng = address.coords.lng
@@ -106,7 +112,7 @@ class SearchByNameBottomSheetViewModel(
         )
     }
 
-    fun isPointInsidePolygon(lat: Double, lng: Double): Pair<Boolean, Int> {
+    private fun isPointInsidePolygon(lat: Double, lng: Double): Pair<Boolean, Int> {
         addresses.forEach { polygonItem ->
             val vertices = polygonItem.polygons.map { Pair(it.lat, it.lng) }
             var isInside = false

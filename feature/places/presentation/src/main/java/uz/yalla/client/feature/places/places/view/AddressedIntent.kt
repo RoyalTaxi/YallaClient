@@ -1,6 +1,6 @@
 package uz.yalla.client.feature.places.places.view
 
-import uz.yalla.client.feature.order.domain.model.type.PlaceType
+import uz.yalla.client.core.domain.model.type.PlaceType
 
 
 internal sealed interface AddressesIntent {

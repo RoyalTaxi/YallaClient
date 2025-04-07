@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.order.domain.model.type
+package uz.yalla.client.core.domain.model.type
 
 sealed class PlaceType(val typeName: String) {
     data object OTHER : PlaceType("other")
@@ -6,8 +6,8 @@ sealed class PlaceType(val typeName: String) {
     data object WORK : PlaceType("work")
 
     companion object {
-        fun fromType(typeName: String): PlaceType {
-            return when (typeName.lowercase()) {
+        fun fromType(typeName: String?): PlaceType {
+            return when (typeName?.lowercase()) {
                 HOME.typeName -> HOME
                 WORK.typeName -> WORK
                 else -> OTHER

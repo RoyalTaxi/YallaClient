@@ -5,4 +5,5 @@ object MapUrl {
     const val ADDRESS = "location-name"
     const val SEARCH = "location/search"
     const val ROUTING = "routing"
+    const val SECONDARY_ADDRESSES = "order/secondary-addresses"
 }

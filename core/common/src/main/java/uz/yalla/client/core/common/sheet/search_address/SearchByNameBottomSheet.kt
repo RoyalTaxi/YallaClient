@@ -62,7 +62,7 @@ fun SearchByNameBottomSheet(
         launch(Dispatchers.IO) {
             initialAddress?.let { viewModel.setQuery(it) }
             initialDestination?.let { viewModel.setDestinationQuery(it) }
-            viewModel.findAllMapAddresses()
+            viewModel.getSecondaryAddresses()
             viewModel.fetchPolygons()
         }
 

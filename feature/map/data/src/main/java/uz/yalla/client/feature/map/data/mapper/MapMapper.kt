@@ -6,11 +6,14 @@ import uz.yalla.client.core.data.mapper.orFalse
 import uz.yalla.client.feature.map.domain.model.response.GetRoutingModel
 import uz.yalla.client.feature.map.domain.model.response.PolygonRemoteItem
 import uz.yalla.client.feature.map.domain.model.response.SearchForAddressItemModel
+import uz.yalla.client.feature.map.domain.model.response.SecondaryAddressItemModel
 import uz.yalla.client.feature.order.domain.model.response.PlaceNameModel
+import uz.yalla.client.core.domain.model.type.PlaceType
 import uz.yalla.client.service.map.response.PlaceNameResponse
 import uz.yalla.client.service.map.response.GetRoutingResponse
 import uz.yalla.client.service.map.response.PolygonResponseItem
 import uz.yalla.client.service.map.response.SearchForAddressResponseItem
+import uz.yalla.client.service.map.response.SecondaryAddressResponseItem
 
 object MapMapper {
     val polygonMapper: Mapper<PolygonResponseItem?, PolygonRemoteItem> = { remote ->
@@ -64,6 +67,17 @@ object MapMapper {
             GetRoutingModel.Routing(
                 lat = remote?.lat.or0(),
                 lng = remote?.lng.or0()
+            )
+        }
+
+    val secondaryAddressItemMapper: Mapper<SecondaryAddressResponseItem?, SecondaryAddressItemModel> =
+        { remote ->
+            SecondaryAddressItemModel(
+                distance = remote?.distance.or0(),
+                lat = remote?.lat.or0(),
+                lng = remote?.lng.or0(),
+                name = remote?.name.orEmpty(),
+                type = PlaceType.fromType(remote?.type)
             )
         }
 }
