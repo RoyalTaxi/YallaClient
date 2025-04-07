@@ -58,21 +58,27 @@ fun SearchByNameBottomSheet(
     val destinationFocusRequester = remember { FocusRequester() }
     var lastFocusedForDestination by remember { mutableStateOf(isForDestination) }
 
+    // One-time initialization
     LaunchedEffect(Unit) {
         launch(Dispatchers.IO) {
+            // Set initial values if provided
             initialAddress?.let { viewModel.setQuery(it) }
             initialDestination?.let { viewModel.setDestinationQuery(it) }
-            viewModel.getSecondaryAddresses()
+
+            // Fetch necessary data once at start
             viewModel.fetchPolygons()
         }
 
         launch(Dispatchers.Main) {
             getCurrentLocation(context) { location ->
                 viewModel.setCurrentLocation(location.latitude, location.longitude)
+                // After setting location, fetch secondary addresses
+                viewModel.getSecondaryAddresses()
             }
         }
     }
 
+    // Handle focus changes based on isForDestination prop
     LaunchedEffect(isForDestination) {
         launch(Dispatchers.Main) {
             if (isForDestination) {
@@ -89,9 +95,8 @@ fun SearchByNameBottomSheet(
         sheetState = sheetState,
         dragHandle = null,
         onDismissRequest = {
-            viewModel.setQuery("")
-            viewModel.setDestinationQuery("")
-            viewModel.setFoundAddresses(emptyList())
+            // Use reset function instead of multiple calls
+            viewModel.resetSearchState()
             onDismissRequest()
         }
     ) {
@@ -105,8 +110,9 @@ fun SearchByNameBottomSheet(
                 .imePadding()
                 .padding(20.dp)
         ) {
-
-            val (focusedField, setFocusedField) = remember { mutableStateOf<String?>(if (isForDestination) "destination" else "current") }
+            val (focusedField, setFocusedField) = remember {
+                mutableStateOf<String?>(if (isForDestination) "destination" else "current")
+            }
 
             SearchLocationField(
                 value = uiState.query,
@@ -160,18 +166,39 @@ fun SearchByNameBottomSheet(
                 .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
                 .background(YallaTheme.color.white)
         ) {
-            items(uiState.foundAddresses) { foundAddress ->
-                FoundAddressItem(
-                    foundAddress = foundAddress,
-                    onClick = {
-                        if (lastFocusedForDestination)
-                            onDestinationSelected(it.name, it.lat, it.lng, it.addressId.or0())
-                        else
-                            onAddressSelected(it.name, it.lat, it.lng, it.addressId.or0())
-                        viewModel.setFoundAddresses(emptyList())
-                        onDismissRequest()
-                    }
-                )
+            // Show search results if we have any
+            if (uiState.foundAddresses.isNotEmpty()) {
+                items(uiState.foundAddresses) { foundAddress ->
+                    FoundAddressItem(
+                        foundAddress = foundAddress,
+                        onClick = {
+                            if (lastFocusedForDestination)
+                                onDestinationSelected(it.name, it.lat, it.lng, it.addressId.or0())
+                            else
+                                onAddressSelected(it.name, it.lat, it.lng, it.addressId.or0())
+                            viewModel.resetSearchState()
+                            onDismissRequest()
+                        }
+                    )
+                }
+            }
+            // Show recommended addresses when search is empty and we have a focused field
+            else if ((lastFocusedForDestination && uiState.destinationQuery.isBlank()) ||
+                (!lastFocusedForDestination && uiState.query.isBlank())) {
+
+                items(uiState.recommendedAddresses) { recommendedAddress ->
+                    FoundAddressItem(
+                        foundAddress = recommendedAddress,
+                        onClick = {
+                            if (lastFocusedForDestination)
+                                onDestinationSelected(it.name, it.lat, it.lng, it.addressId.or0())
+                            else
+                                onAddressSelected(it.name, it.lat, it.lng, it.addressId.or0())
+                            viewModel.resetSearchState()
+                            onDismissRequest()
+                        }
+                    )
+                }
             }
         }
     }

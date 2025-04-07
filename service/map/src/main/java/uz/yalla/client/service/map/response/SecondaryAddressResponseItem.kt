@@ -7,6 +7,7 @@ data class SecondaryAddressResponseItem(
     val distance: Double?,
     val lat: Double?,
     val lng: Double?,
+    val address_name: String?,
     val name: String?,
     val type: String?
 )

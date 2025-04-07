@@ -25,7 +25,7 @@ class GetSecondaryAddressedUseCase(
                     result.data.map {
                         SearchableAddress(
                             addressId = null,
-                            addressName = it.name,
+                            addressName = it.addressName,
                             distance = it.distance,
                             type = it.type,
                             lat = it.lat,

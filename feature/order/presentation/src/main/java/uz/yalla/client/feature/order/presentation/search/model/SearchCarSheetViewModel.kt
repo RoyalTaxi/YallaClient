@@ -1,5 +1,6 @@
 package uz.yalla.client.feature.order.presentation.search.model
 
+import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +19,6 @@ import uz.yalla.client.feature.order.domain.usecase.order.GetSettingUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.GetShowOrderUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.OrderFasterUseCase
 import uz.yalla.client.feature.order.domain.usecase.tariff.GetTimeOutUseCase
-import uz.yalla.client.feature.order.presentation.di.Order
 import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheet.mutableIntentFlow
 import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheetIntent
 import kotlin.time.Duration.Companion.seconds
@@ -78,7 +78,13 @@ class SearchCarSheetViewModel(
 
     fun onIntent(intent: SearchCarSheetIntent) {
         viewModelScope.launch(Dispatchers.IO) {
-            mutableIntentFlow.emit(intent)
+            when (intent) {
+                is SearchCarSheetIntent.SetFooterHeight -> setFooterHeight(intent.height)
+                is SearchCarSheetIntent.SetHeaderHeight -> setHeaderHeight(intent.height)
+                else -> {
+                    mutableIntentFlow.emit(intent)
+                }
+            }
         }
     }
 
@@ -151,6 +157,14 @@ class SearchCarSheetViewModel(
     fun setOrderId(orderId: Int) {
         _uiState.update { it.copy(orderId = orderId) }
         getOrderDetails()
+    }
+
+    private fun setHeaderHeight(height: Dp) {
+        _uiState.update { it.copy(headerHeight = height) }
+    }
+
+    private fun setFooterHeight(height: Dp) {
+        _uiState.update { it.copy(footerHeight = height) }
     }
 
     public override fun onCleared() {

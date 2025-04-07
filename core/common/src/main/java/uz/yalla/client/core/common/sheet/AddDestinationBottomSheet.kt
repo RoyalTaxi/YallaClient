@@ -48,16 +48,15 @@ fun AddDestinationBottomSheet(
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
+        // Reset query and request focus
+        launch(Dispatchers.Main) {
+            viewModel.resetSearchState()
+            focusRequester.requestFocus()
+        }
+
+        // Get secondary addresses once at launch
         launch(Dispatchers.IO) {
             viewModel.getSecondaryAddresses()
-        }
-
-        launch(Dispatchers.IO) {
-            viewModel.setQuery("")
-        }
-
-        launch(Dispatchers.Main) {
-            focusRequester.requestFocus()
         }
     }
 
@@ -67,8 +66,7 @@ fun AddDestinationBottomSheet(
         sheetState = sheetState,
         dragHandle = null,
         onDismissRequest = {
-            viewModel.setQuery("")
-            viewModel.setFoundAddresses(emptyList())
+            viewModel.resetSearchState()
             onDismissRequest()
         }
     ) {
@@ -80,7 +78,6 @@ fun AddDestinationBottomSheet(
                 )
                 .imePadding()
         ) {
-
             SearchLocationField(
                 value = uiState.query,
                 isForDestination = true,
@@ -108,22 +105,41 @@ fun AddDestinationBottomSheet(
                 .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
                 .background(YallaTheme.color.white)
         ) {
-            items(uiState.foundAddresses) { foundAddress ->
-                FoundAddressItem(
-                    foundAddress = foundAddress,
-                    onClick = {
-                        onAddressSelected(
-                            SelectedLocation(
-                                name = it.name,
-                                point = MapPoint(it.lat, it.lng),
-                                addressId = it.addressId.or0()
+            if (uiState.foundAddresses.isNotEmpty()) {
+                items(uiState.foundAddresses) { foundAddress ->
+                    FoundAddressItem(
+                        foundAddress = foundAddress,
+                        onClick = {
+                            onAddressSelected(
+                                SelectedLocation(
+                                    name = it.name,
+                                    point = MapPoint(it.lat, it.lng),
+                                    addressId = it.addressId.or0()
+                                )
                             )
-                        )
-                        viewModel.setQuery("")
-                        viewModel.setFoundAddresses(emptyList())
-                        onDismissRequest()
-                    }
-                )
+                            viewModel.resetSearchState()
+                            onDismissRequest()
+                        }
+                    )
+                }
+            }
+            else if (uiState.query.isBlank() && uiState.recommendedAddresses.isNotEmpty()) {
+                items(uiState.recommendedAddresses) { recommendedAddress ->
+                    FoundAddressItem(
+                        foundAddress = recommendedAddress,
+                        onClick = {
+                            onAddressSelected(
+                                SelectedLocation(
+                                    name = it.name,
+                                    point = MapPoint(it.lat, it.lng),
+                                    addressId = it.addressId.or0()
+                                )
+                            )
+                            viewModel.resetSearchState()
+                            onDismissRequest()
+                        }
+                    )
+                }
             }
         }
     }

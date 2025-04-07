@@ -34,7 +34,6 @@ fun OrderDetailsBottomSheet(
     sheetState: SheetState,
     onDismissRequest: () -> Unit,
 ) {
-
     ModalBottomSheet(
         shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
         containerColor = YallaTheme.color.gray2,
@@ -57,12 +56,25 @@ fun OrderDetailsBottomSheet(
                     )
                     .padding(20.dp)
             ) {
-                LocationItem(
-                    location = order.taxi.routes.first().fullAddress,
-                    isFirst = true,
-                    isLast = false,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                if (order.taxi.routes.isNotEmpty()) {
+                    LocationItem(
+                        location = order.taxi.routes.first().fullAddress,
+                        isFirst = true,
+                        isLast = false,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+
+                if (order.taxi.routes.size > 2) {
+                    order.taxi.routes.drop(1).dropLast(1).forEach {
+                        LocationItem(
+                            location = it.fullAddress,
+                            isFirst = false,
+                            isLast = false,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
 
                 if (order.taxi.routes.size > 1) {
                     LocationItem(
@@ -78,6 +90,7 @@ fun OrderDetailsBottomSheet(
                 modifier = Modifier
                     .clip(RoundedCornerShape(30.dp))
                     .background(YallaTheme.color.white)
+                    .padding(vertical = 10.dp)
             ) {
                 OrderDetailItem(
                     title = stringResource(R.string.status),
@@ -123,7 +136,7 @@ fun OrderDetailsBottomSheet(
                 }
             }
 
-            Column(
+            if (order.taxi.services.isNotEmpty()) Column(
                 modifier = Modifier
                     .clip(RoundedCornerShape(30.dp))
                     .background(YallaTheme.color.white)

@@ -10,7 +10,7 @@ object PlacesMapper {
     val mapper: Mapper<PlaceRemoteModel?, PlaceModel> = { remote ->
         PlaceModel(
             id = remote?.id.or0(),
-            name = remote?.address.orEmpty(),
+            name = remote?.name.orEmpty(),
             address = remote?.address.orEmpty(),
             coords = remote?.coords.let(coordsMapper),
             type = PlaceType.fromType(remote?.type.orEmpty()),

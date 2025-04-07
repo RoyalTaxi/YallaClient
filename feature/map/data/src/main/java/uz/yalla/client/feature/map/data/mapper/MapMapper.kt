@@ -77,6 +77,7 @@ object MapMapper {
                 lat = remote?.lat.or0(),
                 lng = remote?.lng.or0(),
                 name = remote?.name.orEmpty(),
+                addressName = remote?.address_name.orEmpty(),
                 type = PlaceType.fromType(remote?.type)
             )
         }

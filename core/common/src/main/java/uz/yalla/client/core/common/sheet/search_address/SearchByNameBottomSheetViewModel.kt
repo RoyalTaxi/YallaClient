@@ -8,13 +8,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uz.yalla.client.core.domain.model.SearchableAddress
+import uz.yalla.client.core.domain.model.type.PlaceType
 import uz.yalla.client.feature.map.domain.model.response.PolygonRemoteItem
 import uz.yalla.client.feature.map.domain.model.response.SearchForAddressItemModel
 import uz.yalla.client.feature.map.domain.usecase.GetPolygonUseCase
-import uz.yalla.client.feature.map.domain.usecase.SearchAddressUseCase
 import uz.yalla.client.feature.map.domain.usecase.GetSecondaryAddressedUseCase
-import uz.yalla.client.feature.order.domain.model.response.PlaceModel
-import uz.yalla.client.core.domain.model.type.PlaceType
+import uz.yalla.client.feature.map.domain.usecase.SearchAddressUseCase
 
 class SearchByNameBottomSheetViewModel(
     private val searchAddressUseCase: SearchAddressUseCase,
@@ -22,6 +21,7 @@ class SearchByNameBottomSheetViewModel(
     private val getSecondaryAddressedUseCase: GetSecondaryAddressedUseCase
 ) : ViewModel() {
     private var addresses = listOf<PolygonRemoteItem>()
+    private var hasLoadedSecondaryAddresses = false
 
     private val _uiState = MutableStateFlow(SearchByNameBottomSheetState())
     val uiState = _uiState.asStateFlow()
@@ -37,7 +37,7 @@ class SearchByNameBottomSheetViewModel(
             }.onFailure { setFoundAddresses(emptyList()) }
         }
 
-    fun setFoundAddresses(addresses: List<SearchForAddressItemModel>) {
+    private fun setFoundAddresses(addresses: List<SearchForAddressItemModel>) {
         _uiState.update {
             it.copy(
                 foundAddresses = addresses.map { address ->
@@ -58,78 +58,91 @@ class SearchByNameBottomSheetViewModel(
     fun getSecondaryAddresses() {
         val lat = uiState.value.currentLat ?: return
         val lng = uiState.value.currentLng ?: return
+
+        if (uiState.value.recommendedAddresses.isNotEmpty()) {
+            return
+        }
+
         viewModelScope.launch(Dispatchers.IO) {
             getSecondaryAddressedUseCase(lat, lng).onSuccess { data ->
-                _uiState.update { it.copy(recommendedAddresses = data) }
-            }
-        }
-    }
-
-    fun setMapAddresses(addresses: List<PlaceModel>) {
-        _uiState.update {
-            it.copy(
-                recommendedAddresses = addresses.map { address ->
-                    val (isInside, addressId) = isPointInsidePolygon(
-                        lat = address.coords.lat,
-                        lng = address.coords.lng
-                    )
-                    SearchableAddress(
-                        addressId = if (isInside) addressId else null,
-                        addressName = address.address,
-                        distance = null,
-                        lat = address.coords.lat,
-                        lng = address.coords.lng,
-                        name = address.name,
-                        type = address.type
-                    )
+                _uiState.update {
+                    it.copy(recommendedAddresses = data)
                 }
-            )
+                hasLoadedSecondaryAddresses = true
+            }
         }
     }
 
     fun setQuery(query: String) {
+        val currentQuery = uiState.value.query
+        val trimmedQuery = query.trim()
+
         _uiState.update { it.copy(query = query) }
-        uiState.value.apply {
-            if (currentLat != null && currentLng != null)
-                searchForAddress(currentLat, currentLng, query)
+
+        if (trimmedQuery.isBlank()) {
+            setFoundAddresses(emptyList())
+
+            if (!hasLoadedSecondaryAddresses) {
+                getSecondaryAddresses()
+            }
+            return
         }
-        if (query.isBlank()) setFoundAddresses(emptyList())
+
+        if (currentQuery == query) return
+
+        uiState.value.apply {
+            if (currentLat != null && currentLng != null) {
+                searchForAddress(currentLat, currentLng, query)
+            }
+        }
     }
 
     fun setDestinationQuery(query: String) {
+        val currentDestQuery = uiState.value.destinationQuery
+        val trimmedQuery = query.trim()
+
         _uiState.update { it.copy(destinationQuery = query) }
-        uiState.value.apply {
-            if (currentLat != null && currentLng != null)
-                searchForAddress(currentLat, currentLng, query)
-        }
-        if (query.isBlank()) setFoundAddresses(emptyList())
-    }
 
-    fun setCurrentLocation(lat: Double, lng: Double) = _uiState.update {
-        it.copy(
-            currentLat = lat,
-            currentLng = lng
-        )
-    }
+        if (trimmedQuery.isBlank()) {
+            setFoundAddresses(emptyList())
 
-    private fun isPointInsidePolygon(lat: Double, lng: Double): Pair<Boolean, Int> {
-        addresses.forEach { polygonItem ->
-            val vertices = polygonItem.polygons.map { Pair(it.lat, it.lng) }
-            var isInside = false
-            var addressId = 0
-            for (i in vertices.indices) {
-                val j = if (i == 0) vertices.size - 1 else i - 1
-                val (lat1, lng1) = vertices[i]
-                val (lat2, lng2) = vertices[j]
-                val intersects = (lng1 > lng) != (lng2 > lng) &&
-                        (lat < (lat2 - lat1) * (lng - lng1) / (lng2 - lng1) + lat1)
-                if (intersects) {
-                    isInside = !isInside
-                    addressId = polygonItem.addressId
-                }
+            if (!hasLoadedSecondaryAddresses) {
+                getSecondaryAddresses()
             }
-            if (isInside) return Pair(true, addressId)
+            return
         }
-        return Pair(false, 0)
+
+        if (currentDestQuery == query) return
+
+        uiState.value.apply {
+            if (currentLat != null && currentLng != null) {
+                searchForAddress(currentLat, currentLng, query)
+            }
+        }
+    }
+
+    fun setCurrentLocation(lat: Double, lng: Double) {
+        val currentLat = uiState.value.currentLat
+        val currentLng = uiState.value.currentLng
+
+        if (currentLat != lat || currentLng != lng) {
+            _uiState.update {
+                it.copy(
+                    currentLat = lat,
+                    currentLng = lng
+                )
+            }
+
+            hasLoadedSecondaryAddresses = false
+        }
+    }
+
+    fun resetSearchState() {
+        _uiState.update {
+            it.copy(
+                query = "",
+                foundAddresses = emptyList()
+            )
+        }
     }
 }

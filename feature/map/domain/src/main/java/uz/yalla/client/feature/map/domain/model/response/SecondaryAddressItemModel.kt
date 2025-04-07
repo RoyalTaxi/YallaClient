@@ -6,6 +6,7 @@ data class SecondaryAddressItemModel(
     val distance: Double,
     val lat: Double,
     val lng: Double,
+    val addressName: String,
     val name: String,
     val type: PlaceType
 )

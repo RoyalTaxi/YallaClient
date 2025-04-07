@@ -8,6 +8,7 @@ import uz.yalla.client.feature.map.domain.repository.MapRepository
 import uz.yalla.client.feature.map.domain.usecase.GetAddressNameUseCase
 import uz.yalla.client.feature.map.domain.usecase.GetPolygonUseCase
 import uz.yalla.client.feature.map.domain.usecase.GetRoutingUseCase
+import uz.yalla.client.feature.map.domain.usecase.GetSecondaryAddressedUseCase
 import uz.yalla.client.feature.map.domain.usecase.SearchAddressUseCase
 import uz.yalla.client.service.map.service.MapService
 
@@ -27,6 +28,7 @@ object MapData {
         single { SearchAddressUseCase(get()) }
         single { GetRoutingUseCase(get()) }
         single { SearchAddressUseCase(get()) }
+        single { GetSecondaryAddressedUseCase(get()) }
     }
 
     val modules = listOf(serviceModule, repositoryModule, useCaseModule)

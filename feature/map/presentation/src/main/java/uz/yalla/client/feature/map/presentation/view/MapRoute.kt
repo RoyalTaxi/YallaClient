@@ -342,6 +342,8 @@ fun MapRoute(
                         is SearchCarSheetIntent.ZoomOut -> {
                             map.zoomOut()
                         }
+
+                        else -> {}
                     }
                 }
             }
