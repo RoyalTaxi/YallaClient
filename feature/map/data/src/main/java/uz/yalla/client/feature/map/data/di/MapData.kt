@@ -26,6 +26,7 @@ object MapData {
         single { GetAddressNameUseCase(get()) }
         single { SearchAddressUseCase(get()) }
         single { GetRoutingUseCase(get()) }
+        single { SearchAddressUseCase(get()) }
     }
 
     val modules = listOf(serviceModule, repositoryModule, useCaseModule)

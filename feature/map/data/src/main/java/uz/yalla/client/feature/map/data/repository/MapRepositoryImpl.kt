@@ -7,11 +7,13 @@ import uz.yalla.client.feature.map.domain.model.request.GetRoutingRequestItemDto
 import uz.yalla.client.feature.map.domain.model.response.GetRoutingModel
 import uz.yalla.client.feature.map.domain.model.response.PolygonRemoteItem
 import uz.yalla.client.feature.map.domain.model.response.SearchForAddressItemModel
+import uz.yalla.client.feature.map.domain.model.response.SecondaryAddressItemModel
 import uz.yalla.client.feature.map.domain.repository.MapRepository
 import uz.yalla.client.feature.order.domain.model.response.PlaceNameModel
 import uz.yalla.client.service.map.request.GetRoutingRequestItem
 import uz.yalla.client.service.map.request.LocationNameRequest
 import uz.yalla.client.service.map.request.SearchForAddressRequest
+import uz.yalla.client.service.map.request.SecondaryAddressesRequest
 import uz.yalla.client.service.map.service.MapService
 
 class MapRepositoryImpl(
@@ -72,6 +74,22 @@ class MapRepositoryImpl(
         ) {
             is Either.Error -> Either.Error(result.error)
             is Either.Success -> Either.Success(result.data.result.let(MapMapper.routingMapper))
+        }
+    }
+
+    override suspend fun searchSecondaryAddress(
+        lat: Double,
+        lng: Double
+    ): Either<List<SecondaryAddressItemModel>, DataError.Network> {
+        return when (val result = service.getSecondaryAddressed(
+            SecondaryAddressesRequest(
+                lat = lat,
+                lng = lng
+            )
+        )) {
+            is Either.Error -> Either.Error(result.error)
+            is Either.Success -> Either.Success(result.data.result?.map(MapMapper.secondaryAddressItemMapper).orEmpty()
+            )
         }
     }
 }

@@ -30,7 +30,7 @@ import uz.yalla.client.core.common.sheet.ConfirmationBottomSheet
 import uz.yalla.client.core.common.sheet.select_from_map.SelectFromMapView
 import uz.yalla.client.core.common.sheet.select_from_map.SelectFromMapViewValue
 import uz.yalla.client.core.data.mapper.or0
-import uz.yalla.client.feature.order.domain.model.type.PlaceType
+import uz.yalla.client.core.domain.model.type.PlaceType
 import uz.yalla.client.feature.places.place.model.PlaceActionState
 import uz.yalla.client.feature.places.place.model.PlaceUIState
 import uz.yalla.client.feature.places.place.model.PlaceViewModel

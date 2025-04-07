@@ -1,6 +1,6 @@
 package uz.yalla.client.feature.places.place.model
 
-import uz.yalla.client.feature.order.domain.model.type.PlaceType
+import uz.yalla.client.core.domain.model.type.PlaceType
 
 internal data class PlaceUIState(
     val placeType: PlaceType = PlaceType.OTHER,

@@ -12,10 +12,12 @@ import uz.yalla.client.core.service.network.safeApiCall
 import uz.yalla.client.service.map.request.GetRoutingRequestItem
 import uz.yalla.client.service.map.request.LocationNameRequest
 import uz.yalla.client.service.map.request.SearchForAddressRequest
+import uz.yalla.client.service.map.request.SecondaryAddressesRequest
 import uz.yalla.client.service.map.response.PlaceNameResponse
 import uz.yalla.client.service.map.response.GetRoutingResponse
 import uz.yalla.client.service.map.response.PolygonResponseItem
 import uz.yalla.client.service.map.response.SearchForAddressResponseItem
+import uz.yalla.client.service.map.response.SecondaryAddressResponseItem
 import uz.yalla.client.service.map.url.MapUrl
 
 
@@ -43,5 +45,12 @@ class MapService(
     suspend fun getRouting(body: List<GetRoutingRequestItem>): Either<ApiResponseWrapper<GetRoutingResponse>, DataError.Network> =
         safeApiCall {
             ktorWithApi2.post(MapUrl.ROUTING) { setBody(body) }.body()
+        }
+
+    suspend fun getSecondaryAddressed(
+        body: SecondaryAddressesRequest
+    ): Either<ApiResponseWrapper<List<SecondaryAddressResponseItem>>, DataError.Network> =
+        safeApiCall {
+            ktorWithApi2.post(MapUrl.SECONDARY_ADDRESSES) { setBody(body) }.body()
         }
 }

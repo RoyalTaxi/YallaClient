@@ -3,7 +3,7 @@ package uz.yalla.client.feature.order.data.mapper
 import uz.yalla.client.core.data.mapper.Mapper
 import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.feature.order.domain.model.response.PlaceModel
-import uz.yalla.client.feature.order.domain.model.type.PlaceType
+import uz.yalla.client.core.domain.model.type.PlaceType
 import uz.yalla.client.service.places.response.PlaceRemoteModel
 
 object PlacesMapper {

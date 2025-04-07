@@ -49,7 +49,7 @@ fun AddDestinationBottomSheet(
 
     LaunchedEffect(Unit) {
         launch(Dispatchers.IO) {
-            viewModel.findAllMapAddresses()
+            viewModel.getSecondaryAddresses()
         }
 
         launch(Dispatchers.IO) {

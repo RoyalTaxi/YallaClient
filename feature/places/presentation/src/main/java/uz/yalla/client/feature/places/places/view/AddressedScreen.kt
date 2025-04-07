@@ -35,7 +35,7 @@ import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.domain.model.response.PlaceModel
 import uz.yalla.client.feature.places.places.model.AddressesUIState
 import uz.yalla.client.feature.places.presentation.R
-import uz.yalla.client.feature.order.domain.model.type.PlaceType
+import uz.yalla.client.core.domain.model.type.PlaceType
 
 @Composable
 internal fun AddressesScreen(
