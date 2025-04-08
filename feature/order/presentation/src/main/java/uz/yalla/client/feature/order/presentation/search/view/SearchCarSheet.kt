@@ -117,14 +117,11 @@ object SearchCarSheet {
         LaunchedEffect(state.footerHeight, state.headerHeight) {
             launch(Dispatchers.Main) {
                 scaffoldState.sheetState.refreshValues()
+                SheetCoordinator.updateSheetHeight(
+                    route = SEARCH_CAR_ROUTE,
+                    height = state.headerHeight + state.footerHeight + 40.dp
+                )
             }
-        }
-
-        LaunchedEffect(scaffoldState) {
-            SheetCoordinator.updateSheetHeight(
-                route = SEARCH_CAR_ROUTE,
-                height = state.headerHeight + state.footerHeight + 40.dp
-            )
         }
 
         BackHandler {

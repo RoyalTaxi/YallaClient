@@ -1,7 +1,9 @@
 package uz.yalla.client.feature.order.presentation.client_waiting.view
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.Intent.ACTION_DIAL
+import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -91,14 +93,11 @@ object ClientWaitingSheet {
         LaunchedEffect(state.footerHeight, state.headerHeight) {
             launch(Dispatchers.Main) {
                 scaffoldState.sheetState.refreshValues()
+                SheetCoordinator.updateSheetHeight(
+                    route = CLIENT_WAITING_ROUTE,
+                    height = state.headerHeight + state.footerHeight + 40.dp
+                )
             }
-        }
-
-        LaunchedEffect(scaffoldState) {
-            SheetCoordinator.updateSheetHeight(
-                route = CLIENT_WAITING_ROUTE,
-                height = state.headerHeight + state.footerHeight + 100.dp
-            )
         }
 
         BottomSheetScaffold(
@@ -194,7 +193,6 @@ object ClientWaitingSheet {
                     )
                     .padding(20.dp)
                     .navigationBarsPadding()
-
             ) {
                 CallButton(
                     modifier = Modifier.fillMaxWidth(),
@@ -203,8 +201,11 @@ object ClientWaitingSheet {
                             state.selectedOrder?.executor?.phone ?: return@CallButton
                         val intent =
                             Intent(ACTION_DIAL).apply { data = "tel:$phoneNumber".toUri() }
-                        if (intent.resolveActivity(context.packageManager) != null) {
+                        try {
                             context.startActivity(intent)
+                        } catch (e: ActivityNotFoundException) {
+                            Toast.makeText(context, "No dialer app found", Toast.LENGTH_SHORT)
+                                .show()
                         }
                     }
                 )
