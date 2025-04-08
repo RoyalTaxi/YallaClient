@@ -26,6 +26,12 @@ fun OrderSheetHeader(
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = modifier
+            .fillMaxWidth()
+            .background(
+                color = YallaTheme.color.white,
+                shape = RoundedCornerShape(30.dp)
+            )
+            .padding(20.dp)
     ) {
         Text(
             text = text,
