@@ -37,18 +37,26 @@ internal fun HistoryDetailsRoute(
     }
 
     fun updateRoute() {
-        if (uiState.orderDetails?.taxi?.routes?.size == 1)
-            uiState.orderDetails?.taxi?.routes?.first()?.cords?.let {
-                map.updateRoute(listOf(MapPoint(it.lat, it.lng)))
-                map.updateOrderStatus(OrderStatus.Appointed)
-                map.move(MapPoint(it.lat, it.lng))
-            }
-        else if ((uiState.orderDetails?.taxi?.routes?.size ?: 0) > 1) {
-            uiState.orderDetails?.taxi?.routes?.let {
-                map.updateRoute(it.map { p -> MapPoint(p.cords.lat, p.cords.lng) })
-                map.moveToFitBounds(it.map { p -> MapPoint(p.cords.lat, p.cords.lng) })
-            }
+        val routes = uiState.orderDetails?.taxi?.routes ?: return
+        if (routes.isEmpty()) return
+
+        val routePoints = routes.map { route ->
+            route.cords.let { MapPoint(it.lat, it.lng) }
         }
+
+        if (routePoints.isEmpty()) return
+
+        if (routePoints.size == 1) {
+            val singlePoint = routePoints.first()
+            map.updateRoute(listOf(singlePoint))
+            map.updateOrderStatus(OrderStatus.Appointed)
+            map.move(singlePoint)
+        } else {
+            map.updateRoute(routePoints)
+            map.moveToFitBounds(routePoints)
+        }
+
+        map.updateLocations(routePoints)
     }
 
     LaunchedEffect(uiState.orderDetails, loading) {
@@ -70,7 +78,6 @@ internal fun HistoryDetailsRoute(
                         vm.getMapPoints()
                         false
                     }
-
                     else -> false
                 }
             }
@@ -88,8 +95,6 @@ internal fun HistoryDetailsRoute(
             }
         }
     )
-
-
 
     if (loading) LoadingDialog()
 }

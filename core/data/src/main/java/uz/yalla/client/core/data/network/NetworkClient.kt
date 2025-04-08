@@ -1,6 +1,5 @@
 package uz.yalla.client.core.data.network
 
-import android.os.Build
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -17,7 +16,7 @@ fun provideNetworkClient(baseUrl: String) = HttpClient(Android) {
         url(baseUrl)
         header("lang", AppPreferences.locale)
         header("brand-id", "2")
-        header("User-Agent-OS", "${Build.MODEL} ${Build.VERSION.SDK_INT}")
+        header("User-Agent-OS", "android")
         header("Content-Type", "application/json")
         header("Device-Mode", "mobile")
         header("Device", "client")
@@ -32,6 +31,7 @@ fun provideNetworkClient(baseUrl: String) = HttpClient(Android) {
                 isLenient = true
                 ignoreUnknownKeys = true
                 explicitNulls = false
+                encodeDefaults = true
             }
         )
     }

@@ -3,24 +3,20 @@ package uz.yalla.client.feature.history.history_details.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import uz.yalla.client.core.common.item.CarNumberItem
 import uz.yalla.client.core.common.item.LocationItem
 import uz.yalla.client.core.common.item.OrderDetailItem
 import uz.yalla.client.core.common.item.OrderDetailsStatus
 import uz.yalla.client.core.common.utils.getOrderStatusText
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
-import uz.yalla.client.feature.history.R
 import uz.yalla.client.feature.domain.model.OrderHistoryModel
+import uz.yalla.client.feature.history.R
 
 @Composable
 internal fun OrderDetailsBottomSheet(
@@ -70,6 +66,7 @@ internal fun OrderDetailsBottomSheet(
                     color = YallaTheme.color.white,
                     shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
                 )
+                .padding(vertical = 10.dp)
         ) {
 
             OrderDetailItem(

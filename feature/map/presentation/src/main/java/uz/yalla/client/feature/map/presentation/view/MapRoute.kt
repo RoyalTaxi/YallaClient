@@ -181,12 +181,10 @@ fun MapRoute(
     LaunchedEffect(state.selectedOrder) {
         val order = state.selectedOrder
 
+        map.updateOrderStatus(order?.status)
+
         if (order?.status !in OrderStatus.nonInteractive) order?.let {
-            vm.updateState(
-                state.copy(
-                    drivers = listOf(order.executor.toCommonExecutor())
-                )
-            )
+            vm.updateState(state.copy(drivers = listOf(order.executor.toCommonExecutor())))
         }
 
         when (order?.status) {
@@ -235,7 +233,6 @@ fun MapRoute(
             }
 
             null -> {
-                map.updateLocations(emptyList())
                 val currentDestination = navController.currentDestination?.route ?: ""
                 val isInOrderFlow = listOf(
                     CLIENT_WAITING_ROUTE, DRIVER_WAITING_ROUTE, ON_THE_RIDE_ROUTE,
@@ -270,11 +267,23 @@ fun MapRoute(
                 }
             }
         }
+
+        if (order?.status != null) {
+            map.updateLocations(
+                listOfNotNull(
+                    *order.taxi.routes
+                        .map { MapPoint(it.coords.lat, it.coords.lng) }
+                        .toTypedArray()
+                )
+            )
+        } else {
+            map.updateLocations(emptyList())
+        }
     }
 
     LaunchedEffect(currentRoute) {
         when {
-            currentRoute == MAIN_SHEET_ROUTE || currentRoute == NO_SERVICE_ROUTE -> {
+            currentRoute.contains(MAIN_SHEET_ROUTE) || currentRoute.contains(NO_SERVICE_ROUTE) -> {
                 MainSheet.intentFlow.collect { intent ->
                     when (intent) {
                         is OrderTaxiSheetIntent.SetSelectedLocation -> {
@@ -556,8 +565,24 @@ fun MapRoute(
                         vm.setSelectedOrder(intent.order)
                     }
 
-                    is MapScreenIntent.MapOverlayIntent.MoveToMyLocation -> {
-                        map.moveToMyLocation()
+                    is MapScreenIntent.MapOverlayIntent.OnMapReady -> {
+                        val orderCoordinates =
+                            state.selectedOrder?.taxi?.routes?.firstOrNull()?.coords
+                        when {
+                            orderCoordinates?.lat != null -> {
+                                map.move(to = MapPoint(orderCoordinates.lat, orderCoordinates.lng))
+                            }
+
+                            state.selectedLocation?.point != null -> {
+                                state.selectedLocation?.point?.let { location ->
+                                    map.move(to = location)
+                                }
+                            }
+
+                            else -> {
+                                map.moveToMyLocation()
+                            }
+                        }
                     }
                 }
             }

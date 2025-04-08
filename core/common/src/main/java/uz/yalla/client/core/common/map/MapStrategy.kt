@@ -32,7 +32,7 @@ interface MapStrategy {
     fun updateDriver(driver: ShowOrderModel.Executor)
     fun updateDrivers(drivers: List<Executor>)
     fun updateRoute(route: List<MapPoint>)
-    fun updateOrderStatus(status: OrderStatus)
+    fun updateOrderStatus(status: OrderStatus?)
     fun updateLocations(locations: List<MapPoint>)
     fun zoomOut()
 }

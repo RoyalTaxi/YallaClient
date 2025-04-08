@@ -102,12 +102,10 @@ object OnTheRideSheet {
                 ) {
                     Column(
                         verticalArrangement = Arrangement.spacedBy(10.dp),
-                        modifier = Modifier
-                            .background(
-                                color = YallaTheme.color.gray2,
-                                shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
-                            )
-                            .padding(bottom = 10.dp)
+                        modifier = Modifier.background(
+                            color = YallaTheme.color.gray2,
+                            shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
+                        )
                     ) {
 
                         OrderSheetHeader(
@@ -126,8 +124,9 @@ object OnTheRideSheet {
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clip(RoundedCornerShape(30.dp))
+                                .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
                                 .background(YallaTheme.color.white)
+                                .navigationBarsPadding()
                         ) {
 
                             state.selectedDriver?.let {

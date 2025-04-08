@@ -37,17 +37,14 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 import uz.yalla.client.core.common.R
 import uz.yalla.client.core.common.convertor.dpToPx
 import uz.yalla.client.core.common.utils.getCurrentLocation
 import uz.yalla.client.core.common.utils.vectorToBitmapDescriptor
 import uz.yalla.client.core.data.local.AppPreferences
-import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.domain.model.Executor
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.OrderStatus
@@ -75,7 +72,6 @@ class ConcreteGoogleMap : MapStrategy {
 
     private var mapPadding by Delegates.notNull<Int>()
 
-    @OptIn(FlowPreview::class)
     @Composable
     override fun Map(
         startingPoint: MapPoint?,
@@ -136,25 +132,11 @@ class ConcreteGoogleMap : MapStrategy {
                 onMapReady()
             }
         ) {
-            if (
-                orderStatus.value == OrderStatus.Appointed ||
-                orderStatus.value == OrderStatus.AtAddress
-            ) Marker(
-                icon = remember {
-                    vectorToBitmapDescriptor(context, R.drawable.ic_origin_marker)
-                        ?: BitmapDescriptorFactory.defaultMarker()
-                },
-                state = remember(locations.firstOrNull()) {
-                    MarkerState(
-                        LatLng(
-                            locations.firstOrNull()?.lat.or0(),
-                            locations.firstOrNull()?.lng.or0(),
-                        )
-                    )
-                }
+            Markers(
+                route = route,
+                locations = locations,
+                orderStatus = orderStatus.value
             )
-
-            Markers(route = route, locations = locations)
 
             Driver(driver = driver)
 
@@ -248,7 +230,7 @@ class ConcreteGoogleMap : MapStrategy {
         this.route.addAll(route)
     }
 
-    override fun updateOrderStatus(status: OrderStatus) {
+    override fun updateOrderStatus(status: OrderStatus?) {
         orderStatus.value = status
     }
 
@@ -324,9 +306,11 @@ private fun Drivers(
 @Composable
 private fun Markers(
     route: List<MapPoint>,
+    orderStatus: OrderStatus? = null,
     locations: List<MapPoint>
 ) {
     val context = LocalContext.current
+
     val startMarkerIcon = remember {
         vectorToBitmapDescriptor(context, R.drawable.ic_origin_marker)
             ?: BitmapDescriptorFactory.defaultMarker()
@@ -342,32 +326,41 @@ private fun Markers(
 
     if (route.isNotEmpty()) {
         Polyline(points = route.map { LatLng(it.lat, it.lng) })
+    }
 
+    if (locations.isEmpty()) return
+
+    val showStartMarker = orderStatus != null || route.isNotEmpty()
+    val showEndMarker = locations.size > 1
+
+    if (showStartMarker) {
+        val startLocation = locations.first()
         Marker(
             icon = startMarkerIcon,
-            state = remember(route.first()) {
-                MarkerState(LatLng(route.first().lat, route.first().lng))
+            state = remember(startLocation) {
+                MarkerState(LatLng(startLocation.lat, startLocation.lng))
             }
         )
+    }
 
-        if (locations.size > 2) for (dest in 1 until locations.lastIndex) {
+    if (locations.size > 2) {
+        for (index in 1 until locations.lastIndex) {
+            val midLocation = locations[index]
             Marker(
                 icon = middleMarkerIcon,
-                state = remember(locations[dest]) {
-                    MarkerState(
-                        LatLng(
-                            locations[dest].lat,
-                            locations[dest].lng
-                        )
-                    )
+                state = remember(midLocation) {
+                    MarkerState(LatLng(midLocation.lat, midLocation.lng))
                 }
             )
         }
+    }
 
+    if (showEndMarker) {
+        val endLocation = locations.last()
         Marker(
             icon = endMarkerIcon,
-            state = remember(route.last()) {
-                MarkerState(LatLng(route.last().lat, route.last().lng))
+            state = remember(endLocation) {
+                MarkerState(LatLng(endLocation.lat, endLocation.lng))
             }
         )
     }

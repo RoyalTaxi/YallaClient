@@ -50,7 +50,7 @@ fun MapScreen(
             modifier = Modifier.fillMaxSize(),
             enabled = isMapEnabled,
             onMapReady = {
-                onIntent(MapScreenIntent.MapOverlayIntent.MoveToMyLocation)
+                onIntent(MapScreenIntent.MapOverlayIntent.OnMapReady)
             },
             contentPadding = with(density) {
                 PaddingValues(
