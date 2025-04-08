@@ -18,19 +18,14 @@ import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 @Composable
 fun OrderSheetHeader(
     text: String,
+    modifier:Modifier = Modifier,
     timer: String? = null,
     selectedDriver: ShowOrderModel? = null
 ) {
 
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                color = YallaTheme.color.white,
-                shape = RoundedCornerShape(30.dp)
-            )
-            .padding(20.dp)
+        modifier = modifier
     ) {
         Text(
             text = text,

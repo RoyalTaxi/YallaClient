@@ -1,5 +1,6 @@
 package uz.yalla.client.feature.order.presentation.client_waiting.model
 
+import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -43,7 +44,13 @@ class ClientWaitingViewModel(
 
     fun onIntent(intent: ClientWaitingIntent) {
         viewModelScope.launch(Dispatchers.IO) {
-            mutableIntentFlow.emit(intent)
+            when (intent) {
+                is ClientWaitingIntent.SetFooterHeight -> setFooterHeight(intent.height)
+                is ClientWaitingIntent.SetHeaderHeight -> setHeaderHeight(intent.height)
+                else -> {
+                    mutableIntentFlow.emit(intent)
+                }
+            }
         }
     }
 
@@ -120,5 +127,13 @@ class ClientWaitingViewModel(
                 driverRoute = emptyList()
             )
         }
+    }
+
+    private fun setHeaderHeight(height: Dp) {
+        _uiState.update { it.copy(headerHeight = height) }
+    }
+
+    private fun setFooterHeight(height: Dp) {
+        _uiState.update { it.copy(footerHeight = height) }
     }
 }
