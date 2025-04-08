@@ -1,5 +1,6 @@
 package uz.yalla.client.feature.order.presentation.driver_waiting.model
 
+import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -32,7 +33,11 @@ class DriverWaitingViewModel(
 
     fun onIntent(intent: DriverWaitingIntent) {
         viewModelScope.launch(Dispatchers.IO) {
-            mutableIntentFlow.emit(intent)
+            when (intent) {
+                is DriverWaitingIntent.SetFooterHeight -> setFooterHeight(intent.height)
+                is DriverWaitingIntent.SetHeaderHeight -> setHeaderHeight(intent.height)
+                else -> mutableIntentFlow.emit(intent)
+            }
         }
     }
 
@@ -71,5 +76,13 @@ class DriverWaitingViewModel(
 
     fun setCancelBottomSheetVisibility(isVisible: Boolean) {
         _uiState.update { it.copy(cancelBottomSheetVisibility = isVisible) }
+    }
+
+    private fun setHeaderHeight(height: Dp) {
+        _uiState.update { it.copy(headerHeight = height) }
+    }
+
+    private fun setFooterHeight(height: Dp) {
+        _uiState.update { it.copy(footerHeight = height) }
     }
 }

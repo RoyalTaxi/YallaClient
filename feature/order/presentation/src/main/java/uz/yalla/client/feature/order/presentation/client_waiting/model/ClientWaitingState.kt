@@ -12,5 +12,5 @@ data class ClientWaitingState(
     val detailsBottomSheetVisibility: Boolean = false,
     val cancelBottomSheetVisibility: Boolean = false,
     val headerHeight: Dp = 0.dp,
-    val footerHeight: Dp = 0.dp,
+    val footerHeight: Dp = 0.dp
 )

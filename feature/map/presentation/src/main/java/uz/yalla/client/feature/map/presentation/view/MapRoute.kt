@@ -383,6 +383,8 @@ fun MapRoute(
                             vm.clearState()
                             navController.navigateToMainSheet()
                         }
+
+                        else -> {}
                     }
                 }
             }
@@ -394,6 +396,8 @@ fun MapRoute(
                             vm.clearState()
                             navController.navigateToMainSheet()
                         }
+
+                        else -> {}
                     }
                 }
             }
@@ -415,6 +419,8 @@ fun MapRoute(
                             vm.clearState()
                             navController.navigateToMainSheet()
                         }
+
+                        else -> {}
                     }
                 }
             }
