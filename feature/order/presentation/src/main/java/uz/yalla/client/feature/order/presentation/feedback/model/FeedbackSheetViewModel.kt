@@ -1,5 +1,6 @@
 package uz.yalla.client.feature.order.presentation.feedback.model
 
+import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -10,6 +11,7 @@ import kotlinx.coroutines.launch
 import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.feature.order.domain.usecase.order.GetShowOrderUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.RateTheRideUseCase
+import uz.yalla.client.feature.order.presentation.feedback.view.FeedbackSheet
 import uz.yalla.client.feature.order.presentation.feedback.view.FeedbackSheetIntent
 import uz.yalla.client.feature.order.presentation.feedback.view.FeedbackSheet.mutableIntentFlow
 
@@ -23,7 +25,11 @@ class FeedbackSheetViewModel(
 
     fun onIntent(intent: FeedbackSheetIntent) {
         viewModelScope.launch(Dispatchers.IO) {
-            mutableIntentFlow.emit(intent)
+            when (intent) {
+                is FeedbackSheetIntent.SetFooterHeight -> setFooterHeight(intent.height)
+                is FeedbackSheetIntent.SetHeaderHeight -> setHeaderHeight(intent.height)
+                else -> mutableIntentFlow.emit(intent)
+            }
         }
     }
 
@@ -48,4 +54,13 @@ class FeedbackSheetViewModel(
             comment = ""
         )
     }
+
+    private fun setHeaderHeight(height: Dp) {
+        _uiState.update { it.copy(headerHeight = height) }
+    }
+
+    private fun setFooterHeight(height: Dp) {
+        _uiState.update { it.copy(footerHeight = height) }
+    }
+
 }

@@ -34,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -116,14 +117,11 @@ object SearchCarSheet {
         LaunchedEffect(state.footerHeight, state.headerHeight) {
             launch(Dispatchers.Main) {
                 scaffoldState.sheetState.refreshValues()
+                SheetCoordinator.updateSheetHeight(
+                    route = SEARCH_CAR_ROUTE,
+                    height = state.headerHeight + state.footerHeight + 40.dp
+                )
             }
-        }
-
-        LaunchedEffect(scaffoldState) {
-            SheetCoordinator.updateSheetHeight(
-                route = SEARCH_CAR_ROUTE,
-                height = state.headerHeight + state.footerHeight + 40.dp
-            )
         }
 
         BackHandler {
@@ -224,6 +222,7 @@ object SearchCarSheet {
         ) {
             Box(
                 modifier = Modifier
+                    .pointerInput(Unit) {}
                     .onSizeChanged {
                         with(density) {
                             viewModel.onIntent(

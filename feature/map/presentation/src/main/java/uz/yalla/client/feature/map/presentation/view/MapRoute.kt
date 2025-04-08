@@ -364,6 +364,8 @@ fun MapRoute(
                         is ClientWaitingIntent.UpdateRoute -> {
                             vm.updateState(state.copy(driverRoute = intent.route))
                         }
+
+                        else -> {}
                     }
                 }
             }
@@ -381,6 +383,8 @@ fun MapRoute(
                             vm.clearState()
                             navController.navigateToMainSheet()
                         }
+
+                        else -> {}
                     }
                 }
             }
@@ -392,6 +396,8 @@ fun MapRoute(
                             vm.clearState()
                             navController.navigateToMainSheet()
                         }
+
+                        else -> {}
                     }
                 }
             }
@@ -413,6 +419,8 @@ fun MapRoute(
                             vm.clearState()
                             navController.navigateToMainSheet()
                         }
+
+                        else -> {}
                     }
                 }
             }

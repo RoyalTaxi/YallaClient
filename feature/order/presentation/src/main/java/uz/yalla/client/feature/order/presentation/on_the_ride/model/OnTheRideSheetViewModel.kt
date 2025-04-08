@@ -1,5 +1,6 @@
 package uz.yalla.client.feature.order.presentation.on_the_ride.model
 
+import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +26,10 @@ class OnTheRideSheetViewModel(
 
     fun onIntent(intent: OnTheRideSheetIntent) {
         viewModelScope.launch ( Dispatchers.IO ) {
-            mutableIntentFlow.emit(intent)
+            when (intent) {
+                is OnTheRideSheetIntent.SetHeaderHeight -> setHeaderHeight(intent.height)
+                else -> mutableIntentFlow.emit(intent)
+            }
         }
     }
 
@@ -40,5 +44,9 @@ class OnTheRideSheetViewModel(
 
     fun setDetailsBottomSheetVisibility(isVisible: Boolean) {
         _uiState.update { it.copy(detailsBottomSheetVisibility = isVisible) }
+    }
+
+    private fun setHeaderHeight(height: Dp) {
+        _uiState.update { it.copy(headerHeight = height) }
     }
 }

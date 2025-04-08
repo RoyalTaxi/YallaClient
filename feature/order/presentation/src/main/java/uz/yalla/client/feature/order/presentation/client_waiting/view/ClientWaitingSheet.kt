@@ -1,7 +1,10 @@
 package uz.yalla.client.feature.order.presentation.client_waiting.view
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.Intent.ACTION_DIAL
+import android.widget.Toast
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,6 +36,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import io.morfly.compose.bottomsheet.material3.BottomSheetScaffold
+import io.morfly.compose.bottomsheet.material3.rememberBottomSheetScaffoldState
+import io.morfly.compose.bottomsheet.material3.rememberBottomSheetState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -40,6 +46,7 @@ import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.getKoin
 import uz.yalla.client.core.common.button.CallButton
 import uz.yalla.client.core.common.sheet.ConfirmationBottomSheet
+import uz.yalla.client.core.common.state.SheetValue
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
 import uz.yalla.client.feature.order.presentation.client_waiting.CLIENT_WAITING_ROUTE
@@ -55,14 +62,23 @@ object ClientWaitingSheet {
     internal val mutableIntentFlow = MutableSharedFlow<ClientWaitingIntent>()
     val intentFlow = mutableIntentFlow.asSharedFlow()
 
-    @OptIn(ExperimentalMaterial3Api::class)
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
     @Composable
     fun View(
         orderId: Int
     ) {
-        val context = LocalContext.current
         val density = LocalDensity.current
         val state by viewModel.uiState.collectAsState()
+        val scaffoldState = rememberBottomSheetScaffoldState(
+            rememberBottomSheetState(
+                initialValue = SheetValue.PartiallyExpanded,
+                defineValues = {
+                    SheetValue.PartiallyExpanded at height(state.headerHeight + state.footerHeight + 40.dp)
+                    SheetValue.Expanded at contentHeight
+                }
+            )
+        )
+        val context = LocalContext.current
         val scope = rememberCoroutineScope()
         val cancelOrderSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         val orderDetailsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -74,89 +90,122 @@ object ClientWaitingSheet {
             }
         }
 
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.BottomCenter
-        ) {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier
-                    .pointerInput(Unit) {}
-                    .background(
-                        color = YallaTheme.color.gray2,
-                        shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
-                    )
-                    .onSizeChanged {
-                        with(density) {
-                            SheetCoordinator.updateSheetHeight(
-                                route = CLIENT_WAITING_ROUTE,
-                                height = it.height.toDp()
+        LaunchedEffect(state.footerHeight, state.headerHeight) {
+            launch(Dispatchers.Main) {
+                scaffoldState.sheetState.refreshValues()
+                SheetCoordinator.updateSheetHeight(
+                    route = CLIENT_WAITING_ROUTE,
+                    height = state.headerHeight + state.footerHeight + 40.dp
+                )
+            }
+        }
+
+        BottomSheetScaffold(
+            scaffoldState = scaffoldState,
+            sheetDragHandle = null,
+            sheetContainerColor = YallaTheme.color.gray2,
+            content = {},
+            sheetContent = {
+                Box(
+                    contentAlignment = Alignment.BottomCenter
+                ) {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                        modifier = Modifier
+                            .background(
+                                color = YallaTheme.color.gray2,
+                                shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
+                            )
+                            .padding(bottom = state.footerHeight + 10.dp)
+                    ) {
+                        OrderSheetHeader(
+                            text = stringResource(R.string.coming_to_you),
+                            selectedDriver = state.selectedOrder,
+                            modifier = Modifier
+                                .onSizeChanged {
+                                    with(density) {
+                                        viewModel.onIntent(
+                                            ClientWaitingIntent.SetHeaderHeight(it.height.toDp())
+                                        )
+                                    }
+                                }
+                        )
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(30.dp))
+                                .background(YallaTheme.color.white)
+                        ) {
+
+                            state.selectedOrder?.let {
+                                DriverInfoItem(
+                                    driver = it.executor
+                                )
+                            }
+
+                            OrderActionsItem(
+                                text = stringResource(R.string.cancel_order),
+                                imageVector = Icons.Default.Close,
+                                onClick = { viewModel.setCancelBottomSheetVisibility(true) }
+                            )
+
+                            OrderActionsItem(
+                                text = stringResource(R.string.add_order),
+                                imageVector = Icons.Default.Add,
+                                onClick = { viewModel.onIntent(ClientWaitingIntent.AddNewOrder) }
+                            )
+
+                            OrderActionsItem(
+                                text = stringResource(R.string.order_details),
+                                imageVector = Icons.Outlined.Info,
+                                onClick = { viewModel.setDetailsBottomSheetVisibility(true) }
                             )
                         }
                     }
-            ) {
-
-                OrderSheetHeader(
-                    text = stringResource(R.string.coming_to_you),
-                    selectedDriver = state.selectedOrder
-                )
-
-                Column(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(30.dp))
-                        .background(YallaTheme.color.white)
-                ) {
-
-                    state.selectedOrder?.let {
-                        DriverInfoItem(
-                            driver = it.executor
-                        )
-                    }
-
-                    OrderActionsItem(
-                        text = stringResource(R.string.cancel_order),
-                        imageVector = Icons.Default.Close,
-                        onClick = { viewModel.setCancelBottomSheetVisibility(true) }
-                    )
-
-                    OrderActionsItem(
-                        text = stringResource(R.string.add_order),
-                        imageVector = Icons.Default.Add,
-                        onClick = { viewModel.onIntent(ClientWaitingIntent.AddNewOrder) }
-                    )
-
-                    OrderActionsItem(
-                        text = stringResource(R.string.order_details),
-                        imageVector = Icons.Outlined.Info,
-                        onClick = { viewModel.setDetailsBottomSheetVisibility(true) }
-                    )
-                }
-
-                Box(
-                    modifier = Modifier
-                        .background(
-                            color = YallaTheme.color.white,
-                            shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
-                        )
-                        .padding(20.dp)
-                        .navigationBarsPadding()
-
-                ) {
-                    CallButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = {
-                            val phoneNumber =
-                                state.selectedOrder?.executor?.phone ?: return@CallButton
-                            val intent =
-                                Intent(ACTION_DIAL).apply { data = "tel:$phoneNumber".toUri() }
-                            if (intent.resolveActivity(context.packageManager) != null) {
-                                context.startActivity(intent)
-                            }
-                        }
-                    )
                 }
             }
+        )
+
+        Box(
+            contentAlignment = Alignment.BottomCenter,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Box(
+                modifier = Modifier
+                    .pointerInput(Unit) {}
+                    .onSizeChanged {
+                        with(density) {
+                            viewModel.onIntent(
+                                ClientWaitingIntent.SetFooterHeight(it.height.toDp())
+                            )
+                        }
+                    }
+                    .background(
+                        color = YallaTheme.color.white,
+                        shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
+                    )
+                    .padding(20.dp)
+                    .navigationBarsPadding()
+            ) {
+                CallButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        val phoneNumber =
+                            state.selectedOrder?.executor?.phone ?: return@CallButton
+                        val intent =
+                            Intent(ACTION_DIAL).apply { data = "tel:$phoneNumber".toUri() }
+                        try {
+                            context.startActivity(intent)
+                        } catch (e: ActivityNotFoundException) {
+                            Toast.makeText(context, "No dialer app found", Toast.LENGTH_SHORT)
+                                .show()
+                        }
+                    }
+                )
+            }
         }
+
 
         if (state.cancelBottomSheetVisibility) {
             ConfirmationBottomSheet(
