@@ -36,16 +36,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.common.button.SelectCurrentLocationButton
-import uz.yalla.client.core.presentation.design.theme.YallaTheme
-import uz.yalla.client.feature.places.place.components.AddressFormField
-import uz.yalla.client.feature.places.place.model.PlaceUIState
-import uz.yalla.client.feature.places.presentation.R
 import uz.yalla.client.core.domain.model.type.PlaceType
+import uz.yalla.client.core.presentation.design.theme.YallaTheme
+import uz.yalla.client.feature.order.domain.model.response.PlaceModel
+import uz.yalla.client.feature.places.place.components.AddressFormField
+import uz.yalla.client.feature.places.presentation.R
 
 @Composable
 internal fun AddressScreen(
     id: Int?,
-    uiState: PlaceUIState,
+    place: PlaceModel,
+    saveButtonState: Boolean,
     snackbarHostState: SnackbarHostState,
     onIntent: (PlaceIntent) -> Unit
 ) {
@@ -56,7 +57,7 @@ internal fun AddressScreen(
             .imePadding(),
         topBar = {
             AddressTopBar(
-                placeType = uiState.placeType,
+                placeType = place.type,
                 id = id,
                 onNavigateBack = { onIntent(PlaceIntent.OnNavigateBack) },
                 onDelete = { onIntent(PlaceIntent.OnDelete(id!!)) }
@@ -65,7 +66,8 @@ internal fun AddressScreen(
         content = { paddingValues ->
             AddressContent(
                 paddingValues = paddingValues,
-                uiState = uiState,
+                place = place,
+                saveButtonState = saveButtonState,
                 onIntent = onIntent
             )
         },
@@ -123,7 +125,8 @@ private fun AddressTopBar(
 @Composable
 private fun AddressContent(
     paddingValues: PaddingValues,
-    uiState: PlaceUIState,
+    place: PlaceModel,
+    saveButtonState: Boolean,
     onIntent: (PlaceIntent) -> Unit
 ) {
     Column(
@@ -134,7 +137,9 @@ private fun AddressContent(
             .padding(20.dp)
     ) {
         SelectCurrentLocationButton(
-            text = uiState.selectedAddress?.name ?: stringResource(R.string.enter_the_address),
+            text = place.address
+                .takeIf { it.isNotBlank() }
+                ?: stringResource(R.string.enter_the_address),
             leadingIcon = {
                 Box(
                     modifier = Modifier
@@ -152,23 +157,23 @@ private fun AddressContent(
         )
 
         AddressFormField(
-            value = uiState.addressName,
+            value = place.name,
             modifier = Modifier.fillMaxWidth(),
             onValueChange = { if (it.length <= 100) onIntent(PlaceIntent.OnChangeName(it)) },
             placeHolder = stringResource(R.string.address_name)
         )
 
         ApartmentDetailsRow(
-            apartment = uiState.apartment,
-            entrance = uiState.entrance,
-            floor = uiState.floor,
+            apartment = place.apartment,
+            entrance = place.enter,
+            floor = place.floor,
             onChangeApartment = { if (it.length <= 5) onIntent(PlaceIntent.OnChangeApartment(it)) },
             onChangeEntrance = { if (it.length <= 5) onIntent(PlaceIntent.OnChangeEntrance(it)) },
             onChangeFloor = { if (it.length <= 5) onIntent(PlaceIntent.OnChangeFloor(it)) }
         )
 
         AddressFormField(
-            value = uiState.comment,
+            value = place.comment,
             modifier = Modifier.fillMaxWidth(),
             onValueChange = { if (it.length <= 100) onIntent(PlaceIntent.OnChangeComment(it)) },
             placeHolder = stringResource(R.string.comment)
@@ -179,8 +184,8 @@ private fun AddressContent(
         PrimaryButton(
             text = stringResource(R.string.save),
             modifier = Modifier.fillMaxWidth(),
+            enabled = saveButtonState,
             contentPadding = PaddingValues(vertical = 16.dp),
-            enabled = uiState.selectedAddress != null,
             onClick = { onIntent(PlaceIntent.OnSave) }
         )
     }

@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import uz.yalla.client.core.data.local.AppPreferences
+import uz.yalla.client.feature.auth.domain.model.auth.VerifyAuthCodeModel
 import uz.yalla.client.feature.auth.domain.usecase.auth.SendCodeUseCase
 import uz.yalla.client.feature.auth.domain.usecase.auth.VerifyCodeUseCase
 import uz.yalla.client.feature.setting.domain.usecase.SendFCMTokenUseCase
@@ -58,16 +59,7 @@ class VerificationViewModel(
 
             verifyCodeUseCase(getFormattedNumber(), code.toInt())
                 .onSuccess { result ->
-                    result.client?.let { client ->
-                        AppPreferences.accessToken = result.accessToken
-                        AppPreferences.tokenType = result.tokenType
-                        AppPreferences.isDeviceRegistered = true
-                        AppPreferences.number = number
-                        AppPreferences.gender = client.gender
-                        AppPreferences.dateOfBirth = client.birthday
-                        AppPreferences.firstName = client.givenNames
-                        AppPreferences.lastName = client.surname
-                    }
+                    saveAuthResult(result)
                     getFCMToken()
                     _actionFlow.emit(VerificationActionState.VerifySuccess(result))
                 }
@@ -98,7 +90,7 @@ class VerificationViewModel(
         }
     }
 
-    fun getFCMToken() {
+    private fun getFCMToken() {
         viewModelScope.launch(Dispatchers.IO) {
             FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
@@ -112,6 +104,19 @@ class VerificationViewModel(
     private fun sendFCMToken(token: String) {
         viewModelScope.launch(Dispatchers.IO) {
             sendFCMTokenUseCase(token)
+        }
+    }
+
+    private fun saveAuthResult(result: VerifyAuthCodeModel) {
+        result.client?.let { client ->
+            AppPreferences.accessToken = result.accessToken
+            AppPreferences.tokenType = result.tokenType
+            AppPreferences.isDeviceRegistered = true
+            AppPreferences.number = client.phone
+            AppPreferences.gender = client.gender
+            AppPreferences.dateOfBirth = client.birthday
+            AppPreferences.firstName = client.givenNames
+            AppPreferences.lastName = client.surname
         }
     }
 }

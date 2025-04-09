@@ -1,10 +1,5 @@
 package uz.yalla.client.feature.places.place.view
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
@@ -18,7 +13,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -32,7 +26,6 @@ import uz.yalla.client.core.common.sheet.select_from_map.SelectFromMapViewValue
 import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.domain.model.type.PlaceType
 import uz.yalla.client.feature.places.place.model.PlaceActionState
-import uz.yalla.client.feature.places.place.model.PlaceUIState
 import uz.yalla.client.feature.places.place.model.PlaceViewModel
 import uz.yalla.client.feature.places.presentation.R
 
@@ -44,13 +37,14 @@ internal fun AddressRoute(
     onNavigateBack: () -> Unit,
     viewModel: PlaceViewModel = koinViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val place by viewModel.place.collectAsState()
+    val saveButtonState by viewModel.saveButtonState.collectAsState()
     val scope = rememberCoroutineScope()
     var loading by remember { mutableStateOf(false) }
     var deleteId by remember { mutableIntStateOf(-1) }
-    var searchLocationVisibility by remember { mutableStateOf(false) }
-    var openMapVisibility by remember { mutableStateOf(false) }
-    var confirmCancellationVisibility by remember { mutableStateOf(false) }
+    var isSearchVisible by remember { mutableStateOf(false) }
+    var isMapVisible by remember { mutableStateOf(false) }
+    var isConfirmationVisible by remember { mutableStateOf(false) }
     val searchLocationState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val confirmCancellationState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val snackbarHostState = remember { SnackbarHostState() }
@@ -63,7 +57,7 @@ internal fun AddressRoute(
         }
 
         launch(Dispatchers.Main) {
-            viewModel.actionState.collectLatest { action ->
+            viewModel.actionFlow.collectLatest { action ->
                 loading = when (action) {
                     PlaceActionState.DeleteSuccess -> {
                         onNavigateBack()
@@ -94,7 +88,8 @@ internal fun AddressRoute(
 
     AddressScreen(
         id = id,
-        uiState = uiState,
+        place = place,
+        saveButtonState = saveButtonState,
         snackbarHostState = snackbarHostState,
         onIntent = { intent ->
             when (intent) {
@@ -106,7 +101,7 @@ internal fun AddressRoute(
 
                 is PlaceIntent.OnChangeName -> viewModel.updateName(intent.value)
                 is PlaceIntent.OnDelete -> {
-                    confirmCancellationVisibility = true
+                    isConfirmationVisible = true
                     scope.launch { confirmCancellationState.show() }
                     deleteId = intent.id
                 }
@@ -115,63 +110,60 @@ internal fun AddressRoute(
                 is PlaceIntent.OnChangeComment -> viewModel.updateComment(intent.value)
                 is PlaceIntent.OnChangeEntrance -> viewModel.updateEnter(intent.value)
                 is PlaceIntent.OnChangeFloor -> viewModel.updateFloor(intent.value)
-                is PlaceIntent.OpenSearchSheet -> searchLocationVisibility = true
+                is PlaceIntent.OpenSearchSheet -> isSearchVisible = true
             }
         }
     )
 
 
-        if (searchLocationVisibility) AddDestinationBottomSheet(
+    if (isSearchVisible) {
+        AddDestinationBottomSheet(
             sheetState = searchLocationState,
             onAddressSelected = { location ->
-                searchLocationVisibility = false
+                isSearchVisible = false
                 location.name?.let { name ->
                     location.point?.let { point ->
                         viewModel.updateSelectedAddress(
-                            PlaceUIState.Location(
-                                name = name,
-                                lat = point.lat.or0(),
-                                lng = point.lng.or0()
-                            )
+                            address = name,
+                            lat = point.lat.or0(),
+                            lng = point.lng.or0()
                         )
                     }
                 }
             },
-            onClickMap = { openMapVisibility = true },
-            onDismissRequest = { searchLocationVisibility = false },
+            onClickMap = { isMapVisible = true },
+            onDismissRequest = { isSearchVisible = false },
         )
+    }
 
-    if (openMapVisibility) SelectFromMapView(
-        startingPoint = null,
-        viewValue = SelectFromMapViewValue.FOR_START,
-        onSelectLocation = { location ->
-            location.name?.let { name ->
-                location.point?.let { point ->
-                    viewModel.updateSelectedAddress(
-                        PlaceUIState.Location(
-                            name = name,
+    if (isMapVisible) {
+        SelectFromMapView(
+            startingPoint = null,
+            viewValue = SelectFromMapViewValue.FOR_START,
+            onSelectLocation = { location ->
+                location.name?.let { name ->
+                    location.point?.let { point ->
+                        viewModel.updateSelectedAddress(
+                            address = name,
                             lat = point.lat.or0(),
                             lng = point.lng.or0()
                         )
-                    )
+                    }
                 }
-            }
-        },
-        onDismissRequest = { openMapVisibility = false }
-    )
+            },
+            onDismissRequest = { isMapVisible = false }
+        )
+    }
 
-    AnimatedVisibility(
-        visible = confirmCancellationVisibility,
-        enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom) { it },
-        exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom) { it }
-    ) {
-        if (confirmCancellationVisibility) ConfirmationBottomSheet(
+
+    if (isConfirmationVisible) {
+        ConfirmationBottomSheet(
             sheetState = confirmCancellationState,
             title = stringResource(R.string.delete_selected_address),
             actionText = stringResource(R.string.delete),
             dismissText = stringResource(R.string.cancel),
             onDismissRequest = {
-                confirmCancellationVisibility = false
+                isConfirmationVisible = false
                 scope.launch { confirmCancellationState.hide() }
             },
             onConfirm = { viewModel.deleteOneAddress(deleteId) }

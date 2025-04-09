@@ -7,7 +7,6 @@ import uz.yalla.client.feature.order.domain.model.response.PlaceModel
 
 interface PlacesRepository {
     suspend fun findAll(): Either<List<PlaceModel>, DataError.Network>
-    suspend fun findAllMapAddresses(): Either<List<PlaceModel>, DataError.Network>
     suspend fun findOne(id: Int): Either<PlaceModel, DataError.Network>
     suspend fun postOne(body: PostOnePlaceDto): Either<Unit, DataError.Network>
     suspend fun deleteOne(id: Int): Either<Unit, DataError.Network>

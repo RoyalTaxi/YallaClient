@@ -32,7 +32,4 @@ class PlacesApiService(
 
     suspend fun updateOne(id: Int, body: PostOnePlaceRequest): Either<Unit, DataError.Network> =
         safeApiCall { ktor.put(PlacesUrl.UPDATE + id) { setBody(body) }.body() }
-
-    suspend fun findAllMapAddresses(): Either<ApiResponseWrapper<List<PlaceRemoteModel>>, DataError.Network> =
-        safeApiCall { ktor.get(PlacesUrl.FIND_ALL_MAP_ADDRESSES).body() }
 }

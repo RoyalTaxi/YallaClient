@@ -21,15 +21,6 @@ class PlacesRepositoryImpl(
         }
     }
 
-    override suspend fun findAllMapAddresses(): Either<List<PlaceModel>, DataError.Network> {
-        return when (val result = service.findAllMapAddresses()) {
-            is Either.Error -> Either.Error(result.error)
-            is Either.Success -> Either.Success(
-                result.data.result?.map(PlacesMapper.mapper).orEmpty()
-            )
-        }
-    }
-
     override suspend fun findOne(id: Int): Either<PlaceModel, DataError.Network> {
         return when (val result = service.findOne(id)) {
             is Either.Error -> Either.Error(result.error)

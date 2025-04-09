@@ -7,7 +7,6 @@ import uz.yalla.client.feature.order.data.repository.PlacesRepositoryImpl
 import uz.yalla.client.feature.order.domain.repository.PlacesRepository
 import uz.yalla.client.feature.order.domain.usecase.DeleteOnePlaceUseCase
 import uz.yalla.client.feature.order.domain.usecase.FindAllPlacesUseCase
-import uz.yalla.client.feature.order.domain.usecase.FindAllMapPlacesUseCase
 import uz.yalla.client.feature.order.domain.usecase.FindOnePlaceUseCase
 import uz.yalla.client.feature.order.domain.usecase.PostOnePlaceUseCase
 import uz.yalla.client.feature.order.domain.usecase.UpdateOnePlaceUseCase
@@ -30,7 +29,6 @@ object PlacesData {
         single { PostOnePlaceUseCase(get()) }
         single { DeleteOnePlaceUseCase(get()) }
         single { UpdateOnePlaceUseCase(get()) }
-        single { FindAllMapPlacesUseCase(get()) }
     }
 
     val modules = listOf(serviceModule, repositoryModule, useCaseModule)

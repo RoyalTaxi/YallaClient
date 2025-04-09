@@ -5,12 +5,16 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import uz.yalla.client.feature.order.domain.model.request.PostOnePlaceDto
 import uz.yalla.client.core.domain.model.type.PlaceType
+import uz.yalla.client.feature.order.domain.model.response.PlaceModel
 import uz.yalla.client.feature.order.domain.usecase.DeleteOnePlaceUseCase
 import uz.yalla.client.feature.order.domain.usecase.FindOnePlaceUseCase
 import uz.yalla.client.feature.order.domain.usecase.PostOnePlaceUseCase
@@ -23,109 +27,94 @@ internal class PlaceViewModel(
     private val deleteOnePlaceUseCase: DeleteOnePlaceUseCase
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(PlaceUIState())
-    val uiState = _uiState.asStateFlow()
+    private val _place = MutableStateFlow(PlaceModel.EMPTY)
+    val place = _place.asStateFlow()
 
-    private val _actionState = MutableSharedFlow<PlaceActionState>()
-    val actionState = _actionState.asSharedFlow()
+    private val _actionFlow = MutableSharedFlow<PlaceActionState>()
+    val actionFlow = _actionFlow.asSharedFlow()
+
+    val saveButtonState = place
+        .distinctUntilChangedBy { Pair(it.name, it.coords) }
+        .map { it.name.isNotBlank() && it.coords.lat != 0.0 && it.coords.lng != 0.0 }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Lazily,
+            initialValue = false
+        )
 
     fun findOneAddress(id: Int) = viewModelScope.launch(Dispatchers.IO) {
-        _actionState.emit(PlaceActionState.Loading)
+        _actionFlow.emit(PlaceActionState.Loading)
         findOnePlaceUseCase(id)
             .onSuccess { result ->
-                _uiState.update {
-                    it.copy(
-                        placeType = result.type,
-                        addressName = result.name,
-                        apartment = result.apartment,
-                        entrance = result.enter,
-                        floor = result.floor,
-                        comment = result.comment,
-                        selectedAddress = PlaceUIState.Location(
-                            name = result.address,
-                            lat = result.coords.lat,
-                            lng = result.coords.lng
-                        )
-                    )
-                }
-                _actionState.emit(PlaceActionState.GetSuccess)
+                _place.emit(result)
+                _actionFlow.emit(PlaceActionState.GetSuccess)
             }
-            .onFailure { _actionState.emit(PlaceActionState.Error(it.message.orEmpty())) }
+            .onFailure { _actionFlow.emit(PlaceActionState.Error(it.message.orEmpty())) }
     }
 
     fun deleteOneAddress(id: Int) = viewModelScope.launch(Dispatchers.IO) {
-        _actionState.emit(PlaceActionState.Loading)
+        _actionFlow.emit(PlaceActionState.Loading)
         deleteOnePlaceUseCase(id)
-            .onSuccess { _actionState.emit(PlaceActionState.DeleteSuccess) }
-            .onFailure { _actionState.emit(PlaceActionState.Error(it.message.orEmpty())) }
+            .onSuccess { _actionFlow.emit(PlaceActionState.DeleteSuccess) }
+            .onFailure { _actionFlow.emit(PlaceActionState.Error(it.message.orEmpty())) }
     }
 
     fun updateOneAddress(id: Int) = viewModelScope.launch(Dispatchers.IO) {
-        _actionState.emit(PlaceActionState.Loading)
-        uiState.value.let { state ->
-            if (state.selectedAddress != null) updateOnePlaceUseCase(
+        _actionFlow.emit(PlaceActionState.Loading)
+        place.value.let { place ->
+            if (
+                place.coords.takeIf { it.lat != 0.0 && it.lng != 0.0 } != null
+            ) updateOnePlaceUseCase(
                 id = id,
-                body = PostOnePlaceDto(
-                    name = state.addressName,
-                    address = state.selectedAddress.name,
-                    lat = state.selectedAddress.lat,
-                    lng = state.selectedAddress.lng,
-                    type = state.placeType.typeName,
-                    enter = state.entrance,
-                    apartment = state.apartment,
-                    floor = state.floor,
-                    comment = state.comment
-                )
-            ).onSuccess { _actionState.emit(PlaceActionState.PutSuccess) }
-                .onFailure { _actionState.emit(PlaceActionState.Error(it.message.orEmpty())) }
+                body = place.mapToPlaceDto()
+            ).onSuccess { _actionFlow.emit(PlaceActionState.PutSuccess) }
+                .onFailure { _actionFlow.emit(PlaceActionState.Error(it.message.orEmpty())) }
         }
     }
 
     fun createOneAddress() = viewModelScope.launch(Dispatchers.IO) {
-        _actionState.emit(PlaceActionState.Loading)
-        uiState.value.let { state ->
-            if (state.selectedAddress != null) postOnePlaceUseCase(
-                body = PostOnePlaceDto(
-                    name = state.addressName,
-                    address = state.selectedAddress.name,
-                    lat = state.selectedAddress.lat,
-                    lng = state.selectedAddress.lng,
-                    type = state.placeType.typeName,
-                    enter = state.entrance,
-                    apartment = state.apartment,
-                    floor = state.floor,
-                    comment = state.comment
-                )
-            ).onSuccess { _actionState.emit(PlaceActionState.PutSuccess) }
-                .onFailure { _actionState.emit(PlaceActionState.Error(it.message.orEmpty())) }
+        _actionFlow.emit(PlaceActionState.Loading)
+        place.value.let { place ->
+            if (
+                place.coords.takeIf { it.lat != 0.0 && it.lng != 0.0 } != null
+            ) postOnePlaceUseCase(place.mapToPlaceDto())
+                .onSuccess { _actionFlow.emit(PlaceActionState.PutSuccess) }
+                .onFailure { _actionFlow.emit(PlaceActionState.Error(it.message.orEmpty())) }
         }
     }
 
-    fun updateName(name: String) = _uiState.update {
-        it.copy(addressName = name)
+    fun updateName(name: String) = _place.update {
+        it.copy(name = name)
     }
 
-    fun updateType(type: PlaceType) = _uiState.update {
-        it.copy(placeType = type)
+    fun updateType(type: PlaceType) = _place.update {
+        it.copy(type = type)
     }
 
-    fun updateSelectedAddress(address: PlaceUIState.Location) = _uiState.update {
-        it.copy(selectedAddress = address)
+    fun updateSelectedAddress(
+        address: String,
+        lat: Double,
+        lng: Double
+    ) = _place.update {
+        it.copy(
+            address = address,
+            coords = it.coords.copy(lat, lng)
+        )
     }
 
-    fun updateApartment(apartment: String) = _uiState.update {
+    fun updateApartment(apartment: String) = _place.update {
         it.copy(apartment = apartment)
     }
 
-    fun updateEnter(enter: String) = _uiState.update {
-        it.copy(entrance = enter)
+    fun updateEnter(enter: String) = _place.update {
+        it.copy(enter = enter)
     }
 
-    fun updateFloor(floor: String) = _uiState.update {
+    fun updateFloor(floor: String) = _place.update {
         it.copy(floor = floor)
     }
 
-    fun updateComment(comment: String) = _uiState.update {
+    fun updateComment(comment: String) = _place.update {
         it.copy(comment = comment)
     }
 }

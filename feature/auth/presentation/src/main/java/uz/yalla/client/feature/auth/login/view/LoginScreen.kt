@@ -23,11 +23,11 @@ import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.common.field.PhoneNumberField
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.auth.R
-import uz.yalla.client.feature.auth.login.model.LoginUIState
 
 @Composable
 internal fun LoginScreen(
-    uiState: LoginUIState,
+    phoneNumber: String,
+    sendCodeButtonState: Boolean,
     onIntent: (LoginIntent) -> Unit
 ) {
     Scaffold(
@@ -49,7 +49,7 @@ internal fun LoginScreen(
                 Spacer(modifier = Modifier.height(20.dp))
 
                 LoginContent(
-                    number = uiState.number,
+                    number = phoneNumber,
                     setPhoneNumber = { number -> onIntent(LoginIntent.SetNumber(number)) },
                 )
 
@@ -58,7 +58,7 @@ internal fun LoginScreen(
                 Spacer(modifier = Modifier.height(32.dp))
 
                 LoginFooter(
-                    buttonState = uiState.buttonState,
+                    sendCodeButtonState = sendCodeButtonState,
                     onClickButton = { onIntent(LoginIntent.SendCode) }
                 )
             }
@@ -115,13 +115,13 @@ private fun LoginContent(
 
 @Composable
 private fun LoginFooter(
-    buttonState: Boolean,
+    sendCodeButtonState: Boolean,
     onClickButton: () -> Unit
 ) {
     PrimaryButton(
         modifier = Modifier.fillMaxWidth(),
         text = stringResource(id = R.string.next),
-        enabled = buttonState,
+        enabled = sendCodeButtonState,
         onClick = onClickButton
     )
 }
