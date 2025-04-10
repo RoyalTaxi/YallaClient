@@ -56,7 +56,7 @@ fun OrderSheetHeader(
                     code = driver.executor.driver.stateNumber.slice(0..<2),
                     number = "(\\d+|[A-Za-z]+)"
                         .toRegex()
-                        .findAll(driver.executor.driver.stateNumber)
+                        .findAll(driver.executor.driver.stateNumber.substring(2))
                         .map { it.value }
                         .toList()
                 )

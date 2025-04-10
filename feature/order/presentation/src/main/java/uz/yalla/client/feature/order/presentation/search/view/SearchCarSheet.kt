@@ -195,9 +195,10 @@ object SearchCarSheet {
                                 .background(YallaTheme.color.white)
                         ) {
                             OrderActionsItem(
-                                text = stringResource(R.string.order_details),
-                                imageVector = Icons.Outlined.Info,
-                                onClick = { viewModel.setDetailsBottomSheetVisibility(true) })
+                                text = stringResource(R.string.cancel_order),
+                                imageVector = Icons.Default.Close,
+                                onClick = { viewModel.setCancelBottomSheetVisibility(true) }
+                            )
 
                             OrderActionsItem(
                                 text = stringResource(R.string.add_order),
@@ -206,9 +207,9 @@ object SearchCarSheet {
                             )
 
                             OrderActionsItem(
-                                text = stringResource(R.string.cancel_order),
-                                imageVector = Icons.Default.Close,
-                                onClick = { viewModel.setCancelBottomSheetVisibility(true) }
+                                text = stringResource(R.string.order_details),
+                                imageVector = Icons.Outlined.Info,
+                                onClick = { viewModel.setDetailsBottomSheetVisibility(true) }
                             )
                         }
                     }
