@@ -69,4 +69,8 @@ internal class RegistrationViewModel(
             }
         }
     }
+
+    fun setDatePickerVisible(visible: Boolean) {
+        _uiState.update { it.copy(isDatePickerVisible = visible) }
+    }
 }

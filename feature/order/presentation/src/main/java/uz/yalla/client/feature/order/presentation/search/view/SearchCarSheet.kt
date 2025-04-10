@@ -56,7 +56,9 @@ import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
-import uz.yalla.client.feature.order.presentation.components.OrderActionsItem
+import uz.yalla.client.feature.order.presentation.components.dialog.ConfirmationDialog
+import uz.yalla.client.feature.order.presentation.components.dialog.ConfirmationDialogEvent
+import uz.yalla.client.feature.order.presentation.components.items.OrderActionsItem
 import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
 import uz.yalla.client.feature.order.presentation.main.view.sheet.OrderDetailsBottomSheet
 import uz.yalla.client.feature.order.presentation.search.SEARCH_CAR_ROUTE
@@ -124,9 +126,7 @@ object SearchCarSheet {
             }
         }
 
-        BackHandler {
-            viewModel.onIntent(SearchCarSheetIntent.AddNewOrder)
-        }
+        BackHandler { viewModel.onIntent(SearchCarSheetIntent.AddNewOrder) }
 
         BottomSheetScaffold(
             scaffoldState = scaffoldState,
@@ -274,6 +274,28 @@ object SearchCarSheet {
                     scope.launch { cancelOrderSheetState.hide() }
                 }
             )
+        }
+
+        when (state.dialogEvent) {
+            is ConfirmationDialogEvent.Error -> {
+                ConfirmationDialog(
+                    title = stringResource(R.string.error),
+                    description = stringResource(R.string.error_body),
+                    dismissText = stringResource(R.string.ok),
+                    onDismissRequest = { viewModel.dismissDialog()},
+                )
+            }
+
+            is ConfirmationDialogEvent.Success -> {
+                ConfirmationDialog(
+                    title = stringResource(R.string.success),
+                    description = stringResource(R.string.success_body),
+                    dismissText = stringResource(R.string.ok),
+                    onDismissRequest = { viewModel.dismissDialog()},
+                )
+            }
+
+            is ConfirmationDialogEvent.Invisible -> { }
         }
 
         DisposableEffect(Unit) {

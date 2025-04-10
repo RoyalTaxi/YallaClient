@@ -45,7 +45,7 @@ import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 import uz.yalla.client.feature.order.presentation.R
 import uz.yalla.client.feature.order.presentation.components.OrderSheetHeader
-import uz.yalla.client.feature.order.presentation.components.RatingStarsItem
+import uz.yalla.client.feature.order.presentation.components.items.RatingStarsItem
 import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
 import uz.yalla.client.feature.order.presentation.feedback.model.FeedbackSheetViewModel
 import uz.yalla.client.feature.order.presentation.on_the_ride.ON_THE_RIDE_ROUTE

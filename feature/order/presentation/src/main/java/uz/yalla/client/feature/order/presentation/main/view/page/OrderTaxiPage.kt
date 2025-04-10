@@ -35,8 +35,8 @@ import uz.yalla.client.core.common.button.SelectDestinationButton
 import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
-import uz.yalla.client.feature.order.presentation.components.TariffItem
-import uz.yalla.client.feature.order.presentation.components.TariffItemShimmer
+import uz.yalla.client.feature.order.presentation.components.items.TariffItem
+import uz.yalla.client.feature.order.presentation.components.items.TariffItemShimmer
 import uz.yalla.client.feature.order.presentation.main.model.MainSheetState
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.OrderTaxiSheetIntent
 

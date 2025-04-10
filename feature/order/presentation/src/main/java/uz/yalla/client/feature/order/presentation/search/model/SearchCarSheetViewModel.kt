@@ -19,6 +19,7 @@ import uz.yalla.client.feature.order.domain.usecase.order.GetSettingUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.GetShowOrderUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.OrderFasterUseCase
 import uz.yalla.client.feature.order.domain.usecase.tariff.GetTimeOutUseCase
+import uz.yalla.client.feature.order.presentation.components.dialog.ConfirmationDialogEvent
 import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheet.mutableIntentFlow
 import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheetIntent
 import kotlin.time.Duration.Companion.seconds
@@ -111,12 +112,24 @@ class SearchCarSheetViewModel(
 
     fun orderFaster() {
         val orderId = uiState.value.orderId ?: return
-        _uiState.update { it.copy(isFasterEnabled = false) }
+        _uiState.update { it.copy(isFasterEnabled = true) }
         viewModelScope.launch(Dispatchers.IO) {
-            orderFasterUseCase(orderId).onFailure {
-                _uiState.update { it.copy(isFasterEnabled = true) }
+            orderFasterUseCase(orderId)
+                .onSuccess {
+                    _uiState.update { it.copy(
+                        dialogEvent = ConfirmationDialogEvent.Success,
+                        isFasterEnabled = false) }
+                }
+                .onFailure {
+                    _uiState.update { it.copy(
+                        dialogEvent = ConfirmationDialogEvent.Error,
+                        isFasterEnabled = true) }
             }
         }
+    }
+
+    fun dismissDialog() {
+        _uiState.update { it.copy(dialogEvent = ConfirmationDialogEvent.Invisible) }
     }
 
     private fun getSetting() {

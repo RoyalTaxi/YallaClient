@@ -78,10 +78,6 @@ internal fun OrderDetailsBottomSheet(
                 title = stringResource(R.string.status),
                 status = order.status
             )
-            OrderDetailItem(
-                title = stringResource(R.string.status),
-                descriptor = getOrderStatusText(order.status),
-            )
 
             OrderDetailItem(
                 title = stringResource(R.string.payment),

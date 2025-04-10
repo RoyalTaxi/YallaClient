@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
-import uz.yalla.client.feature.order.presentation.components.AddCommentField
+import uz.yalla.client.feature.order.presentation.components.fields.AddCommentField
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.OrderCommentSheetIntent
 
 private const val MAX_COMMENT_LENGTH = 100

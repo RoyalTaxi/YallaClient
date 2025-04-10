@@ -41,9 +41,7 @@ fun ActiveOrdersBottomSheet(
                         .lastOrNull()
                         .takeIf { order.taxi.routes.size > 1 }
                         ?.fullAddress,
-                    time = order.dateTime,
                     totalPrice = order.taxi.totalPrice.toString(),
-                    status = getOrderStatusText(order.status),
                     onClick = {
                         onSelectOrder(order)
                         onDismissRequest()

@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.order.presentation.components
+package uz.yalla.client.feature.order.presentation.components.buttons
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

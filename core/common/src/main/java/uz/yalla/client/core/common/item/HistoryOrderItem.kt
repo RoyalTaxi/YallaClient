@@ -33,9 +33,9 @@ fun HistoryOrderItem(
     firstAddress: String,
     modifier: Modifier = Modifier,
     secondAddress: String? = null,
-    time: String,
+    time: String? = null,
     totalPrice: String,
-    status: String,
+    status: String? = null,
     onClick: () -> Unit,
     enabled: Boolean = true
 ) {
@@ -96,11 +96,13 @@ fun HistoryOrderItem(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                Text(
-                    text = time,
-                    color = YallaTheme.color.gray,
-                    style = YallaTheme.font.bodySmall,
-                )
+                time?.let {
+                    Text(
+                        text = it,
+                        color = YallaTheme.color.gray,
+                        style = YallaTheme.font.bodySmall,
+                    )
+                }
             }
 
             Column(
@@ -114,11 +116,13 @@ fun HistoryOrderItem(
                     textAlign = TextAlign.End
                 )
 
-                Text(
-                    text = status,
-                    color = YallaTheme.color.red,
-                    style = YallaTheme.font.bodySmall
-                )
+                status?.let {
+                    Text(
+                        text = it,
+                        color = YallaTheme.color.red,
+                        style = YallaTheme.font.bodySmall
+                    )
+                }
 
                 Spacer(modifier = Modifier.weight(1f))
 

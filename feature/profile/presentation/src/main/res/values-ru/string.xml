@@ -8,8 +8,8 @@
 <string name="gender_f">Женщина</string>
 <string name="save">Сохранить</string>
 <string name="error_size">Размер изображения слишком большой</string>
-<string name="delete_profile_title">Это действие нельзя отменить.</string>
-<string name="delete_profile_desc">Вы уверены, что хотите удалить свой профиль?</string>
-<string name="delete">Удалить</string>
-<string name="stay">Оставаться</string>
+<string name="delete_profile_title">Внимание !</string>
+<string name="delete_profile_desc">Вы действительно хотите выйти ?</string>
+<string name="delete">Выйти</string>
+<string name="stay">Отмена</string>
 </resources>

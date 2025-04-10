@@ -1,8 +1,5 @@
 package uz.yalla.client.feature.registration.presentation.view
 
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.rememberBottomSheetScaffoldState
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -16,7 +13,6 @@ import org.koin.androidx.compose.koinViewModel
 import uz.yalla.client.feature.registration.presentation.model.RegistrationActionState
 import uz.yalla.client.feature.registration.presentation.model.RegistrationViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun RegistrationRoute(
     number: String,
@@ -28,9 +24,6 @@ internal fun RegistrationRoute(
     val uiState by vm.uiState.collectAsState()
     val focusManager = LocalFocusManager.current
     val scope = rememberCoroutineScope()
-    val sheetState = rememberBottomSheetScaffoldState(
-        bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    )
 
     LaunchedEffect(Unit) {
         launch(Dispatchers.IO) {
@@ -55,7 +48,7 @@ internal fun RegistrationRoute(
         uiState = uiState,
         onIntent = { intent ->
             when (intent) {
-                is RegistrationIntent.CloseDateBottomSheet -> scope.launch { sheetState.bottomSheetState.hide() }
+                is RegistrationIntent.CloseDateBottomSheet -> scope.launch { vm.setDatePickerVisible(false) }
                 is RegistrationIntent.NavigateBack -> onBack()
                 is RegistrationIntent.Register -> vm.register()
                 is RegistrationIntent.SetDateOfBirth -> vm.updateUiState(dateOfBirth = intent.dateOfBirth)
@@ -63,7 +56,7 @@ internal fun RegistrationRoute(
                 is RegistrationIntent.SetGender -> vm.updateUiState(gender = intent.gender)
                 is RegistrationIntent.SetLastName -> vm.updateUiState(lastName = intent.lastName)
                 is RegistrationIntent.OpenDateBottomSheet -> scope.launch {
-                    sheetState.bottomSheetState.show()
+                    vm.setDatePickerVisible(true)
                     focusManager.clearFocus(true)
                 }
             }

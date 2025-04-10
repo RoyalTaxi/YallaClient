@@ -8,8 +8,8 @@
     <string name="gender_f">Ayol</string>
     <string name="save">Saqlash</string>
     <string name="error_size">Rasm hajmi juda katta</string>
-    <string name="delete_profile_title">Bu amalni ortga qaytarib bo‘lmaydi.</string>
-    <string name="delete_profile_desc">Profilingizni oʻchirib tashlashingizga ishonchingiz komilmi?</string>
-    <string name="delete">O\'chirish</string>
-    <string name="stay">Qolish</string>
+    <string name="delete_profile_title">Diqqat !</string>
+    <string name="delete_profile_desc">Chiqishni hohlaysizmi ?</string>
+    <string name="delete">Chiqish</string>
+    <string name="stay">Bekor qilish</string>
 </resources>

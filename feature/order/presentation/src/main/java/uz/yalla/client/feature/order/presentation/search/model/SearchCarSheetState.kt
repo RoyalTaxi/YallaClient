@@ -5,6 +5,7 @@ import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.feature.order.domain.model.response.order.SettingModel
 import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
+import uz.yalla.client.feature.order.presentation.components.dialog.ConfirmationDialogEvent
 
 data class SearchCarSheetState(
     val loading: Boolean = false,
@@ -19,4 +20,5 @@ data class SearchCarSheetState(
     val isFasterEnabled: Boolean? = null,
     val headerHeight: Dp = 0.dp,
     val footerHeight: Dp = 0.dp,
+    val dialogEvent: ConfirmationDialogEvent = ConfirmationDialogEvent.Invisible,
 )

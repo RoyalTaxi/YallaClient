@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.update
 import uz.yalla.client.core.data.local.AppPreferences
 
 internal class LanguageViewModel : ViewModel() {
-    private val _uiState = MutableStateFlow(uz.yalla.client.feature.intro.language.model.LanguageUIState())
+    private val _uiState = MutableStateFlow(LanguageUIState())
     val uiState = _uiState.asStateFlow()
 
     fun setLanguage(language: Language, context: Context) {

@@ -49,4 +49,9 @@
     <string name="add_order">Qo\'shimcha buyurtma berish</string>
     <string name="want_faster">Tezlashtirish</string>
     <string name="add">Qo\'shish</string>
+    <string name="error">Xatolik</string>
+    <string name="error_body">Qayta urinib ko\'ring</string>
+    <string name="ok">Ok</string>
+    <string name="success">Buyurtma tezlashtirildi</string>
+    <string name="success_body">Siz uchun mashina qidiryabmiz.</string>
 </resources>
