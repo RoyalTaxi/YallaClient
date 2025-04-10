@@ -1,12 +1,10 @@
 package uz.yalla.client.activity
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,6 +23,11 @@ class MainViewModel(
     private val getConfigUseCase: GetConfigUseCase,
     private val sendFCMTokenUseCase: SendFCMTokenUseCase
 ) : ViewModel() {
+    companion object {
+        private const val MAX_LOCATION_ATTEMPTS = 3
+        private const val DEFAULT_LOCATION_TIMEOUT = 5000L
+    }
+
     val isConnected = connectivityObserver
         .isConnected
         .stateIn(
@@ -36,11 +39,6 @@ class MainViewModel(
     private val _isReady = MutableStateFlow<Boolean?>(null)
     val isReady = _isReady.asStateFlow()
 
-    // Maximum number of location retrieval attempts
-    private val MAX_LOCATION_ATTEMPTS = 3
-
-    // Timeout for location retrieval in milliseconds
-    private val LOCATION_TIMEOUT = 5000L
 
     init {
         getConfig()
@@ -61,7 +59,7 @@ class MainViewModel(
         while (attempts < MAX_LOCATION_ATTEMPTS) {
             attempts++
 
-            val result = withTimeoutOrNull(LOCATION_TIMEOUT) {
+            val result = withTimeoutOrNull(DEFAULT_LOCATION_TIMEOUT) {
                 try {
                     var locationResult = false
                     getCurrentLocation(
@@ -94,20 +92,6 @@ class MainViewModel(
         }
 
         if (!locationRetrieved) {
-            withContext(Dispatchers.Main) {
-                _isReady.emit(false)
-            }
-        }
-    }
-
-    fun releaseSplashScreenAfterTimeout() = viewModelScope.launch {
-        withTimeoutOrNull(LOCATION_TIMEOUT) {
-            while (_isReady.value == null) {
-                delay(100)
-            }
-        }
-
-        if (_isReady.value == null) {
             withContext(Dispatchers.Main) {
                 _isReady.emit(false)
             }

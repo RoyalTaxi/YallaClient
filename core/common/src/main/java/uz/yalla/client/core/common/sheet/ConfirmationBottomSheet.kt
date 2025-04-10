@@ -28,8 +28,8 @@ fun ConfirmationBottomSheet(
     description: String? = null,
     actionText: String,
     dismissText: String? = null,
+    onConfirm: () -> Unit,
     onDismissRequest: () -> Unit,
-    onConfirm: () -> Unit
 ) {
     ModalBottomSheet(
         shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),

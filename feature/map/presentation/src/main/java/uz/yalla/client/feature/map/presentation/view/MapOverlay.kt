@@ -35,9 +35,9 @@ fun BoxScope.MapOverlay(
             .padding(20.dp)
     ) {
         if (
-            OrderStatus.nonInteractive.contains(state.selectedOrder?.status)
-            ||
-            (state.destinations.isEmpty() && state.selectedOrder == null)
+            state.isMarkerVisible &&
+            (OrderStatus.nonInteractive.contains(state.selectedOrder?.status) ||
+                    (state.destinations.isEmpty() && state.selectedOrder == null))
         ) YallaMarker(
             state = state.markerState,
             color = YallaTheme.color.primary,

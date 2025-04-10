@@ -446,7 +446,7 @@ fun MapRoute(
         }
     }
 
-    LaunchedEffect(state.hasServiceProvided, state.selectedLocation) {
+    LaunchedEffect(state.hasServiceProvided) {
         if (state.hasServiceProvided == true) {
             val currentDestination = navController.currentDestination?.route ?: ""
             if (!currentDestination.contains(MAIN_SHEET_ROUTE)) {

@@ -25,11 +25,14 @@ data class MapUIState(
     val selectedOrder: ShowOrderModel? = null,
     val user: GetMeModel? = null,
 
+    val lastHandledServiceState: Boolean? = null,
+
     val drivers: List<Executor> = emptyList(),
 
     val sheetHeight: Dp = 0.dp,
     val moveCameraButtonState: MoveCameraButtonState = MoveCameraButtonState.MyLocationView,
     val loading: Boolean = false,
+    val isMarkerVisible: Boolean = true,
     val markerState: YallaMarkerState = YallaMarkerState.LOADING,
     val isActiveOrdersSheetVisibility: Boolean = false
 )
