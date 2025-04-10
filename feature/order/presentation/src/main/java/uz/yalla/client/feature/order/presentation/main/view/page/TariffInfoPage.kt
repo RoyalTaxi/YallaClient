@@ -1,7 +1,6 @@
 package uz.yalla.client.feature.order.presentation.main.view.page
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -45,8 +44,8 @@ import uz.yalla.client.core.domain.model.ServiceModel
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.domain.model.response.tarrif.GetTariffsModel
 import uz.yalla.client.feature.order.presentation.R
-import uz.yalla.client.feature.order.presentation.components.OptionsItem
-import uz.yalla.client.feature.order.presentation.components.ProvideDescriptionButton
+import uz.yalla.client.feature.order.presentation.components.items.OptionsItem
+import uz.yalla.client.feature.order.presentation.components.buttons.ProvideDescriptionButton
 import uz.yalla.client.feature.order.presentation.main.model.MainSheetState
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.TariffInfoSheetIntent
 

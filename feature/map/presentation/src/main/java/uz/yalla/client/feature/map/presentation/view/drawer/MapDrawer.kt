@@ -105,7 +105,7 @@ fun MapDrawer(
                 ) {
                     DrawerItem(
                         title = stringResource(R.string.invite_friends),
-                        description = stringResource(R.string.win_x_sums, 5000),
+                        //description = stringResource(R.string.win_x_sums, 5000),
                         painter = painterResource(R.drawable.ic_invite),
                         onClick = {
                             onIntent(

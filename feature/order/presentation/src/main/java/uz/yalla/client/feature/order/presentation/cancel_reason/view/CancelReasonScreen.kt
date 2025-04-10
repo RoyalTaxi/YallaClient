@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.order.presentation.cancel_reason
+package uz.yalla.client.feature.order.presentation.cancel_reason.view
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -26,6 +26,7 @@ import uz.yalla.client.core.common.selectable.ItemTextSelectable
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.domain.model.response.order.SettingModel
 import uz.yalla.client.feature.order.presentation.R
+import uz.yalla.client.feature.order.presentation.cancel_reason.model.CancelReasonUIState
 
 @Composable
 fun CancelReasonScreen(

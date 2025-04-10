@@ -3,7 +3,7 @@ package uz.yalla.client.feature.order.presentation.di
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import uz.yalla.client.feature.order.data.di.OrderData
-import uz.yalla.client.feature.order.presentation.cancel_reason.CancelReasonViewModel
+import uz.yalla.client.feature.order.presentation.cancel_reason.model.CancelReasonViewModel
 import uz.yalla.client.feature.order.presentation.client_waiting.model.ClientWaitingViewModel
 import uz.yalla.client.feature.order.presentation.driver_waiting.model.DriverWaitingViewModel
 import uz.yalla.client.feature.order.presentation.feedback.model.FeedbackSheetViewModel

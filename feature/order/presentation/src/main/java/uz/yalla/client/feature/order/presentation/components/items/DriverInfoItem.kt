@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.order.presentation.components
+package uz.yalla.client.feature.order.presentation.components.items
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,7 +12,6 @@ import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 import uz.yalla.client.feature.order.presentation.R
-import uz.yalla.client.feature.order.presentation.driver_waiting.view.DriverWaitingIntent
 
 @Composable
 fun DriverInfoItem(

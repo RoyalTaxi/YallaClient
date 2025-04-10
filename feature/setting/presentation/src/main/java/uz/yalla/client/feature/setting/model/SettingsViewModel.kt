@@ -14,7 +14,7 @@ internal class SettingsViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(SettingsUIState())
     val uiState = _uiState.asStateFlow()
 
-    fun setSelectedLanguageType(languageType: Language) = viewModelScope.launch(Dispatchers.IO) {
+    fun setSelectedLanguageType(languageType: Language) = viewModelScope.launch(Dispatchers.Main) {
         _uiState.update { it.copy(selectedLanguage = languageType) }
         updateAppLanguage(languageType)
     }

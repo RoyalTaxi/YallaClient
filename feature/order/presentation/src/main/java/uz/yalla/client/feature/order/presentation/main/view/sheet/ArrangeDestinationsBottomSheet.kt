@@ -29,7 +29,7 @@ import uz.yalla.client.core.common.utils.rememberDragDropState
 import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
-import uz.yalla.client.feature.order.presentation.components.ArrangeDestinationItem
+import uz.yalla.client.feature.order.presentation.components.items.ArrangeDestinationItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -96,7 +96,7 @@ fun ArrangeDestinationsBottomSheet(
             )
         ) {
             PrimaryButton(
-                text = stringResource(R.string.close),
+                text = stringResource(R.string.add),
                 onClick = {
                     onDismissRequest(orderedDestinations)
                     onAddNewDestinationClick()

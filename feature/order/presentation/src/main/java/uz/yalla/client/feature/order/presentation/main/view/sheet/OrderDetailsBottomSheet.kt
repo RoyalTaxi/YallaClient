@@ -8,7 +8,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.runtime.Composable
@@ -23,9 +26,9 @@ import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 import uz.yalla.client.feature.order.presentation.R
-import uz.yalla.client.feature.order.presentation.components.OptionsItem
+import uz.yalla.client.feature.order.presentation.components.items.OptionsItem
 import uz.yalla.client.core.common.item.OrderDetailItem
-import uz.yalla.client.feature.order.presentation.components.ProvideDescriptionButton
+import uz.yalla.client.feature.order.presentation.components.buttons.ProvideDescriptionButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -109,22 +112,14 @@ fun OrderDetailsBottomSheet(
                     )
                 )
 
-                if (order.comment.isNotEmpty()) {
-                    ProvideDescriptionButton(
-                        title = stringResource(R.string.comment_to_driver),
-                        description = order.comment,
-                        onClick = {}
-                    )
-                }
-
-                if (order.executor.givenNames.isNotEmpty()) {
-                    OrderDetailItem(
-                        title = stringResource(R.string.driver),
-                        descriptor = order.executor.givenNames
-                    )
-                }
-
                 if (order.status !in OrderStatus.nonInteractive) {
+                    if (order.executor.givenNames.isNotEmpty()) {
+                        OrderDetailItem(
+                            title = stringResource(R.string.driver),
+                            descriptor = order.executor.givenNames
+                        )
+                    }
+
                     order.executor.driver.let {
                         if (it.mark.isNotBlank() && it.stateNumber.isNotBlank() && it.model.isNotBlank())
                             OrderDetailItem(
@@ -133,6 +128,21 @@ fun OrderDetailsBottomSheet(
                                 carNumber = it.stateNumber
                             )
                     }
+                }
+
+                if (order.comment.isNotEmpty()) {
+                    ProvideDescriptionButton(
+                        title = stringResource(R.string.comment_to_driver),
+                        description = order.comment,
+                        trailingIcon = {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
+                                contentDescription = null,
+                                tint = YallaTheme.color.gray
+                            )
+                        },
+                        onClick = {}
+                    )
                 }
             }
 

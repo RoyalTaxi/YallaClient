@@ -54,8 +54,8 @@ import uz.yalla.client.core.common.sheet.ConfirmationBottomSheet
 import uz.yalla.client.core.common.state.SheetValue
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
-import uz.yalla.client.feature.order.presentation.components.DriverInfoItem
-import uz.yalla.client.feature.order.presentation.components.OrderActionsItem
+import uz.yalla.client.feature.order.presentation.components.items.DriverInfoItem
+import uz.yalla.client.feature.order.presentation.components.items.OrderActionsItem
 import uz.yalla.client.feature.order.presentation.components.OrderSheetHeader
 import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
 import uz.yalla.client.feature.order.presentation.driver_waiting.DRIVER_WAITING_ROUTE
@@ -115,7 +115,7 @@ object DriverWaitingSheet {
             }
         }
 
-        BackHandler { viewModel.setCancelBottomSheetVisibility(true) }
+        BackHandler { viewModel.onIntent(DriverWaitingIntent.AddNewOrder) }
 
         BottomSheetScaffold(
             scaffoldState = scaffoldState,

@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.Intent.ACTION_DIAL
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -51,8 +52,8 @@ import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
 import uz.yalla.client.feature.order.presentation.client_waiting.CLIENT_WAITING_ROUTE
 import uz.yalla.client.feature.order.presentation.client_waiting.model.ClientWaitingViewModel
-import uz.yalla.client.feature.order.presentation.components.DriverInfoItem
-import uz.yalla.client.feature.order.presentation.components.OrderActionsItem
+import uz.yalla.client.feature.order.presentation.components.items.DriverInfoItem
+import uz.yalla.client.feature.order.presentation.components.items.OrderActionsItem
 import uz.yalla.client.feature.order.presentation.components.OrderSheetHeader
 import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
 import uz.yalla.client.feature.order.presentation.main.view.sheet.OrderDetailsBottomSheet
@@ -99,6 +100,8 @@ object ClientWaitingSheet {
                 )
             }
         }
+
+        BackHandler { viewModel.onIntent(ClientWaitingIntent.AddNewOrder) }
 
         BottomSheetScaffold(
             scaffoldState = scaffoldState,

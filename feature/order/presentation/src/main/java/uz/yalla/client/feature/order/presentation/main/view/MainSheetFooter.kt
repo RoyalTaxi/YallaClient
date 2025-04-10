@@ -28,7 +28,7 @@ import uz.yalla.client.core.common.state.SheetValue
 import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
-import uz.yalla.client.feature.order.presentation.components.OptionsButton
+import uz.yalla.client.feature.order.presentation.components.buttons.OptionsButton
 import uz.yalla.client.feature.order.presentation.main.model.MainSheetState
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.FooterIntent
 
