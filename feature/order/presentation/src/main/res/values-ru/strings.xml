@@ -53,4 +53,5 @@
     <string name="ok">Ok</string>
     <string name="success">Заказ был ускорен.</string>
     <string name="success_body">Мы ищем для вас машину.</string>
+    <string name="tariff">Тариф</string>
 </resources>

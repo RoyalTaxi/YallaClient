@@ -21,14 +21,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.common.item.LocationItem
+import uz.yalla.client.core.common.item.OrderDetailItem
 import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 import uz.yalla.client.feature.order.presentation.R
-import uz.yalla.client.feature.order.presentation.components.items.OptionsItem
-import uz.yalla.client.core.common.item.OrderDetailItem
 import uz.yalla.client.feature.order.presentation.components.buttons.ProvideDescriptionButton
+import uz.yalla.client.feature.order.presentation.components.items.OptionsItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -96,7 +96,7 @@ fun OrderDetailsBottomSheet(
                     .padding(vertical = 10.dp)
             ) {
                 OrderDetailItem(
-                    title = stringResource(R.string.status),
+                    title = stringResource(R.string.tariff),
                     descriptor = order.taxi.tariff
                 )
 

@@ -54,4 +54,5 @@
     <string name="ok">Ok</string>
     <string name="success">Buyurtma tezlashtirildi</string>
     <string name="success_body">Siz uchun mashina qidiryabmiz.</string>
+    <string name="tariff">Tariff</string>
 </resources>
