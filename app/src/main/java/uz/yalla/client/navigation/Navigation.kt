@@ -64,7 +64,13 @@ fun Navigation(
         introModule(
             navController = navController,
             onPermissionGranted = {
-                if (AppPreferences.isDeviceRegistered) navController.navigateToMapScreen()
+                if (AppPreferences.isDeviceRegistered) navController.navigateToMapScreen(
+                    navOptions {
+                        restoreState = true
+                        popUpTo(0) { inclusive = true }
+
+                    }
+                )
                 else navController.navigateToAuthModule()
             }
         )
@@ -75,6 +81,7 @@ fun Navigation(
             onClientFound = {
                 navController.navigateToMapScreen(
                     navOptions {
+                        restoreState = true
                         popUpTo(0) { inclusive = true }
                     }
                 )
@@ -85,7 +92,10 @@ fun Navigation(
             onBack = navController::safePopBackStack,
             onNext = {
                 navController.navigateToMapScreen(
-                    navOptions { popUpTo(0) { inclusive = true } }
+                    navOptions {
+                        restoreState = true
+                        popUpTo(0) { inclusive = true }
+                    }
                 )
             }
         )
@@ -114,7 +124,14 @@ fun Navigation(
         )
 
         cancelReasonScreen(
-            onNavigateBack = navController::safePopBackStack
+            onNavigateBack = {
+                navController.navigateToMapScreen(
+                    navOptions {
+                        restoreState = true
+                        popUpTo(0) { inclusive = true }
+                    }
+                )
+            }
         )
 
         addressModule(

@@ -36,9 +36,9 @@ import org.koin.java.KoinJavaComponent.getKoin
 import uz.yalla.client.core.common.state.SheetValue
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
+import uz.yalla.client.feature.order.presentation.components.OrderSheetHeader
 import uz.yalla.client.feature.order.presentation.components.items.DriverInfoItem
 import uz.yalla.client.feature.order.presentation.components.items.OrderActionsItem
-import uz.yalla.client.feature.order.presentation.components.OrderSheetHeader
 import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
 import uz.yalla.client.feature.order.presentation.driver_waiting.DRIVER_WAITING_ROUTE
 import uz.yalla.client.feature.order.presentation.main.view.sheet.OrderDetailsBottomSheet

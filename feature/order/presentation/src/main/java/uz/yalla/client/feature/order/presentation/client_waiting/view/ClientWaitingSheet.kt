@@ -52,9 +52,9 @@ import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
 import uz.yalla.client.feature.order.presentation.client_waiting.CLIENT_WAITING_ROUTE
 import uz.yalla.client.feature.order.presentation.client_waiting.model.ClientWaitingViewModel
+import uz.yalla.client.feature.order.presentation.components.OrderSheetHeader
 import uz.yalla.client.feature.order.presentation.components.items.DriverInfoItem
 import uz.yalla.client.feature.order.presentation.components.items.OrderActionsItem
-import uz.yalla.client.feature.order.presentation.components.OrderSheetHeader
 import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
 import uz.yalla.client.feature.order.presentation.main.view.sheet.OrderDetailsBottomSheet
 
@@ -84,6 +84,7 @@ object ClientWaitingSheet {
         val cancelOrderSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         val orderDetailsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
+        BackHandler { viewModel.onIntent(ClientWaitingIntent.AddNewOrder) }
 
         LaunchedEffect(Unit) {
             launch(Dispatchers.IO) {
@@ -100,8 +101,6 @@ object ClientWaitingSheet {
                 )
             }
         }
-
-        BackHandler { viewModel.onIntent(ClientWaitingIntent.AddNewOrder) }
 
         BottomSheetScaffold(
             scaffoldState = scaffoldState,

@@ -1,8 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-
+    <!-- Base application theme -->
     <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
-        <item name="windowSplashScreenBackground">#8B3EFC</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash</item>
+        <!-- Other theme attributes -->
     </style>
 
+    <!-- Splash Screen theme (for API 30 and below) -->
+    <style name="SplashTheme" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#8B3EFC</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash</item>
+        <item name="postSplashScreenTheme">@style/AppTheme</item>
+    </style>
 </resources>

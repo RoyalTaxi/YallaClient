@@ -57,7 +57,6 @@ object OrderCanceledSheet {
                         color = YallaTheme.color.gray2,
                         shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
                     )
-                    .navigationBarsPadding()
             ) {
                 Column(
                     modifier = Modifier
@@ -66,7 +65,6 @@ object OrderCanceledSheet {
                             color = YallaTheme.color.white,
                             shape = RoundedCornerShape(30.dp)
                         )
-
                         .padding(20.dp)
                 ) {
                     Text(
@@ -89,6 +87,8 @@ object OrderCanceledSheet {
                         color = YallaTheme.color.white,
                         shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
                     )
+                        .navigationBarsPadding()
+
                 ) {
                     PrimaryButton(
                         text = stringResource(R.string.new_order),

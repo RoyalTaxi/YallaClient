@@ -5,8 +5,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.view.View
-import android.view.ViewTreeObserver
 import android.widget.Toast
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -21,18 +19,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.lifecycleScope
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.google.android.gms.auth.api.phone.SmsRetriever
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.appupdate.AppUpdateOptions
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import uz.yalla.client.navigation.Navigation
 import uz.yalla.client.BuildConfig
+import uz.yalla.client.navigation.Navigation
 
 class MainActivity : AppCompatActivity() {
     private lateinit var updateFlowLauncher: ActivityResultLauncher<IntentSenderRequest>
@@ -52,12 +48,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
+
         super.onCreate(savedInstanceState)
 
-        viewModel.getLocationAndSave(this)
-        viewModel.releaseSplashScreenAfterTimeout()
+        splashScreen.setKeepOnScreenCondition {
+            viewModel.isReady.value == null
+        }
 
-        viewModel.initializeFcm()
+        updateFlowLauncher = registerForActivityResult(
+            ActivityResultContracts.StartIntentSenderForResult()
+        ) { activityResult ->
+            if (activityResult.resultCode != RESULT_OK) {
+                finish()
+                startActivity(Intent(this, MainActivity::class.java))
+            }
+        }
 
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.light(
@@ -70,17 +76,15 @@ class MainActivity : AppCompatActivity() {
             )
         )
 
-        val content: View = findViewById(android.R.id.content)
-        content.viewTreeObserver.addOnPreDrawListener(
-            object : ViewTreeObserver.OnPreDrawListener {
-                override fun onPreDraw(): Boolean {
-                    return if (viewModel.isReady.value != null) {
-                        content.viewTreeObserver.removeOnPreDrawListener(this)
-                        true
-                    } else false
-                }
-            }
-        )
+        viewModel.getLocationAndSave(this)
+        viewModel.initializeFcm()
+
+        val client = SmsRetriever.getClient(this)
+        client.startSmsUserConsent(null)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            checkNotificationPermission()
+        }
 
         setContent {
             val isConnected by viewModel.isConnected.collectAsState()
@@ -89,25 +93,6 @@ class MainActivity : AppCompatActivity() {
                 isConnected = isConnected,
                 shouldGoForPermission = isReady == false
             )
-        }
-
-        if (!BuildConfig.DEBUG) {
-            updateFlowLauncher = registerForActivityResult(
-                ActivityResultContracts.StartIntentSenderForResult()
-            ) { activityResult ->
-                if (activityResult.resultCode != RESULT_OK) {
-                    finish()
-                    startActivity(Intent(this, MainActivity::class.java))
-                }
-            }
-            checkForImmediateUpdate()
-        }
-
-        val client = SmsRetriever.getClient(this)
-        client.startSmsUserConsent(null)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            checkNotificationPermission()
         }
     }
 
@@ -153,6 +138,13 @@ class MainActivity : AppCompatActivity() {
             ) {
                 requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!BuildConfig.DEBUG) {
+            checkForImmediateUpdate()
         }
     }
 }

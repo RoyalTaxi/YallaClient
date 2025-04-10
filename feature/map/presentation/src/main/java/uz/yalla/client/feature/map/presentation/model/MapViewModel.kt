@@ -32,6 +32,7 @@ import uz.yalla.client.feature.order.domain.usecase.order.GetActiveOrdersUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.GetShowOrderUseCase
 import uz.yalla.client.feature.order.presentation.main.view.MainSheet
 import uz.yalla.client.feature.profile.domain.usecase.GetMeUseCase
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration.Companion.seconds
 
 class MapViewModel(
@@ -49,6 +50,8 @@ class MapViewModel(
     private val hasProcessedFirstActiveOrders = MutableStateFlow(false)
 
     private var pollingJob: Job? = null
+
+    private val requestSequence = AtomicInteger(0)
 
     init {
         getMe()
@@ -211,9 +214,10 @@ class MapViewModel(
     }
 
     private fun getShowOrder(showingOrderId: Int) {
+        val currentSequence = requestSequence.get()
         viewModelScope.launch(Dispatchers.IO) {
             getShowOrderUseCase(showingOrderId).onSuccess { order ->
-                if (pollingOrderId.value == showingOrderId) {
+                if (pollingOrderId.value == showingOrderId && currentSequence == requestSequence.get()) {
                     withContext(Dispatchers.Main.immediate) {
                         _uiState.update {
                             it.copy(
@@ -313,6 +317,10 @@ class MapViewModel(
     }
 
     fun clearState() {
+        pollingJob?.cancel()
+        pollingOrderId.value = null
+        requestSequence.incrementAndGet()
+
         _uiState.update {
             it.copy(
                 selectedOrder = null,
@@ -323,9 +331,6 @@ class MapViewModel(
                 driverRoute = emptyList()
             )
         }
-
-        pollingJob?.cancel()
-        pollingOrderId.value = null
     }
 
     fun setStateToNotFound() {

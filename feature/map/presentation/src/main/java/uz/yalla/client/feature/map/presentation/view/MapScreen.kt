@@ -22,6 +22,8 @@ import uz.yalla.client.core.common.state.MoveCameraButtonState
 import uz.yalla.client.feature.map.presentation.model.MapUIState
 import uz.yalla.client.feature.map.presentation.navigation.BottomSheetNavHost
 import uz.yalla.client.feature.map.presentation.view.sheets.ActiveOrdersBottomSheet
+import uz.yalla.client.feature.order.presentation.main.MAIN_SHEET_ROUTE
+import uz.yalla.client.feature.order.presentation.order_canceled.ORDER_CANCELED_ROUTE
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,10 +34,11 @@ fun MapScreen(
     moveCameraButtonState: MoveCameraButtonState,
     hamburgerButtonState: HamburgerButtonState,
     navController: NavHostController,
-    onIntent: (MapScreenIntent) -> Unit
+    onIntent: (MapScreenIntent) -> Unit,
 ) {
     val density = LocalDensity.current
     val activeOrdersSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val currentRoute = navController.currentBackStackEntry?.destination?.route ?: MAIN_SHEET_ROUTE
 
     LaunchedEffect(state.isActiveOrdersSheetVisibility) {
         launch(Dispatchers.Main.immediate) {
@@ -66,7 +69,7 @@ fun MapScreen(
                 .pointerInput(Unit) {}
         )
 
-        MapOverlay(
+        if (currentRoute.contains(ORDER_CANCELED_ROUTE).not()) MapOverlay(
             modifier = Modifier.padding(bottom = state.sheetHeight),
             state = state,
             moveCameraButtonState = moveCameraButtonState,

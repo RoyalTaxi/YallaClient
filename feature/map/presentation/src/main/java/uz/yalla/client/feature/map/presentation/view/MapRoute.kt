@@ -3,11 +3,14 @@ package uz.yalla.client.feature.map.presentation.view
 import android.Manifest
 import android.app.Activity
 import androidx.activity.compose.BackHandler
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -72,6 +75,8 @@ import uz.yalla.client.feature.order.presentation.search.navigateToSearchForCarB
 import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheet
 import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheetIntent
 
+private val LocalDrawerState = compositionLocalOf { DrawerState(DrawerValue.Closed) }
+
 @Composable
 fun MapRoute(
     onPermissionDenied: () -> Unit,
@@ -100,7 +105,7 @@ fun MapRoute(
     val state by vm.uiState.collectAsState()
     val isMapEnabled by vm.isMapEnabled.collectAsState()
     val hamburgerButtonState by vm.hamburgerButtonState.collectAsState()
-    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    var drawerState = rememberDrawerState(DrawerValue.Closed)
     val map: MapStrategy by remember {
         mutableStateOf(
             when (AppPreferences.mapType) {
@@ -112,6 +117,13 @@ fun MapRoute(
     val navController = rememberNavController()
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
+
+    CompositionLocalProvider(
+        LocalDrawerState provides rememberDrawerState(DrawerValue.Closed)
+    ) {
+        drawerState = LocalDrawerState.current
+    }
+
     val currentRoute = navBackStackEntry?.destination?.route ?: MAIN_SHEET_ROUTE
 
     BackHandler {
@@ -337,10 +349,10 @@ fun MapRoute(
                 SearchCarSheet.intentFlow.collectLatest { intent ->
                     when (intent) {
                         is SearchCarSheetIntent.OnCancelled -> {
-                            navController.navigateToMainSheet()
-                            intent.orderId?.let { onCancel(state.selectedOrder?.id ?: it) }
+                            val orderId = state.selectedOrder?.id ?: intent.orderId
                             vm.clearState()
-
+                            navController.navigateToMainSheet()
+                            orderId?.let { onCancel(it) }
                         }
 
                         is SearchCarSheetIntent.AddNewOrder -> {
@@ -446,7 +458,7 @@ fun MapRoute(
         }
     }
 
-    LaunchedEffect(state.hasServiceProvided, state.selectedLocation) {
+    LaunchedEffect(state.hasServiceProvided) {
         if (state.hasServiceProvided == true) {
             val currentDestination = navController.currentDestination?.route ?: ""
             if (!currentDestination.contains(MAIN_SHEET_ROUTE)) {
