@@ -9,5 +9,6 @@ data class SearchByNameBottomSheetState(
     val currentLat: Double? = null,
     val currentLng: Double? = null,
     val foundAddresses: List<SearchableAddress> = emptyList(),
-    val recommendedAddresses: List<SearchableAddress> = emptyList()
+    val recommendedAddresses: List<SearchableAddress> = emptyList(),
+    val loading: Boolean = true
 )

@@ -1,6 +1,7 @@
 package uz.yalla.client.core.common.sheet
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -19,6 +20,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
@@ -27,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.core.common.field.SearchLocationField
 import uz.yalla.client.core.common.item.FoundAddressItem
 import uz.yalla.client.core.common.sheet.search_address.SearchByNameBottomSheetViewModel
@@ -48,13 +51,11 @@ fun AddDestinationBottomSheet(
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
-        // Reset query and request focus
         launch(Dispatchers.Main) {
             viewModel.resetSearchState()
             focusRequester.requestFocus()
         }
 
-        // Get secondary addresses once at launch
         launch(Dispatchers.IO) {
             viewModel.getSecondaryAddresses()
         }
@@ -98,47 +99,59 @@ fun AddDestinationBottomSheet(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(.8f)
-                .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
-                .background(YallaTheme.color.white)
-        ) {
-            if (uiState.foundAddresses.isNotEmpty()) {
-                items(uiState.foundAddresses) { foundAddress ->
-                    FoundAddressItem(
-                        foundAddress = foundAddress,
-                        onClick = {
-                            onAddressSelected(
-                                SelectedLocation(
-                                    name = it.name,
-                                    point = MapPoint(it.lat, it.lng),
-                                    addressId = it.addressId.or0()
+        Box {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(.8f)
+                    .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
+                    .background(YallaTheme.color.white)
+            ) {
+                if (uiState.foundAddresses.isNotEmpty()) {
+                    items(uiState.foundAddresses) { foundAddress ->
+                        FoundAddressItem(
+                            foundAddress = foundAddress,
+                            onClick = {
+                                onAddressSelected(
+                                    SelectedLocation(
+                                        name = it.name,
+                                        point = MapPoint(it.lat, it.lng),
+                                        addressId = it.addressId.or0()
+                                    )
                                 )
-                            )
-                            viewModel.resetSearchState()
-                            onDismissRequest()
-                        }
-                    )
+                                viewModel.resetSearchState()
+                                onDismissRequest()
+                            }
+                        )
+                    }
+                } else if (uiState.query.isBlank() && uiState.recommendedAddresses.isNotEmpty()) {
+                    items(uiState.recommendedAddresses) { recommendedAddress ->
+                        FoundAddressItem(
+                            foundAddress = recommendedAddress,
+                            onClick = {
+                                onAddressSelected(
+                                    SelectedLocation(
+                                        name = it.name,
+                                        point = MapPoint(it.lat, it.lng),
+                                        addressId = it.addressId.or0()
+                                    )
+                                )
+                                viewModel.resetSearchState()
+                                onDismissRequest()
+                            }
+                        )
+                    }
                 }
             }
-            else if (uiState.query.isBlank() && uiState.recommendedAddresses.isNotEmpty()) {
-                items(uiState.recommendedAddresses) { recommendedAddress ->
-                    FoundAddressItem(
-                        foundAddress = recommendedAddress,
-                        onClick = {
-                            onAddressSelected(
-                                SelectedLocation(
-                                    name = it.name,
-                                    point = MapPoint(it.lat, it.lng),
-                                    addressId = it.addressId.or0()
-                                )
-                            )
-                            viewModel.resetSearchState()
-                            onDismissRequest()
-                        }
-                    )
+
+            if (uiState.loading) {
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .imePadding(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    LoadingDialog()
                 }
             }
         }

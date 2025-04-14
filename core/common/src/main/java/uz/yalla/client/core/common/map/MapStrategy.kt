@@ -12,7 +12,7 @@ import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 
 interface MapStrategy {
     val mapPoint: MutableState<MapPoint>
-    val isMarkerMoving: Flow<Boolean>
+    val isMarkerMoving: Flow<Pair<Boolean, Boolean>>
 
     @Composable
     fun Map(

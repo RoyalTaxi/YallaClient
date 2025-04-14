@@ -2,6 +2,7 @@ package uz.yalla.client.core.common.sheet.search_address
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -22,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
@@ -31,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.core.common.field.SearchLocationField
 import uz.yalla.client.core.common.item.FoundAddressItem
 import uz.yalla.client.core.common.utils.getCurrentLocation
@@ -58,27 +61,22 @@ fun SearchByNameBottomSheet(
     val destinationFocusRequester = remember { FocusRequester() }
     var lastFocusedForDestination by remember { mutableStateOf(isForDestination) }
 
-    // One-time initialization
     LaunchedEffect(Unit) {
         launch(Dispatchers.IO) {
-            // Set initial values if provided
             initialAddress?.let { viewModel.setQuery(it) }
             initialDestination?.let { viewModel.setDestinationQuery(it) }
 
-            // Fetch necessary data once at start
             viewModel.fetchPolygons()
         }
 
         launch(Dispatchers.Main) {
             getCurrentLocation(context) { location ->
                 viewModel.setCurrentLocation(location.latitude, location.longitude)
-                // After setting location, fetch secondary addresses
                 viewModel.getSecondaryAddresses()
             }
         }
     }
 
-    // Handle focus changes based on isForDestination prop
     LaunchedEffect(isForDestination) {
         launch(Dispatchers.Main) {
             if (isForDestination) {
@@ -95,7 +93,6 @@ fun SearchByNameBottomSheet(
         sheetState = sheetState,
         dragHandle = null,
         onDismissRequest = {
-            // Use reset function instead of multiple calls
             viewModel.resetSearchState()
             onDismissRequest()
         }
@@ -159,45 +156,69 @@ fun SearchByNameBottomSheet(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxHeight(.8f)
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
-                .background(YallaTheme.color.white)
-        ) {
-            // Show search results if we have any
-            if (uiState.foundAddresses.isNotEmpty()) {
-                items(uiState.foundAddresses) { foundAddress ->
-                    FoundAddressItem(
-                        foundAddress = foundAddress,
-                        onClick = {
-                            if (lastFocusedForDestination)
-                                onDestinationSelected(it.name, it.lat, it.lng, it.addressId.or0())
-                            else
-                                onAddressSelected(it.name, it.lat, it.lng, it.addressId.or0())
-                            viewModel.resetSearchState()
-                            onDismissRequest()
-                        }
-                    )
+        Box {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxHeight(.8f)
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
+                    .background(YallaTheme.color.white)
+            ) {
+                // Show search results if we have any
+                if (uiState.foundAddresses.isNotEmpty()) {
+                    items(uiState.foundAddresses) { foundAddress ->
+                        FoundAddressItem(
+                            foundAddress = foundAddress,
+                            onClick = {
+                                if (lastFocusedForDestination)
+                                    onDestinationSelected(
+                                        it.name,
+                                        it.lat,
+                                        it.lng,
+                                        it.addressId.or0()
+                                    )
+                                else
+                                    onAddressSelected(it.name, it.lat, it.lng, it.addressId.or0())
+                                viewModel.resetSearchState()
+                                onDismissRequest()
+                            }
+                        )
+                    }
+                }
+                // Show recommended addresses when search is empty and we have a focused field
+                else if ((lastFocusedForDestination && uiState.destinationQuery.isBlank()) ||
+                    (!lastFocusedForDestination && uiState.query.isBlank())
+                ) {
+
+                    items(uiState.recommendedAddresses) { recommendedAddress ->
+                        FoundAddressItem(
+                            foundAddress = recommendedAddress,
+                            onClick = {
+                                if (lastFocusedForDestination)
+                                    onDestinationSelected(
+                                        it.name,
+                                        it.lat,
+                                        it.lng,
+                                        it.addressId.or0()
+                                    )
+                                else
+                                    onAddressSelected(it.name, it.lat, it.lng, it.addressId.or0())
+                                viewModel.resetSearchState()
+                                onDismissRequest()
+                            }
+                        )
+                    }
                 }
             }
-            // Show recommended addresses when search is empty and we have a focused field
-            else if ((lastFocusedForDestination && uiState.destinationQuery.isBlank()) ||
-                (!lastFocusedForDestination && uiState.query.isBlank())) {
 
-                items(uiState.recommendedAddresses) { recommendedAddress ->
-                    FoundAddressItem(
-                        foundAddress = recommendedAddress,
-                        onClick = {
-                            if (lastFocusedForDestination)
-                                onDestinationSelected(it.name, it.lat, it.lng, it.addressId.or0())
-                            else
-                                onAddressSelected(it.name, it.lat, it.lng, it.addressId.or0())
-                            viewModel.resetSearchState()
-                            onDismissRequest()
-                        }
-                    )
+            if (uiState.loading) {
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .imePadding(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    LoadingDialog()
                 }
             }
         }

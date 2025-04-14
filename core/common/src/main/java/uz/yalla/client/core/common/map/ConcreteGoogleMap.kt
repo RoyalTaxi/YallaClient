@@ -24,6 +24,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import com.google.maps.android.compose.CameraMoveStartedReason
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
@@ -52,7 +53,7 @@ import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 import kotlin.properties.Delegates
 
 class ConcreteGoogleMap : MapStrategy {
-    override val isMarkerMoving = MutableStateFlow(false)
+    override val isMarkerMoving = MutableStateFlow(Pair(false, false))
     override val mapPoint: MutableState<MapPoint> = mutableStateOf(
         MapPoint(
             lat = AppPreferences.entryLocation.first,
@@ -97,7 +98,12 @@ class ConcreteGoogleMap : MapStrategy {
         LaunchedEffect(cameraPositionState) {
             snapshotFlow { cameraPositionState.isMoving }
                 .collect { isMoving ->
-                    isMarkerMoving.emit(isMoving)
+                    isMarkerMoving.emit(
+                        Pair(
+                            isMoving,
+                            cameraPositionState.cameraMoveStartedReason == CameraMoveStartedReason.GESTURE
+                        )
+                    )
                     if (!isMoving) {
                         val target = cameraPositionState.position.target
                         mapPoint.value = MapPoint(

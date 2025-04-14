@@ -90,7 +90,7 @@ fun SelectFromMapView(
     LaunchedEffect(Unit) {
         launch(Dispatchers.Main) {
             map.isMarkerMoving.collectLatest {
-                isMarkerMoving = it
+                isMarkerMoving = it.first
             }
         }
     }

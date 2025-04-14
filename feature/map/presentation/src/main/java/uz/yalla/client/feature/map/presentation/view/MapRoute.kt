@@ -29,6 +29,8 @@ import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.core.common.map.ConcreteGoogleMap
 import uz.yalla.client.core.common.map.MapStrategy
 import uz.yalla.client.core.common.marker.YallaMarkerState
+import uz.yalla.client.core.common.state.MoveCameraButtonState.FirstLocation
+import uz.yalla.client.core.common.state.MoveCameraButtonState.MyRouteView
 import uz.yalla.client.core.common.state.rememberPermissionState
 import uz.yalla.client.core.data.enums.MapType
 import uz.yalla.client.core.data.local.AppPreferences
@@ -146,7 +148,7 @@ fun MapRoute(
 
     LaunchedEffect(Unit) {
         launch(Dispatchers.Main) {
-            map.isMarkerMoving.collectLatest { isMarkerMoving ->
+            map.isMarkerMoving.collectLatest { (isMarkerMoving, isByUser) ->
                 if (state.destinations.isEmpty()) {
                     when {
                         isMarkerMoving.not() && state.selectedOrder == null -> {
@@ -160,6 +162,26 @@ fun MapRoute(
                         }
                     }
                 }
+                if (!isMarkerMoving)
+                    when {
+                        state.moveCameraButtonState == MyRouteView && isByUser -> vm.updateState(
+                            state.copy(
+                                moveCameraButtonState = MyRouteView
+                            )
+                        )
+
+                        state.moveCameraButtonState == MyRouteView && !isByUser -> vm.updateState(
+                            state.copy(
+                                moveCameraButtonState = FirstLocation
+                            )
+                        )
+
+                        state.moveCameraButtonState == FirstLocation -> vm.updateState(
+                            state.copy(
+                                moveCameraButtonState = MyRouteView
+                            )
+                        )
+                    }
             }
         }
 

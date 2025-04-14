@@ -3,8 +3,14 @@ package uz.yalla.client.core.common.sheet.search_address
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uz.yalla.client.core.domain.model.SearchableAddress
@@ -14,7 +20,9 @@ import uz.yalla.client.feature.map.domain.model.response.SearchForAddressItemMod
 import uz.yalla.client.feature.map.domain.usecase.GetPolygonUseCase
 import uz.yalla.client.feature.map.domain.usecase.GetSecondaryAddressedUseCase
 import uz.yalla.client.feature.map.domain.usecase.SearchAddressUseCase
+import kotlin.time.Duration.Companion.milliseconds
 
+@OptIn(FlowPreview::class)
 class SearchByNameBottomSheetViewModel(
     private val searchAddressUseCase: SearchAddressUseCase,
     private val getPolygonUseCase: GetPolygonUseCase,
@@ -26,6 +34,41 @@ class SearchByNameBottomSheetViewModel(
     private val _uiState = MutableStateFlow(SearchByNameBottomSheetState())
     val uiState = _uiState.asStateFlow()
 
+    private val _searchQuery = MutableStateFlow("")
+    private val _destinationQuery = MutableStateFlow("")
+
+    init {
+        _searchQuery
+            .debounce(500.milliseconds)
+            .distinctUntilChanged()
+            .filter { it.isNotBlank() }
+            .onEach { query ->
+                uiState.value.apply {
+                    if (currentLat != null && currentLng != null) {
+                        searchForAddress(currentLat, currentLng, query)
+                    } else {
+                        _uiState.update { it.copy(loading = false) }
+                    }
+                }
+            }
+            .launchIn(viewModelScope)
+
+        _destinationQuery
+            .debounce(500.milliseconds)
+            .distinctUntilChanged()
+            .filter { it.isNotBlank() }
+            .onEach { query ->
+                uiState.value.apply {
+                    if (currentLat != null && currentLng != null) {
+                        searchForAddress(currentLat, currentLng, query)
+                    } else {
+                        _uiState.update { it.copy(loading = false) }
+                    }
+                }
+            }
+            .launchIn(viewModelScope)
+    }
+
     fun fetchPolygons() = viewModelScope.launch(Dispatchers.IO) {
         getPolygonUseCase().onSuccess { result -> addresses = result }
     }
@@ -34,12 +77,15 @@ class SearchByNameBottomSheetViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             searchAddressUseCase(lat, lng, query).onSuccess { result ->
                 setFoundAddresses(result)
-            }.onFailure { setFoundAddresses(emptyList()) }
+            }.onFailure {
+                setFoundAddresses(emptyList())
+            }
         }
 
     private fun setFoundAddresses(addresses: List<SearchForAddressItemModel>) {
         _uiState.update {
             it.copy(
+                loading = false,
                 foundAddresses = addresses.map { address ->
                     SearchableAddress(
                         addressId = address.addressId,
@@ -64,59 +110,58 @@ class SearchByNameBottomSheetViewModel(
         }
 
         viewModelScope.launch(Dispatchers.IO) {
+            _uiState.update {
+                it.copy(
+                    loading = true,
+                    foundAddresses = emptyList()
+                )
+            }
             getSecondaryAddressedUseCase(lat, lng).onSuccess { data ->
                 _uiState.update {
-                    it.copy(recommendedAddresses = data)
+                    it.copy(
+                        recommendedAddresses = data,
+                        loading = false
+                    )
                 }
                 hasLoadedSecondaryAddresses = true
+            }.onFailure {
+                _uiState.update { it.copy(loading = false) }
             }
         }
     }
 
     fun setQuery(query: String) {
-        val currentQuery = uiState.value.query
-        val trimmedQuery = query.trim()
+        _uiState.update {
+            it.copy(
+                query = query,
+                loading = query.isNotBlank()
+            )
+        }
+        _searchQuery.value = query
 
-        _uiState.update { it.copy(query = query) }
-
-        if (trimmedQuery.isBlank()) {
+        if (query.isBlank()) {
             setFoundAddresses(emptyList())
 
             if (!hasLoadedSecondaryAddresses) {
                 getSecondaryAddresses()
-            }
-            return
-        }
-
-        if (currentQuery == query) return
-
-        uiState.value.apply {
-            if (currentLat != null && currentLng != null) {
-                searchForAddress(currentLat, currentLng, query)
             }
         }
     }
 
     fun setDestinationQuery(query: String) {
-        val currentDestQuery = uiState.value.destinationQuery
-        val trimmedQuery = query.trim()
+        _uiState.update {
+            it.copy(
+                destinationQuery = query,
+                loading = query.isNotBlank()
+            )
+        }
+        _destinationQuery.value = query
 
-        _uiState.update { it.copy(destinationQuery = query) }
-
-        if (trimmedQuery.isBlank()) {
+        if (query.isBlank()) {
             setFoundAddresses(emptyList())
 
             if (!hasLoadedSecondaryAddresses) {
                 getSecondaryAddresses()
-            }
-            return
-        }
-
-        if (currentDestQuery == query) return
-
-        uiState.value.apply {
-            if (currentLat != null && currentLng != null) {
-                searchForAddress(currentLat, currentLng, query)
             }
         }
     }
@@ -138,10 +183,15 @@ class SearchByNameBottomSheetViewModel(
     }
 
     fun resetSearchState() {
+        _searchQuery.value = ""
+        _destinationQuery.value = ""
         _uiState.update {
             it.copy(
                 query = "",
-                foundAddresses = emptyList()
+                destinationQuery = "",
+                recommendedAddresses = emptyList(),
+                foundAddresses = emptyList(),
+                loading = false
             )
         }
     }
