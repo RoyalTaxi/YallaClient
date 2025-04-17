@@ -59,7 +59,7 @@ fun OptionsItem(
                         option.cost.toString()
                     ),
                     color = YallaTheme.color.gray,
-                    style = YallaTheme.font.bodySmall
+                    style = YallaTheme.font.body
                 )
             }
 

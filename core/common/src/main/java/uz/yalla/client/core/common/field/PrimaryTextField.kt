@@ -69,7 +69,7 @@ fun PrimaryTextField(
                     Text(
                         text = placeHolderText,
                         color = YallaTheme.color.gray,
-                        style = YallaTheme.font.bodySmall
+                        style = YallaTheme.font.body
                     )
 
                 BasicTextField(

@@ -63,7 +63,7 @@ fun TariffItem(
                     )
                 },
                 color = textColor,
-                style = YallaTheme.font.bodySmall
+                style = YallaTheme.font.body
             )
 
             Spacer(modifier = Modifier.height(8.dp))

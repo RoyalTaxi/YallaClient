@@ -44,7 +44,7 @@ fun ChooseFromMapButton(
             Text(
                 text = stringResource(R.string.map),
                 color = YallaTheme.color.black,
-                style = YallaTheme.font.bodySmall.copy(fontSize = 10.sp)
+                style = YallaTheme.font.body.copy(fontSize = 10.sp)
             )
         }
     }
