@@ -71,6 +71,7 @@ dependencies {
     implementation(projects.feature.contact.presentation)
     implementation(projects.feature.map.presentation)
     implementation(projects.feature.order.presentation)
+    implementation(projects.feature.notification.presentation)
 
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling.preview)

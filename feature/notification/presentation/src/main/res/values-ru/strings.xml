@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notifications">Новости и уведомление</string>
+    <string name="no_notification_body">Новостей пока нет. Заглядывайте позже — здесь обязательно что-то появится!</string>
+</resources>

@@ -20,6 +20,7 @@ fun NavGraphBuilder.mapScreen(
     onContactUsClick: () -> Unit,
     onCancel: (Int) -> Unit,
     onAddNewCard: () -> Unit,
+    onNotificationsClick: () -> Unit,
     becomeDriverClick: (String, String) -> Unit,
     inviteFriendClick: (String, String) -> Unit
 ) {
@@ -38,7 +39,8 @@ fun NavGraphBuilder.mapScreen(
             onAboutAppClick = onAboutAppClick,
             onContactUsClick = onContactUsClick,
             onBecomeDriverClick = becomeDriverClick,
-            onInviteFriendClick = inviteFriendClick
+            onInviteFriendClick = inviteFriendClick,
+            onNotificationsClick = onNotificationsClick
         )
     }
 }

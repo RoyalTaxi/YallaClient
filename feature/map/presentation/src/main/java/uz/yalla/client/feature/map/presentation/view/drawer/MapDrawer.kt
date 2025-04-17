@@ -135,6 +135,12 @@ fun MapDrawer(
                         painter = painterResource(R.drawable.ic_contact_us),
                         onClick = { onIntent(MapDrawerIntent.ContactUs) }
                     )
+
+//                    DrawerItem(
+//                        title = stringResource(R.string.notifications),
+//                        painter = painterResource(R.drawable.ic_bell),
+//                        onClick = { onIntent(MapDrawerIntent.Notifications) }
+//                    )
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))
