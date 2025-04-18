@@ -41,7 +41,7 @@ fun OrderDetailItem(
                 Text(
                     text = it,
                     color = YallaTheme.color.gray,
-                    style = YallaTheme.font.bodySmall
+                    style = YallaTheme.font.body
                 )
             }
         }

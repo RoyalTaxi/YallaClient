@@ -61,7 +61,7 @@ fun FoundAddressItem(
                     Text(
                         text = foundAddress.addressName,
                         color = YallaTheme.color.gray,
-                        style = YallaTheme.font.bodySmall
+                        style = YallaTheme.font.body
                     )
                 }
             }

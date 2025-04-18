@@ -44,7 +44,7 @@ fun TariffItemShimmer(
             Text(
                 text = "от 5000 сум",
                 color = Color.Transparent,
-                style = YallaTheme.font.bodySmall,
+                style = YallaTheme.font.body,
                 modifier = Modifier.shimmerEffect()
             )
 

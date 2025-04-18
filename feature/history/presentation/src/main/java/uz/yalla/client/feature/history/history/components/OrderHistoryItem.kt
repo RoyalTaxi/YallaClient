@@ -1,4 +1,4 @@
-package uz.yalla.client.core.common.item
+package uz.yalla.client.feature.history.history.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -26,22 +26,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.common.R
+import uz.yalla.client.core.common.utils.getOrderStatusText
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
+import uz.yalla.client.feature.domain.model.OrdersHistory
 
 @Composable
-fun OrderItem(
-    firstAddress: String,
+fun OrderHistoryItem(
+    order: OrdersHistory.Item,
     modifier: Modifier = Modifier,
-    secondAddress: String? = null,
-    time: String,
-    totalPrice: String,
-    status: String,
     onClick: () -> Unit,
-    enabled: Boolean = true
 ) {
     Card(
         onClick = onClick,
-        enabled = enabled,
         colors = CardDefaults.cardColors(YallaTheme.color.gray2),
         shape = RoundedCornerShape(16.dp),
         modifier = modifier.fillMaxWidth()
@@ -66,12 +62,13 @@ fun OrderItem(
                     Spacer(modifier = Modifier.width(10.dp))
 
                     Text(
-                        text = firstAddress,
+                        text = order.taxi.routes.firstOrNull()?.fullAddress.orEmpty(),
                         color = YallaTheme.color.black,
                         style = YallaTheme.font.labelSemiBold
                     )
                 }
 
+                val secondAddress = order.taxi.routes.lastOrNull().takeIf { order.taxi.routes.size > 1 }?.fullAddress
                 secondAddress?.let {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
@@ -89,7 +86,7 @@ fun OrderItem(
                         Text(
                             text = it,
                             color = YallaTheme.color.gray,
-                            style = YallaTheme.font.bodySmall
+                            style = YallaTheme.font.body
                         )
                     }
                 }
@@ -97,9 +94,9 @@ fun OrderItem(
                 Spacer(modifier = Modifier.weight(1f))
 
                 Text(
-                    text = time,
+                    text = order.time,
                     color = YallaTheme.color.gray,
-                    style = YallaTheme.font.bodySmall,
+                    style = YallaTheme.font.body,
                 )
             }
 
@@ -108,16 +105,16 @@ fun OrderItem(
                 modifier = Modifier.heightIn(min = 80.dp)
             ) {
                 Text(
-                    text = stringResource(R.string.fixed_cost, totalPrice),
+                    text = stringResource(R.string.fixed_cost, order.taxi.totalPrice),
                     color = YallaTheme.color.black,
                     style = YallaTheme.font.labelSemiBold,
                     textAlign = TextAlign.End
                 )
 
                 Text(
-                    text = status,
+                    text = getOrderStatusText(order.status),
                     color = YallaTheme.color.red,
-                    style = YallaTheme.font.bodySmall
+                    style = YallaTheme.font.body
                 )
 
                 Spacer(modifier = Modifier.weight(1f))

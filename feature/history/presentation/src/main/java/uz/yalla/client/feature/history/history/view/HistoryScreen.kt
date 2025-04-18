@@ -25,6 +25,7 @@ import uz.yalla.client.core.common.utils.getOrderStatusText
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.domain.model.OrdersHistory
 import uz.yalla.client.feature.history.R
+import uz.yalla.client.feature.history.history.components.OrderHistoryItem
 import uz.yalla.client.feature.history.history.components.getRelativeDate
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -85,15 +86,8 @@ internal fun HistoryScreen(
                         }
 
                         is OrdersHistory.Item -> {
-                            OrderItem(
-                                firstAddress = order.taxi.routes.firstOrNull()?.fullAddress.orEmpty(),
-                                secondAddress = order.taxi.routes
-                                    .lastOrNull()
-                                    .takeIf { order.taxi.routes.size > 1 }
-                                    ?.fullAddress,
-                                time = order.time,
-                                totalPrice = order.taxi.totalPrice,
-                                status = getOrderStatusText(order.status),
+                            OrderHistoryItem(
+                                order = order,
                                 onClick = { onIntent(HistoryIntent.OnHistoryItemClick(order.id)) }
                             )
                         }

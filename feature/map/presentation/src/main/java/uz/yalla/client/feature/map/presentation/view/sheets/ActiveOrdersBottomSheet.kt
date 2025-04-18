@@ -10,8 +10,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
-import uz.yalla.client.core.common.item.HistoryOrderItem
-import uz.yalla.client.core.common.utils.getOrderStatusText
+import uz.yalla.client.feature.map.presentation.components.item.ActiveOrderItem
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 
@@ -35,13 +34,8 @@ fun ActiveOrdersBottomSheet(
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             items(orders) { order ->
-                HistoryOrderItem(
-                    firstAddress = order.taxi.routes.firstOrNull()?.fullAddress.orEmpty(),
-                    secondAddress = order.taxi.routes
-                        .lastOrNull()
-                        .takeIf { order.taxi.routes.size > 1 }
-                        ?.fullAddress,
-                    totalPrice = order.taxi.totalPrice.toString(),
+                ActiveOrderItem(
+                    order = order,
                     onClick = {
                         onSelectOrder(order)
                         onDismissRequest()
