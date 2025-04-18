@@ -20,6 +20,7 @@ import kotlinx.coroutines.yield
 import uz.yalla.client.core.common.marker.YallaMarkerState
 import uz.yalla.client.core.common.state.HamburgerButtonState
 import uz.yalla.client.core.common.state.MoveCameraButtonState
+import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.OrderStatus
@@ -33,6 +34,7 @@ import uz.yalla.client.feature.order.domain.usecase.order.GetShowOrderUseCase
 import uz.yalla.client.feature.order.presentation.main.view.MainSheet
 import uz.yalla.client.feature.profile.domain.usecase.GetMeUseCase
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.math.ceil
 import kotlin.time.Duration.Companion.seconds
 
 class MapViewModel(
@@ -47,8 +49,6 @@ class MapViewModel(
     val uiState = _uiState.asStateFlow()
 
     private val pollingOrderId = MutableStateFlow<Int?>(null)
-    private val hasProcessedFirstActiveOrders = MutableStateFlow(false)
-
     private var pollingJob: Job? = null
 
     private val requestSequence = AtomicInteger(0)
@@ -247,8 +247,8 @@ class MapViewModel(
     private fun getActiveOrders() {
         viewModelScope.launch(Dispatchers.IO) {
             getActiveOrdersUseCase().onSuccess { activeOrders ->
-                if (hasProcessedFirstActiveOrders.value.not()) {
-                    hasProcessedFirstActiveOrders.value = true
+                if (AppPreferences.hasProcessedOrderOnEntry.not()) {
+                    AppPreferences.hasProcessedOrderOnEntry = true
                     if (activeOrders.list.size == 1) {
                         setSelectedOrder(activeOrders.list.first())
                     } else if (activeOrders.list.size > 1) {
@@ -301,8 +301,12 @@ class MapViewModel(
             )
 
             getRoutingUseCase(addresses).onSuccess { route ->
-                _uiState.update {
-                    it.copy(
+                val duration = route.duration
+                    .takeIf { it != 0.0 }
+                    ?.div(60)
+                _uiState.update { state ->
+                    state.copy(
+                        orderEndsInMinutes = duration?.let { ceil(it).toInt() },
                         route = route.routing.map { routingPoint ->
                             MapPoint(routingPoint.lat, routingPoint.lng)
                         }

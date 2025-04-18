@@ -18,9 +18,10 @@ class App : Application() {
         AppPreferences.init(this)
 
         AppPreferences.mapType = MapType.Google
+        AppPreferences.hasProcessedOrderOnEntry = false
 
-        if (AppPreferences.mapType == MapType.Google) MapsInitializer.initialize(this)
-//        else InitMap.init(this)
+        if (AppPreferences.mapType == MapType.Google)
+            MapsInitializer.initialize(this)
 
         startKoin {
             androidContext(this@App)

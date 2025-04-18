@@ -19,4 +19,7 @@
     <string name="appointed">Назначен</string>
     <string name="completed">Выполнен</string>
     <string name="canceled">Отменен</string>
+    <string name="coming">Подача</string>
+    <string name="x_min">%s мин</string>
+    <string name="on_the_way">В дороге</string>
 </resources>
