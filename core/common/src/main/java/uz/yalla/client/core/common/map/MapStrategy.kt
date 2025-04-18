@@ -25,6 +25,7 @@ interface MapStrategy {
 
     fun move(to: MapPoint)
     fun animate(to: MapPoint, durationMillis: Int = 1000)
+    fun zoomOut()
     fun moveToMyLocation()
     fun animateToMyLocation(durationMillis: Int = 1000)
     fun moveToFitBounds(routing: List<MapPoint>)
@@ -34,5 +35,6 @@ interface MapStrategy {
     fun updateRoute(route: List<MapPoint>)
     fun updateOrderStatus(status: OrderStatus?)
     fun updateLocations(locations: List<MapPoint>)
-    fun zoomOut()
+    fun updateCarArrivesInMinutes(carArrivesInMinutes: Int?)
+    fun updateOrderEndsInMinutes(orderEndsInMinutes: Int?)
 }

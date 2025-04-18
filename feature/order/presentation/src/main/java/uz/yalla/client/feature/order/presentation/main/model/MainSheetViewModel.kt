@@ -11,7 +11,6 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChangedBy
@@ -23,11 +22,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import uz.yalla.client.core.common.sheet.search_address.SearchByNameSheetValue
 import uz.yalla.client.core.common.sheet.select_from_map.SelectFromMapViewValue
-import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.core.data.mapper.orFalse
 import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.MapPoint
+import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.core.domain.model.SelectedLocation
 import uz.yalla.client.core.domain.model.ServiceModel
 import uz.yalla.client.feature.map.domain.model.response.PolygonRemoteItem
@@ -59,312 +58,83 @@ class MainSheetViewModel(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainSheetState())
-    val uiState: StateFlow<MainSheetState> = _uiState.asStateFlow()
+    val uiState = _uiState.asStateFlow()
 
-    private val _sheetVisibilityListener: Channel<Unit> = Channel(Channel.BUFFERED)
+    private val _sheetVisibilityListener = Channel<Unit>(Channel.BUFFERED)
     val sheetVisibilityListener = _sheetVisibilityListener.receiveAsFlow()
 
     private val _isPolygonLoading = MutableStateFlow(false)
 
-    val buttonAndOptionsState = uiState
-        .map { state ->
-            val isTariffValidWithOptions = state.selectedOptions.all { selected ->
-                state.options.any { option ->
-                    selected.cost == option.cost && selected.name == option.name
-                }
-            }
-
-            val isButtonEnabled = state.selectedTariff != null &&
-                    isTariffValidWithOptions &&
-                    !(state.selectedTariff.isSecondAddressMandatory && state.destinations.isEmpty())
-
-            ButtonAndOptionsState(
-                isButtonEnabled = isButtonEnabled,
-                isTariffValidWithOptions = isTariffValidWithOptions
-            )
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Lazily,
-            initialValue = ButtonAndOptionsState(
-                isButtonEnabled = false,
-                isTariffValidWithOptions = true
-            )
-        )
+    val buttonAndOptionsState = uiState.map(::mapToButtonAndOptionsState)
+        .stateIn(viewModelScope, SharingStarted.Lazily, ButtonAndOptionsState())
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
-            uiState
-                .distinctUntilChangedBy { Pair(it.selectedTariff, it.selectedLocation) }
-                .collectLatest { state ->
-                    state.selectedLocation?.point?.let {
-                        if (state.selectedTariff != null) {
-                            getTimeout(it)
-                        }
-                    }
-                }
-        }
-
-        viewModelScope.launch(Dispatchers.IO) {
-            while (true) {
-                delay(10.seconds)
-                uiState.value.selectedLocation?.point?.let {
-                    if (uiState.value.selectedTariff != null) {
-                        getTimeout(it)
-                    }
-                }
-            }
-        }
-
-        viewModelScope.launch(Dispatchers.IO) {
-            uiState.distinctUntilChangedBy {
-                it.orderId
-            }
-        }
-
-        viewModelScope.launch(Dispatchers.IO) {
-            uiState
-                .distinctUntilChangedBy { Pair(it.drivers, it.timeout) }
-                .collectLatest { state ->
-                    MainSheet.mutableIntentFlow.emit(
-                        OrderTaxiSheetIntent.SetTimeout(
-                            timeout = state.timeout,
-                            drivers = state.drivers
-                        )
-                    )
-                }
-        }
-
-        viewModelScope.launch(Dispatchers.IO) {
-            uiState
-                .distinctUntilChangedBy { it.orderId }
-                .collect { state ->
-                    state.orderId?.let { getShowOrder(it) }
-                }
-        }
+        observeTimeoutUpdate()
+        periodicallyUpdateTimeout()
+        observeOrderIdForShowOrder()
+        observeTimeoutAndDrivers()
     }
 
     fun onIntent(intent: MainSheetIntent) {
         viewModelScope.launch(Dispatchers.IO) {
             when (intent) {
-                is OrderTaxiSheetIntent.SelectTariff -> {
-                    if (intent.wasSelected) {
-                        _sheetVisibilityListener.send(Unit)
-                    } else {
-                        setSelectedTariff(intent.tariff)
-                        uiState.value.selectedLocationId?.let { id -> getTariffs(id) }
-                    }
-                }
-
-                is OrderTaxiSheetIntent.CurrentLocationClick -> {
-                    setSearchByNameSheetVisibility(SearchByNameSheetValue.FOR_START)
-                }
-
-                is OrderTaxiSheetIntent.DestinationClick -> {
-                    if (uiState.value.destinations.size > 1)
-                        setArrangeDestinationsSheetVisibility(true)
-                    else
-                        setSearchByNameSheetVisibility(SearchByNameSheetValue.FOR_DEST)
-                }
-
-                is OrderTaxiSheetIntent.AddNewDestinationClick -> {
-                    setAddDestinationSheetVisibility(true)
-                }
-
-                is OrderCommentSheetIntent.OnDismissRequest -> {
-                    _uiState.update {
-                        it.copy(
-                            isOrderCommentSheetVisible = false,
-                            comment = intent.comment
-                        )
-                    }
-                }
-
-                is TariffInfoSheetIntent.ClearOptions -> {
-                    setSelectedOptions(emptyList())
-                    refreshTariffsIfPossible()
-                }
-
-                is TariffInfoSheetIntent.OptionsChange -> {
-                    setSelectedOptions(intent.options)
-                    refreshTariffsIfPossible()
-                }
-
-                is TariffInfoSheetIntent.ChangeShadowVisibility -> {
-                    _uiState.update { it.copy(isShadowVisible = intent.visible) }
-                }
-
-                is TariffInfoSheetIntent.ClickComment -> {
-                    _uiState.update { it.copy(isOrderCommentSheetVisible = true) }
-                }
-
-                is FooterIntent.ClearOptions -> {
-                    setSelectedOptions(emptyList())
-                    refreshTariffsIfPossible()
-                }
-
-                is FooterIntent.CreateOrder -> {
-                    orderTaxi()
-                }
-
-                is FooterIntent.ClickPaymentButton -> {
-                    _uiState.update { it.copy(isPaymentMethodSheetVisible = true) }
-                }
-
-                is FooterIntent.ChangeSheetVisibility -> {
-                    _sheetVisibilityListener.send(Unit)
-                }
-
-                is PaymentMethodSheetIntent.OnDismissRequest -> {
-                    _uiState.update { it.copy(isPaymentMethodSheetVisible = false) }
-                }
-
-                is PaymentMethodSheetIntent.OnSelectPaymentType -> {
-                    AppPreferences.paymentType = intent.paymentType
-                    setPaymentType(intent.paymentType)
-                }
-
-                else -> {
-                    MainSheet.mutableIntentFlow.emit(intent)
-                }
-            }
-        }
-    }
-
-    private fun refreshTariffsIfPossible() {
-        uiState.value.selectedLocationId?.let { id ->
-            getTariffs(id)
-        }
-    }
-
-    fun getPolygon() {
-        viewModelScope.launch(Dispatchers.IO) {
-            if (_isPolygonLoading.value) return@launch
-
-            _isPolygonLoading.value = true
-
-            try {
-                getPolygonUseCase().onSuccess { polygon ->
-                    _uiState.update { it.copy(polygon = polygon) }
-
-                    uiState.value.selectedLocation?.let { location ->
-                        if (location.point != null) {
-                            processLocation(location)
-                        }
-                    }
-                }
-            } finally {
-                _isPolygonLoading.value = false
-            }
-        }
-    }
-
-    fun getCardList() {
-        viewModelScope.launch(Dispatchers.IO) {
-            getCardListUseCase().onSuccess { cardList ->
-                _uiState.update { it.copy(cardList = cardList) }
-            }
-        }
-    }
-
-    fun setSelectedLocation(selectedLocation: SelectedLocation) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val point = selectedLocation.point
-
-            if (point == null) {
-                val lastLat = AppPreferences.entryLocation.first
-                val lastLng = AppPreferences.entryLocation.second
-
-                if (lastLat != 0.0 && lastLng != 0.0) {
-                    val updatedLocation = selectedLocation.copy(
-                        point = MapPoint(lastLat, lastLng)
-                    )
-                    _uiState.update { it.copy(selectedLocation = updatedLocation) }
-                    processLocation(updatedLocation)
-                } else {
-                    _uiState.update { it.copy(selectedLocation = selectedLocation) }
-                }
-            } else {
-                _uiState.update { it.copy(selectedLocation = selectedLocation) }
-                processLocation(selectedLocation)
-            }
-        }
-    }
-
-    private suspend fun processLocation(selectedLocation: SelectedLocation) {
-        val point = selectedLocation.point ?: return
-
-        // First, ensure we have polygon data
-        if (uiState.value.polygon.isEmpty()) {
-            if (!_isPolygonLoading.value) {
-                getPolygon()
-                var retries = 0
-                while (uiState.value.polygon.isEmpty() && retries < 3) {
-                    delay(500)
-                    retries++
-                }
-            }
-
-            if (uiState.value.polygon.isEmpty()) {
-                MainSheet.mutableIntentFlow.emit(
-                    OrderTaxiSheetIntent.SetServiceState(available = false)
+                is OrderTaxiSheetIntent.SelectTariff -> handleSelectTariff(intent)
+                is OrderTaxiSheetIntent.CurrentLocationClick -> setSearchByNameSheetVisibility(
+                    SearchByNameSheetValue.FOR_START
                 )
-                return
+
+                is OrderTaxiSheetIntent.DestinationClick -> handleDestinationClick()
+                is OrderTaxiSheetIntent.AddNewDestinationClick -> setAddDestinationSheetVisibility(
+                    true
+                )
+
+                is OrderCommentSheetIntent.OnDismissRequest -> _uiState.update {
+                    it.copy(
+                        isOrderCommentSheetVisible = false,
+                        comment = intent.comment
+                    )
+                }
+
+                is TariffInfoSheetIntent.ClearOptions, is FooterIntent.ClearOptions -> clearAndRefreshTariffs()
+                is TariffInfoSheetIntent.OptionsChange -> updateOptionsAndRefreshTariffs(intent.options)
+                is TariffInfoSheetIntent.ChangeShadowVisibility -> _uiState.update {
+                    it.copy(
+                        isShadowVisible = intent.visible
+                    )
+                }
+
+                is TariffInfoSheetIntent.ClickComment -> _uiState.update {
+                    it.copy(
+                        isOrderCommentSheetVisible = true
+                    )
+                }
+
+                is FooterIntent.CreateOrder -> orderTaxi()
+                is FooterIntent.ClickPaymentButton -> _uiState.update {
+                    it.copy(
+                        isPaymentMethodSheetVisible = true
+                    )
+                }
+
+                is FooterIntent.ChangeSheetVisibility -> _sheetVisibilityListener.send(Unit)
+                is PaymentMethodSheetIntent.OnDismissRequest -> _uiState.update {
+                    it.copy(
+                        isPaymentMethodSheetVisible = false
+                    )
+                }
+
+                is PaymentMethodSheetIntent.OnSelectPaymentType -> updatePaymentType(intent.paymentType)
+                else -> MainSheet.mutableIntentFlow.emit(intent)
             }
         }
-
-        val (isInsidePolygon, addressId) = isPointInsidePolygon(point)
-
-        _uiState.update { it.copy(selectedLocationId = addressId) }
-
-        if (isInsidePolygon && addressId != null) {
-            suspendGetTariffs(addressId)
-            MainSheet.mutableIntentFlow.emit(
-                OrderTaxiSheetIntent.SetServiceState(available = true)
-            )
-        } else {
-            setSelectedTariff(null)
-            handleTariffsFailure()
-            MainSheet.mutableIntentFlow.emit(
-                OrderTaxiSheetIntent.SetServiceState(available = false)
-            )
-        }
     }
 
-    private suspend fun suspendGetTariffs(addressId: Int): Result<GetTariffsModel> =
-        supervisorScope {
-            val from = uiState.value.selectedLocation?.point?.toPair()
-                ?: return@supervisorScope Result.failure(IllegalStateException("No location selected"))
-            val to = uiState.value.destinations.mapNotNull { it.point?.toPair() }
-            val selectedOptionsIds = uiState.value.selectedOptions.map { it.id }
-
-            val result = getTariffsUseCase(
-                addressId = addressId,
-                optionIds = selectedOptionsIds,
-                coords = listOf(from, *to.toTypedArray())
-            )
-
-            result.fold(
-                onSuccess = { tariffsModel ->
-                    handleTariffsSuccess(tariffsModel)
-                },
-                onFailure = {
-                    handleTariffsFailure()
-                }
-            )
-
-            return@supervisorScope result
-        }
-
-    fun setDestination(destinations: List<Destination>) {
-        _uiState.update { it.copy(destinations = destinations) }
-        viewModelScope.launch(Dispatchers.IO) {
-            refreshTariffsIfPossible()
-        }
-    }
-
-    fun setPaymentType(type: PaymentType) {
-        _uiState.update { it.copy(selectedPaymentType = type) }
+    private fun mapToButtonAndOptionsState(state: MainSheetState): ButtonAndOptionsState {
+        val isTariffValid =
+            state.selectedOptions.all { opt -> state.options.any { it.name == opt.name && it.cost == opt.cost } }
+        val isButtonEnabled =
+            state.selectedTariff != null && isTariffValid && (!state.selectedTariff.isSecondAddressMandatory || state.destinations.isNotEmpty())
+        return ButtonAndOptionsState(isButtonEnabled, isTariffValid)
     }
 
     private fun setSelectedTariff(tariff: GetTariffsModel.Tariff?) {
@@ -381,170 +151,260 @@ class MainSheetViewModel(
         _uiState.update { it.copy(selectedOptions = options) }
     }
 
-    fun setFooterHeight(height: Dp) {
-        _uiState.update { it.copy(footerHeight = height) }
-        SheetCoordinator.updateSheetHeight(
-            route = MAIN_SHEET_ROUTE,
-            height = height + uiState.value.sheetHeight
-        )
+    private fun refreshTariffsIfPossible() {
+        uiState.value.selectedLocationId?.let { getTariffs(it) }
     }
 
-    fun setSheetHeight(height: Dp) {
-        _uiState.update { it.copy(sheetHeight = height) }
-        SheetCoordinator.updateSheetHeight(
-            route = MAIN_SHEET_ROUTE,
-            height = height + uiState.value.footerHeight
-        )
+    private fun observeTimeoutUpdate() {
+        viewModelScope.launch(Dispatchers.IO) {
+            uiState.distinctUntilChangedBy { it.selectedTariff to it.selectedLocation }
+                .collectLatest { state -> state.selectedLocation?.point?.let { getTimeout(it) } }
+        }
+    }
+
+    private fun periodicallyUpdateTimeout() {
+        viewModelScope.launch(Dispatchers.IO) {
+            while (true) {
+                delay(10.seconds)
+                uiState.value.run {
+                    selectedLocation?.point?.takeIf { selectedTariff != null }
+                        ?.let { getTimeout(it) }
+                }
+            }
+        }
+    }
+
+    private fun observeTimeoutAndDrivers() {
+        viewModelScope.launch(Dispatchers.IO) {
+            uiState.distinctUntilChangedBy { it.drivers to it.timeout }
+                .collectLatest {
+                    MainSheet.mutableIntentFlow.emit(
+                        OrderTaxiSheetIntent.SetTimeout(
+                            it.timeout,
+                            it.drivers
+                        )
+                    )
+                }
+        }
+    }
+
+    private fun observeOrderIdForShowOrder() {
+        viewModelScope.launch(Dispatchers.IO) {
+            uiState.distinctUntilChangedBy { it.orderId }
+                .collectLatest { it.orderId?.let(::getShowOrder) }
+        }
+    }
+
+    private fun handleSelectTariff(intent: OrderTaxiSheetIntent.SelectTariff) {
+        if (intent.wasSelected) _sheetVisibilityListener.trySend(Unit).isSuccess
+        else {
+            setSelectedTariff(intent.tariff)
+            uiState.value.selectedLocationId?.let(::getTariffs)
+        }
+    }
+
+    private fun handleDestinationClick() {
+        if (uiState.value.destinations.size > 1)
+            setArrangeDestinationsSheetVisibility(true)
+        else
+            setSearchByNameSheetVisibility(SearchByNameSheetValue.FOR_DEST)
+    }
+
+    private fun clearAndRefreshTariffs() = updateOptionsAndRefreshTariffs(emptyList())
+
+    private fun updateOptionsAndRefreshTariffs(options: List<ServiceModel>) {
+        setSelectedOptions(options)
+        refreshTariffsIfPossible()
+    }
+
+    fun setSelectedLocation(selectedLocation: SelectedLocation) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val point = selectedLocation.point ?: AppPreferences.entryLocation.let {
+                if (it.first != 0.0 && it.second != 0.0) MapPoint(it.first, it.second) else null
+            }
+
+            val updated = selectedLocation.copy(point = point)
+            _uiState.update { it.copy(selectedLocation = updated) }
+            point?.let { processLocation(updated) }
+        }
+    }
+
+    private suspend fun processLocation(location: SelectedLocation) {
+        if (uiState.value.polygon.isEmpty()) getPolygon()
+        val (inside, addressId) = isPointInsidePolygon(location.point ?: return)
+        _uiState.update { it.copy(selectedLocationId = addressId) }
+
+        if (inside && addressId != null) {
+            suspendGetTariffs(addressId)
+            MainSheet.mutableIntentFlow.emit(OrderTaxiSheetIntent.SetServiceState(true))
+        } else {
+            setSelectedTariff(null)
+            handleTariffsFailure()
+            MainSheet.mutableIntentFlow.emit(OrderTaxiSheetIntent.SetServiceState(false))
+        }
     }
 
     private suspend fun isPointInsidePolygon(point: MapPoint): Pair<Boolean, Int?> =
         coroutineScope {
-            val polygon = uiState.value.polygon
-            if (polygon.isEmpty()) {
-                return@coroutineScope Pair(false, null)
-            }
-
-            val results = polygon.map { polygonItem ->
-                async(Dispatchers.Default) {
-                    isPointInPolygon(point, polygonItem)
-                }
-            }
-
-            results.awaitAll().lastOrNull { it.first } ?: Pair(false, null)
+            val results = uiState.value.polygon.map { async { isPointInPolygon(point, it) } }
+            results.awaitAll().firstOrNull { it.first } ?: Pair(false, null)
         }
 
-    private fun isPointInPolygon(
-        point: MapPoint,
-        polygonItem: PolygonRemoteItem
-    ): Pair<Boolean, Int?> {
-        val vertices = polygonItem.polygons.map { Pair(it.lat, it.lng) }
-        var isInside = false
+    private fun isPointInPolygon(point: MapPoint, polygon: PolygonRemoteItem): Pair<Boolean, Int?> {
+        val vertices = polygon.polygons.map { it.lat to it.lng }
+        var inside = false
 
         for (i in vertices.indices) {
-            val j = if (i == 0) vertices.size - 1 else i - 1
             val (lat1, lng1) = vertices[i]
-            val (lat2, lng2) = vertices[j]
-
-            val intersects = (lng1 > point.lng) != (lng2 > point.lng) &&
-                    (point.lat < (lat2 - lat1) * (point.lng - lng1) / (lng2 - lng1) + lat1)
-
-            if (intersects) {
-                isInside = !isInside
-            }
+            val (lat2, lng2) = vertices[(i - 1 + vertices.size) % vertices.size]
+            if ((lng1 > point.lng) != (lng2 > point.lng) &&
+                point.lat < (lat2 - lat1) * (point.lng - lng1) / (lng2 - lng1) + lat1
+            ) inside = !inside
         }
 
-        return if (isInside) Pair(true, polygonItem.addressId) else Pair(false, null)
+        return inside to if (inside) polygon.addressId else null
     }
 
-    private fun getTariffs(addressId: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
-            suspendGetTariffs(addressId)
-        }
-    }
+    private suspend fun suspendGetTariffs(addressId: Int): Result<GetTariffsModel> =
+        supervisorScope {
+            val from = uiState.value.selectedLocation?.point?.toPair()
+                ?: return@supervisorScope Result.failure(Exception("No point"))
+            val to = uiState.value.destinations.mapNotNull { it.point?.toPair() }
+            val optionIds = uiState.value.selectedOptions.map { it.id }
 
-    private fun getTimeout(point: MapPoint) {
-        viewModelScope.launch(Dispatchers.IO) {
-            uiState.value.selectedTariff?.id?.let { tariffId ->
-                getTimeOutUseCase(point.lat, point.lng, tariffId).onSuccess { timeout ->
-                    _uiState.update {
-                        it.copy(
-                            timeout = timeout.timeout,
-                            drivers = timeout.executors
-                        )
-                    }
+            val result = getTariffsUseCase(
+                addressId = addressId,
+                optionIds = optionIds,
+                coords = listOf(from) + to
+            )
+            result.fold(
+                onSuccess = ::handleTariffsSuccess,
+                onFailure = {
+                    handleTariffsFailure()
                 }
-            }
+            )
+            result
         }
+
+    private fun handleTariffsSuccess(model: GetTariffsModel) = _uiState.update {
+        val selected = determineSelectedTariff(it.selectedTariff, model.tariff)
+        it.copy(
+            tariffs = model,
+            selectedTariff = selected,
+            options = selected?.services ?: emptyList(),
+            selectedOptions = if (it.selectedTariff?.id != selected?.id) emptyList() else it.selectedOptions
+        )
     }
 
-    private fun getShowOrder(showingOrderId: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
-            getShowOrderUseCase(showingOrderId).onSuccess { order ->
-                MainSheet.mutableIntentFlow.emit(OrderTaxiSheetIntent.OrderCreated(order))
-                _uiState.update {
-                    it.copy(
-                        order = order,
-                        loading = false
-                    )
-                }
-            }.onFailure {
-                _uiState.update { it.copy(loading = false) }
-            }
+    private fun determineSelectedTariff(
+        current: GetTariffsModel.Tariff?,
+        all: List<GetTariffsModel.Tariff>
+    ) =
+        when {
+            all.isEmpty() -> null
+            current == null -> all.firstOrNull()
+            all.none { it.id == current.id } -> all.firstOrNull()
+            else -> all.find { it.id == current.id } ?: all.firstOrNull()
         }
-    }
 
-    private fun handleTariffsSuccess(tariffsModel: GetTariffsModel) {
-        _uiState.update { currentState ->
-            val currentSelectedTariff = currentState.selectedTariff
-            val newSelectedTariff =
-                determineSelectedTariff(currentSelectedTariff, tariffsModel.tariff)
-
-            currentState.copy(
-                tariffs = tariffsModel,
-                selectedTariff = newSelectedTariff,
-                options = newSelectedTariff?.services ?: emptyList(),
-                selectedOptions = if (currentSelectedTariff?.id != newSelectedTariff?.id)
-                    emptyList()
-                else
-                    currentState.selectedOptions
+    private fun handleTariffsFailure() {
+        _uiState.update {
+            it.copy(
+                tariffs = null,
+                selectedTariff = null,
+                options = emptyList(),
+                selectedOptions = emptyList()
             )
         }
     }
 
-    private fun determineSelectedTariff(
-        currentTariff: GetTariffsModel.Tariff?,
-        availableTariffs: List<GetTariffsModel.Tariff>
-    ): GetTariffsModel.Tariff? {
-        return when {
-            availableTariffs.isEmpty() -> null
-            currentTariff == null -> availableTariffs.firstOrNull()
-            availableTariffs.none { it.id == currentTariff.id } -> availableTariffs.firstOrNull()
-            else -> availableTariffs.find { it.id == currentTariff.id }
-                ?: availableTariffs.firstOrNull()
+    private fun getTariffs(addressId: Int) =
+        viewModelScope.launch(Dispatchers.IO) { suspendGetTariffs(addressId) }
+
+    private fun getTimeout(point: MapPoint) = viewModelScope.launch(Dispatchers.IO) {
+        uiState.value.selectedTariff?.id?.let {
+            getTimeOutUseCase(point.lat, point.lng, it).onSuccess { result ->
+                _uiState.update { state ->
+                    state.copy(
+                        timeout = result.timeout,
+                        drivers = result.executors
+                    )
+                }
+            }
         }
     }
 
-    private fun handleTariffsFailure() {
-        viewModelScope.launch(Dispatchers.Main.immediate) {
-            _uiState.update {
-                it.copy(
-                    tariffs = null,
-                    selectedTariff = null,
-                    options = emptyList(),
-                    selectedOptions = emptyList()
-                )
-            }
+    private fun getShowOrder(id: Int) = viewModelScope.launch(Dispatchers.IO) {
+        getShowOrderUseCase(id).onSuccess {
+            MainSheet.mutableIntentFlow.emit(OrderTaxiSheetIntent.OrderCreated(it))
+            _uiState.update { s -> s.copy(order = it, loading = false) }
+        }.onFailure {
+            _uiState.update { s -> s.copy(loading = false) }
         }
     }
 
     private fun orderTaxi() {
         _uiState.update { it.copy(loading = true) }
         viewModelScope.launch(Dispatchers.IO) {
-            uiState.value.mapToOrderTaxiDto()?.let { model ->
-                orderTaxiUseCase(model).onSuccess { order ->
-                    _uiState.update { it.copy(orderId = order.orderId) }
-                }.onFailure {
-                    _uiState.update { it.copy(loading = false) }
-                }
+            uiState.value.mapToOrderTaxiDto()?.let {
+                orderTaxiUseCase(it)
+                    .onSuccess { o -> _uiState.update { s -> s.copy(orderId = o.orderId) } }
+                    .onFailure { _uiState.update { s -> s.copy(loading = false) } }
             }
         }
     }
 
-    private fun MapPoint.toPair() = Pair(lat, lng)
+    private fun updatePaymentType(type: PaymentType) {
+        AppPreferences.paymentType = type
+        _uiState.update { it.copy(selectedPaymentType = type) }
+    }
 
-    fun setSearchByNameSheetVisibility(value: SearchByNameSheetValue) {
+    private fun MapPoint.toPair() = lat to lng
+
+    fun getPolygon() = viewModelScope.launch(Dispatchers.IO) {
+        if (_isPolygonLoading.value) return@launch
+        _isPolygonLoading.value = true
+        try {
+            getPolygonUseCase().onSuccess {
+                _uiState.update { state -> state.copy(polygon = it) }
+            }
+        } finally {
+            _isPolygonLoading.value = false
+        }
+    }
+
+    fun getCardList() = viewModelScope.launch(Dispatchers.IO) {
+        getCardListUseCase().onSuccess { res -> _uiState.update { it.copy(cardList = res) } }
+    }
+
+    fun setDestination(dest: List<Destination>) {
+        _uiState.update { it.copy(destinations = dest) }
+        refreshTariffsIfPossible()
+    }
+
+    fun setPaymentType(paymentType: PaymentType) =
+        _uiState.update { it.copy(selectedPaymentType = paymentType) }
+
+    fun setSearchByNameSheetVisibility(value: SearchByNameSheetValue) =
         _uiState.update { it.copy(isSearchByNameSheetVisible = value) }
-    }
 
-    fun setSelectFromMapViewVisibility(value: SelectFromMapViewValue) {
+    fun setSelectFromMapViewVisibility(value: SelectFromMapViewValue) =
         _uiState.update { it.copy(selectFromMapViewVisibility = value) }
-    }
 
-    fun setAddDestinationSheetVisibility(visible: Boolean) {
-        _uiState.update { it.copy(isAddDestinationSheetVisible = visible) }
-    }
+    fun setAddDestinationSheetVisibility(value: Boolean) =
+        _uiState.update { it.copy(isAddDestinationSheetVisible = value) }
 
-    fun setArrangeDestinationsSheetVisibility(visible: Boolean) {
-        _uiState.update { it.copy(isArrangeDestinationsSheetVisible = visible) }
+    fun setArrangeDestinationsSheetVisibility(value: Boolean) =
+        _uiState.update { it.copy(isArrangeDestinationsSheetVisible = value) }
+
+    fun setFooterHeight(height: Dp) = updateSheetHeight { it.copy(footerHeight = height) }
+    fun setSheetHeight(height: Dp) = updateSheetHeight { it.copy(sheetHeight = height) }
+
+    private fun updateSheetHeight(update: (MainSheetState) -> MainSheetState) {
+        _uiState.update(update)
+        SheetCoordinator.updateSheetHeight(
+            MAIN_SHEET_ROUTE,
+            uiState.value.footerHeight + uiState.value.sheetHeight
+        )
     }
 }

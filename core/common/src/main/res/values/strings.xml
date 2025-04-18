@@ -21,4 +21,7 @@
     <string name="appointed">Biriktirildi</string>
     <string name="completed">Bajarildi</string>
     <string name="canceled">Bekor qilindi</string>
+    <string name="coming">Yetkazish</string>
+    <string name="on_the_way">Yo\'lda</string>
+    <string name="x_min">%s daq</string>
 </resources>

@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
@@ -43,12 +45,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import uz.yalla.client.core.common.R
 import uz.yalla.client.core.common.convertor.dpToPx
+import uz.yalla.client.core.common.marker.createInfoMarker
 import uz.yalla.client.core.common.utils.getCurrentLocation
 import uz.yalla.client.core.common.utils.vectorToBitmapDescriptor
 import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.core.domain.model.Executor
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.OrderStatus
+import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 import kotlin.properties.Delegates
 
@@ -66,6 +70,8 @@ class ConcreteGoogleMap : MapStrategy {
     private val route: SnapshotStateList<MapPoint> = mutableStateListOf()
     private val locations: SnapshotStateList<MapPoint> = mutableStateListOf()
     private val orderStatus: MutableState<OrderStatus?> = mutableStateOf(null)
+    private val carArrivesInMinutes: MutableState<Int?> = mutableStateOf(null)
+    private val orderEndsInMinutes: MutableState<Int?> = mutableStateOf(null)
 
     private lateinit var context: Context
     private lateinit var coroutineScope: CoroutineScope
@@ -141,7 +147,9 @@ class ConcreteGoogleMap : MapStrategy {
             Markers(
                 route = route,
                 locations = locations,
-                orderStatus = orderStatus.value
+                orderStatus = orderStatus.value,
+                carArrivesInMinutes = carArrivesInMinutes.value.takeIf { orderStatus.value == null },
+                orderEndsInMinutes = orderEndsInMinutes.value.takeIf { orderStatus.value == null }
             )
 
             Driver(driver = driver)
@@ -245,6 +253,14 @@ class ConcreteGoogleMap : MapStrategy {
         this.locations.addAll(locations)
     }
 
+    override fun updateCarArrivesInMinutes(carArrivesInMinutes: Int?) {
+        this.carArrivesInMinutes.value = carArrivesInMinutes
+    }
+
+    override fun updateOrderEndsInMinutes(orderEndsInMinutes: Int?) {
+        this.orderEndsInMinutes.value = orderEndsInMinutes
+    }
+
     override fun zoomOut() {
         if (::cameraPositionState.isInitialized) {
             val currentPosition = cameraPositionState.position
@@ -312,22 +328,50 @@ private fun Drivers(
 @Composable
 private fun Markers(
     route: List<MapPoint>,
-    orderStatus: OrderStatus? = null,
-    locations: List<MapPoint>
+    orderStatus: OrderStatus?,
+    locations: List<MapPoint>,
+    carArrivesInMinutes: Int? = null,
+    orderEndsInMinutes: Int? = null
 ) {
     val context = LocalContext.current
 
-    val startMarkerIcon = remember {
-        vectorToBitmapDescriptor(context, R.drawable.ic_origin_marker)
-            ?: BitmapDescriptorFactory.defaultMarker()
+    val originIcon = key(
+        locations.firstOrNull()?.hashCode()?.plus(carArrivesInMinutes.hashCode()),
+    ) {
+        createInfoMarker(
+            key = "origin_${locations.firstOrNull()?.hashCode()}",
+            title = carArrivesInMinutes?.let {
+                stringResource(
+                    R.string.x_min,
+                    it.toString()
+                )
+            },
+            description = stringResource(R.string.coming),
+            infoColor = YallaTheme.color.primary,
+            pointColor = YallaTheme.color.gray
+        )
     }
-    val middleMarkerIcon = remember {
+
+    val middleIcon = remember {
         vectorToBitmapDescriptor(context, R.drawable.ic_middle_marker)
             ?: BitmapDescriptorFactory.defaultMarker()
     }
-    val endMarkerIcon = remember {
-        vectorToBitmapDescriptor(context, R.drawable.ic_destination_marker)
-            ?: BitmapDescriptorFactory.defaultMarker()
+
+    val endIcon = key(
+        locations.lastOrNull()?.hashCode()?.plus(orderEndsInMinutes.hashCode())
+    ) {
+        createInfoMarker(
+            key = "destination_${locations.lastOrNull()?.hashCode()}",
+            title = orderEndsInMinutes?.let {
+                stringResource(
+                    R.string.x_min,
+                    it.toString()
+                )
+            },
+            description = stringResource(R.string.on_the_way),
+            infoColor = YallaTheme.color.black,
+            pointColor = YallaTheme.color.primary
+        )
     }
 
     if (route.isNotEmpty()) {
@@ -336,38 +380,34 @@ private fun Markers(
 
     if (locations.isEmpty()) return
 
-    val showStartMarker = orderStatus != null || route.isNotEmpty()
-    val showEndMarker = locations.size > 1
-
-    if (showStartMarker) {
-        val startLocation = locations.first()
-        Marker(
-            icon = startMarkerIcon,
-            state = remember(startLocation) {
-                MarkerState(LatLng(startLocation.lat, startLocation.lng))
-            }
-        )
-    }
-
-    if (locations.size > 2) {
-        for (index in 1 until locations.lastIndex) {
-            val midLocation = locations[index]
+    if (orderStatus != null || route.isNotEmpty()) {
+        val start = locations.first()
+        key(start.hashCode()) {
             Marker(
-                icon = middleMarkerIcon,
-                state = remember(midLocation) {
-                    MarkerState(LatLng(midLocation.lat, midLocation.lng))
-                }
+                state = rememberMarkerState(position = LatLng(start.lat, start.lng)),
+                icon = originIcon
             )
         }
     }
 
-    if (showEndMarker) {
-        val endLocation = locations.last()
-        Marker(
-            icon = endMarkerIcon,
-            state = remember(endLocation) {
-                MarkerState(LatLng(endLocation.lat, endLocation.lng))
+    if (locations.size > 2) {
+        locations.subList(1, locations.lastIndex).forEachIndexed { index, mid ->
+            key(mid.hashCode(), index) {
+                Marker(
+                    state = rememberMarkerState(position = LatLng(mid.lat, mid.lng)),
+                    icon = middleIcon
+                )
             }
-        )
+        }
+    }
+
+    if (locations.size > 1) {
+        val end = locations.last()
+        key(end.hashCode()) {
+            Marker(
+                state = rememberMarkerState(position = LatLng(end.lat, end.lng)),
+                icon = endIcon
+            )
+        }
     }
 }

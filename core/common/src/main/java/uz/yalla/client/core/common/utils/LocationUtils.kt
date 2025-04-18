@@ -8,156 +8,148 @@ import android.location.Criteria
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
-import android.os.Handler
+import android.os.Bundle
 import android.os.Looper
-import androidx.annotation.RequiresPermission
-import androidx.core.app.ActivityCompat
-import androidx.core.bundle.Bundle
+import androidx.core.content.ContextCompat
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
-const val timeoutMillis: Long = 10000
-const val maxAgeMillis: Long = 5 * 60 * 1000
+private const val LOCATION_TIMEOUT_MS = 10000L
+private const val LOCATION_MAX_AGE_MS = 5 * 60 * 1000L
 
-@SuppressLint("MissingPermission")
-fun getCurrentLocation(
+fun Context.hasLocationPermission(): Boolean {
+    return ContextCompat.checkSelfPermission(
+        this,
+        Manifest.permission.ACCESS_FINE_LOCATION
+    ) == PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+}
+
+suspend fun getCurrentLocationSafely(
     context: Context,
     onPermissionDenied: () -> Unit = {},
     onLocationFetched: (LatLng) -> Unit,
-) {
-
-    if (!hasLocationPermission(context)) {
+) = withContext(Dispatchers.Main) {
+    if (!context.hasLocationPermission()) {
         onPermissionDenied()
-        return
+        return@withContext
     }
 
-    var locationFound = false
-    val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    try {
+        getLastKnownLocation(context)?.let {
+            onLocationFetched(LatLng(it.latitude, it.longitude))
+            return@withContext
+        }
 
-    tryGetLastKnownLocation(context)?.let {
-        locationFound = true
-        onLocationFetched(LatLng(it.latitude, it.longitude))
-        return
+        withTimeout(LOCATION_TIMEOUT_MS.milliseconds) {
+            val location = tryGetFreshLocation(context)
+            onLocationFetched(LatLng(location.latitude, location.longitude))
+        }
+    } catch (e: TimeoutCancellationException) {
+        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        tryBestProviderLocation(locationManager)?.let {
+            onLocationFetched(LatLng(it.latitude, it.longitude))
+        }
+    } catch (e: CancellationException) {
+        throw e
+    } catch (_: Exception) {
+    }
+}
+
+@SuppressLint("MissingPermission")
+private suspend fun tryGetFreshLocation(context: Context): Location = withContext(Dispatchers.IO) {
+    val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    val completable = CompletableDeferred<Location>()
+
+    val onLocationReceived: (Location) -> Unit = { location ->
+        if (!completable.isCompleted) {
+            completable.complete(location)
+        }
     }
 
     if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-        tryGpsLocation(locationManager) { location ->
-            if (!locationFound) {
-                locationFound = true
-                onLocationFetched(LatLng(location.latitude, location.longitude))
-            }
-        }
+        tryGpsLocation(locationManager, onLocationReceived)
     }
 
-    Handler(Looper.getMainLooper()).postDelayed({
-        if (!locationFound && locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-            tryNetworkLocation(locationManager) { location ->
-                if (!locationFound) {
-                    locationFound = true
-                    onLocationFetched(LatLng(location.latitude, location.longitude))
-                }
-            }
-        }
-    }, timeoutMillis / 2)
+    kotlinx.coroutines.delay(2.seconds)
+    if (!completable.isCompleted && locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+        tryNetworkLocation(locationManager, onLocationReceived)
+    }
 
-    Handler(Looper.getMainLooper()).postDelayed({
-        if (!locationFound) {
-            tryFusedLocation(context) { location ->
-                if (!locationFound) {
-                    locationFound = true
-                    onLocationFetched(LatLng(location.latitude, location.longitude))
-                }
-            }
-        }
-    }, timeoutMillis * 3 / 4)
+    kotlinx.coroutines.delay(2.seconds)
+    if (!completable.isCompleted) {
+        tryFusedLocation(context, onLocationReceived)
+    }
 
-    Handler(Looper.getMainLooper()).postDelayed({
-        if (!locationFound) {
-            tryBestProvider(locationManager) { location ->
-                if (!locationFound) {
-                    locationFound = true
-                    onLocationFetched(LatLng(location.latitude, location.longitude))
-                }
-            }
-        }
-    }, timeoutMillis)
+    completable.await()
 }
 
-fun hasLocationPermission(context: Context): Boolean {
-    return ActivityCompat.checkSelfPermission(
-        context,
-        Manifest.permission.ACCESS_FINE_LOCATION
-    ) == PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
-        context,
-        Manifest.permission.ACCESS_COARSE_LOCATION
-    ) == PackageManager.PERMISSION_GRANTED
-}
-
-/**
- * Try to get a reasonably recent cached location
- */
 @SuppressLint("MissingPermission")
-private fun tryGetLastKnownLocation(context: Context): Location? {
+private fun getLastKnownLocation(context: Context): Location? {
+    if (!context.hasLocationPermission()) return null
+
     val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     val providers = locationManager.getProviders(true)
 
     var bestLocation: Location? = null
-    val minTime = System.currentTimeMillis() - maxAgeMillis
+    val minTime = System.currentTimeMillis() - LOCATION_MAX_AGE_MS
 
-    // Try GPS first
     if (providers.contains(LocationManager.GPS_PROVIDER)) {
-        val gpsLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-        if (gpsLocation != null && gpsLocation.time >= minTime) {
-            return gpsLocation
+        locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)?.let { location ->
+            if (location.time >= minTime) return location
+            bestLocation = location
         }
-        bestLocation = gpsLocation
     }
 
-    // Then try network provider
     if (providers.contains(LocationManager.NETWORK_PROVIDER)) {
-        val networkLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
-        if (networkLocation != null && networkLocation.time >= minTime) {
-            return networkLocation
-        }
-        if (bestLocation == null ||
-            (networkLocation != null && networkLocation.time > bestLocation.time)
-        ) {
-            bestLocation = networkLocation
+        locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)?.let { location ->
+            if (location.time >= minTime) return location
+            if (bestLocation == null || location.time > bestLocation!!.time) {
+                bestLocation = location
+            }
         }
     }
 
-    // Then try Fused location
-    val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
     try {
+        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
         val task = fusedLocationClient.lastLocation
         if (task.isComplete && task.isSuccessful && task.result != null) {
             val fusedLocation = task.result
-            if (fusedLocation.time >= minTime) {
-                return fusedLocation
-            }
-            if (bestLocation == null || fusedLocation.time > bestLocation.time) {
+            if (fusedLocation.time >= minTime) return fusedLocation
+            if (bestLocation == null || fusedLocation.time > bestLocation!!.time) {
                 bestLocation = fusedLocation
             }
         }
-    } catch (e: Exception) {
-        // Ignore errors with fused location
+    } catch (_: Exception) {
     }
 
     return bestLocation
 }
 
-/**
- * Try to get location from GPS provider
- */
 @SuppressLint("MissingPermission")
 private fun tryGpsLocation(
     locationManager: LocationManager,
     onLocationReceived: (Location) -> Unit
 ) {
+    if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) return
+
     val gpsListener = object : LocationListener {
         override fun onLocationChanged(location: Location) {
             locationManager.removeUpdates(this)
@@ -169,7 +161,6 @@ private fun tryGpsLocation(
         }
 
         override fun onProviderEnabled(provider: String) {}
-
         override fun onProviderDisabled(provider: String) {}
     }
 
@@ -181,28 +172,17 @@ private fun tryGpsLocation(
             gpsListener,
             Looper.getMainLooper()
         )
-
-        // Remove listener after timeout
-        Handler(Looper.getMainLooper()).postDelayed({
-            try {
-                locationManager.removeUpdates(gpsListener)
-            } catch (e: Exception) {
-                // Ignore
-            }
-        }, timeoutMillis)
-    } catch (e: Exception) {
-        // Ignore if provider is not available
+    } catch (_: Exception) {
     }
 }
 
-/**
- * Try to get location from network provider
- */
 @SuppressLint("MissingPermission")
 private fun tryNetworkLocation(
     locationManager: LocationManager,
     onLocationReceived: (Location) -> Unit
 ) {
+    if (!locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) return
+
     val networkListener = object : LocationListener {
         override fun onLocationChanged(location: Location) {
             locationManager.removeUpdates(this)
@@ -214,7 +194,6 @@ private fun tryNetworkLocation(
         }
 
         override fun onProviderEnabled(provider: String) {}
-
         override fun onProviderDisabled(provider: String) {}
     }
 
@@ -226,40 +205,29 @@ private fun tryNetworkLocation(
             networkListener,
             Looper.getMainLooper()
         )
-
-        // Remove listener after timeout
-        Handler(Looper.getMainLooper()).postDelayed({
-            try {
-                locationManager.removeUpdates(networkListener)
-            } catch (e: Exception) {
-                // Ignore
-            }
-        }, timeoutMillis)
-    } catch (e: Exception) {
-        // Ignore if provider is not available
+    } catch (_: Exception) {
     }
 }
 
-/**
- * Try to get location using Fused Location Provider
- */
 @SuppressLint("MissingPermission")
 private fun tryFusedLocation(
     context: Context,
     onLocationReceived: (Location) -> Unit
 ) {
+    if (!context.hasLocationPermission()) return
+
     val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
-    val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, timeoutMillis)
-        .setWaitForAccurateLocation(false)
-        .setMinUpdateIntervalMillis(0)
-        .setMaxUpdateDelayMillis(timeoutMillis)
-        .build()
+    val locationRequest =
+        LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, LOCATION_TIMEOUT_MS)
+            .setWaitForAccurateLocation(false)
+            .setMinUpdateIntervalMillis(0)
+            .setMaxUpdateDelayMillis(LOCATION_TIMEOUT_MS)
+            .build()
 
     val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
             fusedLocationClient.removeLocationUpdates(this)
-            val location = locationResult.lastLocation
-            if (location != null) {
+            locationResult.lastLocation?.let { location ->
                 onLocationReceived(location)
             }
         }
@@ -271,61 +239,34 @@ private fun tryFusedLocation(
             locationCallback,
             Looper.getMainLooper()
         )
-
-        // Remove callback after timeout
-        Handler(Looper.getMainLooper()).postDelayed({
-            try {
-                fusedLocationClient.removeLocationUpdates(locationCallback)
-            } catch (e: Exception) {
-                // Ignore
-            }
-        }, timeoutMillis)
     } catch (_: Exception) {
     }
 }
 
-
-@RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
-private fun tryBestProvider(
-    locationManager: LocationManager,
-    onLocationReceived: (Location) -> Unit
-) {
-    val criteria = Criteria()
-    criteria.accuracy = Criteria.ACCURACY_FINE
-    criteria.powerRequirement = Criteria.POWER_HIGH
-
-    val bestProvider = locationManager.getBestProvider(criteria, true) ?: return
-
-    val bestListener = object : LocationListener {
-        override fun onLocationChanged(location: Location) {
-            locationManager.removeUpdates(this)
-            onLocationReceived(location)
-        }
-
-        @Deprecated("Deprecated in Java")
-        override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
-        }
-
-        override fun onProviderEnabled(provider: String) {}
-
-        override fun onProviderDisabled(provider: String) {}
+@SuppressLint("MissingPermission")
+private fun tryBestProviderLocation(
+    locationManager: LocationManager
+): Location? {
+    val criteria = Criteria().apply {
+        accuracy = Criteria.ACCURACY_FINE
+        powerRequirement = Criteria.POWER_HIGH
     }
 
-    try {
-        locationManager.requestLocationUpdates(
-            bestProvider,
-            0,
-            0f,
-            bestListener,
-            Looper.getMainLooper()
-        )
+    val bestProvider = locationManager.getBestProvider(criteria, true) ?: return null
 
-        Handler(Looper.getMainLooper()).postDelayed({
-            try {
-                locationManager.removeUpdates(bestListener)
-            } catch (_: Exception) {
-            }
-        }, 5000)
-    } catch (_: Exception) {
+    return try {
+        locationManager.getLastKnownLocation(bestProvider)
+    } catch (e: Exception) {
+        null
+    }
+}
+
+fun getCurrentLocation(
+    context: Context,
+    onPermissionDenied: () -> Unit = {},
+    onLocationFetched: (LatLng) -> Unit,
+) {
+    MainScope().launch {
+        getCurrentLocationSafely(context, onPermissionDenied, onLocationFetched)
     }
 }
