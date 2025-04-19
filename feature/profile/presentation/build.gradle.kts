@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "uz.yalla.client.feature.cancel"
+    namespace = "uz.yalla.client.feature.profile"
 }
 
 dependencies {
@@ -18,4 +18,7 @@ dependencies {
     // Coil
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
+
+    testImplementation(projects.core.test)
+    androidTestImplementation(projects.core.test)
 }

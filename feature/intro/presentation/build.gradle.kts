@@ -8,6 +8,7 @@ android {
 }
 
 dependencies {
-
     implementation(projects.core.common)
+    testImplementation(projects.core.test)
+    androidTestImplementation(projects.core.test)
 }

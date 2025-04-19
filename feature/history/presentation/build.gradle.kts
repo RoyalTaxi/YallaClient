@@ -27,5 +27,6 @@ dependencies {
     // Maps
     implementation(libs.maps.compose)
 
-
+    testImplementation(projects.core.test)
+    androidTestImplementation(projects.core.test)
 }

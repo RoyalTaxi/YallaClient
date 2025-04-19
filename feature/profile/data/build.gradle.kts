@@ -12,4 +12,6 @@ dependencies {
     implementation(projects.feature.profile.domain)
     implementation(projects.service.auth)
     implementation(projects.feature.auth.domain)
+
+    testImplementation(projects.core.test)
 }

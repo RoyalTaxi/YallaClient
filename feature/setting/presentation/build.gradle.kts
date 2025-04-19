@@ -10,4 +10,7 @@ android {
 dependencies {
     implementation(projects.core.common)
     implementation(projects.feature.setting.data)
+
+    testImplementation(projects.core.test)
+    androidTestImplementation(projects.core.test)
 }

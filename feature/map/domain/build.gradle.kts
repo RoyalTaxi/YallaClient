@@ -9,4 +9,6 @@ android {
 dependencies {
     implementation(projects.core.domain)
     implementation(projects.feature.places.domain)
+
+    testImplementation(projects.core.test)
 }

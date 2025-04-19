@@ -7,7 +7,10 @@ android {
 }
 
 dependencies {
-    api(projects.core.data)
+    implementation(projects.core.data)
     implementation(projects.service.auth)
     implementation(projects.feature.auth.domain)
+
+    testImplementation(projects.core.test)
+    androidTestImplementation(projects.core.test)
 }

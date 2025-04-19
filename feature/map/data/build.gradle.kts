@@ -11,4 +11,6 @@ dependencies {
     implementation(projects.service.map)
     implementation(projects.feature.map.domain)
     implementation(projects.feature.places.domain)
+
+    testImplementation(projects.core.test)
 }

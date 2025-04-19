@@ -10,4 +10,7 @@ dependencies {
     implementation(projects.core.data)
     implementation(projects.service.setting)
     implementation(projects.feature.setting.domain)
+
+    testImplementation(projects.core.test)
+    androidTestImplementation(projects.core.test)
 }

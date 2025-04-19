@@ -9,4 +9,7 @@ android {
 
 dependencies {
     implementation(projects.core.presentation)
+
+    testImplementation(projects.core.test)
+    androidTestImplementation(projects.core.test)
 }

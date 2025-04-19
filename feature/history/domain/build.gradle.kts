@@ -9,4 +9,6 @@ android {
 dependencies {
     implementation(projects.core.domain)
     implementation(libs.paging.common)
+
+    testImplementation(projects.core.test)
 }

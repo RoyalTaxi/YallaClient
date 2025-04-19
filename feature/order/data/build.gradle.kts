@@ -10,4 +10,6 @@ dependencies {
     implementation(projects.core.data)
     implementation(projects.service.order)
     implementation(projects.feature.order.domain)
+
+    testImplementation(projects.core.test)
 }

@@ -18,4 +18,7 @@ dependencies {
 
     // LocalDate
     implementation(libs.threetenabp)
+
+    testImplementation(projects.core.test)
+    androidTestImplementation(projects.core.test)
 }

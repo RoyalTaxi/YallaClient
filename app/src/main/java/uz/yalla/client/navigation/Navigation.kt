@@ -14,8 +14,6 @@ import uz.yalla.client.feature.auth.authModule
 import uz.yalla.client.feature.auth.navigateToAuthModule
 import uz.yalla.client.feature.contact.navigation.contactUsScreen
 import uz.yalla.client.feature.contact.navigation.navigateToContactUsScreen
-import uz.yalla.client.feature.edit_profile.navigation.editProfileScreen
-import uz.yalla.client.feature.edit_profile.navigation.navigateToEditProfileScreen
 import uz.yalla.client.feature.history.historyModule
 import uz.yalla.client.feature.history.navigateToHistoryModule
 import uz.yalla.client.feature.info.about_app.navigation.aboutAppScreen
@@ -32,6 +30,8 @@ import uz.yalla.client.feature.payment.navigateToPaymentModule
 import uz.yalla.client.feature.payment.paymentModule
 import uz.yalla.client.feature.places.addressModule
 import uz.yalla.client.feature.places.navigateToAddressModule
+import uz.yalla.client.feature.profile.edit_profile.navigation.editProfileScreen
+import uz.yalla.client.feature.profile.edit_profile.navigation.navigateToEditProfileScreen
 import uz.yalla.client.feature.registration.presentation.navigation.navigateToRegistrationScreen
 import uz.yalla.client.feature.registration.presentation.navigation.registrationScreen
 import uz.yalla.client.feature.setting.navigation.navigateToSettings

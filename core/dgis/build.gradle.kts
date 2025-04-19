@@ -30,4 +30,7 @@ dependencies {
     debugImplementation(libs.compose.ui.tooling)
 
     api(libs.sdk.map)
+
+    testImplementation(projects.core.test)
+    androidTestImplementation(projects.core.test)
 }

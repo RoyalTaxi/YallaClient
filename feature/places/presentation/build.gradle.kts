@@ -12,4 +12,7 @@ dependencies {
     implementation(projects.core.common)
     implementation(projects.feature.places.data)
     implementation(projects.feature.places.domain)
+
+    testImplementation(projects.core.test)
+    androidTestImplementation(projects.core.test)
 }

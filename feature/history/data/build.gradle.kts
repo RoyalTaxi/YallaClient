@@ -12,4 +12,6 @@ dependencies {
     implementation(projects.feature.history.domain)
     implementation(libs.paging.common)
     implementation(libs.paging.compose.common)
+
+    testImplementation(projects.core.test)
 }

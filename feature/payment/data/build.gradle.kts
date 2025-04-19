@@ -10,4 +10,6 @@ dependencies {
     implementation(projects.core.data)
     implementation(projects.service.payment)
     implementation(projects.feature.payment.domain)
+
+    testImplementation(projects.core.test)
 }

@@ -9,7 +9,6 @@ android {
 dependencies {
     api(projects.core.domain)
     api(projects.core.service)
-
     api(libs.kotlinx.serialization.json)
 
     api(libs.ktor.client.core)
@@ -23,4 +22,6 @@ dependencies {
     api(libs.koin.core)
 
     implementation(libs.inspektify.ktor3)
+
+    testApi(projects.core.test)
 }

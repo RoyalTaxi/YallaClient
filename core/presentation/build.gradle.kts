@@ -26,4 +26,7 @@ dependencies {
     api(libs.koin.core)
     api(libs.koin.android)
     api(libs.insert.koin.koin.androidx.compose)
+
+    testApi(projects.core.test)
+    androidTestApi(projects.core.test)
 }

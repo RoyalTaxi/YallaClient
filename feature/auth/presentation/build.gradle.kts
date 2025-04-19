@@ -21,4 +21,7 @@ dependencies {
     implementation(libs.firebase.crashlytics.ktx)
     implementation(libs.firebase.analytics.ktx)
     implementation(libs.firebase.messaging.ktx)
+
+    testImplementation(projects.core.test)
+    androidTestImplementation(projects.core.test)
 }

@@ -10,4 +10,6 @@ android {
 dependencies {
     api(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.datetime)
+
+    testApi(projects.core.test)
 }
