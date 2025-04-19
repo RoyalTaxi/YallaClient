@@ -6,7 +6,7 @@ plugins {
 }
 
 val localProperties = Properties().apply {
-    load(rootProject.file("local.properties").inputStream())
+    load(rootProject.file("environment.properties").inputStream())
 }
 
 fun getLocalProperty(name: String): String {
@@ -28,8 +28,6 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(libs.androidx.activity.compose)
     debugImplementation(libs.compose.ui.tooling)
-
-    // Public API for downstream modules
 
     api(libs.sdk.map)
 }
