@@ -51,6 +51,7 @@ uiTestManifest = "1.7.8"
 jetbrainsKotlinJvm = "2.0.20"
 firebaseCrashlytics = "3.0.3"
 googleServices = "4.4.1"
+espressoCore = "3.6.1"
 [libraries]
 
 advanced-bottomsheet-material3 = { module = "io.morfly.compose:advanced-bottomsheet-material3", version.ref = "advancedBottomsheetMaterial3" }
@@ -125,6 +126,7 @@ androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "l
 androidx-animation-android = { group = "androidx.compose.animation", name = "animation-android", version.ref = "animationAndroid" }
 play-services-auth-api-phone = { group = "com.google.android.gms", name = "play-services-auth-api-phone", version.ref = "playServicesAuthApiPhone" }
 truth = { module = "com.google.truth:truth", version.ref = "truth" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 
 [plugins]
 

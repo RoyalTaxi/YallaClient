@@ -56,6 +56,7 @@ include(":feature:profile:data", ":feature:profile:domain", ":feature:profile:pr
 include(":feature:registration:presentation")
 include(":feature:setting:data", ":feature:setting:domain", ":feature:setting:presentation")
 include(":feature:web:presentation")
+include(":feature:bonus:presentation")
 
 include(":service:auth")
 include(":service:map")

@@ -7,6 +7,7 @@ import uz.yalla.client.connectivity.AndroidConnectivityObserver
 import uz.yalla.client.connectivity.ConnectivityObserver
 import uz.yalla.client.core.common.di.Common
 import uz.yalla.client.feature.auth.di.Auth
+import uz.yalla.client.feature.bonus.di.Bonus
 import uz.yalla.client.feature.contact.di.Contact
 import uz.yalla.client.feature.history.di.History
 import uz.yalla.client.feature.info.about_app.di.Info
@@ -44,6 +45,7 @@ object Navigation {
         *History.modules.toTypedArray(),
         *Info.modules.toTypedArray(),
         *Setting.modules.toTypedArray(),
-        *Contact.modules.toTypedArray()
+        *Contact.modules.toTypedArray(),
+        *Bonus.modules.toTypedArray()
     )
 }

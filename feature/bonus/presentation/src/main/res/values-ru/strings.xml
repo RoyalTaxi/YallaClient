@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="bonus_promocode">Бонусы и промокоды</string>
+    <string name="bonus_definition">Уникальные бонусы и скидки для вас! Радуйтесь выгодам с каждым заказом.</string>
+    <string name="bonus_balance">Бонусный счет</string>
+    <string name="enter_promocod">Ввести промокод</string>
+    <string name="promocodes">Промокоды</string>
+    <string name="bonus">Бонус</string>
+    <string name="percentage">до %s%%</string>
+    <string name="bonus_body">Бонусов за каждую поездку в тарифах Эконом и Комфорт — оплачивайте ими следующие поездки!</string>
+    <string name="second_bonus_body">Можно оплатить поездки в тарифах Стандарт и Комфорт частично бонусами</string>
+    <string name="can_pay_with_bonus">Можно оплатить бонусами</string>
+</resources>

@@ -91,6 +91,7 @@ fun MapRoute(
     onAddNewCard: () -> Unit,
     onAboutAppClick: () -> Unit,
     onContactUsClick: () -> Unit,
+    onClickBonuses: () -> Unit,
     onBecomeDriverClick: (String, String) -> Unit,
     onInviteFriendClick: (String, String) -> Unit,
     vm: MapViewModel = koinViewModel()
@@ -550,6 +551,7 @@ fun MapRoute(
                 is MapDrawerIntent.ContactUs -> onContactUsClick()
                 is MapDrawerIntent.BecomeADriver -> onBecomeDriverClick(intent.title, intent.url)
                 is MapDrawerIntent.InviteFriend -> onInviteFriendClick(intent.title, intent.url)
+                is MapDrawerIntent.Bonus -> onClickBonuses()
             }
         },
         content = {

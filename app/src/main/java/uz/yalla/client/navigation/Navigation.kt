@@ -12,6 +12,8 @@ import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.core.presentation.navigation.safePopBackStack
 import uz.yalla.client.feature.auth.authModule
 import uz.yalla.client.feature.auth.navigateToAuthModule
+import uz.yalla.client.feature.bonus.bonusModule
+import uz.yalla.client.feature.bonus.navigateToBonusModule
 import uz.yalla.client.feature.contact.navigation.contactUsScreen
 import uz.yalla.client.feature.contact.navigation.navigateToContactUsScreen
 import uz.yalla.client.feature.edit_profile.navigation.editProfileScreen
@@ -112,10 +114,15 @@ fun Navigation(
             onAboutAppClick = navController::navigateToAboutAppScreen,
             onContactUsClick = navController::navigateToContactUsScreen,
             becomeDriverClick = navController::navigateToWebScreen,
-            inviteFriendClick = navController::navigateToWebScreen
+            inviteFriendClick = navController::navigateToWebScreen,
+            onClickBonuses = navController::navigateToBonusModule
         )
 
         historyModule(
+            navController = navController
+        )
+
+        bonusModule(
             navController = navController
         )
 
