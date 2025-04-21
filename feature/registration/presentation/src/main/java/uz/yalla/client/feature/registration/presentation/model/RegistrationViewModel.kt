@@ -16,6 +16,7 @@ import uz.yalla.client.feature.auth.domain.usecase.register.RegisterUseCase
 
 internal class RegistrationViewModel(
     private val registerUseCase: RegisterUseCase,
+    private val prefs: uz.yalla.client.core.domain.local.AppPreferences
 ) : ViewModel() {
 
     private val _actionFlow = MutableSharedFlow<RegistrationActionState>()
@@ -55,8 +56,8 @@ internal class RegistrationViewModel(
                 dateOfBirth.formatWithDotsDMY(),
                 secretKey
             ).onSuccess { result ->
-                AppPreferences.accessToken = result.accessToken
-                AppPreferences.tokenType = result.tokenType
+                prefs.setAccessToken(result.accessToken)
+                prefs.setTokenType(result.tokenType)
                 AppPreferences.isDeviceRegistered = true
                 AppPreferences.number = number
                 AppPreferences.firstName = firstName

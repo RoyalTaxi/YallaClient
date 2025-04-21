@@ -8,7 +8,18 @@ import uz.yalla.client.core.data.network.provideNetworkClient
 
 object Network {
     val module = module {
-        single<HttpClient>(named(NetworkConstants.API_1)) { provideNetworkClient(NetworkConstants.BASE_URL) }
-        single<HttpClient>(named(NetworkConstants.API_2)) { provideNetworkClient(NetworkConstants.BASE_URL_2) }
+        single<HttpClient>(named(NetworkConstants.API_1)) {
+            provideNetworkClient(
+                baseUrl = NetworkConstants.BASE_URL,
+                preferences = get()
+            )
+        }
+
+        single<HttpClient>(named(NetworkConstants.API_2)) {
+            provideNetworkClient(
+                baseUrl = NetworkConstants.BASE_URL_2,
+                preferences = get()
+            )
+        }
     }
 }

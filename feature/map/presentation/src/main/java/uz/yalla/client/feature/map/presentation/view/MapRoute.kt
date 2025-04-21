@@ -590,8 +590,14 @@ fun MapRoute(
                     }
 
                     is MapScreenIntent.MapOverlayIntent.NavigateBack -> {
-                        vm.clearState()
-                        navController.navigateToMainSheet()
+                        if (state.selectedOrder != null) {
+                            vm.clearState()
+                            navController.navigateToMainSheet()
+                        } else {
+                            val destinations = state.destinations.toMutableList()
+                            destinations.removeAt(destinations.lastIndex)
+                            vm.updateState(state.copy(destinations = destinations))
+                        }
                     }
 
                     is MapScreenIntent.MapOverlayIntent.OpenDrawer -> {

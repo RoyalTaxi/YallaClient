@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
@@ -22,9 +23,10 @@ import uz.yalla.client.feature.setting.domain.usecase.SendFCMTokenUseCase
 import kotlin.time.Duration.Companion.seconds
 
 class VerificationViewModel(
+    private val prefs: uz.yalla.client.core.domain.local.AppPreferences,
     private val verifyCodeUseCase: VerifyCodeUseCase,
     private val sendCodeUseCase: SendCodeUseCase,
-    private val sendFCMTokenUseCase: SendFCMTokenUseCase
+    private val sendFCMTokenUseCase: SendFCMTokenUseCase,
 ) : ViewModel() {
 
     private val _actionFlow = MutableSharedFlow<VerificationActionState>()
@@ -32,6 +34,14 @@ class VerificationViewModel(
 
     private val _uiState = MutableStateFlow(VerificationUIState())
     val uiState = _uiState.asStateFlow()
+
+    private val accessToken = MutableStateFlow("")
+
+    init {
+        viewModelScope.launch {
+            prefs.accessToken.collectLatest { accessToken.value = it }
+        }
+    }
 
     fun updateUiState(
         number: String? = null,
@@ -95,7 +105,7 @@ class VerificationViewModel(
             FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     AppPreferences.firebaseToken = task.result
-                    if (AppPreferences.accessToken.isNotBlank()) sendFCMToken(task.result)
+                    if (accessToken.value.isNotBlank()) sendFCMToken(task.result)
                 }
             }
         }
@@ -109,8 +119,10 @@ class VerificationViewModel(
 
     private fun saveAuthResult(result: VerifyAuthCodeModel) {
         result.client?.let { client ->
-            AppPreferences.accessToken = result.accessToken
-            AppPreferences.tokenType = result.tokenType
+            prefs.setAccessToken(result.accessToken)
+            prefs.setTokenType(result.tokenType)
+
+
             AppPreferences.isDeviceRegistered = true
             AppPreferences.number = client.phone
             AppPreferences.gender = client.gender

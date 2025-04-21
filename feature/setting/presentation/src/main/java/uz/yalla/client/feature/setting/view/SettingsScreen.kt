@@ -39,7 +39,7 @@ internal fun SettingsScreen(
         content = { paddingValues ->
             SettingsContent(
                 modifier = Modifier.padding(paddingValues),
-                selectedLanguageID = uiState.selectedLanguage.stringResId,
+                selectedLanguageID = uiState.selectedLanguage?.stringResId,
                 onClickLanguage = { onIntent(SettingsIntent.OnClickLanguage) }
             )
 
@@ -76,7 +76,7 @@ private fun SettingsTopBar(onNavigateBack: () -> Unit) {
 @Composable
 private fun SettingsContent(
     modifier: Modifier = Modifier,
-    selectedLanguageID: Int,
+    selectedLanguageID: Int?,
     onClickLanguage: () -> Unit
 ) {
     Column(modifier = modifier) {
@@ -93,7 +93,7 @@ private fun SettingsContent(
 
         SettingButton(
             title = stringResource(R.string.app_language),
-            description = stringResource(selectedLanguageID),
+            description = stringResource(selectedLanguageID ?: R.string.uzbek),
             onClick = onClickLanguage
         )
     }
