@@ -21,7 +21,8 @@ import uz.yalla.client.feature.setting.domain.usecase.SendFCMTokenUseCase
 class MainViewModel(
     connectivityObserver: ConnectivityObserver,
     private val getConfigUseCase: GetConfigUseCase,
-    private val sendFCMTokenUseCase: SendFCMTokenUseCase
+    private val sendFCMTokenUseCase: SendFCMTokenUseCase,
+    private val prefs: uz.yalla.client.core.domain.local.AppPreferences
 ) : ViewModel() {
     companion object {
         private const val MAX_LOCATION_ATTEMPTS = 3
@@ -39,9 +40,13 @@ class MainViewModel(
     private val _isReady = MutableStateFlow<Boolean?>(null)
     val isReady = _isReady.asStateFlow()
 
+    private val accessToken = MutableStateFlow("")
 
     init {
         getConfig()
+        viewModelScope.launch {
+            prefs.accessToken.collect { accessToken.value = it }
+        }
     }
 
     private fun getConfig() = viewModelScope.launch(Dispatchers.IO) {
@@ -103,7 +108,7 @@ class MainViewModel(
             FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     AppPreferences.firebaseToken = task.result
-                    if (AppPreferences.accessToken.isNotBlank()) sendFCMToken(task.result)
+                    if (accessToken.value.isNotBlank()) sendFCMToken(task.result)
                 }
             }
         }

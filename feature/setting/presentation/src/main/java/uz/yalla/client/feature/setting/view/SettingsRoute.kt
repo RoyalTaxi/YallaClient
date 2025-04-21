@@ -59,8 +59,6 @@ internal fun SettingsRoute(
                             LocaleListCompat.forLanguageTags(intent.language.languageTag)
                         )
                     }
-
-                    viewModel.notifyLanguageChange(intent.language)
                 }
             }
         }

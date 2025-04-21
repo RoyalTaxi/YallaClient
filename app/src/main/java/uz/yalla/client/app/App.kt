@@ -8,7 +8,6 @@ import org.koin.core.context.GlobalContext.startKoin
 import uz.yalla.client.core.data.di.Common
 import uz.yalla.client.core.data.enums.MapType
 import uz.yalla.client.core.data.local.AppPreferences
-//import uz.yalla.client.core.dgis.InitMap
 import uz.yalla.client.di.Navigation
 
 class App : Application() {

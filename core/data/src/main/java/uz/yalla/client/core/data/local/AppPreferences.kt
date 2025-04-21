@@ -18,19 +18,12 @@ object AppPreferences {
         preferences.edit()?.clear()?.apply()
     }
 
-    var locale: String
-        get() = preferences.getString(AppPreferences::locale.name, "uz") ?: "uz"
-        set(value) {
-            preferences.edit()?.putString(AppPreferences::locale.name, value)?.apply()
-        }
-
     var hasProcessedOrderOnEntry: Boolean
         get() = preferences.getBoolean(AppPreferences::hasProcessedOrderOnEntry.name, false)
         set(value) {
             preferences.edit()?.putBoolean(AppPreferences::hasProcessedOrderOnEntry.name, value)
                 ?.apply()
         }
-
 
     var firebaseToken: String
         get() = preferences.getString(AppPreferences::firebaseToken.name, "") ?: ""
@@ -60,18 +53,6 @@ object AppPreferences {
         get() = preferences.getString(AppPreferences::lastName.name, "") ?: ""
         set(value) {
             preferences.edit()?.putString(AppPreferences::lastName.name, value)?.apply()
-        }
-
-    var accessToken: String
-        get() = preferences.getString(AppPreferences::accessToken.name, "") ?: ""
-        set(value) {
-            preferences.edit()?.putString(AppPreferences::accessToken.name, value)?.apply()
-        }
-
-    var tokenType: String
-        get() = preferences.getString(AppPreferences::tokenType.name, "") ?: ""
-        set(value) {
-            preferences.edit()?.putString(AppPreferences::tokenType.name, value)?.apply()
         }
 
     var mapType: MapType

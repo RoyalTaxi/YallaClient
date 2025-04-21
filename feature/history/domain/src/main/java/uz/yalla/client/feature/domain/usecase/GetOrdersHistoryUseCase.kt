@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.map
 import uz.yalla.client.core.domain.formations.TimeFormation.toFormattedDate
 import uz.yalla.client.core.domain.formations.TimeFormation.toFormattedPrice
 import uz.yalla.client.core.domain.formations.TimeFormation.toFormattedTime
-import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.feature.domain.model.OrdersHistory
 import uz.yalla.client.feature.domain.repository.OrderHistoryRepository
 

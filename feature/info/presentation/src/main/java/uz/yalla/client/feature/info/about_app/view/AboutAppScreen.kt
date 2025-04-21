@@ -22,6 +22,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,10 +34,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import org.koin.compose.koinInject
+import  uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.common.navigable.ItemNavigable
 import uz.yalla.client.core.common.utils.openPlayMarket
-import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.info.R
 import uz.yalla.client.feature.info.about_app.model.AboutAppUIState
@@ -157,10 +160,12 @@ private fun PrivacyPolicySection(
     uiState: AboutAppUIState,
     onClickPrivacyPolicy: (Int, String) -> Unit
 ) {
+    val prefs = koinInject<AppPreferences>()
+    val locale by prefs.locale.collectAsState("uz")
     ItemNavigable(
         title = stringResource(R.string.user_agreement),
         onClick = {
-            if (AppPreferences.locale == "ru") {
+            if (locale == "ru") {
                 uiState.privacyPolicyRu?.let {
                     onClickPrivacyPolicy(it.second, it.first)
                 }

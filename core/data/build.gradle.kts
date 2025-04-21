@@ -21,6 +21,11 @@ dependencies {
 
     api(project.dependencies.platform(libs.koin.bom))
     api(libs.koin.core)
+    implementation(libs.koin.android)
+
+    implementation(libs.datastore)
+    implementation(libs.datastore.preferences)
+    implementation(libs.kotlinx.coroutines.core)
 
     implementation(libs.inspektify.ktor3)
 }

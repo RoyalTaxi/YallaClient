@@ -159,10 +159,10 @@ class MapViewModel(
     }
 
     val hamburgerButtonState = uiState
-        .distinctUntilChangedBy { it.selectedOrder }
+        .distinctUntilChangedBy { Pair(it.selectedOrder, it.destinations) }
         .map { state ->
-            if (state.selectedOrder == null) HamburgerButtonState.OpenDrawer
-            else HamburgerButtonState.NavigateBack
+            if (state.selectedOrder != null || state.destinations.isNotEmpty()) HamburgerButtonState.NavigateBack
+            else HamburgerButtonState.OpenDrawer
         }
         .stateIn(
             scope = viewModelScope,

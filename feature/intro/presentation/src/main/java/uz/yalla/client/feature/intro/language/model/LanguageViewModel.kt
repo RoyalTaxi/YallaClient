@@ -10,9 +10,11 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import uz.yalla.client.core.data.local.AppPreferences
+import uz.yalla.client.core.domain.local.AppPreferences
 
-internal class LanguageViewModel : ViewModel() {
+internal class LanguageViewModel(
+    private val prefs: AppPreferences
+) : ViewModel() {
     private val _uiState = MutableStateFlow(LanguageUIState())
     val uiState = _uiState.asStateFlow()
 
@@ -27,6 +29,7 @@ internal class LanguageViewModel : ViewModel() {
             )
 
         _uiState.update { it.copy(selectedLanguage = language) }
-        AppPreferences.locale = language.languageTag
+
+        prefs.setLocale(language.languageTag)
     }
 }
