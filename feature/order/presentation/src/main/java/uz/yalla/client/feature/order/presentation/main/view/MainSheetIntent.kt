@@ -1,8 +1,8 @@
 package uz.yalla.client.feature.order.presentation.main.view
 
-import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.Executor
+import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.core.domain.model.SelectedLocation
 import uz.yalla.client.core.domain.model.ServiceModel
 import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
@@ -16,16 +16,13 @@ sealed interface MainSheetIntent {
         data class OrderCreated(val order: ShowOrderModel) : OrderTaxiSheetIntent
         data class SetSelectedLocation(val selectedLocation: SelectedLocation) :
             OrderTaxiSheetIntent
-
         data class SetDestinations(val destinations: List<Destination>) : OrderTaxiSheetIntent
         data class AddDestination(val destination: Destination) : OrderTaxiSheetIntent
         data class SetServiceState(val available: Boolean) : OrderTaxiSheetIntent
-
         data class SetTimeout(
             val timeout: Int?,
             val drivers: List<Executor>
         ) : OrderTaxiSheetIntent
-
         data class SelectTariff(
             val tariff: GetTariffsModel.Tariff,
             val wasSelected: Boolean
@@ -36,8 +33,7 @@ sealed interface MainSheetIntent {
         data object ClickComment : TariffInfoSheetIntent()
         data object ClearOptions : TariffInfoSheetIntent()
         data class ChangeShadowVisibility(val visible: Boolean) : TariffInfoSheetIntent()
-        data class OptionsChange(val options: List<ServiceModel>) :
-            TariffInfoSheetIntent()
+        data class OptionsChange(val options: List<ServiceModel>) : TariffInfoSheetIntent()
     }
 
     sealed interface FooterIntent : MainSheetIntent {

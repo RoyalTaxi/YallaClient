@@ -2,19 +2,20 @@ package uz.yalla.client.feature.contact.model
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import uz.yalla.client.core.data.local.AppPreferences
+import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.feature.contact.R
 import uz.yalla.client.feature.setting.domain.usecase.GetConfigUseCase
 
 internal class ContactUsViewModel(
-    private val getConfigUseCase: GetConfigUseCase
+    private val getConfigUseCase: GetConfigUseCase,
+    private val prefs: AppPreferences
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ContactUsUIState())
@@ -53,7 +54,7 @@ internal class ContactUsViewModel(
                         )
                     )
                 }
-                AppPreferences.supportNumber = result.setting.supportPhone
+                prefs.setSupportNumber(result.setting.supportPhone)
                 _actionState.emit(ContactUsActionState.Success)
             }
             .onFailure {

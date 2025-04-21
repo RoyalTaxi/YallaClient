@@ -8,6 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -43,12 +45,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import uz.yalla.client.core.common.R
 import uz.yalla.client.core.common.convertor.dpToPx
 import uz.yalla.client.core.common.marker.createInfoMarker
 import uz.yalla.client.core.common.utils.getCurrentLocation
 import uz.yalla.client.core.common.utils.vectorToBitmapDescriptor
-import uz.yalla.client.core.data.local.AppPreferences
+import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.Executor
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.OrderStatus
@@ -56,14 +60,13 @@ import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 import kotlin.properties.Delegates
 
-class ConcreteGoogleMap : MapStrategy {
-    override val isMarkerMoving = MutableStateFlow(Pair(false, false))
-    override val mapPoint: MutableState<MapPoint> = mutableStateOf(
-        MapPoint(
-            lat = AppPreferences.entryLocation.first,
-            lng = AppPreferences.entryLocation.second
-        )
-    )
+class ConcreteGoogleMap : MapStrategy, KoinComponent {
+    private val prefs by inject<AppPreferences>()
+
+    override val isMarkerMoving = MutableStateFlow(false to false)
+
+    // start at (0,0); we'll update it once we collect the stored value
+    override val mapPoint: MutableState<MapPoint> = mutableStateOf(MapPoint(0.0, 0.0))
 
     private var driver: MutableState<Executor?> = mutableStateOf(null)
     private val drivers: SnapshotStateList<Executor> = mutableStateListOf()
@@ -76,7 +79,6 @@ class ConcreteGoogleMap : MapStrategy {
     private lateinit var context: Context
     private lateinit var coroutineScope: CoroutineScope
     private lateinit var cameraPositionState: CameraPositionState
-
     private var mapPadding by Delegates.notNull<Int>()
 
     @Composable
@@ -92,12 +94,17 @@ class ConcreteGoogleMap : MapStrategy {
         coroutineScope = rememberCoroutineScope()
         cameraPositionState = rememberCameraPositionState()
 
+        val savedLoc by prefs.entryLocation.collectAsState(initial = 0.0 to 0.0)
+
+        LaunchedEffect(savedLoc) {
+            mapPoint.value = MapPoint(savedLoc.first, savedLoc.second)
+        }
+
         LaunchedEffect(::cameraPositionState.isInitialized) {
             launch(Dispatchers.Main) {
                 awaitFrame()
-                startingPoint
-                    ?.let { move(to = startingPoint) }
-                    ?: run { moveToMyLocation() }
+                if (startingPoint != null) move(startingPoint)
+                else move(MapPoint(savedLoc.first, savedLoc.second))
             }
         }
 
@@ -105,17 +112,12 @@ class ConcreteGoogleMap : MapStrategy {
             snapshotFlow { cameraPositionState.isMoving }
                 .collect { isMoving ->
                     isMarkerMoving.emit(
-                        Pair(
-                            isMoving,
-                            cameraPositionState.cameraMoveStartedReason == CameraMoveStartedReason.GESTURE
-                        )
+                        isMoving to
+                                (cameraPositionState.cameraMoveStartedReason == CameraMoveStartedReason.GESTURE)
                     )
                     if (!isMoving) {
                         val target = cameraPositionState.position.target
-                        mapPoint.value = MapPoint(
-                            lat = target.latitude,
-                            lng = target.longitude
-                        )
+                        mapPoint.value = MapPoint(target.latitude, target.longitude)
                     }
                 }
         }

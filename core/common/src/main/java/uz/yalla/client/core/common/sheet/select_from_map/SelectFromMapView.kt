@@ -40,6 +40,7 @@ import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 import uz.yalla.client.core.common.R
 import uz.yalla.client.core.common.button.MapButton
 import uz.yalla.client.core.common.button.PrimaryButton
@@ -49,9 +50,9 @@ import uz.yalla.client.core.common.map.ConcreteGoogleMap
 import uz.yalla.client.core.common.map.MapStrategy
 import uz.yalla.client.core.common.marker.YallaMarker
 import uz.yalla.client.core.common.marker.YallaMarkerState
-import uz.yalla.client.core.data.enums.MapType
-import uz.yalla.client.core.data.local.AppPreferences
+import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.MapPoint
+import uz.yalla.client.core.domain.model.MapType
 import uz.yalla.client.core.domain.model.SelectedLocation
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 
@@ -88,10 +89,8 @@ fun SelectFromMapView(
     BackHandler(onBack = onDismissRequest)
 
     LaunchedEffect(Unit) {
-        launch(Dispatchers.Main) {
-            map.isMarkerMoving.collectLatest {
-                isMarkerMoving = it.first
-            }
+        map.isMarkerMoving.collectLatest { pair ->
+            isMarkerMoving = pair.first
         }
     }
 
@@ -125,16 +124,14 @@ fun SelectFromMapView(
         Box(
             modifier = Modifier
                 .matchParentSize()
-                .pointerInput(Unit) {}
+                .pointerInput(Unit) { }
         )
 
         MapContent(
             map = map,
             mapBottomPadding = mapBottomPadding,
             startingPoint = startingPoint,
-            onMapReady = {
-                loading = false
-            }
+            onMapReady = { loading = false }
         )
 
         MapControlsLayer(
@@ -167,8 +164,14 @@ fun SelectFromMapView(
 
 @Composable
 private fun rememberMapImplementation(): MapStrategy {
-    return remember(AppPreferences.mapType) {
-        when (AppPreferences.mapType) {
+    val prefs = koinInject<AppPreferences>()
+
+    val mapType by prefs
+        .mapType
+        .collectAsState(initial = MapType.Google)
+
+    return remember(mapType) {
+        when (mapType) {
             MapType.Google -> ConcreteGoogleMap()
             MapType.Gis -> ConcreteGoogleMap()
         }
@@ -299,10 +302,7 @@ private fun LocationDisplaySection(
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .fillMaxWidth()
-            .background(
-                color = YallaTheme.color.white,
-                shape = bottomCornerShape
-            )
+            .background(color = YallaTheme.color.white, shape = bottomCornerShape)
     ) {
         SelectCurrentLocationButton(
             modifier = Modifier.padding(standardPadding),
@@ -318,7 +318,7 @@ private fun LocationDisplaySection(
                         )
                 )
             },
-            onClick = { }
+            onClick = { /* no-op */ }
         )
     }
 }
@@ -334,10 +334,7 @@ private fun ActionButtonSection(
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .fillMaxWidth()
-            .background(
-                color = YallaTheme.color.white,
-                shape = topCornerShape
-            )
+            .background(color = YallaTheme.color.white, shape = topCornerShape)
             .navigationBarsPadding()
     ) {
         PrimaryButton(

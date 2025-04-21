@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -22,8 +23,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import uz.yalla.client.core.common.sheet.search_address.SearchByNameSheetValue
 import uz.yalla.client.core.common.sheet.select_from_map.SelectFromMapViewValue
-import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.core.data.mapper.orFalse
+import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.PaymentType
@@ -54,7 +55,8 @@ class MainSheetViewModel(
     private val orderTaxiUseCase: OrderTaxiUseCase,
     private val getCardListUseCase: GetCardListUseCase,
     private val getTimeOutUseCase: GetTimeOutUseCase,
-    private val getShowOrderUseCase: GetShowOrderUseCase
+    private val getShowOrderUseCase: GetShowOrderUseCase,
+    private val prefs: AppPreferences
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainSheetState())
@@ -218,10 +220,11 @@ class MainSheetViewModel(
     }
 
     fun setSelectedLocation(selectedLocation: SelectedLocation) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val point = selectedLocation.point ?: AppPreferences.entryLocation.let {
-                if (it.first != 0.0 && it.second != 0.0) MapPoint(it.first, it.second) else null
-            }
+        viewModelScope.launch {
+            val fallback = prefs.entryLocation.first()
+            val point = selectedLocation.point
+                ?: fallback.takeIf { it.first != 0.0 && it.second != 0.0 }
+                    ?.let { MapPoint(it.first, it.second) }
 
             val updated = selectedLocation.copy(point = point)
             _uiState.update { it.copy(selectedLocation = updated) }
@@ -355,8 +358,9 @@ class MainSheetViewModel(
     }
 
     private fun updatePaymentType(type: PaymentType) {
-        AppPreferences.paymentType = type
-        _uiState.update { it.copy(selectedPaymentType = type) }
+        viewModelScope.launch {
+            prefs.setPaymentType(type)
+        }
     }
 
     private fun MapPoint.toPair() = lat to lng

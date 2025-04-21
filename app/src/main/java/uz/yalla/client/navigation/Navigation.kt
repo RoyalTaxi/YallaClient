@@ -4,12 +4,14 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
-import uz.yalla.client.core.data.local.AppPreferences
-import uz.yalla.client.core.presentation.navigation.safePopBackStack
+import org.koin.compose.koinInject
+import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.feature.auth.authModule
 import uz.yalla.client.feature.auth.navigateToAuthModule
 import uz.yalla.client.feature.contact.navigation.contactUsScreen
@@ -44,33 +46,29 @@ import uz.yalla.client.ui.screens.offline.OfflineScreen
 fun Navigation(
     isConnected: Boolean,
 ) {
+    val prefs = koinInject<AppPreferences>()
+    val isDeviceRegistered by prefs.isDeviceRegistered.collectAsState(initial = false)
+
     val navController = rememberNavController()
 
     NavHost(
         modifier = Modifier.fillMaxSize(),
         navController = navController,
-        startDestination =
-            when {
-                AppPreferences.isDeviceRegistered.not() -> INTRO_ROUTE
-                else -> MAP_ROUTE
-            },
+        startDestination = if (!isDeviceRegistered) INTRO_ROUTE else MAP_ROUTE,
         enterTransition = { slideInHorizontally(initialOffsetX = { it }) },
         popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) },
         exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) },
         popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) }
     ) {
-
         introModule(
             navController = navController,
             onPermissionGranted = {
-                if (AppPreferences.isDeviceRegistered) navController.navigateToMapScreen(
+                if (isDeviceRegistered) navController.navigateToMapScreen(
                     navOptions {
                         restoreState = true
                         popUpTo(0) { inclusive = true }
-
                     }
-                )
-                else navController.navigateToAuthModule()
+                ) else navController.navigateToAuthModule()
             }
         )
 
@@ -114,13 +112,8 @@ fun Navigation(
             inviteFriendClick = navController::navigateToWebScreen
         )
 
-        historyModule(
-            navController = navController
-        )
-
-        paymentModule(
-            navController = navController
-        )
+        historyModule(navController = navController)
+        paymentModule(navController = navController)
 
         cancelReasonScreen(
             onNavigateBack = {
@@ -133,9 +126,7 @@ fun Navigation(
             }
         )
 
-        addressModule(
-            navController = navController
-        )
+        addressModule(navController = navController)
 
         editProfileScreen(
             onNavigateBack = navController::safePopBackStack,
@@ -149,9 +140,7 @@ fun Navigation(
             }
         )
 
-        settingsScreen(
-            onNavigateBack = navController::safePopBackStack
-        )
+        settingsScreen(onNavigateBack = navController::safePopBackStack)
 
         aboutAppScreen(
             onBack = navController::safePopBackStack,
@@ -163,10 +152,10 @@ fun Navigation(
             onClickUrl = navController::navigateToWebScreen
         )
 
-        webScreen(
-            onNavigateBack = navController::popBackStack
-        )
-
+        webScreen(onNavigateBack = navController::popBackStack)
     }
-    if (isConnected.not()) OfflineScreen()
+
+    if (!isConnected) {
+        OfflineScreen()
+    }
 }

@@ -15,7 +15,7 @@ import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.format.DateTimeParseException
 import uz.yalla.client.core.common.formation.formatWithDotsDMY
-import uz.yalla.client.core.data.local.AppPreferences
+import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.feature.profile.domain.model.request.UpdateMeDto
 import uz.yalla.client.feature.profile.domain.usecase.GetMeUseCase
 import uz.yalla.client.feature.profile.domain.usecase.LogoutUseCase
@@ -29,7 +29,8 @@ internal class EditProfileViewModel(
     private val updateMeUseCase: UpdateMeUseCase,
     private val getMeUseCase: GetMeUseCase,
     private val updateAvatarUseCase: UpdateAvatarUseCase,
-    private val logoutUseCase: LogoutUseCase
+    private val logoutUseCase: LogoutUseCase,
+    private val prefs: AppPreferences
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(EditProfileUIState())
@@ -42,7 +43,6 @@ internal class EditProfileViewModel(
         _actionState.emit(EditProfileActionState.Loading)
         getMeUseCase().onSuccess { result ->
             _actionState.emit(EditProfileActionState.GetSuccess)
-
             _uiState.update {
                 it.copy(
                     name = result.client.givenNames,
@@ -52,6 +52,8 @@ internal class EditProfileViewModel(
                     birthday = parseBirthdayOrNull(result.client.birthday)
                 )
             }
+        }.onFailure {
+            _actionState.emit(EditProfileActionState.Error)
         }
     }
 
@@ -66,8 +68,11 @@ internal class EditProfileViewModel(
                     gender = gender.type,
                     image = newImageUrl
                 )
-            ).onSuccess { _actionState.emit(EditProfileActionState.UpdateSuccess) }
-                .onFailure { _actionState.emit(EditProfileActionState.Error) }
+            ).onSuccess {
+                _actionState.emit(EditProfileActionState.UpdateSuccess)
+            }.onFailure {
+                _actionState.emit(EditProfileActionState.Error)
+            }
         }
     }
 
@@ -77,19 +82,20 @@ internal class EditProfileViewModel(
             updateAvatarUseCase(newImage).onSuccess { result ->
                 _uiState.update { it.copy(newImageUrl = result.image) }
                 _actionState.emit(EditProfileActionState.UpdateAvatarSuccess)
-            }.onFailure { _actionState.emit(EditProfileActionState.Error) }
-        }
+            }.onFailure {
+                _actionState.emit(EditProfileActionState.Error)
+            }
+        } ?: _actionState.emit(EditProfileActionState.Error)
     }
 
     fun setNewImage(uri: Uri, context: Context) = viewModelScope.launch(Dispatchers.IO) {
-        val byteArray = context.uriToByteArray(uri)
-        if (byteArray != null) _uiState.update { it.copy(newImage = byteArray) }
-        else _actionState.emit(EditProfileActionState.Error)
+        context.uriToByteArray(uri)?.let { bytes ->
+            _uiState.update { it.copy(newImage = bytes) }
+        } ?: _actionState.emit(EditProfileActionState.Error)
     }
 
     private fun parseBirthdayOrNull(birthdayStr: String?): LocalDate? {
         if (birthdayStr.isNullOrBlank()) return null
-
         val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.getDefault())
         return try {
             LocalDate.parse(birthdayStr, formatter)
@@ -118,14 +124,13 @@ internal class EditProfileViewModel(
         _uiState.update { it.copy(gender = gender) }
     }
 
-    fun logout() {
-        viewModelScope.launch(Dispatchers.IO) {
-            logoutUseCase().onSuccess {
-                AppPreferences.clear()
-                _actionState.emit(EditProfileActionState.LogoutSuccess)
-            }.onFailure {
-                _actionState.emit(EditProfileActionState.LogoutError)
-            }
+    fun logout() = viewModelScope.launch(Dispatchers.IO) {
+        _actionState.emit(EditProfileActionState.Loading)
+        logoutUseCase().onSuccess {
+            prefs.clearAll()
+            _actionState.emit(EditProfileActionState.LogoutSuccess)
+        }.onFailure {
+            _actionState.emit(EditProfileActionState.LogoutError)
         }
     }
 }

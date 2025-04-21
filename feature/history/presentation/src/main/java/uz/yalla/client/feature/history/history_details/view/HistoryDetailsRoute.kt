@@ -11,13 +11,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 import uz.yalla.client.core.common.dialog.LoadingDialog
-//import uz.yalla.client.core.common.map.ConcreteGisMap
 import uz.yalla.client.core.common.map.ConcreteGoogleMap
 import uz.yalla.client.core.common.map.MapStrategy
-import uz.yalla.client.core.data.enums.MapType
-import uz.yalla.client.core.data.local.AppPreferences
+import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.MapPoint
+import uz.yalla.client.core.domain.model.MapType
 import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.feature.history.history_details.model.HistoryDetailsActionState
 import uz.yalla.client.feature.history.history_details.model.HistoryDetailsViewModel
@@ -28,12 +28,18 @@ internal fun HistoryDetailsRoute(
     orderId: Int,
     vm: HistoryDetailsViewModel = koinViewModel()
 ) {
+    val prefs = koinInject<AppPreferences>()
+
     val uiState by vm.uiState.collectAsState()
     var loading by remember { mutableStateOf(true) }
 
-    val map: MapStrategy = when (AppPreferences.mapType) {
-        MapType.Google -> ConcreteGoogleMap()
-        MapType.Gis -> ConcreteGoogleMap()
+    val mapType by prefs.mapType.collectAsState(initial = MapType.Google)
+
+    val map: MapStrategy = remember(mapType) {
+        when (mapType) {
+            MapType.Google -> ConcreteGoogleMap()
+            MapType.Gis -> ConcreteGoogleMap()
+        }
     }
 
     fun updateRoute() {
@@ -43,7 +49,6 @@ internal fun HistoryDetailsRoute(
         val routePoints = routes.map { route ->
             route.cords.let { MapPoint(it.lat, it.lng) }
         }
-
         if (routePoints.isEmpty()) return
 
         if (routePoints.size == 1) {
@@ -55,7 +60,6 @@ internal fun HistoryDetailsRoute(
             map.updateRoute(routePoints)
             map.moveToFitBounds(routePoints)
         }
-
         map.updateLocations(routePoints)
     }
 
@@ -66,10 +70,11 @@ internal fun HistoryDetailsRoute(
     }
 
     LaunchedEffect(Unit) {
+        // fetch history
         launch(Dispatchers.IO) {
             vm.getOrderHistory(orderId)
         }
-
+        // observe actionState for loading & success
         launch(Dispatchers.Main) {
             vm.actionState.collectLatest { action ->
                 loading = when (action) {
@@ -78,6 +83,7 @@ internal fun HistoryDetailsRoute(
                         vm.getMapPoints()
                         false
                     }
+
                     else -> false
                 }
             }

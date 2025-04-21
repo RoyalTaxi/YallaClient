@@ -1,4 +1,4 @@
-package uz.yalla.client.core.data.enums
+package uz.yalla.client.core.domain.model
 
 enum class MapType(val typeName: String) {
     Google("google"),

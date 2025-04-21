@@ -32,6 +32,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 import org.koin.java.KoinJavaComponent.getKoin
 import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.core.common.sheet.AddDestinationBottomSheet
@@ -40,9 +41,10 @@ import uz.yalla.client.core.common.sheet.search_address.SearchByNameSheetValue
 import uz.yalla.client.core.common.sheet.select_from_map.SelectFromMapView
 import uz.yalla.client.core.common.sheet.select_from_map.SelectFromMapViewValue
 import uz.yalla.client.core.common.state.SheetValue
-import uz.yalla.client.core.data.local.AppPreferences
+import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.MapPoint
+import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.core.domain.model.SelectedLocation
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
@@ -69,6 +71,8 @@ object MainSheet {
         val buttonAndOptionsState by viewModel.buttonAndOptionsState.collectAsState()
         val lifecycleOwner = LocalLifecycleOwner.current
         val scope = rememberCoroutineScope()
+        val prefs = koinInject<AppPreferences>()
+        val paymentType by prefs.paymentType.collectAsState(initial = PaymentType.CASH)
 
         val scaffoldState = rememberBottomSheetScaffoldState(
             rememberBottomSheetState(
@@ -113,7 +117,7 @@ object MainSheet {
             launch(Dispatchers.IO) {
                 viewModel.getPolygon()
                 viewModel.getCardList()
-                viewModel.setPaymentType(AppPreferences.paymentType)
+                viewModel.setPaymentType(paymentType)
             }
             launch(Dispatchers.Main) {
                 viewModel.sheetVisibilityListener.collectLatest {

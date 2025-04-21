@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import uz.yalla.client.core.data.local.AppPreferences
+import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.feature.auth.domain.model.auth.VerifyAuthCodeModel
 import uz.yalla.client.feature.auth.domain.usecase.auth.SendCodeUseCase
 import uz.yalla.client.feature.auth.domain.usecase.auth.VerifyCodeUseCase
@@ -23,10 +23,10 @@ import uz.yalla.client.feature.setting.domain.usecase.SendFCMTokenUseCase
 import kotlin.time.Duration.Companion.seconds
 
 class VerificationViewModel(
-    private val prefs: uz.yalla.client.core.domain.local.AppPreferences,
+    private val prefs: AppPreferences,
     private val verifyCodeUseCase: VerifyCodeUseCase,
     private val sendCodeUseCase: SendCodeUseCase,
-    private val sendFCMTokenUseCase: SendFCMTokenUseCase,
+    private val sendFCMTokenUseCase: SendFCMTokenUseCase
 ) : ViewModel() {
 
     private val _actionFlow = MutableSharedFlow<VerificationActionState>()
@@ -51,23 +51,22 @@ class VerificationViewModel(
         remainingMinutes: Int? = null,
         remainingSeconds: Int? = null
     ) = viewModelScope.launch(Dispatchers.IO) {
-        _uiState.update { currentState ->
-            currentState.copy(
-                number = number ?: currentState.number,
-                code = code ?: currentState.code,
-                buttonState = buttonState ?: currentState.buttonState,
-                hasRemainingTime = hasRemainingTime ?: currentState.hasRemainingTime,
-                remainingMinutes = remainingMinutes ?: currentState.remainingMinutes,
-                remainingSeconds = remainingSeconds ?: currentState.remainingSeconds
+        _uiState.update { current ->
+            current.copy(
+                number = number ?: current.number,
+                code = code ?: current.code,
+                buttonState = buttonState ?: current.buttonState,
+                hasRemainingTime = hasRemainingTime ?: current.hasRemainingTime,
+                remainingMinutes = remainingMinutes ?: current.remainingMinutes,
+                remainingSeconds = remainingSeconds ?: current.remainingSeconds
             )
         }
     }
 
     fun verifyAuthCode() = viewModelScope.launch(Dispatchers.IO) {
-        _uiState.value.apply {
-            _actionFlow.emit(VerificationActionState.Loading)
-
-            verifyCodeUseCase(getFormattedNumber(), code.toInt())
+        _actionFlow.emit(VerificationActionState.Loading)
+        _uiState.value.let { state ->
+            verifyCodeUseCase(state.getFormattedNumber(), state.code.toInt())
                 .onSuccess { result ->
                     saveAuthResult(result)
                     getFCMToken()
@@ -80,22 +79,22 @@ class VerificationViewModel(
     }
 
     fun resendAuthCode(hash: String?) = viewModelScope.launch(Dispatchers.IO) {
-        _uiState.value.apply {
-            _actionFlow.emit(VerificationActionState.Loading)
-            sendCodeUseCase(getFormattedNumber(), hash)
+        _actionFlow.emit(VerificationActionState.Loading)
+        _uiState.value.let { state ->
+            sendCodeUseCase(state.getFormattedNumber(), hash)
                 .onSuccess { result ->
-                    _actionFlow.emit(
-                        VerificationActionState.SendSMSSuccess(result)
-                    )
+                    _actionFlow.emit(VerificationActionState.SendSMSSuccess(result))
                 }
-                .onFailure { _actionFlow.emit(VerificationActionState.Error) }
+                .onFailure {
+                    _actionFlow.emit(VerificationActionState.Error)
+                }
         }
     }
 
     fun countDownTimer(countDown: Int) = flow {
-        for (seconds in countDown downTo 0) {
+        for (sec in countDown downTo 0) {
             delay(1.seconds)
-            emit(seconds)
+            emit(sec)
             if (!currentCoroutineContext().isActive) return@flow
         }
     }
@@ -104,8 +103,11 @@ class VerificationViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    AppPreferences.firebaseToken = task.result
-                    if (accessToken.value.isNotBlank()) sendFCMToken(task.result)
+                    val token = task.result
+                    prefs.setFirebaseToken(token)
+                    if (accessToken.value.isNotBlank()) {
+                        sendFCMToken(token)
+                    }
                 }
             }
         }
@@ -121,14 +123,12 @@ class VerificationViewModel(
         result.client?.let { client ->
             prefs.setAccessToken(result.accessToken)
             prefs.setTokenType(result.tokenType)
-
-
-            AppPreferences.isDeviceRegistered = true
-            AppPreferences.number = client.phone
-            AppPreferences.gender = client.gender
-            AppPreferences.dateOfBirth = client.birthday
-            AppPreferences.firstName = client.givenNames
-            AppPreferences.lastName = client.surname
+            prefs.setDeviceRegistered(true)
+            prefs.setNumber(client.phone)
+            prefs.setGender(client.gender)
+            prefs.setDateOfBirth(client.birthday)
+            prefs.setFirstName(client.givenNames)
+            prefs.setLastName(client.surname)
         }
     }
 }

@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.feature.setting.components.Language
 import uz.yalla.client.feature.settings.R
 

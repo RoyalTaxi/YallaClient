@@ -4,7 +4,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.common.sheet.search_address.SearchByNameSheetValue
 import uz.yalla.client.core.common.sheet.select_from_map.SelectFromMapViewValue
-import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.Executor
 import uz.yalla.client.core.domain.model.PaymentType
@@ -38,7 +37,10 @@ data class MainSheetState(
 
     val comment: String = "",
     val cardList: List<CardListItemModel> = emptyList(),
-    val selectedPaymentType: PaymentType = AppPreferences.paymentType,
+
+    val selectedPaymentType: PaymentType = PaymentType.CASH,
+    val phoneNumber: String = "",
+
     val selectedService: String = "road",
 
     val order: ShowOrderModel? = null,
@@ -52,6 +54,7 @@ data class MainSheetState(
     val isAddDestinationSheetVisible: Boolean = false,
     val isArrangeDestinationsSheetVisible: Boolean = false
 ) {
+
     fun getBadgeText(): String? = when {
         selectedOptions.isNotEmpty() -> selectedOptions.size.toString()
         comment.isNotBlank() -> ""
@@ -61,41 +64,46 @@ data class MainSheetState(
     fun mapToOrderTaxiDto(): OrderTaxiDto? {
         val addressId = selectedLocationId ?: return null
         val from = selectedLocation ?: return null
-        val fromLat = selectedLocation.point?.lat ?: return null
-        val fromLng = selectedLocation.point?.lng ?: return null
-        val to = destinations
-            .filter { it.point?.lat != null && it.point?.lng != null }
-            .map { dest ->
-                OrderTaxiDto.Address(
-                    addressId = null,
-                    lat = dest.point!!.lat,
-                    lng = dest.point!!.lng,
-                    name = dest.name.orEmpty()
-                )
+        val fromLat = from.point?.lat ?: return null
+        val fromLng = from.point?.lng ?: return null
+
+        val toAddresses = destinations
+            .mapNotNull { dest ->
+                dest.point?.lat?.let { lat ->
+                    dest.point?.lng?.let { lng ->
+                        OrderTaxiDto.Address(
+                            addressId = null,
+                            lat = lat,
+                            lng = lng,
+                            name = dest.name.orEmpty()
+                        )
+                    }
+                }
             }
-        val selectedTariff = selectedTariff ?: return null
-        val selectedCardId = (selectedPaymentType as? PaymentType.CARD)?.cardId
-        val selectedOptionsIds = selectedOptions.map { it.id }
+
+        val tariff = selectedTariff ?: return null
+        val cardId = (selectedPaymentType as? PaymentType.CARD)?.cardId
+        val optionsIds = selectedOptions.map { it.id }
+
         return OrderTaxiDto(
             dontCallMe = false,
             service = selectedService,
-            cardId = selectedCardId,
+            cardId = cardId,
             addressId = addressId,
-            toPhone = AppPreferences.number,
+            toPhone = phoneNumber,
             comment = comment,
-            tariffId = selectedTariff.id,
-            tariffOptions = selectedOptionsIds,
+            tariffId = tariff.id,
+            tariffOptions = optionsIds,
             paymentType = selectedPaymentType.typeName,
-            fixedPrice = selectedTariff.fixedType,
+            fixedPrice = tariff.fixedType,
             addresses = listOf(
                 OrderTaxiDto.Address(
-                    addressId = selectedLocation.addressId,
+                    addressId = from.addressId,
                     lat = fromLat,
                     lng = fromLng,
                     name = from.name.orEmpty()
-                ),
-                *to.toTypedArray()
-            )
+                )
+            ) + toAddresses
         )
     }
 }

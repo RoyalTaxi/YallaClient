@@ -63,8 +63,8 @@ fun SearchByNameBottomSheet(
 
     LaunchedEffect(Unit) {
         launch(Dispatchers.IO) {
-            initialAddress?.let { viewModel.setQuery(it) }
-            initialDestination?.let { viewModel.setDestinationQuery(it) }
+            initialAddress?.let { viewModel.setInitialQuery(it) }
+            initialDestination?.let { viewModel.setInitialDestinationQuery(it) }
 
             viewModel.fetchPolygons()
         }

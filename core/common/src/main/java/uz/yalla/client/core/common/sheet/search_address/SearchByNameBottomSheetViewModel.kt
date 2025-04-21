@@ -166,6 +166,14 @@ class SearchByNameBottomSheetViewModel(
         }
     }
 
+    fun setInitialQuery(query: String) {
+        _uiState.update { it.copy(query = query) }
+    }
+
+    fun setInitialDestinationQuery(query: String) {
+        _uiState.update { it.copy(destinationQuery = query) }
+    }
+
     fun setCurrentLocation(lat: Double, lng: Double) {
         val currentLat = uiState.value.currentLat
         val currentLng = uiState.value.currentLng

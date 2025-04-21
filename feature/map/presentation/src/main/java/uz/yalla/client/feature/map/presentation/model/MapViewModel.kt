@@ -20,7 +20,7 @@ import kotlinx.coroutines.yield
 import uz.yalla.client.core.common.marker.YallaMarkerState
 import uz.yalla.client.core.common.state.HamburgerButtonState
 import uz.yalla.client.core.common.state.MoveCameraButtonState
-import uz.yalla.client.core.data.local.AppPreferences
+import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.OrderStatus
@@ -42,7 +42,8 @@ class MapViewModel(
     private val getShowOrderUseCase: GetShowOrderUseCase,
     private val getMeUseCase: GetMeUseCase,
     private val getRoutingUseCase: GetRoutingUseCase,
-    private val getActiveOrdersUseCase: GetActiveOrdersUseCase
+    private val getActiveOrdersUseCase: GetActiveOrdersUseCase,
+    private val prefs: AppPreferences
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MapUIState())
@@ -74,6 +75,13 @@ class MapViewModel(
                 )
             }
             .distinctUntilChanged()
+
+        viewModelScope.launch {
+            prefs.hasProcessedOrderOnEntry
+                .collectLatest { value ->
+                    _uiState.update { it.copy(hasProcessedOrderOnEntry = value) }
+                }
+        }
 
         viewModelScope.launch(Dispatchers.IO) {
             pollingOrderId.collectLatest { orderId ->
@@ -246,16 +254,14 @@ class MapViewModel(
 
     private fun getActiveOrders() {
         viewModelScope.launch(Dispatchers.IO) {
-            getActiveOrdersUseCase().onSuccess { activeOrders ->
-                if (AppPreferences.hasProcessedOrderOnEntry.not()) {
-                    AppPreferences.hasProcessedOrderOnEntry = true
-                    if (activeOrders.list.size == 1) {
-                        setSelectedOrder(activeOrders.list.first())
-                    } else if (activeOrders.list.size > 1) {
+            getActiveOrdersUseCase().onSuccess { active ->
+                if (uiState.value.hasProcessedOrderOnEntry.not()) {
+                    prefs.setHasProcessedOrderOnEntry(true)
+                    if (active.list.size == 1) setSelectedOrder(active.list.first())
+                    else if (active.list.size > 1)
                         _uiState.update { it.copy(isActiveOrdersSheetVisibility = true) }
-                    }
                 }
-                _uiState.update { it.copy(orders = activeOrders.list) }
+                _uiState.update { it.copy(orders = active.list) }
             }
         }
     }

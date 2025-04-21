@@ -11,12 +11,12 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.threeten.bp.LocalDate
 import uz.yalla.client.core.common.formation.formatWithDotsDMY
-import uz.yalla.client.core.data.local.AppPreferences
+import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.feature.auth.domain.usecase.register.RegisterUseCase
 
 internal class RegistrationViewModel(
     private val registerUseCase: RegisterUseCase,
-    private val prefs: uz.yalla.client.core.domain.local.AppPreferences
+    private val prefs: AppPreferences
 ) : ViewModel() {
 
     private val _actionFlow = MutableSharedFlow<RegistrationActionState>()
@@ -33,14 +33,14 @@ internal class RegistrationViewModel(
         gender: Gender? = null,
         dateOfBirth: LocalDate? = null
     ) = viewModelScope.launch(Dispatchers.IO) {
-        _uiState.update { currentState ->
-            currentState.copy(
-                number = number ?: currentState.number,
-                secretKey = secretKey ?: currentState.secretKey,
-                firstName = firstName ?: currentState.firstName,
-                lastName = lastName ?: currentState.lastName,
-                gender = gender ?: currentState.gender,
-                dateOfBirth = dateOfBirth ?: currentState.dateOfBirth
+        _uiState.update { current ->
+            current.copy(
+                number = number ?: current.number,
+                secretKey = secretKey ?: current.secretKey,
+                firstName = firstName ?: current.firstName,
+                lastName = lastName ?: current.lastName,
+                gender = gender ?: current.gender,
+                dateOfBirth = dateOfBirth ?: current.dateOfBirth
             )
         }
     }
@@ -58,12 +58,12 @@ internal class RegistrationViewModel(
             ).onSuccess { result ->
                 prefs.setAccessToken(result.accessToken)
                 prefs.setTokenType(result.tokenType)
-                AppPreferences.isDeviceRegistered = true
-                AppPreferences.number = number
-                AppPreferences.firstName = firstName
-                AppPreferences.lastName = lastName
-                AppPreferences.gender = gender.name
-                AppPreferences.dateOfBirth = dateOfBirth.formatWithDotsDMY()
+                prefs.setDeviceRegistered(true)
+                prefs.setNumber(number)
+                prefs.setFirstName(firstName)
+                prefs.setLastName(lastName)
+                prefs.setGender(gender.name)
+                prefs.setDateOfBirth(dateOfBirth.formatWithDotsDMY())
                 _actionFlow.emit(RegistrationActionState.Success(result))
             }.onFailure {
                 _actionFlow.emit(RegistrationActionState.Error)

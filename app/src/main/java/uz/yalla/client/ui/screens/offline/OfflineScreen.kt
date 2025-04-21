@@ -17,6 +17,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,15 +30,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import org.koin.compose.koinInject
 import uz.yalla.client.R
 import uz.yalla.client.core.common.button.PrimaryButton
-import uz.yalla.client.core.data.local.AppPreferences
+import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 
 @Composable
-fun OfflineScreen() {
-
+fun OfflineScreen(
+    onRetry: () -> Unit = {}
+) {
     val context = LocalContext.current
+    val prefs = koinInject<AppPreferences>()
+    val supportNumber by prefs.supportNumber.collectAsState(initial = "")
 
     Box(
         modifier = Modifier
@@ -76,7 +82,7 @@ fun OfflineScreen() {
         )
 
         Button(
-            onClick = {},
+            onClick = onRetry,
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.Transparent,
                 contentColor = YallaTheme.color.primary
@@ -98,7 +104,7 @@ fun OfflineScreen() {
             modifier = Modifier.fillMaxWidth(),
             onClick = {
                 val intent = Intent(ACTION_DIAL).apply {
-                    data = "tel:${AppPreferences.supportNumber}".toUri()
+                    data = "tel:$supportNumber".toUri()
                 }
                 if (intent.resolveActivity(context.packageManager) != null) {
                     context.startActivity(intent)

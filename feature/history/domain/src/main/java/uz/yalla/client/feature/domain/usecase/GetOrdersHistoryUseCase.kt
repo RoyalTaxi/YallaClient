@@ -41,5 +41,6 @@ class GetOrdersHistoryUseCase(
                         else -> null
                     }
                 }
-            }.flowOn(dispatcher)
+            }
+            .flowOn(dispatcher)
 }

@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.core.common.map.ConcreteGoogleMap
 import uz.yalla.client.core.common.map.MapStrategy
@@ -32,9 +33,9 @@ import uz.yalla.client.core.common.marker.YallaMarkerState
 import uz.yalla.client.core.common.state.MoveCameraButtonState.FirstLocation
 import uz.yalla.client.core.common.state.MoveCameraButtonState.MyRouteView
 import uz.yalla.client.core.common.state.rememberPermissionState
-import uz.yalla.client.core.data.enums.MapType
-import uz.yalla.client.core.data.local.AppPreferences
+import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.MapPoint
+import uz.yalla.client.core.domain.model.MapType
 import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.feature.map.presentation.model.MapUIState
 import uz.yalla.client.feature.map.presentation.model.MapViewModel
@@ -97,6 +98,7 @@ fun MapRoute(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val prefs = koinInject<AppPreferences>()
     val permissionsGranted by rememberPermissionState(
         permissions = listOf(
             Manifest.permission.ACCESS_FINE_LOCATION,
@@ -108,9 +110,10 @@ fun MapRoute(
     val isMapEnabled by vm.isMapEnabled.collectAsState()
     val hamburgerButtonState by vm.hamburgerButtonState.collectAsState()
     var drawerState = rememberDrawerState(DrawerValue.Closed)
+    val mapType by prefs.mapType.collectAsState(MapType.Google)
     val map: MapStrategy by remember {
         mutableStateOf(
-            when (AppPreferences.mapType) {
+            when (mapType) {
                 MapType.Google -> ConcreteGoogleMap()
                 MapType.Gis -> ConcreteGoogleMap()
             }

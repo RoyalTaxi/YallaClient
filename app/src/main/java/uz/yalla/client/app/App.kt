@@ -4,31 +4,30 @@ import android.app.Application
 import com.google.android.gms.maps.MapsInitializer
 import com.jakewharton.threetenabp.AndroidThreeTen
 import org.koin.android.ext.koin.androidContext
-import org.koin.core.context.GlobalContext.startKoin
+import org.koin.core.context.startKoin
+import org.koin.core.logger.Level
+import org.koin.java.KoinJavaComponent
 import uz.yalla.client.core.data.di.Common
-import uz.yalla.client.core.data.enums.MapType
-import uz.yalla.client.core.data.local.AppPreferences
+import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.di.Navigation
 
 class App : Application() {
     override fun onCreate() {
         super.onCreate()
+
         AndroidThreeTen.init(this)
-        AppPreferences.init(this)
-
-        AppPreferences.mapType = MapType.Google
-        AppPreferences.hasProcessedOrderOnEntry = false
-
-        if (AppPreferences.mapType == MapType.Google)
-            MapsInitializer.initialize(this)
+        MapsInitializer.initialize(this)
 
         startKoin {
             androidContext(this@App)
-            printLogger(level = org.koin.core.logger.Level.DEBUG)
+            printLogger(level = Level.DEBUG)
             modules(
                 *Common.modules.toTypedArray(),
                 *Navigation.modules.toTypedArray()
             )
         }
+
+        val prefs: AppPreferences by lazy { KoinJavaComponent.getKoin().get() }
+        prefs.setHasProcessedOrderOnEntry(false)
     }
 }
