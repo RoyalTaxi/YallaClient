@@ -17,8 +17,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
-import uz.yalla.client.feature.order.presentation.R
 import uz.yalla.client.feature.order.domain.model.response.tarrif.GetTariffsModel
+import uz.yalla.client.feature.order.presentation.R
 
 @Composable
 fun TariffItem(

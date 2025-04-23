@@ -197,6 +197,8 @@ fun MapRoute(
         launch(Dispatchers.IO) {
             vm.getMe()
         }
+
+        vm.getNotificationsCount()
     }
 
     LaunchedEffect(state.timeout, state.orderEndsInMinutes) {
@@ -545,6 +547,7 @@ fun MapRoute(
     MapDrawer(
         user = state.user,
         drawerState = drawerState,
+        notificationsCount = state.notificationsCount,
         onIntent = { intent ->
             when (intent) {
                 is MapDrawerIntent.Profile -> onProfileClick()

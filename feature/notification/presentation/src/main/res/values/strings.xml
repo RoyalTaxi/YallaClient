@@ -2,4 +2,6 @@
 <resources>
     <string name="notifications">Yangiliklar va bildirishnomalar</string>
     <string name="no_notification_body">Hozircha yangilik yo\'q. Keyinroq tekshiring - bu yerda biror narsa paydo bo\'lishi aniq!</string>
+    <string name="today">Bugun</string>
+    <string name="yesterday">Kecha</string>
 </resources>

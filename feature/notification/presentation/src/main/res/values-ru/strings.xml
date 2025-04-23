@@ -2,4 +2,6 @@
 <resources>
     <string name="notifications">Новости и уведомление</string>
     <string name="no_notification_body">Новостей пока нет. Заглядывайте позже — здесь обязательно что-то появится!</string>
+    <string name="today">Сегодня</string>
+    <string name="yesterday">Вчера</string>
 </resources>

@@ -11,4 +11,11 @@ dependencies {
 
     implementation(projects.core.common)
     implementation(projects.feature.notification.domain)
+    implementation(projects.feature.notification.data)
+
+    implementation(libs.paging.common)
+    implementation(libs.paging.compose.common)
+
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
 }

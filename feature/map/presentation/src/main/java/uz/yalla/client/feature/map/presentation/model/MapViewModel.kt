@@ -25,6 +25,7 @@ import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.core.domain.model.SelectedLocation
+import uz.yalla.client.feature.domain.usecase.GetNotificationsCountUseCase
 import uz.yalla.client.feature.map.domain.model.request.GetRoutingDtoItem
 import uz.yalla.client.feature.map.domain.usecase.GetAddressNameUseCase
 import uz.yalla.client.feature.map.domain.usecase.GetRoutingUseCase
@@ -42,7 +43,8 @@ class MapViewModel(
     private val getShowOrderUseCase: GetShowOrderUseCase,
     private val getMeUseCase: GetMeUseCase,
     private val getRoutingUseCase: GetRoutingUseCase,
-    private val getActiveOrdersUseCase: GetActiveOrdersUseCase
+    private val getActiveOrdersUseCase: GetActiveOrdersUseCase,
+    private val getNotificationsCountUseCase: GetNotificationsCountUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MapUIState())
@@ -257,6 +259,15 @@ class MapViewModel(
                 }
                 _uiState.update { it.copy(orders = activeOrders.list) }
             }
+        }
+    }
+
+    fun getNotificationsCount() {
+        viewModelScope.launch(Dispatchers.IO) {
+            getNotificationsCountUseCase()
+                .onSuccess { count ->
+                    _uiState.update { it.copy(notificationsCount = count) }
+                }
         }
     }
 
