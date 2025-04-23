@@ -199,6 +199,11 @@ fun MapRoute(
         }
     }
 
+    LaunchedEffect(state.timeout, state.orderEndsInMinutes) {
+        map.updateCarArrivesInMinutes(state.timeout)
+        map.updateOrderEndsInMinutes(state.orderEndsInMinutes)
+    }
+
     fun shouldNavigateToSheet(routePattern: String, orderId: Int): Boolean {
         val currentDestination = navController.currentDestination
         val thisRoute = currentDestination?.route ?: ""

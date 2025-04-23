@@ -24,6 +24,14 @@ object AppPreferences {
             preferences.edit()?.putString(AppPreferences::locale.name, value)?.apply()
         }
 
+    var hasProcessedOrderOnEntry: Boolean
+        get() = preferences.getBoolean(AppPreferences::hasProcessedOrderOnEntry.name, false)
+        set(value) {
+            preferences.edit()?.putBoolean(AppPreferences::hasProcessedOrderOnEntry.name, value)
+                ?.apply()
+        }
+
+
     var firebaseToken: String
         get() = preferences.getString(AppPreferences::firebaseToken.name, "") ?: ""
         set(value) {

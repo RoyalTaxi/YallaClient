@@ -45,7 +45,6 @@ import uz.yalla.client.ui.screens.offline.OfflineScreen
 @Composable
 fun Navigation(
     isConnected: Boolean,
-    shouldGoForPermission: Boolean
 ) {
     val navController = rememberNavController()
 
@@ -54,7 +53,7 @@ fun Navigation(
         navController = navController,
         startDestination =
             when {
-                shouldGoForPermission || AppPreferences.isDeviceRegistered.not() -> INTRO_ROUTE
+                AppPreferences.isDeviceRegistered.not() -> INTRO_ROUTE
                 else -> MAP_ROUTE
             },
         enterTransition = { slideInHorizontally(initialOffsetX = { it }) },

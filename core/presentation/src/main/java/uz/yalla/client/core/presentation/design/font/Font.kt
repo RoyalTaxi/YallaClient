@@ -35,7 +35,7 @@ val fontScheme = FontScheme(
     bodySmall = createTextStyle(
         fontResId = regular,
         weight = FontWeight.W400,
-        size = 12
+        size = 10
     ),
     label = createTextStyle(
         fontResId = regular,

@@ -10,7 +10,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -20,11 +19,11 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
-import uz.yalla.client.core.common.item.OrderItem
-import uz.yalla.client.core.common.utils.getOrderStatusText
+import uz.yalla.client.core.common.topbar.CenterAlignedScrollableTopBar
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.domain.model.OrdersHistory
 import uz.yalla.client.feature.history.R
+import uz.yalla.client.feature.history.history.components.OrderHistoryItem
 import uz.yalla.client.feature.history.history.components.getRelativeDate
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -39,18 +38,15 @@ internal fun HistoryScreen(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         containerColor = YallaTheme.color.white,
         topBar = {
-            LargeTopAppBar(
+            CenterAlignedScrollableTopBar(
+                title = stringResource(R.string.orders_history),
+                collapsedTitleTextStyle = YallaTheme.font.labelLarge,
+                expandedTitleTextStyle = YallaTheme.font.headline,
                 scrollBehavior = scrollBehavior,
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = YallaTheme.color.white,
                     scrolledContainerColor = YallaTheme.color.white
                 ),
-                title = {
-                    Text(
-                        text = stringResource(R.string.orders_history),
-                        color = YallaTheme.color.black
-                    )
-                },
                 navigationIcon = {
                     IconButton(
                         onClick = { onIntent(HistoryIntent.OnNavigateBack) }
@@ -88,15 +84,8 @@ internal fun HistoryScreen(
                         }
 
                         is OrdersHistory.Item -> {
-                            OrderItem(
-                                firstAddress = order.taxi.routes.firstOrNull()?.fullAddress.orEmpty(),
-                                secondAddress = order.taxi.routes
-                                    .lastOrNull()
-                                    .takeIf { order.taxi.routes.size > 1 }
-                                    ?.fullAddress,
-                                time = order.time,
-                                totalPrice = order.taxi.totalPrice,
-                                status = getOrderStatusText(order.status),
+                            OrderHistoryItem(
+                                order = order,
                                 onClick = { onIntent(HistoryIntent.OnHistoryItemClick(order.id)) }
                             )
                         }

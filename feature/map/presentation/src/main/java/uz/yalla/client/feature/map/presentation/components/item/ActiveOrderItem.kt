@@ -1,4 +1,4 @@
-package uz.yalla.client.core.common.item
+package uz.yalla.client.feature.map.presentation.components.item
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -22,26 +22,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.common.R
+import uz.yalla.client.core.common.item.CarNumberItem
+import uz.yalla.client.core.common.utils.getOrderStatusText
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
+import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 
 @Composable
-fun HistoryOrderItem(
-    firstAddress: String,
+fun ActiveOrderItem(
+    order: ShowOrderModel,
     modifier: Modifier = Modifier,
-    secondAddress: String? = null,
-    time: String? = null,
-    totalPrice: String,
-    status: String? = null,
     onClick: () -> Unit,
-    enabled: Boolean = true
-) {
+    ) {
     Card(
         onClick = onClick,
-        enabled = enabled,
         colors = CardDefaults.cardColors(YallaTheme.color.gray2),
         shape = RoundedCornerShape(16.dp),
         modifier = modifier.fillMaxWidth()
@@ -52,6 +47,22 @@ fun HistoryOrderItem(
                 .height(IntrinsicSize.Min)
         ) {
             Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = getOrderStatusText(order.status),
+                    color = YallaTheme.color.black,
+                    style = YallaTheme.font.labelSemiBold
+                )
+
+                order.executor.driver.let {
+                    Text(
+                        text = "${it.color.name} ${it.mark} ${it.model}",
+                        style = YallaTheme.font.bodySmall,
+                        color = YallaTheme.color.gray
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
@@ -66,13 +77,14 @@ fun HistoryOrderItem(
                     Spacer(modifier = Modifier.width(10.dp))
 
                     Text(
-                        text = firstAddress,
+                        text = order.taxi.routes.firstOrNull()?.fullAddress.orEmpty(),
                         color = YallaTheme.color.black,
                         style = YallaTheme.font.labelSemiBold
                     )
                 }
 
-                secondAddress?.let {
+                order.taxi.routes.lastOrNull()
+                    ?.takeIf { order.taxi.routes.size > 1 }?.fullAddress?.let {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
@@ -93,40 +105,25 @@ fun HistoryOrderItem(
                         )
                     }
                 }
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                time?.let {
-                    Text(
-                        text = it,
-                        color = YallaTheme.color.gray,
-                        style = YallaTheme.font.bodySmall,
-                    )
-                }
             }
 
             Column(
                 horizontalAlignment = Alignment.End,
                 modifier = Modifier.heightIn(min = 80.dp)
             ) {
-                Text(
-                    text = stringResource(R.string.fixed_cost, totalPrice),
-                    color = YallaTheme.color.black,
-                    style = YallaTheme.font.labelSemiBold,
-                    textAlign = TextAlign.End
-                )
-
-                status?.let {
-                    Text(
-                        text = it,
-                        color = YallaTheme.color.red,
-                        style = YallaTheme.font.bodySmall
+                val stateNumber = order.executor.driver.stateNumber
+                if (stateNumber.isNotBlank() && stateNumber.length > 7) {
+                    CarNumberItem(
+                        code = stateNumber.slice(0..<2),
+                        number = "(\\d+|[A-Za-z]+)"
+                            .toRegex()
+                            .findAll(stateNumber.slice(2..7))
+                            .map { it.value }
+                            .toList()
                     )
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
-
-                Spacer(modifier = Modifier.height(8.dp))
 
                 Image(
                     painter = painterResource(R.drawable.img_default_car),

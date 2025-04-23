@@ -88,11 +88,7 @@ class MainActivity : AppCompatActivity() {
 
         setContent {
             val isConnected by viewModel.isConnected.collectAsState()
-            val isReady by viewModel.isReady.collectAsState()
-            Navigation(
-                isConnected = isConnected,
-                shouldGoForPermission = isReady == false
-            )
+            Navigation(isConnected = isConnected)
         }
     }
 

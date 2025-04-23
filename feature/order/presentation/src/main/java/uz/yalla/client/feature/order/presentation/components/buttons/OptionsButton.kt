@@ -65,7 +65,7 @@ fun OptionsButton(
                     ) {
                         Text(
                             text = badgeText,
-                            style = YallaTheme.font.bodySmall.copy(fontSize = 8.sp),
+                            style = YallaTheme.font.body.copy(fontSize = 8.sp),
                             color = YallaTheme.color.white,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.align(Alignment.Center)

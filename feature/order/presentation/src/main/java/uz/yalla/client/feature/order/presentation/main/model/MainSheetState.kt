@@ -4,10 +4,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.common.sheet.search_address.SearchByNameSheetValue
 import uz.yalla.client.core.common.sheet.select_from_map.SelectFromMapViewValue
-import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.core.data.local.AppPreferences
 import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.Executor
+import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.core.domain.model.SelectedLocation
 import uz.yalla.client.core.domain.model.ServiceModel
 import uz.yalla.client.feature.map.domain.model.response.PolygonRemoteItem
@@ -29,7 +29,7 @@ data class MainSheetState(
     val timeout: Int? = null,
     val drivers: List<Executor> = emptyList(),
 
-    val selectedLocationId:Int? = null,
+    val selectedLocationId: Int? = null,
     val selectedLocation: SelectedLocation? = null,
     val destinations: List<Destination> = emptyList(),
 

@@ -16,7 +16,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import uz.yalla.client.core.common.item.HistoryOrderItem
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.payment.R
 import uz.yalla.client.feature.payment.business_account.components.EmployeeItem
@@ -98,14 +97,5 @@ private fun EmployeeHistorySection() {
         color = YallaTheme.color.black,
         style = YallaTheme.font.title2,
         modifier = Modifier.padding(vertical = 20.dp)
-    )
-
-    HistoryOrderItem(
-        firstAddress = "Ул. Сайлгох 124",
-        secondAddress = "ул. Мустакиллик 124",
-        time = "15:00",
-        totalPrice = "16 000",
-        status = "",
-        onClick = {}
     )
 }

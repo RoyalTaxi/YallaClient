@@ -8,7 +8,7 @@ import uz.yalla.client.core.domain.model.OrderStatus
 @Composable
 fun getOrderStatusText(status: OrderStatus): String {
     return when (status) {
-        OrderStatus.New -> stringResource(R.string.order_new)
+        OrderStatus.New -> stringResource(R.string.sending)
         OrderStatus.Sending -> stringResource(R.string.sending)
         OrderStatus.UserSending -> stringResource(R.string.user_sending)
         OrderStatus.NonStopSending -> stringResource(R.string.non_stop_sending)

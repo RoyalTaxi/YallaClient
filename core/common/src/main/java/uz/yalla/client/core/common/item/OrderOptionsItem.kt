@@ -56,7 +56,7 @@ fun OrderOptionsItem(
                     Text(
                         text = description,
                         color = YallaTheme.color.gray,
-                        style = YallaTheme.font.bodySmall,
+                        style = YallaTheme.font.body,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
