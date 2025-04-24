@@ -4,14 +4,10 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
-import org.koin.compose.koinInject
-import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.feature.auth.authModule
 import uz.yalla.client.feature.auth.navigateToAuthModule
 import uz.yalla.client.feature.contact.navigation.contactUsScreen
@@ -45,10 +41,8 @@ import uz.yalla.client.ui.screens.offline.OfflineScreen
 @Composable
 fun Navigation(
     isConnected: Boolean,
+    isDeviceRegistered: Boolean
 ) {
-    val prefs = koinInject<AppPreferences>()
-    val isDeviceRegistered by prefs.isDeviceRegistered.collectAsState(initial = false)
-
     val navController = rememberNavController()
 
     NavHost(
@@ -63,12 +57,16 @@ fun Navigation(
         introModule(
             navController = navController,
             onPermissionGranted = {
-                if (isDeviceRegistered) navController.navigateToMapScreen(
-                    navOptions {
-                        restoreState = true
-                        popUpTo(0) { inclusive = true }
-                    }
-                ) else navController.navigateToAuthModule()
+                if (isDeviceRegistered) {
+                    navController.navigateToMapScreen(
+                        navOptions {
+                            restoreState = true
+                            popUpTo(0) { inclusive = true }
+                        }
+                    )
+                } else {
+                    navController.navigateToAuthModule()
+                }
             }
         )
 

@@ -28,11 +28,11 @@ fun SelectCurrentLocationButton(
     Button(
         shape = RoundedCornerShape(16.dp),
         colors = ButtonDefaults.buttonColors(YallaTheme.color.gray2),
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = PaddingValues(vertical = 10.dp, horizontal = 16.dp),
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .height(56.dp)
+            .height(48.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),

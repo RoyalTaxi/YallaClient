@@ -44,8 +44,8 @@ import uz.yalla.client.core.domain.model.ServiceModel
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.domain.model.response.tarrif.GetTariffsModel
 import uz.yalla.client.feature.order.presentation.R
-import uz.yalla.client.feature.order.presentation.components.items.OptionsItem
 import uz.yalla.client.feature.order.presentation.components.buttons.ProvideDescriptionButton
+import uz.yalla.client.feature.order.presentation.components.items.OptionsItem
 import uz.yalla.client.feature.order.presentation.main.model.MainSheetState
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.TariffInfoSheetIntent
 
@@ -110,7 +110,6 @@ fun TariffInfoPage(
 
             item { Spacer(modifier = Modifier.height(10.dp)) }
 
-
             item {
                 Column(
                     modifier = Modifier.clip(RoundedCornerShape(30.dp))
@@ -133,6 +132,8 @@ fun TariffInfoPage(
                     }
                 }
             }
+
+            item { Spacer(modifier = Modifier.height(10.dp)) }
 
             item { Spacer(modifier = Modifier.height(state.footerHeight)) }
         }

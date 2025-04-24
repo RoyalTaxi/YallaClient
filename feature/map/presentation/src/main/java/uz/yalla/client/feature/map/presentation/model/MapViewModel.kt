@@ -193,17 +193,16 @@ class MapViewModel(
             initialValue = true
         )
 
-    fun getMe() {
-        viewModelScope.launch(Dispatchers.IO) {
-            getMeUseCase().onSuccess { user ->
-                _uiState.update {
-                    it.copy(
-                        user = user
-                    )
-                }
+    fun getMe() = viewModelScope.launch(Dispatchers.IO) {
+        getMeUseCase().onSuccess { user ->
+            _uiState.update {
+                it.copy(
+                    user = user
+                )
             }
         }
     }
+
 
     fun getAddressName(point: MapPoint) {
         viewModelScope.launch(Dispatchers.IO) {

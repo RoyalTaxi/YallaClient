@@ -1,6 +1,7 @@
 package uz.yalla.client.core.common.button
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -18,9 +19,9 @@ fun MapButton(
     onClick: () -> Unit
 ) {
     Button(
-        modifier = modifier,
+        modifier = modifier.size(50.dp),
         shape = CircleShape,
-        contentPadding = PaddingValues(18.dp),
+        contentPadding = PaddingValues(16.dp),
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(
             containerColor = YallaTheme.color.white

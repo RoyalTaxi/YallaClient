@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
@@ -28,6 +27,7 @@ class SearchByNameBottomSheetViewModel(
     private val getPolygonUseCase: GetPolygonUseCase,
     private val getSecondaryAddressedUseCase: GetSecondaryAddressedUseCase
 ) : ViewModel() {
+
     private var addresses = listOf<PolygonRemoteItem>()
     private var hasLoadedSecondaryAddresses = false
 
@@ -41,14 +41,13 @@ class SearchByNameBottomSheetViewModel(
         _searchQuery
             .debounce(500.milliseconds)
             .distinctUntilChanged()
-            .filter { it.isNotBlank() }
             .onEach { query ->
-                uiState.value.apply {
-                    if (currentLat != null && currentLng != null) {
-                        searchForAddress(currentLat, currentLng, query)
-                    } else {
-                        _uiState.update { it.copy(loading = false) }
-                    }
+                val lat = uiState.value.currentLat
+                val lng = uiState.value.currentLng
+                if (query.isNotBlank() && lat != null && lng != null) {
+                    searchForAddress(lat, lng, query)
+                } else {
+                    _uiState.update { it.copy(loading = false) }
                 }
             }
             .launchIn(viewModelScope)
@@ -56,14 +55,13 @@ class SearchByNameBottomSheetViewModel(
         _destinationQuery
             .debounce(500.milliseconds)
             .distinctUntilChanged()
-            .filter { it.isNotBlank() }
             .onEach { query ->
-                uiState.value.apply {
-                    if (currentLat != null && currentLng != null) {
-                        searchForAddress(currentLat, currentLng, query)
-                    } else {
-                        _uiState.update { it.copy(loading = false) }
-                    }
+                val lat = uiState.value.currentLat
+                val lng = uiState.value.currentLng
+                if (query.isNotBlank() && lat != null && lng != null) {
+                    searchForAddress(lat, lng, query)
+                } else {
+                    _uiState.update { it.copy(loading = false) }
                 }
             }
             .launchIn(viewModelScope)
@@ -105,9 +103,7 @@ class SearchByNameBottomSheetViewModel(
         val lat = uiState.value.currentLat ?: return
         val lng = uiState.value.currentLng ?: return
 
-        if (uiState.value.recommendedAddresses.isNotEmpty()) {
-            return
-        }
+        if (uiState.value.recommendedAddresses.isNotEmpty()) return
 
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.update {
@@ -116,6 +112,7 @@ class SearchByNameBottomSheetViewModel(
                     foundAddresses = emptyList()
                 )
             }
+
             getSecondaryAddressedUseCase(lat, lng).onSuccess { data ->
                 _uiState.update {
                     it.copy(
@@ -131,38 +128,24 @@ class SearchByNameBottomSheetViewModel(
     }
 
     fun setQuery(query: String) {
-        _uiState.update {
-            it.copy(
-                query = query,
-                loading = query.isNotBlank()
-            )
-        }
+        _uiState.update { it.copy(query = query) }
         _searchQuery.value = query
 
         if (query.isBlank()) {
             setFoundAddresses(emptyList())
-
-            if (!hasLoadedSecondaryAddresses) {
-                getSecondaryAddresses()
-            }
+            if (!hasLoadedSecondaryAddresses) getSecondaryAddresses()
+            else _uiState.update { it.copy(loading = false) }
         }
     }
 
     fun setDestinationQuery(query: String) {
-        _uiState.update {
-            it.copy(
-                destinationQuery = query,
-                loading = query.isNotBlank()
-            )
-        }
+        _uiState.update { it.copy(destinationQuery = query) }
         _destinationQuery.value = query
 
         if (query.isBlank()) {
             setFoundAddresses(emptyList())
-
-            if (!hasLoadedSecondaryAddresses) {
-                getSecondaryAddresses()
-            }
+            if (!hasLoadedSecondaryAddresses) getSecondaryAddresses()
+            else _uiState.update { it.copy(loading = false) }
         }
     }
 
@@ -180,12 +163,8 @@ class SearchByNameBottomSheetViewModel(
 
         if (currentLat != lat || currentLng != lng) {
             _uiState.update {
-                it.copy(
-                    currentLat = lat,
-                    currentLng = lng
-                )
+                it.copy(currentLat = lat, currentLng = lng)
             }
-
             hasLoadedSecondaryAddresses = false
         }
     }

@@ -75,6 +75,13 @@ class MainSheetViewModel(
         periodicallyUpdateTimeout()
         observeOrderIdForShowOrder()
         observeTimeoutAndDrivers()
+        observePaymentMethod()
+    }
+
+    private fun observePaymentMethod() = viewModelScope.launch(Dispatchers.IO) {
+        prefs.paymentType.collectLatest { type ->
+            _uiState.update { it.copy(selectedPaymentType = type) }
+        }
     }
 
     fun onIntent(intent: MainSheetIntent) {
@@ -302,13 +309,12 @@ class MainSheetViewModel(
     private fun determineSelectedTariff(
         current: GetTariffsModel.Tariff?,
         all: List<GetTariffsModel.Tariff>
-    ) =
-        when {
-            all.isEmpty() -> null
-            current == null -> all.firstOrNull()
-            all.none { it.id == current.id } -> all.firstOrNull()
-            else -> all.find { it.id == current.id } ?: all.firstOrNull()
-        }
+    ) = when {
+        all.isEmpty() -> null
+        current == null -> all.firstOrNull()
+        all.none { it.id == current.id } -> all.firstOrNull()
+        else -> all.find { it.id == current.id } ?: all.firstOrNull()
+    }
 
     private fun handleTariffsFailure() {
         _uiState.update {
@@ -321,8 +327,9 @@ class MainSheetViewModel(
         }
     }
 
-    private fun getTariffs(addressId: Int) =
-        viewModelScope.launch(Dispatchers.IO) { suspendGetTariffs(addressId) }
+    private fun getTariffs(addressId: Int) = viewModelScope.launch(Dispatchers.IO) {
+        suspendGetTariffs(addressId)
+    }
 
     private fun getTimeout(point: MapPoint) = viewModelScope.launch(Dispatchers.IO) {
         uiState.value.selectedTariff?.id?.let {

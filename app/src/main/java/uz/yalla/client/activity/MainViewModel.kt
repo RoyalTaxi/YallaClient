@@ -23,11 +23,13 @@ import kotlin.coroutines.resume
 import kotlin.time.Duration.Companion.seconds
 
 class MainViewModel(
+    private val appContext: Context,
     connectivityObserver: ConnectivityObserver,
     private val getConfigUseCase: GetConfigUseCase,
     private val sendFCMTokenUseCase: SendFCMTokenUseCase,
     private val prefs: AppPreferences
 ) : ViewModel() {
+
     companion object {
         private const val MAX_LOCATION_ATTEMPTS = 3
         private val DEFAULT_LOCATION_TIMEOUT = 5.seconds
@@ -37,15 +39,30 @@ class MainViewModel(
         .isConnected
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
 
-    private val _isReady = MutableStateFlow<Boolean?>(null)
+    private val _isReady = MutableStateFlow<ReadyState>(ReadyState.Loading)
     val isReady = _isReady.asStateFlow()
 
     private val accessToken = MutableStateFlow("")
 
+    val isDeviceRegistered = prefs.isDeviceRegistered
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = null
+        )
+
     init {
         getConfig()
+        observeAccessToken()
+
         viewModelScope.launch {
-            prefs.accessToken.collectLatest { accessToken.value = it }
+            isDeviceRegistered.collectLatest { isRegistered ->
+                when (isRegistered) {
+                    true -> getLocationAndSave(appContext)
+                    false -> _isReady.emit(ReadyState.Ready)
+                    else -> Unit
+                }
+            }
         }
     }
 
@@ -57,21 +74,28 @@ class MainViewModel(
         }
     }
 
-    fun getLocationAndSave(context: Context) = viewModelScope.launch(Dispatchers.IO) {
+    private fun observeAccessToken() = viewModelScope.launch {
+        prefs.accessToken.collectLatest { accessToken.value = it }
+    }
 
+    private fun getLocationAndSave(context: Context) = viewModelScope.launch(Dispatchers.IO) {
         repeat(MAX_LOCATION_ATTEMPTS) {
-            val coords = withTimeoutOrNull(DEFAULT_LOCATION_TIMEOUT) {
+            val coordinates = withTimeoutOrNull(DEFAULT_LOCATION_TIMEOUT) {
                 fetchLocationOnce(context)
             }
 
-            if (coords != null) {
-                prefs.setEntryLocation(lat = coords.first, lng = coords.second)
-                withContext(Dispatchers.Main) { _isReady.emit(true) }
+            if (coordinates != null) {
+                prefs.setEntryLocation(lat = coordinates.first, lng = coordinates.second)
+                withContext(Dispatchers.Main) {
+                    _isReady.emit(ReadyState.Ready)
+                }
                 return@launch
             }
         }
 
-        withContext(Dispatchers.Main) { _isReady.emit(false) }
+        withContext(Dispatchers.Main) {
+            _isReady.emit(ReadyState.Failed)
+        }
     }
 
     private suspend fun fetchLocationOnce(context: Context): Pair<Double, Double>? =

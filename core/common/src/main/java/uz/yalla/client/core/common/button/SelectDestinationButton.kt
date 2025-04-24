@@ -47,23 +47,23 @@ fun SelectDestinationButton(
 ) {
     val textMeasurer = rememberTextMeasurer()
     val density = LocalDensity.current
-    val totalWidth = LocalConfiguration.current.screenWidthDp.dp
-    val totalWidthPx = with(density) { totalWidth.toPx() }
+    val screenWidthDp = LocalConfiguration.current.screenWidthDp.dp
+    val screenWidthPx = with(density) { screenWidthDp.toPx() }
     val firstTextWidth = if (destinations.isNotEmpty()) textMeasurer.measure(
         text = destinations[0].name.orEmpty(),
         style = YallaTheme.font.labelLarge
     ).size.width else 0
-    val firstTakesMoreSpace = firstTextWidth > (totalWidthPx * 0.5f)
+    val firstTakesMoreSpace = firstTextWidth > (screenWidthPx * 0.5f)
     val canFitInOneRow = remember { mutableStateOf(true) }
 
     Button(
         shape = RoundedCornerShape(16.dp),
         colors = ButtonDefaults.buttonColors(YallaTheme.color.gray2),
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .height(56.dp)
+            .height(48.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -135,9 +135,11 @@ fun SelectDestinationButton(
                 destinations.isNotEmpty() -> {
                     Layout(
                         content = {
-                            Row(modifier = Modifier) {
-                                destinations.takeIf { it.isNotEmpty() }
-                                    ?.forEachIndexed { index, destination ->
+                            Row(
+                                modifier = Modifier,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                destinations.forEachIndexed { index, destination ->
                                         if (index > 0) {
                                             Icon(
                                                 imageVector = Icons.AutoMirrored.Filled.ArrowForward,
@@ -156,26 +158,30 @@ fun SelectDestinationButton(
                                     }
                             }
                         },
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+
                     ) { measurables, constraints ->
                         val placeables = measurables.map { it.measure(constraints) }
+
                         var totalWidth = 0
                         var canFit = true
+                        var maxHeight = 0
 
-                        placeables.forEach { placeable ->
-                            totalWidth += placeable.width
-                            if (totalWidth > constraints.maxWidth) {
-                                canFit = false
-                            }
+                        placeables.forEach {
+                            totalWidth += it.width
+                            if (totalWidth > constraints.maxWidth) canFit = false
+                            if (it.height > maxHeight) maxHeight = it.height
                         }
 
                         canFitInOneRow.value = canFit
 
-                        layout(width = constraints.maxWidth, height = constraints.maxHeight) {
+                        layout(width = constraints.maxWidth, height = maxHeight) {
                             if (canFit) {
                                 var xPosition = 0
+                                val yCenter = maxHeight / 2
                                 placeables.forEach { placeable ->
-                                    placeable.placeRelative(x = xPosition, y = 0)
+                                    val yOffset = yCenter - (placeable.height / 2)
+                                    placeable.placeRelative(x = xPosition, y = yOffset)
                                     xPosition += placeable.width
                                 }
                             }

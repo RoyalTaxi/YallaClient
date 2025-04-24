@@ -20,6 +20,6 @@
     <string name="at_address">Вас ожидает</string>
     <string name="in_fetters">В пути</string>
     <string name="appointed">Назначен</string>
-    <string name="completed">Отменен</string>
+    <string name="completed">Выполнен</string>
     <string name="canceled">Отменен</string>
 </resources>

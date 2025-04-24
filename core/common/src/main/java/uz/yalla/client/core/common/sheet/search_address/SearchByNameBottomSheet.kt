@@ -31,6 +31,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import uz.yalla.client.core.common.dialog.LoadingDialog
@@ -38,13 +39,15 @@ import uz.yalla.client.core.common.field.SearchLocationField
 import uz.yalla.client.core.common.item.FoundAddressItem
 import uz.yalla.client.core.common.utils.getCurrentLocation
 import uz.yalla.client.core.data.mapper.or0
+import uz.yalla.client.core.domain.model.Destination
+import uz.yalla.client.core.domain.model.SelectedLocation
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchByNameBottomSheet(
-    initialAddress: String? = null,
-    initialDestination: String? = null,
+    initialAddress: SelectedLocation? = null,
+    initialDestination: Destination? = null,
     sheetState: SheetState,
     onAddressSelected: (String, Double, Double, Int) -> Unit,
     onDestinationSelected: ((String, Double, Double, Int) -> Unit) = { _, _, _, _ -> },
@@ -63,17 +66,28 @@ fun SearchByNameBottomSheet(
 
     LaunchedEffect(Unit) {
         launch(Dispatchers.IO) {
-            initialAddress?.let { viewModel.setInitialQuery(it) }
-            initialDestination?.let { viewModel.setInitialDestinationQuery(it) }
+            initialAddress?.let { viewModel.setInitialQuery(it.name.orEmpty()) }
+            initialDestination?.let { viewModel.setInitialDestinationQuery(it.name.orEmpty()) }
 
             viewModel.fetchPolygons()
         }
 
         launch(Dispatchers.Main) {
-            getCurrentLocation(context) { location ->
-                viewModel.setCurrentLocation(location.latitude, location.longitude)
-                viewModel.getSecondaryAddresses()
+            coroutineScope {
+                initialAddress?.let { address ->
+                    address.point?.lat?.let { lat ->
+                        address.point?.lng?.let { lng ->
+                            viewModel.setCurrentLocation(lat, lng)
+                        }
+                    }
+                } ?: run {
+                    getCurrentLocation(context) { location ->
+                        viewModel.setCurrentLocation(location.latitude, location.longitude)
+                    }
+                }
             }
+
+            viewModel.getSecondaryAddresses()
         }
     }
 
@@ -164,7 +178,6 @@ fun SearchByNameBottomSheet(
                     .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
                     .background(YallaTheme.color.white)
             ) {
-                // Show search results if we have any
                 if (uiState.foundAddresses.isNotEmpty()) {
                     items(uiState.foundAddresses) { foundAddress ->
                         FoundAddressItem(
@@ -185,7 +198,6 @@ fun SearchByNameBottomSheet(
                         )
                     }
                 }
-                // Show recommended addresses when search is empty and we have a focused field
                 else if ((lastFocusedForDestination && uiState.destinationQuery.isBlank()) ||
                     (!lastFocusedForDestination && uiState.query.isBlank())
                 ) {

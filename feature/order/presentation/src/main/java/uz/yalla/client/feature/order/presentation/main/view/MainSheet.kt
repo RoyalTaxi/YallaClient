@@ -215,8 +215,8 @@ object MainSheet {
         if (state.isSearchByNameSheetVisible != SearchByNameSheetValue.INVISIBLE) {
             SearchByNameBottomSheet(
                 sheetState = searchByNameSheetState,
-                initialAddress = state.selectedLocation?.name,
-                initialDestination = state.destinations.lastOrNull()?.name,
+                initialAddress = state.selectedLocation,
+                initialDestination = state.destinations.lastOrNull(),
                 isForDestination = state.isSearchByNameSheetVisible == SearchByNameSheetValue.FOR_DEST,
                 onAddressSelected = { name, lat, lng, addressId ->
                     scope.launch(Dispatchers.IO) {
@@ -315,6 +315,7 @@ object MainSheet {
         if (state.isAddDestinationSheetVisible) {
             AddDestinationBottomSheet(
                 sheetState = addDestinationSheetState,
+                nearbyAddress = state.destinations.lastOrNull(),
                 onClickMap = {
                     viewModel.setSelectFromMapViewVisibility(SelectFromMapViewValue.FOR_NEW_DEST)
                 },

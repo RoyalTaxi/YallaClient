@@ -16,24 +16,30 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
 import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.core.common.field.SearchLocationField
 import uz.yalla.client.core.common.item.FoundAddressItem
 import uz.yalla.client.core.common.sheet.search_address.SearchByNameBottomSheetViewModel
+import uz.yalla.client.core.common.utils.getCurrentLocation
 import uz.yalla.client.core.data.mapper.or0
+import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.SelectedLocation
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
@@ -44,20 +50,34 @@ fun AddDestinationBottomSheet(
     onClickMap: () -> Unit,
     sheetState: SheetState,
     onDismissRequest: () -> Unit,
+    nearbyAddress: Destination? = null,
     onAddressSelected: (SelectedLocation) -> Unit,
     viewModel: SearchByNameBottomSheetViewModel = koinViewModel()
 ) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val uiState by viewModel.uiState.collectAsState()
     val focusRequester = remember { FocusRequester() }
 
-    LaunchedEffect(Unit) {
-        launch(Dispatchers.Main) {
-            viewModel.resetSearchState()
+    DisposableEffect(Unit) {
+        scope.launch(Dispatchers.Main) {
+            coroutineScope {
+                nearbyAddress?.point?.let { point ->
+                    viewModel.setCurrentLocation(point.lat, point.lng)
+                } ?: run {
+                    getCurrentLocation(context) { location ->
+                        viewModel.setCurrentLocation(location.latitude, location.longitude)
+                    }
+                }
+            }
+
+            withContext(Dispatchers.IO) { viewModel.getSecondaryAddresses() }
+
             focusRequester.requestFocus()
         }
 
-        launch(Dispatchers.IO) {
-            viewModel.getSecondaryAddresses()
+        onDispose {
+            viewModel.resetSearchState()
         }
     }
 
@@ -119,7 +139,6 @@ fun AddDestinationBottomSheet(
                                         addressId = it.addressId.or0()
                                     )
                                 )
-                                viewModel.resetSearchState()
                                 onDismissRequest()
                             }
                         )
@@ -136,7 +155,6 @@ fun AddDestinationBottomSheet(
                                         addressId = it.addressId.or0()
                                     )
                                 )
-                                viewModel.resetSearchState()
                                 onDismissRequest()
                             }
                         )

@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -82,14 +83,15 @@ fun MainSheetFooter(
                     }
                 }
             }
-            .padding(top = 10.dp)
             .background(
-                YallaTheme.color.white,
-                RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
+                color = YallaTheme.color.white,
+                shape = if (sheetState.targetValue == SheetValue.Expanded) RoundedCornerShape(
+                    topStart = 30.dp,
+                    topEnd = 30.dp
+                ) else RectangleShape
             )
             .navigationBarsPadding()
             .padding(20.dp)
-
     ) {
         OptionsButton(
             modifier = Modifier.fillMaxHeight(),

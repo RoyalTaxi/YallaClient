@@ -19,7 +19,7 @@ object ShowOrderMapper {
             id = remote?.id.or0(),
             paymentType = PaymentType.fromTypeName(remote?.payment_type.orEmpty()),
             service = remote?.service.orEmpty(),
-            status = OrderStatus.from(remote?.status.orEmpty()),
+            status = OrderStatus.from(remote?.status),
             statusTime = remote?.status_time?.map(statusTimeMapper).orEmpty(),
             taxi = remote?.taxi.let(taxiMapper)
         )

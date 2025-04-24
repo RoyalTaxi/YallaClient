@@ -47,6 +47,7 @@ internal class LoginViewModel(
             number = phoneNumber.value,
             hash = hash
         ).onSuccess { result ->
+            _loading.emit(false)
             _navigationChannel.send(result.time)
         }.onFailure {
             _loading.emit(false)

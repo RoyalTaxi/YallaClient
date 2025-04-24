@@ -127,10 +127,9 @@ fun OrderTaxiPage(
             verticalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier
                 .background(
-                    color = YallaTheme.color.white,
-                    shape = RoundedCornerShape(bottomEnd = 30.dp, bottomStart = 30.dp)
+                    color = YallaTheme.color.white
                 )
-                .padding(vertical = 20.dp)
+                .padding(top = 20.dp)
         ) {
             SelectCurrentLocationButton(
                 modifier = Modifier.padding(horizontal = 20.dp),

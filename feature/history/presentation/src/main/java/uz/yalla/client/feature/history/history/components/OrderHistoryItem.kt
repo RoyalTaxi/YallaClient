@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.common.R
 import uz.yalla.client.core.common.utils.getOrderStatusText
+import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.domain.model.OrdersHistory
 
@@ -68,7 +69,8 @@ fun OrderHistoryItem(
                     )
                 }
 
-                val secondAddress = order.taxi.routes.lastOrNull().takeIf { order.taxi.routes.size > 1 }?.fullAddress
+                val secondAddress = order.taxi.routes.lastOrNull()
+                    .takeIf { order.taxi.routes.size > 1 }?.fullAddress
                 secondAddress?.let {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
@@ -104,6 +106,12 @@ fun OrderHistoryItem(
                 horizontalAlignment = Alignment.End,
                 modifier = Modifier.heightIn(min = 80.dp)
             ) {
+                val statusColor = when (order.status) {
+                    OrderStatus.Completed -> YallaTheme.color.primary
+                    OrderStatus.Canceled -> YallaTheme.color.red
+                    else -> YallaTheme.color.red
+                }
+
                 Text(
                     text = stringResource(R.string.fixed_cost, order.taxi.totalPrice),
                     color = YallaTheme.color.black,
@@ -113,7 +121,7 @@ fun OrderHistoryItem(
 
                 Text(
                     text = getOrderStatusText(order.status),
-                    color = YallaTheme.color.red,
+                    color = statusColor,
                     style = YallaTheme.font.body
                 )
 

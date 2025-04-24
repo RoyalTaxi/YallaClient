@@ -31,6 +31,7 @@ import uz.yalla.client.BuildConfig
 import uz.yalla.client.navigation.Navigation
 
 class MainActivity : AppCompatActivity() {
+
     private lateinit var updateFlowLauncher: ActivityResultLauncher<IntentSenderRequest>
     private val appUpdateManager: AppUpdateManager by lazy { AppUpdateManagerFactory.create(this) }
     private val viewModel: MainViewModel by viewModel()
@@ -38,7 +39,7 @@ class MainActivity : AppCompatActivity() {
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
-        if (isGranted.not()) {
+        if (!isGranted) {
             Toast.makeText(
                 this,
                 "Bildirishnomalar o'chiq. Kerakli habarlani o'tkizib yuborishingiz mumkin",
@@ -49,11 +50,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
-
         super.onCreate(savedInstanceState)
 
         splashScreen.setKeepOnScreenCondition {
-            viewModel.isReady.value == null
+            viewModel.isReady.value is ReadyState.Loading
         }
 
         updateFlowLauncher = registerForActivityResult(
@@ -76,7 +76,6 @@ class MainActivity : AppCompatActivity() {
             )
         )
 
-        viewModel.getLocationAndSave(this)
         viewModel.initializeFcm()
 
         val client = SmsRetriever.getClient(this)
@@ -88,7 +87,26 @@ class MainActivity : AppCompatActivity() {
 
         setContent {
             val isConnected by viewModel.isConnected.collectAsState()
-            Navigation(isConnected = isConnected)
+            val isDeviceRegistered by viewModel.isDeviceRegistered.collectAsState()
+
+            isDeviceRegistered?.let { registered ->
+                Navigation(
+                    isConnected = isConnected,
+                    isDeviceRegistered = registered
+                )
+            }
+        }
+    }
+
+    private fun checkNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
         }
     }
 
@@ -123,18 +141,6 @@ class MainActivity : AppCompatActivity() {
             .setCancelable(false)
             .setNegativeButton("Закрыть") { _, _ -> finish() }
             .show()
-    }
-
-    private fun checkNotificationPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            }
-        }
     }
 
     override fun onResume() {
