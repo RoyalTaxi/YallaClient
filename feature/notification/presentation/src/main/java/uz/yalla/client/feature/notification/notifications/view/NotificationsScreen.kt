@@ -75,7 +75,7 @@ internal fun NotificationScreen(
                 notifications = notifications,
                 onClickNotification = { id -> onIntent(NotificationsIntent.OnClickNotifications(id)) }
             )
-        },
+        }
     )
 }
 
