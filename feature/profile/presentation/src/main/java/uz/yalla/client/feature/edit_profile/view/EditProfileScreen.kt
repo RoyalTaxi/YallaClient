@@ -272,7 +272,8 @@ private fun ProfileForm(
 
         GenderSelection(
             gender = uiState.gender,
-            onIntent = onIntent)
+            onIntent = onIntent
+        )
 
         Spacer(modifier = Modifier.height(8.dp))
     }

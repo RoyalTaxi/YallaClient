@@ -128,7 +128,10 @@ fun SearchByNameBottomSheet(
                 },
                 clearDestination = {},
                 onFocusChange = { isFocused ->
-                    if (isFocused) setFocusedField("current")
+                    if (isFocused) {
+                        setFocusedField("current")
+                        lastFocusedForDestination = false
+                    }
                 }
             )
 
@@ -149,7 +152,10 @@ fun SearchByNameBottomSheet(
                 },
                 clearDestination = { deleteDestination(uiState.destinationQuery) },
                 onFocusChange = { isFocused ->
-                    if (isFocused) setFocusedField("destination")
+                    if (isFocused) {
+                        setFocusedField("destination")
+                        lastFocusedForDestination = true
+                    }
                 }
             )
         }
