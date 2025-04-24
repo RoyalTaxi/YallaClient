@@ -1,6 +1,7 @@
 package uz.yalla.client.feature.history.history.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -56,7 +57,7 @@ fun OrderHistoryItem(
                             .border(
                                 shape = CircleShape,
                                 width = 1.dp,
-                                color = YallaTheme.color.primary
+                                color = YallaTheme.color.gray
                             )
                     )
 
@@ -76,10 +77,9 @@ fun OrderHistoryItem(
                         Box(
                             modifier = Modifier
                                 .size(10.dp)
-                                .border(
-                                    shape = CircleShape,
-                                    width = 1.dp,
-                                    color = YallaTheme.color.red
+                                .background(
+                                    color = YallaTheme.color.primary,
+                                    shape = CircleShape
                                 )
                         )
 

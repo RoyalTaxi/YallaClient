@@ -49,7 +49,8 @@ internal class EditProfileViewModel(
                     surname = result.client.surname,
                     gender = Gender.fromType(result.client.gender),
                     imageUrl = result.client.image,
-                    birthday = parseBirthdayOrNull(result.client.birthday)
+                    birthday = parseBirthdayOrNull(result.client.birthday),
+                    phone = result.client.phone
                 )
             }
         }.onFailure {

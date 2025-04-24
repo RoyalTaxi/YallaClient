@@ -3,9 +3,12 @@ package uz.yalla.client.feature.profile.edit_profile.view
 import android.annotation.SuppressLint
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -42,12 +45,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
@@ -77,7 +82,9 @@ internal fun EditProfileScreen(
 
     Scaffold(
         containerColor = YallaTheme.color.white,
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .imePadding(),
         topBar = {
             EditProfileTopBar(
                 onNavigateBack = { onIntent(EditProfileIntent.OnNavigateBack) },
@@ -175,11 +182,18 @@ private fun ProfileContent(
             onUpdateProfile = { onIntent(EditProfileIntent.OnUpdateImage) }
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(4.dp))
+
+        ProfileHeaderInfo(
+            fullName = "${uiState.name} ${uiState.surname}",
+            phone = uiState.phone
+        )
+
+        Spacer(modifier = Modifier.weight(0.5f))
 
         ProfileForm(uiState = uiState, onIntent = onIntent)
 
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.weight(0.5f))
 
         SaveButton(onClick = { onIntent(EditProfileIntent.OnSave) })
     }
@@ -198,36 +212,89 @@ private fun ProfileImage(
         }
     }
 
-    val imageModifier = Modifier
-        .clip(CircleShape)
-        .size(100.dp)
-        .clickable(
-            interactionSource = remember { MutableInteractionSource() },
-            indication = null,
-            role = Role.Image,
-            onClick = onUpdateProfile
-        )
+    Box(
+        contentAlignment = Alignment.BottomEnd
+    ) {
+        // The main profile image
+        val imageModifier = Modifier
+            .clip(CircleShape)
+            .size(100.dp)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                role = Role.Image,
+                onClick = onUpdateProfile
+            )
 
-    if (bitmap != null) {
-        Image(
-            bitmap = bitmap.asImageBitmap(),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = imageModifier
-        )
-    } else {
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(imageUrl)
-                .size(1080)
-                .allowHardware(false)
-                .crossfade(true)
-                .build(),
-            contentDescription = null,
-            error = painterResource(R.drawable.img_default_pfp),
-            placeholder = painterResource(R.drawable.img_default_pfp),
-            contentScale = ContentScale.Crop,
-            modifier = imageModifier
+        if (bitmap != null) {
+            Image(
+                bitmap = bitmap.asImageBitmap(),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = imageModifier
+            )
+        } else {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(imageUrl)
+                    .size(1080)
+                    .allowHardware(false)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = null,
+                error = painterResource(R.drawable.img_default_pfp),
+                placeholder = painterResource(R.drawable.img_default_pfp),
+                contentScale = ContentScale.Crop,
+                modifier = imageModifier
+            )
+        }
+
+        Box(
+            modifier = Modifier
+                .size(32.dp)
+                .shadow(
+                    elevation = 4.dp,
+                    shape = CircleShape,
+                    spotColor = YallaTheme.color.black.copy(alpha = 0.5f)
+                )
+                .background(color = YallaTheme.color.white, shape = CircleShape)
+                .border(1.dp, YallaTheme.color.white, CircleShape)
+                .clickable(onClick = onUpdateProfile),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(R.drawable.ic_edit),
+                contentDescription = null,
+                modifier = Modifier.padding(9.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun ProfileHeaderInfo(
+    phone: String,
+    fullName: String,
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        if (fullName.isNotBlank()) {
+            Text(
+                text = fullName,
+                style = YallaTheme.font.title,
+                color = YallaTheme.color.black,
+                textAlign = TextAlign.Center
+            )
+        }
+
+        Text(
+            text = phone,
+            style = YallaTheme.font.label,
+            color = YallaTheme.color.gray,
+            textAlign = TextAlign.Center
         )
     }
 }
