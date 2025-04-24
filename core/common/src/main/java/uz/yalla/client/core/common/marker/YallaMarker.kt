@@ -236,7 +236,7 @@ fun Circle(
                     .graphicsLayer { clip = true }
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.ic_loading),
+                    painter = painterResource(R.drawable.ic_loading_marker),
                     contentDescription = null,
                     tint = YallaTheme.color.white,
                     modifier = Modifier

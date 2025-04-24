@@ -6,6 +6,7 @@ import uz.yalla.client.feature.edit_profile.components.Gender
 internal data class EditProfileUIState(
     val name: String = "",
     val surname: String = "",
+    val phone: String = "",
     val gender: Gender = Gender.NotSelected,
     val newImage: ByteArray? = null,
     val birthday: LocalDate? = null,

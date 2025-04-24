@@ -15,6 +15,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.lerp
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -88,6 +89,6 @@ private fun createTextUnitWithFraction(start: TextUnit, stop: TextUnit, fraction
         start == TextUnit.Unspecified && stop == TextUnit.Unspecified -> TextUnit.Unspecified
         start == TextUnit.Unspecified -> stop
         stop == TextUnit.Unspecified -> start
-        else -> androidx.compose.ui.unit.lerp(start, stop, fraction)
+        else -> lerp(start, stop, fraction)
     }
 }
