@@ -1,6 +1,7 @@
 package uz.yalla.client.feature.order.presentation.main.view.page
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
@@ -144,9 +145,10 @@ fun OrderTaxiPage(
                     Box(
                         modifier = Modifier
                             .size(8.dp)
-                            .background(
-                                color = YallaTheme.color.primary,
-                                shape = CircleShape
+                            .border(
+                                shape = CircleShape,
+                                width = 1.dp,
+                                color = YallaTheme.color.gray
                             )
                     )
                 }
@@ -156,7 +158,17 @@ fun OrderTaxiPage(
                 destinations = state.destinations,
                 modifier = Modifier.padding(horizontal = 20.dp),
                 onClick = { onIntent(OrderTaxiSheetIntent.DestinationClick) },
-                onAddNewLocation = { onIntent(OrderTaxiSheetIntent.AddNewDestinationClick) }
+                onAddNewLocation = { onIntent(OrderTaxiSheetIntent.AddNewDestinationClick) },
+                leadingIcon = {
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .background(
+                                color = YallaTheme.color.primary,
+                                shape = CircleShape
+                            )
+                    )
+                }
             )
 
             LazyRow(

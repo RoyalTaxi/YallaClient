@@ -62,14 +62,14 @@ fun PrimaryTextField(
                 modifier = Modifier
                     .weight(1f)
                     .padding(
-                        vertical = 16.dp,
+                        vertical = if (isFocused || text.isNotBlank()) 10.dp else 16.dp
                     )
             ) {
                 if ((isFocused || text.isNotBlank()) || (trailingIcon != null && text.isNotBlank()))
                     Text(
                         text = placeHolderText,
                         color = YallaTheme.color.gray,
-                        style = YallaTheme.font.body
+                        style = YallaTheme.font.bodySmall
                     )
 
                 BasicTextField(
