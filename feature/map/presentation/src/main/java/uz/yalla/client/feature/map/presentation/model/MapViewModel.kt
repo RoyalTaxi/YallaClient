@@ -259,13 +259,11 @@ class MapViewModel(
         }
     }
 
-    fun getNotificationsCount() {
-        viewModelScope.launch(Dispatchers.IO) {
-            getNotificationsCountUseCase()
-                .onSuccess { count ->
-                    _uiState.update { it.copy(notificationsCount = count) }
-                }
-        }
+    fun getNotificationsCount() = viewModelScope.launch(Dispatchers.IO) {
+        getNotificationsCountUseCase()
+            .onSuccess { count ->
+                _uiState.update { it.copy(notificationsCount = count) }
+            }
     }
 
     private fun getRouting() {

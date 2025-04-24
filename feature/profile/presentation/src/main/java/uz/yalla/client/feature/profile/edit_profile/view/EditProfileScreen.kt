@@ -189,11 +189,13 @@ private fun ProfileContent(
             phone = uiState.phone
         )
 
-        Spacer(modifier = Modifier.weight(0.5f))
+        Spacer(modifier = Modifier.height(24.dp))
 
         ProfileForm(uiState = uiState, onIntent = onIntent)
 
-        Spacer(modifier = Modifier.weight(0.5f))
+        Spacer(modifier = Modifier.weight(1f))
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         SaveButton(onClick = { onIntent(EditProfileIntent.OnSave) })
     }
@@ -306,7 +308,8 @@ private fun ProfileForm(
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(horizontal = 20.dp)
+        modifier = Modifier.padding(horizontal = 20.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         PrimaryTextField(
             text = uiState.name,
@@ -315,16 +318,12 @@ private fun ProfileForm(
             modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
-
         PrimaryTextField(
             text = uiState.surname,
             onChangeText = { onIntent(EditProfileIntent.OnChangeSurname(it)) },
             placeHolderText = stringResource(id = R.string.surname),
             modifier = Modifier.fillMaxWidth()
         )
-
-        Spacer(modifier = Modifier.height(10.dp))
 
         PrimaryTextField(
             text = uiState.birthday?.formatWithDotsDMY() ?: "",
@@ -335,14 +334,10 @@ private fun ProfileForm(
             modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
-
         GenderSelection(
             gender = uiState.gender,
             onIntent = onIntent
         )
-
-        Spacer(modifier = Modifier.height(8.dp))
     }
 }
 

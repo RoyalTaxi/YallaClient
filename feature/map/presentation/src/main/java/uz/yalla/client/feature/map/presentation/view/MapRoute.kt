@@ -154,6 +154,9 @@ fun MapRoute(
     DisposableEffect(Unit) {
         val profileJob = vm.getMe()
 
+        val notificationJob = vm.getNotificationsCount()
+
+
         val markerJob = scope.launch {
             map.isMarkerMoving.collectLatest { (isMarkerMoving, isByUser) ->
                 if (state.destinations.isEmpty()) {
@@ -204,9 +207,9 @@ fun MapRoute(
             profileJob.cancel()
             markerJob.cancel()
             coordinatorJob.cancel()
+            notificationJob.cancel()
         }
 
-        vm.getNotificationsCount()
     }
 
     LaunchedEffect(state.timeout, state.orderEndsInMinutes) {
