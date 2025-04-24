@@ -1,12 +1,15 @@
 package uz.yalla.client.feature.map.presentation.view.drawer
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.DrawerState
@@ -34,6 +37,7 @@ import uz.yalla.client.feature.profile.domain.model.response.GetMeModel
 fun MapDrawer(
     user: GetMeModel?,
     drawerState: DrawerState,
+    notificationsCount: Int = 0,
     onIntent: (MapDrawerIntent) -> Unit,
     content: @Composable () -> Unit
 ) {
@@ -133,6 +137,22 @@ fun MapDrawer(
                         title = stringResource(R.string.contuct_us),
                         painter = painterResource(R.drawable.ic_contact_us),
                         onClick = { onIntent(MapDrawerIntent.ContactUs) }
+                    )
+
+                    DrawerItem(
+                        title = stringResource(R.string.notifications),
+                        painter = painterResource(R.drawable.ic_bell),
+                        onClick = { onIntent(MapDrawerIntent.Notifications) },
+                        trailingIcon = {
+                            if (notificationsCount != 0) {
+                                Box(
+                                    modifier = Modifier
+                                        .clip(CircleShape)
+                                        .background(YallaTheme.color.red)
+                                        .size(14.dp)
+                                )
+                            }
+                        }
                     )
                 }
                 Spacer(modifier = Modifier.height(10.dp))

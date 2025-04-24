@@ -93,6 +93,7 @@ fun MapRoute(
     onAddNewCard: () -> Unit,
     onAboutAppClick: () -> Unit,
     onContactUsClick: () -> Unit,
+    onNotificationsClick: () -> Unit,
     onBecomeDriverClick: (String, String) -> Unit,
     onInviteFriendClick: (String, String) -> Unit,
     vm: MapViewModel = koinViewModel()
@@ -204,6 +205,8 @@ fun MapRoute(
             markerJob.cancel()
             coordinatorJob.cancel()
         }
+
+        vm.getNotificationsCount()
     }
 
     LaunchedEffect(state.timeout, state.orderEndsInMinutes) {
@@ -533,6 +536,7 @@ fun MapRoute(
     MapDrawer(
         user = state.user,
         drawerState = drawerState,
+        notificationsCount = state.notificationsCount,
         onIntent = { intent ->
             when (intent) {
                 is MapDrawerIntent.Profile -> onProfileClick()
@@ -544,6 +548,7 @@ fun MapRoute(
                 is MapDrawerIntent.ContactUs -> onContactUsClick()
                 is MapDrawerIntent.BecomeADriver -> onBecomeDriverClick(intent.title, intent.url)
                 is MapDrawerIntent.InviteFriend -> onInviteFriendClick(intent.title, intent.url)
+                is MapDrawerIntent.Notifications -> onNotificationsClick()
             }
         },
         content = {

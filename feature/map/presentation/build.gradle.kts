@@ -15,6 +15,7 @@ dependencies {
     implementation(projects.feature.order.domain)
     implementation(projects.feature.places.domain)
     implementation(projects.feature.order.presentation)
+    implementation(projects.feature.notification.domain)
 
     // Advanced BottomSheet
     implementation(libs.advanced.bottomsheet.material3)

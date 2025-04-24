@@ -22,4 +22,5 @@
     <string name="appointed">Назначен</string>
     <string name="completed">Выполнен</string>
     <string name="canceled">Отменен</string>
+    <string name="notifications">Новости и уведомление</string>
 </resources>

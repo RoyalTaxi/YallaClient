@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.history.history.components
+package uz.yalla.client.core.common.utils
 
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
@@ -8,7 +8,7 @@ import kotlinx.datetime.minus
 import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
 
-internal fun getRelativeDate(date: String, today: String, yesterday: String): String {
+fun getRelativeDate(date: String, today: String, yesterday: String): String {
     val currentDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
     val orderDate = try {
         val (day, month, year) = date.split(".").map { it.toInt() }

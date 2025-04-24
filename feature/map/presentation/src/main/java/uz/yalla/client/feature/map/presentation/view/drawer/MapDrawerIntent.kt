@@ -10,4 +10,5 @@ sealed interface MapDrawerIntent {
     data object Settings : MapDrawerIntent
     data object AboutTheApp : MapDrawerIntent
     data object Profile : MapDrawerIntent
+    data object Notifications: MapDrawerIntent
 }

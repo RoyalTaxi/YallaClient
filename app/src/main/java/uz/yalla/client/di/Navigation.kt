@@ -1,5 +1,6 @@
 package uz.yalla.client.di
 
+import com.google.firebase.messaging.RemoteMessage.Notification
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import uz.yalla.client.activity.MainViewModel
@@ -12,6 +13,7 @@ import uz.yalla.client.feature.history.di.History
 import uz.yalla.client.feature.info.about_app.di.Info
 import uz.yalla.client.feature.intro.di.Intro
 import uz.yalla.client.feature.map.presentation.di.Map
+import uz.yalla.client.feature.notification.di.Notifications
 import uz.yalla.client.feature.order.presentation.di.Order
 import uz.yalla.client.feature.payment.di.Payment
 import uz.yalla.client.feature.places.di.Places
@@ -44,6 +46,7 @@ object Navigation {
         *History.modules.toTypedArray(),
         *Info.modules.toTypedArray(),
         *Setting.modules.toTypedArray(),
-        *Contact.modules.toTypedArray()
+        *Contact.modules.toTypedArray(),
+        *Notifications.modules.toTypedArray()
     )
 }
