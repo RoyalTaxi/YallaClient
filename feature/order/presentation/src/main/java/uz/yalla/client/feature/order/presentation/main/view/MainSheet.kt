@@ -375,6 +375,7 @@ object MainSheet {
             if (state.selectedTariff != null && !state.loading) {
                 TariffInfoPage(
                     state = state,
+                    isVisible = fraction >= .5,
                     isTariffValidWithOptions = isTariffValidWithOptions,
                     onIntent = onIntent,
                     modifier = Modifier

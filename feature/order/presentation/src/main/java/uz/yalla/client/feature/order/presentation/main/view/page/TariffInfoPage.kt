@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -54,6 +55,7 @@ private typealias Tariff = GetTariffsModel.Tariff
 @Composable
 fun TariffInfoPage(
     state: MainSheetState,
+    isVisible: Boolean,
     isTariffValidWithOptions: Boolean,
     modifier: Modifier = Modifier,
     onIntent: (TariffInfoSheetIntent) -> Unit
@@ -78,64 +80,73 @@ fun TariffInfoPage(
     }
 
     state.selectedTariff?.let { tariff ->
-        LazyColumn(
-            state = columnState,
-            modifier = modifier.fillMaxSize()
-        ) {
-            item {
-                TariffInfoSection(
-                    tariff = tariff,
-                    isDestinationsEmpty = state.destinations.isEmpty()
-                )
-            }
 
-            item { Spacer(modifier = Modifier.height(10.dp)) }
+        Box {
+            LazyColumn(
+                state = columnState,
+                modifier = modifier.fillMaxSize()
+            ) {
+                item {
+                    TariffInfoSection(
+                        tariff = tariff,
+                        isDestinationsEmpty = state.destinations.isEmpty()
+                    )
+                }
 
-            item {
-                InfoProvidersSection(
-                    info = state.comment,
-                    onClick = { onIntent(TariffInfoSheetIntent.ClickComment) }
-                )
-            }
-
-            if (isTariffValidWithOptions.not()) {
                 item { Spacer(modifier = Modifier.height(10.dp)) }
 
                 item {
-                    InvalidOptionsSection(
-                        clearOptions = { onIntent(TariffInfoSheetIntent.ClearOptions) }
+                    InfoProvidersSection(
+                        info = state.comment,
+                        onClick = { onIntent(TariffInfoSheetIntent.ClickComment) }
                     )
                 }
-            }
 
-            item { Spacer(modifier = Modifier.height(10.dp)) }
+                if (isTariffValidWithOptions.not()) {
+                    item { Spacer(modifier = Modifier.height(10.dp)) }
 
-            item {
-                Column(
-                    modifier = Modifier.clip(RoundedCornerShape(30.dp))
-                ) {
-                    state.options.forEach { service ->
-                        OptionsItem(
-                            option = service,
-                            isSelected = newSelectedOptions.any {
-                                it.name == service.name && it.cost == service.cost
-                            },
-                            onChecked = { isSelected ->
-                                newSelectedOptions.toggle(service, isSelected)
-                                onIntent(
-                                    TariffInfoSheetIntent.OptionsChange(
-                                        options = newSelectedOptions
-                                    )
-                                )
-                            }
+                    item {
+                        InvalidOptionsSection(
+                            clearOptions = { onIntent(TariffInfoSheetIntent.ClearOptions) }
                         )
                     }
                 }
+
+                item { Spacer(modifier = Modifier.height(10.dp)) }
+
+                item {
+                    Column(
+                        modifier = Modifier.clip(RoundedCornerShape(30.dp))
+                    ) {
+                        state.options.forEach { service ->
+                            OptionsItem(
+                                option = service,
+                                isSelected = newSelectedOptions.any {
+                                    it.name == service.name && it.cost == service.cost
+                                },
+                                onChecked = { isSelected ->
+                                    newSelectedOptions.toggle(service, isSelected)
+                                    onIntent(
+                                        TariffInfoSheetIntent.OptionsChange(
+                                            options = newSelectedOptions
+                                        )
+                                    )
+                                }
+                            )
+                        }
+                    }
+                }
+
+                item { Spacer(modifier = Modifier.height(10.dp)) }
+
+                item { Spacer(modifier = Modifier.height(state.footerHeight)) }
             }
 
-            item { Spacer(modifier = Modifier.height(10.dp)) }
-
-            item { Spacer(modifier = Modifier.height(state.footerHeight)) }
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .then(if (isVisible) Modifier else Modifier.pointerInput(Unit) {})
+            )
         }
     }
 }
