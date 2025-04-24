@@ -23,6 +23,7 @@ import uz.yalla.client.feature.notification.presentation.R
 @Composable
 internal fun NotificationItem(
     notification: NotificationModel,
+    isRead: Boolean = false,
     isExpanded: Boolean = false,
     onClick: () -> Unit
 ) {
@@ -35,7 +36,7 @@ internal fun NotificationItem(
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
-            modifier = Modifier.padding(20.dp)
+            modifier = Modifier.padding(horizontal = 20.dp)
         ) {
             AsyncImage(
                 model = notification.image,
@@ -62,7 +63,7 @@ internal fun NotificationItem(
             Text(
                 text = notification.title,
                 style = YallaTheme.font.title2,
-                color = YallaTheme.color.black
+                color = if (isRead) YallaTheme.color.gray else YallaTheme.color.black
             )
 
             if (isExpanded) {

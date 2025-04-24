@@ -10,7 +10,6 @@ import uz.yalla.client.core.service.model.ApiPaginationWrapper
 import uz.yalla.client.core.service.model.ApiResponseWrapper
 import uz.yalla.client.core.service.network.safeApiCall
 import uz.yalla.client.service.notification.response.NotificationResponse
-import uz.yalla.client.service.notification.response.NotificationResponseItem
 import uz.yalla.client.service.notification.url.NotificationsUrl
 
 private const val PARAMETER_PAGE = "page"
@@ -19,7 +18,7 @@ private const val PARAMETER_PER_PAGE = "per_page"
 class NotificationsApiService(private val ktor: HttpClient) {
     suspend fun getNotifications(
         page: Int, limit: Int
-    ): Either<ApiResponseWrapper<ApiPaginationWrapper<NotificationResponseItem>>, DataError.Network> =
+    ): Either<ApiResponseWrapper<ApiPaginationWrapper<NotificationResponse>>, DataError.Network> =
         safeApiCall {
             ktor.get(NotificationsUrl.FIND_ALL) {
                 parameter(PARAMETER_PAGE, page)

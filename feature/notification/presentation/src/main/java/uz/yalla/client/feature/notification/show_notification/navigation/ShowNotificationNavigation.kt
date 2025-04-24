@@ -10,8 +10,8 @@ import uz.yalla.client.core.presentation.navigation.safeNavigate
 import uz.yalla.client.feature.notification.show_notification.view.ShowNotificationRoute
 
 internal const val ID = "id"
-internal const val SHOW_NOTIFICATION_BASE = "show_notification_base"
-internal const val SHOW_NOTIFICATION_ROUTE = "$SHOW_NOTIFICATION_BASE?$ID={$ID}"
+internal const val SHOW_NOTIFICATION_ROUTE_BASE = "show_notification_base"
+internal const val SHOW_NOTIFICATION_ROUTE = "$SHOW_NOTIFICATION_ROUTE_BASE?$ID={$ID}"
 
 internal fun NavGraphBuilder.showNotificationScreen(
     onNavigateBack: () -> Unit
@@ -23,7 +23,7 @@ internal fun NavGraphBuilder.showNotificationScreen(
                 type = NavType.IntType
             }
         )
-    ) {navBackStackEntry ->
+    ) { navBackStackEntry ->
         val id = navBackStackEntry.arguments?.getInt(ID).or0()
 
         ShowNotificationRoute(
@@ -33,11 +33,6 @@ internal fun NavGraphBuilder.showNotificationScreen(
     }
 }
 
-fun NavController.navigateToShowNotification(
-    id: Int
-) {
-    val route = buildString {
-        append("$SHOW_NOTIFICATION_BASE?$ID=$id")
-    }
-    safeNavigate(route)
+fun NavController.navigateToShowNotification(id: Int) {
+    safeNavigate("$SHOW_NOTIFICATION_ROUTE_BASE?$ID=$id")
 }

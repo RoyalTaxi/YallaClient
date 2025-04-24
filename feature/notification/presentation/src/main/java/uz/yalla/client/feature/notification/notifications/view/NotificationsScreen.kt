@@ -1,6 +1,5 @@
 package uz.yalla.client.feature.notification.notifications.view
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,7 +18,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -75,7 +73,7 @@ internal fun NotificationScreen(
                     .fillMaxSize()
                     .padding(paddingValues),
                 notifications = notifications,
-                onClickNotification = {id -> onIntent(NotificationsIntent.OnClickNotifications(id))}
+                onClickNotification = { id -> onIntent(NotificationsIntent.OnClickNotifications(id)) }
             )
         },
     )
@@ -87,22 +85,28 @@ private fun NotificationContent(
     onClickNotification: (Int) -> Unit,
     notifications: LazyPagingItems<NotificationModel>
 ) {
-    LazyColumn(modifier = modifier) {
+    when {
+        notifications.itemCount == 0 -> {
+            Spacer(modifier = Modifier.height(70.dp))
 
-        items(notifications.itemCount) { index ->
-            Spacer(modifier = Modifier.height(50.dp))
-
-            notifications[index]?.let { notification ->
-                NotificationItem(
-                    notification = notification,
-                    onClick = { onClickNotification(notification.id)}
-                )
-            }
+            EmptyNotifications()
         }
 
-        item {
-            if (notifications.itemCount == 0)
-                EmptyNotifications()
+        else -> {
+            LazyColumn(
+                modifier = modifier,
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                items(notifications.itemCount) { index ->
+                    notifications[index]?.let { notification ->
+                        NotificationItem(
+                            notification = notification,
+                            isRead = notification.isRead,
+                            onClick = { onClickNotification(notification.id) }
+                        )
+                    }
+                }
+            }
         }
     }
 }

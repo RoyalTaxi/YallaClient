@@ -15,5 +15,5 @@ object Notifications {
     val modules = listOf(
         viewModelModule,
         *Notification.modules.toTypedArray()
-        )
+    )
 }

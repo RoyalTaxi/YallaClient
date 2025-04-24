@@ -3,6 +3,7 @@ package uz.yalla.client.feature.history.history.model
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import app.cash.paging.cachedIn
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -22,7 +23,8 @@ internal class HistoryViewModel(
     }
 
     fun getOrders() = viewModelScope.launch(Dispatchers.IO) {
-        getOrdersHistoryUseCase().collectLatest {
+        getOrdersHistoryUseCase()
+            .cachedIn(viewModelScope).collectLatest {
             _orders.emit(it)
         }
     }

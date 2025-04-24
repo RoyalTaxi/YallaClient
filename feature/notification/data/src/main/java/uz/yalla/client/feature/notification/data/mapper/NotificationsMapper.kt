@@ -5,10 +5,10 @@ import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.domain.formations.TimeFormation.toFormattedDate
 import uz.yalla.client.core.domain.formations.TimeFormation.toFormattedTime
 import uz.yalla.client.feature.domain.model.NotificationModel
-import uz.yalla.client.service.notification.response.NotificationResponseItem
+import uz.yalla.client.service.notification.response.NotificationResponse
 
 object NotificationsMapper {
-    val mapper: Mapper<NotificationResponseItem?, NotificationModel> = { remote ->
+    val mapper: Mapper<NotificationResponse?, NotificationModel> = { remote ->
         NotificationModel(
             id = remote?.id.or0(),
             title = remote?.title.orEmpty(),

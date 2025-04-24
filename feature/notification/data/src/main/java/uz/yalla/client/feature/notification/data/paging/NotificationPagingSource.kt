@@ -21,7 +21,7 @@ class NotificationPagingSource(
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, NotificationModel> {
         val currentPage = params.key ?: 1
         return try {
-            when (val response = service.getNotifications(currentPage, 20)) {
+            when (val response = service.getNotifications(currentPage, params.loadSize)) {
                 is Either.Error -> {
                     LoadResult.Error(Exception(response.error.name))
                 }
