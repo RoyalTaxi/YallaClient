@@ -13,8 +13,8 @@ android {
         applicationId = "uz.yalla.client"
         minSdk = 26
         targetSdk = 35
-        versionCode = 36
-        versionName = "3.0.6"
+        versionCode = 37
+        versionName = "3.0.7"
         resourceConfigurations.plus(listOf("uz", "ru"))
     }
     buildFeatures {
