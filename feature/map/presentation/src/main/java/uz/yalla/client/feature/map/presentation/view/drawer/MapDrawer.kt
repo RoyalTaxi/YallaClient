@@ -83,6 +83,12 @@ fun MapDrawer(
                         onClick = { onIntent(MapDrawerIntent.MyPlaces) }
                     )
                     DrawerItem(
+                        title = stringResource(R.string.bonus_and_discounts),
+                        painter = painterResource(R.drawable.ic_coin),
+                        onClick = { onIntent(MapDrawerIntent.Bonus) }
+                    )
+
+                    DrawerItem(
                         title = stringResource(R.string.payment_type),
                         description = when (paymentType) {
                             is PaymentType.CARD -> (paymentType as PaymentType.CARD).cardNumber

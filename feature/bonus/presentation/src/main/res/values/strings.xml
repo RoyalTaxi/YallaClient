@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="bonus_promocode">Bonuslar va promo-kodlar</string>
+    <string name="bonus_definition">Siz uchun noyob bonuslar va chegirmalar! Har bir buyurtma bilan imtiyozlardan bahramand bo\'ling.</string>
+    <string name="bonus_balance">Bonus hisobi</string>
+    <string name="enter_promocod">Promo kodni kiriting</string>
+    <string name="promocodes">Promo kodlar</string>
+    <string name="bonus">Bonus</string>
+    <string name="percentage">%s%% dan</string>
+    <string name="bonus_body">Ekonom va Comfort tariflarida har bir sayohat uchun bonuslar - ulardan keyingi sayohatlaringiz uchun to\'lash uchun foydalaning!</string>
+    <string name="second_bonus_body"> Siz Standart va Comfort tariflarida sayohatlarni qisman bonuslar bilan to\'lashingiz mumkin</string>
+    <string name="can_pay_with_bonus">Siz bonuslar bilan to\'lashingiz mumkin</string>
+</resources>

@@ -10,6 +10,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import uz.yalla.client.feature.auth.authModule
 import uz.yalla.client.feature.auth.navigateToAuthModule
+import uz.yalla.client.feature.bonus.bonusModule
+import uz.yalla.client.feature.bonus.navigateToBonusModule
 import uz.yalla.client.feature.contact.navigation.contactUsScreen
 import uz.yalla.client.feature.contact.navigation.navigateToContactUsScreen
 import uz.yalla.client.feature.history.historyModule
@@ -110,10 +112,14 @@ fun Navigation(
             onContactUsClick = navController::navigateToContactUsScreen,
             becomeDriverClick = navController::navigateToWebScreen,
             inviteFriendClick = navController::navigateToWebScreen,
-            onNotificationsClick = navController::navigateToNotificationModule
+            onNotificationsClick = navController::navigateToNotificationModule,
+            onClickBonuses = navController::navigateToBonusModule
         )
 
+        bonusModule(navController = navController)
+
         historyModule(navController = navController)
+
         paymentModule(navController = navController)
 
         cancelReasonScreen(

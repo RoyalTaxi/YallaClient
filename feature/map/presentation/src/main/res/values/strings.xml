@@ -20,5 +20,6 @@
     <string name="appointed">Biriktirildi</string>
     <string name="completed">Bajarildi</string>
     <string name="canceled">Bekor qilindi</string>
+    <string name="bonus_and_discounts">Bonuslar va chegirmalar</string>
     <string name="notifications">Yangiliklar va bildirishnomalar</string>
 </resources>
