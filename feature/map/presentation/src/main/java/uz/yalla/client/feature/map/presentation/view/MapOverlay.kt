@@ -1,7 +1,10 @@
 package uz.yalla.client.feature.map.presentation.view
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
@@ -9,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import uz.yalla.client.core.common.button.BonusOverlay
 import uz.yalla.client.core.common.button.MapButton
 import uz.yalla.client.core.common.marker.YallaMarker
 import uz.yalla.client.core.common.marker.YallaMarkerState
@@ -63,21 +67,27 @@ fun BoxScope.MapOverlay(
             )
         }
 
-        MapButton(
-            painter = painterResource(
-                if (hamburgerButtonState == HamburgerButtonState.OpenDrawer) R.drawable.ic_hamburger
-                else R.drawable.ic_arrow_back
-            ),
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .statusBarsPadding(),
-            onClick = {
-                if (hamburgerButtonState == HamburgerButtonState.OpenDrawer) onIntent(
-                    MapOverlayIntent.OpenDrawer
-                )
-                else onIntent(MapOverlayIntent.NavigateBack)
-            }
-        )
+
+        Row(
+            modifier = Modifier.statusBarsPadding().fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            MapButton(
+                painter = painterResource(
+                    if (hamburgerButtonState == HamburgerButtonState.OpenDrawer) R.drawable.ic_hamburger
+                    else R.drawable.ic_arrow_back
+                ),
+                modifier = Modifier,
+                onClick = {
+                    if (hamburgerButtonState == HamburgerButtonState.OpenDrawer) onIntent(
+                        MapOverlayIntent.OpenDrawer
+                    )
+                    else onIntent(MapOverlayIntent.NavigateBack)
+                }
+            )
+
+            state.user?.client?.balance?.let { BonusOverlay(amount = it) }
+        }
 
         if (
             state.orders.size > 1 ||

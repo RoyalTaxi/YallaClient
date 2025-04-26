@@ -12,6 +12,8 @@ data class OrderTaxiDto(
     val paymentType: String,
     val fixedPrice: Boolean,
     val addresses: List<Address>,
+    val isBonusEnabled: Boolean,
+    val bonusAmount: Int
 ) {
     data class Address(
         val addressId: Int? = null,

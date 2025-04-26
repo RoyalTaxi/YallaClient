@@ -31,6 +31,7 @@ import uz.yalla.client.feature.map.domain.usecase.GetAddressNameUseCase
 import uz.yalla.client.feature.map.domain.usecase.GetRoutingUseCase
 import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 import uz.yalla.client.feature.order.domain.usecase.order.GetActiveOrdersUseCase
+import uz.yalla.client.feature.order.domain.usecase.order.GetSettingUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.GetShowOrderUseCase
 import uz.yalla.client.feature.order.presentation.main.view.MainSheet
 import uz.yalla.client.feature.profile.domain.usecase.GetMeUseCase
@@ -45,7 +46,8 @@ class MapViewModel(
     private val getRoutingUseCase: GetRoutingUseCase,
     private val getActiveOrdersUseCase: GetActiveOrdersUseCase,
     private val prefs: AppPreferences,
-    private val getNotificationsCountUseCase: GetNotificationsCountUseCase
+    private val getNotificationsCountUseCase: GetNotificationsCountUseCase,
+    private val getSettingUseCase: GetSettingUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MapUIState())
@@ -58,6 +60,7 @@ class MapViewModel(
 
     init {
         getMe()
+        getSettingConfigUseCase()
 
         val markerStateInputs = uiState
             .map { state ->
@@ -190,11 +193,23 @@ class MapViewModel(
 
     fun getMe() = viewModelScope.launch(Dispatchers.IO) {
         getMeUseCase().onSuccess { user ->
-            _uiState.update {
-                it.copy(
-                    user = user
-                )
+            _uiState.update { it.copy(user = user) }
+            prefs.setBalance(user.client.balance)
+        }
+    }
+
+    fun getNotificationsCount() = viewModelScope.launch(Dispatchers.IO) {
+        getNotificationsCountUseCase()
+            .onSuccess { count ->
+                _uiState.update { it.copy(notificationsCount = count) }
             }
+    }
+
+    fun getSettingConfigUseCase() = viewModelScope.launch(Dispatchers.IO) {
+        getSettingUseCase().onSuccess { setting ->
+            prefs.setBonusEnabled(setting.isBonusEnabled)
+            prefs.setMinBonus(setting.minBonus)
+            prefs.setMaxBonus(setting.maxBonus)
         }
     }
 
@@ -259,12 +274,6 @@ class MapViewModel(
         }
     }
 
-    fun getNotificationsCount() = viewModelScope.launch(Dispatchers.IO) {
-        getNotificationsCountUseCase()
-            .onSuccess { count ->
-                _uiState.update { it.copy(notificationsCount = count) }
-            }
-    }
 
     private fun getRouting() {
         val points = listOfNotNull(

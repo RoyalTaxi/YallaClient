@@ -33,6 +33,8 @@ class OrderRepositoryImpl(
                 payment_type = body.paymentType,
                 fixed_price = body.fixedPrice,
                 card_id = body.cardId,
+                use_the_bonus = body.isBonusEnabled,
+                bonus_amount = body.bonusAmount,
                 addresses = body.addresses.map { address ->
                     OrderTaxiRequest.Address(
                         address_id = address.addressId,

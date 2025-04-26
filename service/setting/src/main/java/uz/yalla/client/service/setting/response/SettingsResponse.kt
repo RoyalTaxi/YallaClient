@@ -19,6 +19,9 @@ data class SettingsResponse(
         val youtube: String?,
         val telegram_nickname: String?,
         val privacy_policy_ru: String?,
-        val privacy_policy_uz: String?
+        val privacy_policy_uz: String?,
+        val max_bonus: Int?,
+        val min_bonus: Int?,
+        val use_the_bonus: Boolean?
     )
 }

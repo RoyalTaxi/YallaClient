@@ -30,7 +30,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "YallaClient"
+rootProject.name = "Yalla"
 
 include(":app")
 

@@ -1,3 +1,6 @@
+import com.android.build.gradle.internal.api.ApkVariantOutputImpl
+import org.gradle.kotlin.dsl.support.uppercaseFirstChar
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
@@ -13,8 +16,8 @@ android {
         applicationId = "uz.yalla.client"
         minSdk = 26
         targetSdk = 35
-        versionCode = 37
-        versionName = "3.0.7"
+        versionCode = 40
+        versionName = "0.0.1"
         resourceConfigurations.plus(listOf("uz", "ru"))
     }
     buildFeatures {
@@ -48,6 +51,21 @@ android {
     kotlinOptions {
         jvmTarget = "11"
         freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
+    }
+
+    applicationVariants.configureEach {
+        outputs.configureEach {
+            (this as? ApkVariantOutputImpl)?.outputFileName = "${rootProject.name} $versionName.apk"
+        }
+
+        tasks.named(
+            "sign${flavorName.uppercaseFirstChar()}${buildType.name.uppercaseFirstChar()}Bundle",
+            com.android.build.gradle.internal.tasks.FinalizeBundleTask::class.java
+        ) {
+            val file = finalBundleFile.asFile.get()
+            val finalFile = File(file.parentFile, "${rootProject.name} $versionName.aab")
+            finalBundleFile.set(finalFile)
+        }
     }
 }
 

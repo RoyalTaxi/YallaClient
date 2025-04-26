@@ -58,6 +58,7 @@ import uz.yalla.client.feature.order.presentation.main.view.page.TariffInfoPage
 import uz.yalla.client.feature.order.presentation.main.view.sheet.ArrangeDestinationsBottomSheet
 import uz.yalla.client.feature.order.presentation.main.view.sheet.OrderCommentBottomSheet
 import uz.yalla.client.feature.order.presentation.main.view.sheet.PaymentMethodBottomSheet
+import uz.yalla.client.feature.order.presentation.main.view.sheet.SetBonusAmountBottomSheet
 
 object MainSheet {
     private val viewModel: MainSheetViewModel by lazy { getKoin().get() }
@@ -197,6 +198,7 @@ object MainSheet {
 
         if (state.isPaymentMethodSheetVisible) {
             PaymentMethodBottomSheet(
+                isBonusEnabled = state.isBonusEnabled,
                 sheetState = paymentMethodSheetState,
                 paymentTypes = state.cardList,
                 selectedPaymentType = state.selectedPaymentType,
@@ -351,6 +353,12 @@ object MainSheet {
                 }
             )
         }
+
+        if (state.isSetBonusAmountBottomSheetVisible)
+            SetBonusAmountBottomSheet(
+                amount = state.bonusAmount,
+                onDismissRequest = viewModel::setBonusAmount
+            )
 
         if (state.loading) LoadingDialog()
     }

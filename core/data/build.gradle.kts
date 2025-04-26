@@ -4,6 +4,10 @@ plugins {
 
 android {
     namespace = "uz.yalla.client.core.data"
+
+    buildFeatures {
+        buildConfig = true
+    }
 }
 
 dependencies {

@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import sp.bvantur.inspektify.ktor.InspektifyKtor
+import uz.yalla.client.core.data.BuildConfig
 import uz.yalla.client.core.domain.local.AppPreferences
 
 private val localeCache = MutableStateFlow("")
@@ -37,7 +38,9 @@ fun provideNetworkClient(
     }
 
     return HttpClient(Android) {
-        install(InspektifyKtor)
+        if (BuildConfig.DEBUG) {
+            install(InspektifyKtor)
+        }
 
         defaultRequest {
             url(baseUrl)

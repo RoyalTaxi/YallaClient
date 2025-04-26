@@ -37,6 +37,8 @@ data class MainSheetState(
 
     val comment: String = "",
     val cardList: List<CardListItemModel> = emptyList(),
+    val isBonusEnabled: Boolean = false,
+    val bonusAmount: Int = 0,
 
     val selectedPaymentType: PaymentType = PaymentType.CASH,
     val phoneNumber: String = "",
@@ -52,7 +54,8 @@ data class MainSheetState(
     val isSearchByNameSheetVisible: SearchByNameSheetValue = SearchByNameSheetValue.INVISIBLE,
     val selectFromMapViewVisibility: SelectFromMapViewValue = SelectFromMapViewValue.INVISIBLE,
     val isAddDestinationSheetVisible: Boolean = false,
-    val isArrangeDestinationsSheetVisible: Boolean = false
+    val isArrangeDestinationsSheetVisible: Boolean = false,
+    val isSetBonusAmountBottomSheetVisible: Boolean = false
 ) {
 
     fun getBadgeText(): String? = when {
@@ -96,6 +99,8 @@ data class MainSheetState(
             tariffOptions = optionsIds,
             paymentType = selectedPaymentType.typeName,
             fixedPrice = tariff.fixedType,
+            isBonusEnabled = isBonusEnabled,
+            bonusAmount = bonusAmount,
             addresses = listOf(
                 OrderTaxiDto.Address(
                     addressId = from.addressId,

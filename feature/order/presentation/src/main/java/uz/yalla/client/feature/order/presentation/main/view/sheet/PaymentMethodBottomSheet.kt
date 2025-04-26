@@ -15,13 +15,18 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import org.koin.compose.koinInject
+import uz.yalla.client.core.common.button.EnableBonusButton
 import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.common.item.SelectPaymentTypeItem
+import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
@@ -32,6 +37,7 @@ import uz.yalla.client.feature.payment.domain.model.CardListItemModel
 @Composable
 fun PaymentMethodBottomSheet(
     sheetState: SheetState,
+    isBonusEnabled: Boolean,
     paymentTypes: List<CardListItemModel>,
     selectedPaymentType: PaymentType,
     onIntent: (PaymentMethodSheetIntent) -> Unit
@@ -54,10 +60,13 @@ fun PaymentMethodBottomSheet(
             PaymentMethodContent(
                 onIntent = onIntent,
                 selectedPaymentType = selectedPaymentType,
-                paymentTypes = paymentTypes
+                paymentTypes = paymentTypes,
+                isBonusEnabled = isBonusEnabled
             )
 
-            PaymentMethodFooter{ onIntent(PaymentMethodSheetIntent.OnDismissRequest) }
+            PaymentMethodFooter {
+                onIntent(PaymentMethodSheetIntent.OnDismissRequest)
+            }
         }
     }
 }
@@ -90,15 +99,35 @@ private fun PaymentMethodHeader() {
 
 @Composable
 private fun PaymentMethodContent(
+    isBonusEnabled: Boolean,
     paymentTypes: List<CardListItemModel>,
     selectedPaymentType: PaymentType,
     onIntent: (PaymentMethodSheetIntent) -> Unit
 ) {
+    val prefs = koinInject<AppPreferences>()
+    val balance by prefs.balance.collectAsState(0)
+
     LazyColumn(
         modifier = Modifier
             .clip(RoundedCornerShape(30.dp))
             .background(YallaTheme.color.white)
     ) {
+        item {
+            EnableBonusButton(
+                balance = balance,
+                isBonusEnabled = isBonusEnabled,
+                onSwitchChecked = { isChecked ->
+                    onIntent(
+                        if (isChecked) PaymentMethodSheetIntent.EnableBonus
+                        else PaymentMethodSheetIntent.DisableBonus
+                    )
+                },
+                onClick = {
+                    onIntent(PaymentMethodSheetIntent.EnableBonus)
+                }
+            )
+        }
+
         item {
             SelectPaymentTypeItem(
                 isSelected = selectedPaymentType == PaymentType.CASH,
@@ -113,6 +142,8 @@ private fun PaymentMethodContent(
                 },
             )
         }
+
+
 
         items(paymentTypes) { card ->
             SelectPaymentTypeItem(

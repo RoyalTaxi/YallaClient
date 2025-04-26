@@ -51,6 +51,7 @@ import uz.yalla.client.core.common.R
 import uz.yalla.client.core.common.convertor.dpToPx
 import uz.yalla.client.core.common.marker.createInfoMarker
 import uz.yalla.client.core.common.utils.getCurrentLocation
+import uz.yalla.client.core.common.utils.hasLocationPermission
 import uz.yalla.client.core.common.utils.vectorToBitmapDescriptor
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.Executor
@@ -65,7 +66,6 @@ class ConcreteGoogleMap : MapStrategy, KoinComponent {
 
     override val isMarkerMoving = MutableStateFlow(false to false)
 
-    // start at (0,0); we'll update it once we collect the stored value
     override val mapPoint: MutableState<MapPoint> = mutableStateOf(MapPoint(0.0, 0.0))
 
     private var driver: MutableState<Executor?> = mutableStateOf(null)
@@ -122,6 +122,8 @@ class ConcreteGoogleMap : MapStrategy, KoinComponent {
                 }
         }
 
+        val hasLocationPermission = context.hasLocationPermission()
+
         GoogleMap(
             mergeDescendants = true,
             modifier = modifier,
@@ -129,7 +131,7 @@ class ConcreteGoogleMap : MapStrategy, KoinComponent {
             contentPadding = contentPadding,
             properties = MapProperties(
                 mapType = MapType.NORMAL,
-                isMyLocationEnabled = true
+                isMyLocationEnabled = hasLocationPermission
             ),
             uiSettings = MapUiSettings(
                 scrollGesturesEnabled = enabled,
@@ -137,7 +139,7 @@ class ConcreteGoogleMap : MapStrategy, KoinComponent {
                 compassEnabled = false,
                 mapToolbarEnabled = false,
                 zoomControlsEnabled = false,
-                myLocationButtonEnabled = false,
+                myLocationButtonEnabled = hasLocationPermission,
                 tiltGesturesEnabled = false,
                 scrollGesturesEnabledDuringRotateOrZoom = false
             ),

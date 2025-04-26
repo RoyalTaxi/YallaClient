@@ -8,15 +8,16 @@ import io.ktor.client.plugins.ResponseException
 import io.ktor.client.plugins.ServerResponseException
 import io.ktor.client.statement.HttpResponse
 import io.ktor.utils.io.errors.IOException
+import kotlinx.coroutines.delay
 import kotlinx.serialization.SerializationException
 import uz.yalla.client.core.domain.error.DataError
 import uz.yalla.client.core.domain.error.Either
 
 suspend inline fun <reified T> safeApiCall(
-    call: () -> HttpResponse
+    crossinline call: suspend () -> HttpResponse
 ): Either<T, DataError.Network> {
     return try {
-        val response = call()
+        val response = retryIO { call() }
         when (response.status.value) {
             in 200..299 -> {
                 if (T::class == Unit::class) {
@@ -46,4 +47,27 @@ suspend inline fun <reified T> safeApiCall(
     } catch (e: ResponseException) {
         Either.Error(DataError.Network.UNKNOWN_ERROR)
     }
+}
+
+
+suspend fun <T> retryIO(
+    times: Int = 3,
+    initialDelay: Long = 100,
+    maxDelay: Long = 1000,
+    factor: Double = 2.0,
+    block: suspend () -> T
+): T {
+    var currentDelay = initialDelay
+
+    repeat(times - 1) {
+        try {
+            return block()
+        } catch (_: Exception) {
+        }
+
+        delay(currentDelay)
+        currentDelay = (currentDelay * factor).toLong().coerceAtMost(maxDelay)
+    }
+
+    return block()
 }

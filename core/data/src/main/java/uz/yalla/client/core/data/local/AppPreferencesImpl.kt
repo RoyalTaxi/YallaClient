@@ -1,31 +1,26 @@
 package uz.yalla.client.core.data.local
 
-import android.content.Context
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.Preferences.Key
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import okio.Path.Companion.toPath
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.MapType
 import uz.yalla.client.core.domain.model.PaymentType
 
-private const val DATASTORE_FILE = "prefs.preferences_pb"
 
-internal class AppPreferencesImpl(context: Context) : AppPreferences {
+internal class AppPreferencesImpl(
+    private val store: DataStore<Preferences>
+) : AppPreferences {
     private val scope = CoroutineScope(Dispatchers.IO)
-
-    private val store: DataStore<Preferences> = PreferenceDataStoreFactory.createWithPath(
-        produceFile = { context.filesDir.resolve(DATASTORE_FILE).absolutePath.toPath() }
-    )
 
     private object Prefs {
         val LOCALE = stringPreferencesKey("locale")
@@ -54,6 +49,10 @@ internal class AppPreferencesImpl(context: Context) : AppPreferences {
         val INVITE_FRIENDS = stringPreferencesKey("inviteFriends")
 
         val ENTRY_LOCATION = stringPreferencesKey("entryLocation")
+        val MAX_BONUS = intPreferencesKey("maxBonus")
+        val MIN_BONUS = intPreferencesKey("minBonus")
+        val BALANCE = intPreferencesKey("balance")
+        val IS_BONUS_ENABLED = booleanPreferencesKey("isBonusEnabled")
     }
 
     private fun <T> get(key: Key<T>, default: T): Flow<T> =
@@ -184,6 +183,26 @@ internal class AppPreferencesImpl(context: Context) : AppPreferences {
         scope.launch {
             set(Prefs.ENTRY_LOCATION, "$lat,$lng")
         }
+    }
+
+    override val maxBonus: Flow<Int> = get(Prefs.MAX_BONUS, 0)
+    override fun setMaxBonus(value: Int) {
+        scope.launch { set(Prefs.MAX_BONUS, value) }
+    }
+
+    override val minBonus: Flow<Int> = get(Prefs.MIN_BONUS, 0)
+    override fun setMinBonus(value: Int) {
+        scope.launch { set(Prefs.MIN_BONUS, value) }
+    }
+
+    override val balance: Flow<Int> = get(Prefs.BALANCE, 0)
+    override fun setBalance(value: Int) {
+        scope.launch { set(Prefs.BALANCE, value) }
+    }
+
+    override val isBonusEnabled: Flow<Boolean> = get(Prefs.IS_BONUS_ENABLED, false)
+    override fun setBonusEnabled(value: Boolean) {
+        scope.launch { set(Prefs.IS_BONUS_ENABLED, value) }
     }
 
     override fun clearAll() {

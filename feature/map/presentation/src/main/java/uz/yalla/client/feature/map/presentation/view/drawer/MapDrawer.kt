@@ -38,6 +38,7 @@ fun MapDrawer(
     user: GetMeModel?,
     drawerState: DrawerState,
     notificationsCount: Int = 0,
+    bonusAmount: Int = 0,
     onIntent: (MapDrawerIntent) -> Unit,
     content: @Composable () -> Unit
 ) {
@@ -55,7 +56,7 @@ fun MapDrawer(
                 drawerShape = RoundedCornerShape(topEnd = 30.dp, bottomEnd = 30.dp),
                 drawerContainerColor = YallaTheme.color.gray2,
                 modifier = Modifier
-                    .fillMaxWidth(0.8f)
+                    .fillMaxWidth(.8f)
                     .fillMaxHeight()
                     .verticalScroll(rememberScrollState())
             ) {
@@ -65,7 +66,9 @@ fun MapDrawer(
                         onClick = { onIntent(MapDrawerIntent.Profile) }
                     )
                 }
+
                 Spacer(modifier = Modifier.height(10.dp))
+
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -77,13 +80,19 @@ fun MapDrawer(
                         painter = painterResource(R.drawable.ic_order_history),
                         onClick = { onIntent(MapDrawerIntent.OrdersHistory) }
                     )
+
                     DrawerItem(
                         title = stringResource(R.string.my_places),
                         painter = painterResource(R.drawable.ic_addresses),
                         onClick = { onIntent(MapDrawerIntent.MyPlaces) }
                     )
+
                     DrawerItem(
                         title = stringResource(R.string.bonus_and_discounts),
+                        description = stringResource(
+                            R.string.you_have_x_bonus,
+                            bonusAmount.toString()
+                        ),
                         painter = painterResource(R.drawable.ic_coin),
                         onClick = { onIntent(MapDrawerIntent.Bonus) }
                     )
@@ -108,7 +117,9 @@ fun MapDrawer(
                         onClick = { onIntent(MapDrawerIntent.PaymentType) }
                     )
                 }
+
                 Spacer(modifier = Modifier.height(10.dp))
+
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -127,6 +138,7 @@ fun MapDrawer(
                             )
                         }
                     )
+
                     DrawerItem(
                         title = stringResource(R.string.become_a_driver),
                         painter = painterResource(R.drawable.ic_driver),
@@ -139,6 +151,7 @@ fun MapDrawer(
                             )
                         }
                     )
+
                     DrawerItem(
                         title = stringResource(R.string.contuct_us),
                         painter = painterResource(R.drawable.ic_contact_us),
@@ -161,7 +174,9 @@ fun MapDrawer(
                         }
                     )
                 }
+
                 Spacer(modifier = Modifier.height(10.dp))
+
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -173,11 +188,13 @@ fun MapDrawer(
                         painter = painterResource(R.drawable.ic_setting_line),
                         onClick = { onIntent(MapDrawerIntent.Settings) }
                     )
+
                     DrawerItem(
                         title = stringResource(R.string.about_app),
                         painter = painterResource(R.drawable.ic_info),
                         onClick = { onIntent(MapDrawerIntent.AboutTheApp) }
                     )
+
                 }
             }
         }

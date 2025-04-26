@@ -16,6 +16,7 @@ sealed interface MainSheetIntent {
         data class OrderCreated(val order: ShowOrderModel) : OrderTaxiSheetIntent
         data class SetSelectedLocation(val selectedLocation: SelectedLocation) :
             OrderTaxiSheetIntent
+
         data class SetDestinations(val destinations: List<Destination>) : OrderTaxiSheetIntent
         data class AddDestination(val destination: Destination) : OrderTaxiSheetIntent
         data class SetServiceState(val available: Boolean) : OrderTaxiSheetIntent
@@ -23,6 +24,7 @@ sealed interface MainSheetIntent {
             val timeout: Int?,
             val drivers: List<Executor>
         ) : OrderTaxiSheetIntent
+
         data class SelectTariff(
             val tariff: GetTariffsModel.Tariff,
             val wasSelected: Boolean
@@ -44,6 +46,8 @@ sealed interface MainSheetIntent {
     }
 
     sealed interface PaymentMethodSheetIntent : MainSheetIntent {
+        data object EnableBonus : PaymentMethodSheetIntent
+        data object DisableBonus : PaymentMethodSheetIntent
         data object OnAddNewCard : PaymentMethodSheetIntent
         data object OnDismissRequest : PaymentMethodSheetIntent
         data class OnSelectPaymentType(val paymentType: PaymentType) : PaymentMethodSheetIntent

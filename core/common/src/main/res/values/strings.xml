@@ -24,4 +24,6 @@
     <string name="coming">Yetkazish</string>
     <string name="on_the_way">Yo\'lda</string>
     <string name="x_min">%s daq</string>
+    <string name="pay_with_bonus">Bonus bilan to\'lash</string>
+    <string name="bonus_account">Bonus hisob: %s so\'m</string>
 </resources>

@@ -133,6 +133,14 @@ class MainSheetViewModel(
                 }
 
                 is PaymentMethodSheetIntent.OnSelectPaymentType -> updatePaymentType(intent.paymentType)
+                is PaymentMethodSheetIntent.EnableBonus -> {
+                    setBonusAmountSheetVisibility(true)
+                }
+
+                is PaymentMethodSheetIntent.DisableBonus -> {
+                    setBonusAmount(0)
+                }
+
                 else -> MainSheet.mutableIntentFlow.emit(intent)
             }
         }
@@ -358,7 +366,15 @@ class MainSheetViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             uiState.value.mapToOrderTaxiDto()?.let {
                 orderTaxiUseCase(it)
-                    .onSuccess { o -> _uiState.update { s -> s.copy(orderId = o.orderId) } }
+                    .onSuccess { o ->
+                        _uiState.update { s ->
+                            s.copy(
+                                orderId = o.orderId,
+                                bonusAmount = 0,
+                                isBonusEnabled = false
+                            )
+                        }
+                    }
                     .onFailure { _uiState.update { s -> s.copy(loading = false) } }
             }
         }
@@ -408,6 +424,9 @@ class MainSheetViewModel(
     fun setArrangeDestinationsSheetVisibility(value: Boolean) =
         _uiState.update { it.copy(isArrangeDestinationsSheetVisible = value) }
 
+    private fun setBonusAmountSheetVisibility(value: Boolean) =
+        _uiState.update { it.copy(isSetBonusAmountBottomSheetVisible = value) }
+
     fun setFooterHeight(height: Dp) = updateSheetHeight { it.copy(footerHeight = height) }
     fun setSheetHeight(height: Dp) = updateSheetHeight { it.copy(sheetHeight = height) }
 
@@ -417,5 +436,15 @@ class MainSheetViewModel(
             MAIN_SHEET_ROUTE,
             uiState.value.footerHeight + uiState.value.sheetHeight
         )
+    }
+
+    fun setBonusAmount(amount: Int) {
+        setBonusAmountSheetVisibility(false)
+        _uiState.update {
+            it.copy(
+                bonusAmount = amount,
+                isBonusEnabled = amount > 0
+            )
+        }
     }
 }

@@ -55,4 +55,7 @@
     <string name="success">Buyurtma tezlashtirildi</string>
     <string name="success_body">Siz uchun mashina qidiryabmiz.</string>
     <string name="tariff">Tariff</string>
+    <string name="bonuses">Bonus: %s</string>
+    <string name="from_x_to_x">%s dan %s gacha</string>
+    <string name="use">Ishlatish</string>
 </resources>

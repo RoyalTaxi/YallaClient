@@ -37,26 +37,44 @@ import uz.yalla.client.core.common.item.OrderOptionsItem
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.presentation.R
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun BonusAccountScreen(
-    onIntent: ( BonusAccountIntent ) -> Unit
+    balance: Int,
+    onIntent: (BonusAccountIntent) -> Unit
 ) {
     Scaffold(
         containerColor = YallaTheme.color.white,
-        topBar = { BonusAccountTopBar { onIntent(BonusAccountIntent.OnNavigateBack) }},
+        topBar = {
+            BonusAccountTopBar {
+                onIntent(BonusAccountIntent.OnNavigateBack)
+            }
+        },
         modifier = Modifier
             .fillMaxSize()
             .background(YallaTheme.color.white)
             .navigationBarsPadding(),
-        content = {paddingValues ->
-            BonusAccountContent(
-                modifier = Modifier.padding(paddingValues),
-                bonusBalance = "96500",
-                onClickPromoCode = {},
-                onClickBalance = {
-                    onIntent(BonusAccountIntent.OnBonusClicked)
+        content = { paddingValues ->
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(20.dp),
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .padding(horizontal = 20.dp)
+            ) {
+                stickyHeader {
+                    Spacer(modifier = Modifier.height(40.dp))
+
+                    BonusAccountHeader()
                 }
-            )
+
+                item {
+                    BonusBalanceCard(
+                        balance = balance,
+                        enabled = false,
+                        onClickBalance = { }
+                    )
+                }
+            }
         }
     )
 }
@@ -80,47 +98,12 @@ private fun BonusAccountTopBar(
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun BonusAccountContent(
-    modifier: Modifier,
-    bonusBalance: String,
-    onClickBalance: () -> Unit,
-    onClickPromoCode: () -> Unit
-){
-    LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(20.dp),
-        modifier = modifier
-    ) {
-        stickyHeader {
-            Spacer(modifier = Modifier.height(40.dp))
-
-            BonusAccountHeader()
-
-        }
-
-        item {
-            BonusBalance(
-                balance = bonusBalance,
-                onClickBalance = onClickBalance
-            )
-        }
-        
-        item { 
-            PromoCods (
-                onEnterPromoCode = onClickPromoCode
-            )
-        }
-    }
-}
-
 @Composable
 private fun BonusAccountHeader() {
     Text(
         text = stringResource(R.string.bonus_promocode),
         color = YallaTheme.color.black,
-        style = YallaTheme.font.headline,
-        modifier = Modifier.padding(start = 20.dp, end = 60.dp)
+        style = YallaTheme.font.headline
     )
 
     Spacer(modifier = Modifier.height(20.dp))
@@ -128,22 +111,24 @@ private fun BonusAccountHeader() {
     Text(
         text = stringResource(R.string.bonus_definition),
         color = YallaTheme.color.gray,
-        style = YallaTheme.font.body,
-        modifier = Modifier.padding(start = 20.dp, end = 60.dp)
+        style = YallaTheme.font.body
     )
 }
 
 @Composable
-private fun BonusBalance(
-    balance: String,
+private fun BonusBalanceCard(
+    balance: Int,
+    enabled: Boolean = true,
     onClickBalance: () -> Unit
 ) {
     Card(
         onClick = onClickBalance,
-        colors = CardDefaults.cardColors(YallaTheme.color.primary),
+        colors = CardDefaults.cardColors(
+            containerColor = YallaTheme.color.primary,
+            disabledContainerColor = YallaTheme.color.primary
+        ),
         shape = RoundedCornerShape(20.dp),
-        modifier = Modifier
-            .padding(horizontal = 20.dp)
+        enabled = enabled
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -166,7 +151,7 @@ private fun BonusBalance(
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Text(
-                        text = balance,
+                        text = balance.toString(),
                         style = YallaTheme.font.title,
                         color = YallaTheme.color.white
                     )
@@ -179,7 +164,7 @@ private fun BonusBalance(
                 }
             }
 
-            Icon(
+            if (enabled) Icon(
                 painter = painterResource(R.drawable.ic_arrow_right),
                 contentDescription = null,
                 tint = YallaTheme.color.white
@@ -188,11 +173,11 @@ private fun BonusBalance(
     }
 }
 
+@Suppress("UNUSED")
 @Composable
-private fun PromoCods(
+private fun PromoCodes(
     onEnterPromoCode: () -> Unit
 ) {
-
     Column {
         Text(
             text = stringResource(R.string.promocodes),
@@ -209,10 +194,12 @@ private fun PromoCods(
                     contentDescription = null,
                     tint = YallaTheme.color.black
                 )
+
                 Spacer(modifier = Modifier.width(16.dp))
             },
             trailingIcon = {
                 Spacer(modifier = Modifier.width(16.dp))
+
                 Icon(
                     imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
                     contentDescription = null,

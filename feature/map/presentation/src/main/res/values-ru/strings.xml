@@ -24,4 +24,5 @@
     <string name="canceled">Отменен</string>
     <string name="notifications">Новости и уведомление</string>
     <string name="bonus_and_discounts">Бонусы и скидки</string>
+    <string name="you_have_x_bonus">У вас %s сум</string>
 </resources>

@@ -15,6 +15,8 @@ data class OrderTaxiRequest(
     val payment_type: String,
     val fixed_price: Boolean,
     val addresses: List<Address>,
+    val use_the_bonus: Boolean,
+    val bonus_amount: Int
 ) {
     @Serializable
     data class Address(

@@ -12,6 +12,7 @@ object ClientMapper {
                 surname = client?.sur_name.orEmpty(),
                 image = client?.image.orEmpty(),
                 birthday = client?.birthday.orEmpty(),
+                balance = client?.balance.or0(),
                 gender = client?.gender.orEmpty()
             )
         }

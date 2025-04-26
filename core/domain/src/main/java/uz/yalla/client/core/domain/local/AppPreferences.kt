@@ -59,5 +59,17 @@ interface AppPreferences {
     val entryLocation: Flow<Pair<Double, Double>>
     fun setEntryLocation(lat: Double, lng: Double)
 
+    val maxBonus: Flow<Int>
+    fun setMaxBonus(value: Int)
+
+    val minBonus: Flow<Int>
+    fun setMinBonus(value: Int)
+
+    val balance: Flow<Int>
+    fun setBalance(value: Int)
+
+    val isBonusEnabled: Flow<Boolean>
+    fun setBonusEnabled(value: Boolean)
+
     fun clearAll()
 }

@@ -22,4 +22,6 @@
     <string name="coming">Подача</string>
     <string name="x_min">%s мин</string>
     <string name="on_the_way">В дороге</string>
+    <string name="pay_with_bonus">Оплачивать бонусами</string>
+    <string name="bonus_account">Бонусный счет: %s сум</string>
 </resources>

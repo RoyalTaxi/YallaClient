@@ -54,4 +54,7 @@
     <string name="success">Заказ был ускорен.</string>
     <string name="success_body">Мы ищем для вас машину.</string>
     <string name="tariff">Тариф</string>
+    <string name="bonuses">Бонусы: %s</string>
+    <string name="from_x_to_x">от %s до %s</string>
+    <string name="use">Использовать</string>
 </resources>

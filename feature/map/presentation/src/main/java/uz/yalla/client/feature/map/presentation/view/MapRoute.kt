@@ -34,6 +34,7 @@ import uz.yalla.client.core.common.marker.YallaMarkerState
 import uz.yalla.client.core.common.state.MoveCameraButtonState.FirstLocation
 import uz.yalla.client.core.common.state.MoveCameraButtonState.MyRouteView
 import uz.yalla.client.core.common.state.rememberPermissionState
+import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.MapType
@@ -154,9 +155,8 @@ fun MapRoute(
 
     DisposableEffect(Unit) {
         val profileJob = vm.getMe()
-
         val notificationJob = vm.getNotificationsCount()
-
+        val getConfigJob = vm.getSettingConfigUseCase()
 
         val markerJob = scope.launch {
             map.isMarkerMoving.collectLatest { (isMarkerMoving, isByUser) ->
@@ -206,11 +206,11 @@ fun MapRoute(
 
         onDispose {
             profileJob.cancel()
+            notificationJob.cancel()
+            getConfigJob.cancel()
             markerJob.cancel()
             coordinatorJob.cancel()
-            notificationJob.cancel()
         }
-
     }
 
     LaunchedEffect(state.timeout, state.orderEndsInMinutes) {
@@ -540,6 +540,7 @@ fun MapRoute(
     MapDrawer(
         user = state.user,
         drawerState = drawerState,
+        bonusAmount = state.user?.client?.balance.or0(),
         notificationsCount = state.notificationsCount,
         onIntent = { intent ->
             when (intent) {

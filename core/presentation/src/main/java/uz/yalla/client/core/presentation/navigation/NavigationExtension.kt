@@ -1,22 +1,43 @@
 package uz.yalla.client.core.presentation.navigation
 
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-
-val NavController.canGoBack: Boolean
-    get() = this.currentBackStackEntry?.lifecycle?.currentState == Lifecycle.State.RESUMED
-
+private val NavController.isCurrentDestinationActive: Boolean
+    get() = currentBackStackEntry?.lifecycle?.currentState?.isAtLeast(Lifecycle.State.STARTED) == true
 
 fun NavController.safeNavigate(screen: String) {
-    if (canGoBack) this.navigate(screen)
+    safeLaunch {
+        withContext(Dispatchers.Main) {
+            if (isCurrentDestinationActive) navigate(screen)
+        }
+    }
 }
 
 fun NavController.safeNavigate(screen: String, navOptions: NavOptions?) {
-    if (canGoBack) this.navigate(screen, navOptions)
+    safeLaunch {
+        withContext(Dispatchers.Main) {
+            if (isCurrentDestinationActive) navigate(screen, navOptions)
+        }
+    }
 }
 
 fun NavController.safePopBackStack() {
-    if (canGoBack) this.popBackStack()
+    safeLaunch {
+        withContext(Dispatchers.Main) {
+            if (isCurrentDestinationActive) popBackStack()
+        }
+    }
+}
+
+fun NavController.safeLaunch(block: suspend CoroutineScope.() -> Unit) {
+    (this.context as? androidx.lifecycle.LifecycleOwner)?.lifecycleScope?.launch {
+        block()
+    }
 }

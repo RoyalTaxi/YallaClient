@@ -6,5 +6,6 @@ data class Client(
     val surname: String,
     val image: String,
     val birthday: String,
+    val balance: Int,
     val gender: String
 )
