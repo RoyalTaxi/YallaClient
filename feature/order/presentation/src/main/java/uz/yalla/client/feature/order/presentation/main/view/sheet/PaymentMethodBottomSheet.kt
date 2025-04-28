@@ -149,8 +149,8 @@ private fun PaymentMethodContent(
             SelectPaymentTypeItem(
                 painter = painterResource(
                     id = when (card.cardId.length) {
-                        16 -> R.drawable.img_logo_humo
-                        32 -> R.drawable.img_logo_uzcard
+                        16 -> R.drawable.ic_humo
+                        32 -> R.drawable.ic_uzcard
                         else -> R.drawable.ic_money_color
                     }
                 ),

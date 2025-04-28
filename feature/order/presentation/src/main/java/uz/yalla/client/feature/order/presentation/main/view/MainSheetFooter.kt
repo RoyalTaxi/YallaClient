@@ -23,6 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.blue
 import io.morfly.compose.bottomsheet.material3.BottomSheetState
 import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.common.state.SheetValue
@@ -95,16 +96,15 @@ fun MainSheetFooter(
     ) {
         OptionsButton(
             modifier = Modifier.fillMaxHeight(),
-            size = if (state.selectedPaymentType is PaymentType.CARD) 36.dp else 24.dp,
+            size = 36.dp,
             painter = painterResource(
                 when (state.selectedPaymentType) {
                     is PaymentType.CARD -> when (state.selectedPaymentType.cardId.length) {
-                        16 -> R.drawable.img_logo_humo
-                        32 -> R.drawable.img_logo_uzcard
-                        else -> R.drawable.ic_money_color
+                        16 -> if (state.isBonusEnabled) R.drawable.ic_humo_bonus else R.drawable.ic_humo
+                        32 -> if (state.isBonusEnabled) R.drawable.ic_uzcard_bonus else R.drawable.ic_uzcard
+                        else -> if (state.isBonusEnabled) R.drawable.ic_money_bonus else R.drawable.ic_money_color
                     }
-
-                    else -> R.drawable.ic_money_color
+                    else -> if (state.isBonusEnabled) R.drawable.ic_money_bonus else R.drawable.ic_money_color
                 }
             ),
             onClick = { onIntent(FooterIntent.ClickPaymentButton) }

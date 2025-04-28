@@ -10,7 +10,7 @@
     <string name="cash">Наличние</string>
     <string name="error_message">Вы ввели неверный код, попробуйте еще раз.</string>\
     <string name="enter_otp">Введите код безопасности</string>
-    <string name="enter_otp_definition_6digits">Введите 6-значный код, который мы отправили на номер +998%s</string>
+    <string name="enter_otp_definition_6digits">Введите 6-значный код, который мы отправили на номер %s</string>
     <string name="resend_in">Оптравить код ещё раз через %s</string>
     <string name="resend">Оптравить код ещё раз</string>
     <string name="next">Далее</string>
