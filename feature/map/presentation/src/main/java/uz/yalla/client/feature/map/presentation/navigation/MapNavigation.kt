@@ -22,8 +22,8 @@ fun NavGraphBuilder.mapScreen(
     onCancel: (Int) -> Unit,
     onAddNewCard: () -> Unit,
     onNotificationsClick: () -> Unit,
-    becomeDriverClick: (String, String) -> Unit,
-    inviteFriendClick: (String, String) -> Unit
+    onBecomeDriverClick: (String, String) -> Unit,
+    onInviteFriendClick: (String, String) -> Unit
 ) {
     composable(
         route = MAP_ROUTE
@@ -39,9 +39,9 @@ fun NavGraphBuilder.mapScreen(
             onAddNewCard = onAddNewCard,
             onAboutAppClick = onAboutAppClick,
             onContactUsClick = onContactUsClick,
-            onBecomeDriverClick = becomeDriverClick,
+            onBecomeDriverClick = onBecomeDriverClick,
             onNotificationsClick = onNotificationsClick,
-            onInviteFriendClick = inviteFriendClick,
+            onInviteFriendClick = onInviteFriendClick,
             onClickBonuses = onClickBonuses
         )
     }

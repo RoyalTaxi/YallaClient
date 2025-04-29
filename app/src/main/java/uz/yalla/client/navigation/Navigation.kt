@@ -110,8 +110,8 @@ fun Navigation(
             onAddNewCard = navController::navigateToPaymentModule,
             onAboutAppClick = navController::navigateToAboutAppScreen,
             onContactUsClick = navController::navigateToContactUsScreen,
-            becomeDriverClick = navController::navigateToWebScreen,
-            inviteFriendClick = navController::navigateToWebScreen,
+            onBecomeDriverClick = navController::navigateToWebScreen,
+            onInviteFriendClick = navController::navigateToWebScreen,
             onNotificationsClick = navController::navigateToNotificationModule,
             onClickBonuses = navController::navigateToBonusModule
         )
