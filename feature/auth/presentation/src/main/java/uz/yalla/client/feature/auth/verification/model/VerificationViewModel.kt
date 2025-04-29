@@ -66,7 +66,7 @@ class VerificationViewModel(
     fun verifyAuthCode() = viewModelScope.launch(Dispatchers.IO) {
         _actionFlow.emit(VerificationActionState.Loading)
         _uiState.value.let { state ->
-            verifyCodeUseCase(state.getFormattedNumber(), state.code.toInt())
+            verifyCodeUseCase(state.number, state.code.toInt())
                 .onSuccess { result ->
                     saveAuthResult(result)
                     getFCMToken()
@@ -81,7 +81,7 @@ class VerificationViewModel(
     fun resendAuthCode(hash: String?) = viewModelScope.launch(Dispatchers.IO) {
         _actionFlow.emit(VerificationActionState.Loading)
         _uiState.value.let { state ->
-            sendCodeUseCase(state.getFormattedNumber(), hash)
+            sendCodeUseCase(state.number, hash)
                 .onSuccess { result ->
                     _actionFlow.emit(VerificationActionState.SendSMSSuccess(result))
                 }

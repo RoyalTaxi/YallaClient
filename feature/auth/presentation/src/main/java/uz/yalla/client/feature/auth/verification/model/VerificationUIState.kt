@@ -7,6 +7,4 @@ data class VerificationUIState(
     val hasRemainingTime: Boolean = false,
     val remainingMinutes: Int = 0,
     val remainingSeconds: Int = 0,
-) {
-    fun getFormattedNumber() = "998$number"
-}
+)
