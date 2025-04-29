@@ -139,7 +139,7 @@ class ConcreteGoogleMap : MapStrategy, KoinComponent {
                 compassEnabled = false,
                 mapToolbarEnabled = false,
                 zoomControlsEnabled = false,
-                myLocationButtonEnabled = hasLocationPermission,
+                myLocationButtonEnabled = false,
                 tiltGesturesEnabled = false,
                 scrollGesturesEnabledDuringRotateOrZoom = false
             ),
