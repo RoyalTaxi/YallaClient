@@ -3,6 +3,7 @@ package uz.yalla.client.feature.payment
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.navOptions
 import androidx.navigation.navigation
 import uz.yalla.client.core.presentation.navigation.safeNavigate
 import uz.yalla.client.core.presentation.navigation.safePopBackStack
@@ -28,11 +29,11 @@ internal const val PAYMENT_ROUTE = "payment_route"
 
 fun NavGraphBuilder.paymentModule(
     navController: NavHostController
-){
+) {
     navigation(
         startDestination = CARD_LIST_ROUTE,
         route = PAYMENT_ROUTE
-    ){
+    ) {
         cardListScreen(
             onNavigateBack = navController::safePopBackStack,
             onAddNewCard = navController::navigateToAddCardScreen,
@@ -46,7 +47,14 @@ fun NavGraphBuilder.paymentModule(
         )
 
         cardVerificationScreen(
-            onNavigateBack = navController::navigateToCardListScreen
+            onNavigateBack = {
+                navController.navigateToCardListScreen(
+                    navOptions {
+                        restoreState = true
+                        popUpTo(PAYMENT_ROUTE) { inclusive = true }
+                    }
+                )
+            }
         )
 
         corporateAccountScreen(
