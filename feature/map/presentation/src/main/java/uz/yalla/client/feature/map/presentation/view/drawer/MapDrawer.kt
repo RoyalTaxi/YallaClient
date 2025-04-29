@@ -106,8 +106,8 @@ fun MapDrawer(
                         painter = painterResource(
                             when (paymentType) {
                                 is PaymentType.CARD -> when ((paymentType as PaymentType.CARD).cardId.length) {
-                                    16 -> R.drawable.img_logo_humo
-                                    32 -> R.drawable.img_logo_uzcard
+                                    16 -> R.drawable.ic_humo
+                                    32 -> R.drawable.ic_uzcard
                                     else -> uz.yalla.client.feature.order.presentation.R.drawable.ic_money
                                 }
 
