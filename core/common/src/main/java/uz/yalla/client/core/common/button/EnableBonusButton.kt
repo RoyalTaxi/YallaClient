@@ -44,7 +44,7 @@ fun EnableBonusButton(
                 )
         ) {
             Image(
-                painter = painterResource(R.drawable.ic_bonus_percent),
+                painter = painterResource(R.drawable.ic_coin),
                 contentDescription = null,
                 modifier = Modifier.size(30.dp)
             )
