@@ -186,7 +186,6 @@ object MainSheet {
             MainSheetFooter(
                 state = state,
                 sheetState = scaffoldState.sheetState,
-                primaryButtonState = buttonAndOptionsState.isButtonEnabled,
                 isTariffValidWithOptions = buttonAndOptionsState.isTariffValidWithOptions,
                 onIntent = viewModel::onIntent,
                 onHeightChanged = viewModel::setFooterHeight,

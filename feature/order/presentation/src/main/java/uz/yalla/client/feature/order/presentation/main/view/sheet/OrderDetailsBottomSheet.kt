@@ -106,10 +106,9 @@ fun OrderDetailsBottomSheet(
                         is PaymentType.CARD -> stringResource(R.string.with_card)
                         else -> stringResource(R.string.cash)
                     },
-                    descriptor = stringResource(
-                        R.string.fixed_cost,
-                        order.taxi.totalPrice
-                    )
+                    descriptor = order.taxi.totalPrice.takeIf { it != 0 }?.let {
+                        stringResource(R.string.fixed_cost, it)
+                    }
                 )
 
                 if (order.status !in OrderStatus.nonInteractive) {

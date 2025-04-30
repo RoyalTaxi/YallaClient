@@ -11,12 +11,11 @@ import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.feature.order.presentation.R
 
 @Composable
-fun RowScope.CreateOrderButton(
-    onClick: () -> Unit
-) {
+fun RowScope.SecondaryAddressMandatoryButton() {
     PrimaryButton(
-        text = stringResource(R.string.lets_go),
-        onClick = onClick,
+        text = stringResource(R.string.required_second_address),
+        enabled = false,
+        onClick = {},
         modifier = Modifier
             .weight(1f)
             .fillMaxHeight()

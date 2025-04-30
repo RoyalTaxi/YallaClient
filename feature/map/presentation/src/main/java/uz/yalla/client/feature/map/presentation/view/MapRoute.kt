@@ -160,8 +160,6 @@ fun MapRoute(
         val notificationJob = vm.getNotificationsCount()
         val getConfigJob = vm.getSettingConfigUseCase()
 
-        prefs.clearAll()
-
         val markerJob = scope.launch {
             map.isMarkerMoving.collectLatest { (isMarkerMoving, isByUser) ->
                 if (state.destinations.isEmpty()) {
@@ -381,6 +379,8 @@ fun MapRoute(
                             else -> {}
                         }
                     }
+
+                    vm.getMe()
                 }
 
                 currentRoute.contains(SEARCH_CAR_ROUTE) -> {

@@ -58,4 +58,6 @@
     <string name="from_x_to_x">от %s до %s</string>
     <string name="use">Использовать</string>
     <string name="login">Вход</string>
+    <string name="with_bonus">%s сум бонусами</string>
+    <string name="and">и</string>
 </resources>

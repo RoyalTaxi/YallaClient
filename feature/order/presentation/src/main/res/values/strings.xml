@@ -59,4 +59,6 @@
     <string name="from_x_to_x">%s dan %s gacha</string>
     <string name="use">Ishlatish</string>
     <string name="login">Kirish</string>
+    <string name="with_bonus">%s so\'m bonuslar</string>
+    <string name="and">va</string>
 </resources>
