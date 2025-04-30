@@ -13,7 +13,7 @@ class VerifyCodeUseCase(
 ) {
     suspend operator fun invoke(number: String, code: Int): Result<VerifyAuthCodeModel> {
         return withContext(dispatcher) {
-            when (val result = repository.validateAuthCode(number, code)) {
+            when (val result = repository.validateAuthCode(number.getFormattedNumber(), code)) {
                 is Either.Error -> Result.failure(Exception(result.error.name))
                 is Either.Success -> Result.success(result.data)
             }

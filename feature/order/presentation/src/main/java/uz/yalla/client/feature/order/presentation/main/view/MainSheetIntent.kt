@@ -42,6 +42,7 @@ sealed interface MainSheetIntent {
         data object ClickPaymentButton : FooterIntent
         data object CreateOrder : FooterIntent
         data object ClearOptions : FooterIntent
+        data object Register : FooterIntent
         data class ChangeSheetVisibility(val isExtended: Boolean) : FooterIntent
     }
 

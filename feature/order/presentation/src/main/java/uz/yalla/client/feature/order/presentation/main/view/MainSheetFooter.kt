@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -23,13 +25,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.blue
 import io.morfly.compose.bottomsheet.material3.BottomSheetState
+import org.koin.compose.koinInject
 import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.common.state.SheetValue
+import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
+import uz.yalla.client.feature.order.presentation.components.buttons.LoginButton
 import uz.yalla.client.feature.order.presentation.components.buttons.OptionsButton
 import uz.yalla.client.feature.order.presentation.main.model.MainSheetState
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.FooterIntent
@@ -45,6 +49,8 @@ fun MainSheetFooter(
     onIntent: (FooterIntent) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val prefs = koinInject<AppPreferences>()
+    val isDeviceRegistered by prefs.isDeviceRegistered.collectAsState(initial = true)
     val density = LocalDensity.current
     val primaryButtonText = when {
         isTariffValidWithOptions.not() -> stringResource(R.string.options_not_valid)
@@ -104,11 +110,22 @@ fun MainSheetFooter(
                         32 -> if (state.isBonusEnabled) R.drawable.ic_uzcard_bonus else R.drawable.ic_uzcard
                         else -> if (state.isBonusEnabled) R.drawable.ic_money_bonus else R.drawable.ic_money_color
                     }
+
                     else -> if (state.isBonusEnabled) R.drawable.ic_money_bonus else R.drawable.ic_money_color
                 }
             ),
             onClick = { onIntent(FooterIntent.ClickPaymentButton) }
         )
+
+        if (!isDeviceRegistered) {
+            LoginButton { onIntent(FooterIntent.Register) }
+        } else if (secondaryAddressNecassary) {
+            ChooseSecondaryAddressButton
+        } else if (options isnot configured) {
+            Clear optionsButton
+        } else {
+            Create order button
+        }
 
         PrimaryButton(
             text = primaryButtonText,

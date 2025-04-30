@@ -10,15 +10,23 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.utils.io.errors.IOException
 import kotlinx.coroutines.delay
 import kotlinx.serialization.SerializationException
+import org.koin.java.KoinJavaComponent.getKoin
 import uz.yalla.client.core.domain.error.DataError
 import uz.yalla.client.core.domain.error.Either
+import uz.yalla.client.core.domain.local.AppPreferences
 
 suspend inline fun <reified T> safeApiCall(
     crossinline call: suspend () -> HttpResponse
 ): Either<T, DataError.Network> {
+    val prefs = getKoin().get<AppPreferences>()
     return try {
         val response = retryIO { call() }
         when (response.status.value) {
+            in 401..401 -> {
+                prefs.clearAll()
+                Either.Error(DataError.Network.UNAUTHORIZED_ERROR)
+            }
+
             in 200..299 -> {
                 if (T::class == Unit::class) {
                     Either.Success(Unit as T)

@@ -13,12 +13,15 @@ class SendCodeUseCase(
 ) {
     suspend operator fun invoke(number: String, hash: String?): Result<SendAuthCodeModel> {
         return withContext(dispatcher) {
-            when (val result = repository.sendAuthCode(number.getFormattedNumber(), hash)) {
+            when (
+                val result = repository.sendAuthCode(
+                    number.getFormattedNumber(),
+                    hash
+                )
+            ) {
                 is Either.Error -> Result.failure(Exception(result.error.name))
                 is Either.Success -> Result.success(result.data)
             }
         }
     }
-
-    private fun String.getFormattedNumber() = "998$this"
 }

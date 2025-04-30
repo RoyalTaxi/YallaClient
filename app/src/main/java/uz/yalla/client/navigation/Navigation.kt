@@ -64,7 +64,6 @@ fun Navigation(
                 if (isDeviceRegistered) {
                     navController.navigateToMapScreen(
                         navOptions {
-                            restoreState = true
                             popUpTo(0) { inclusive = true }
                         }
                     )
@@ -92,7 +91,6 @@ fun Navigation(
             onNext = {
                 navController.navigateToMapScreen(
                     navOptions {
-                        restoreState = true
                         popUpTo(0) { inclusive = true }
                     }
                 )
@@ -100,6 +98,13 @@ fun Navigation(
         )
 
         mapScreen(
+            onRegisterClick = {
+                navController.navigateToAuthModule(
+                    navOptions {
+                        popUpTo(0) { inclusive = true }
+                    }
+                )
+            },
             onProfileClick = navController::navigateToEditProfileScreen,
             onOrderHistoryClick = navController::navigateToHistoryModule,
             onPaymentTypeClick = navController::navigateToPaymentModule,
@@ -126,7 +131,6 @@ fun Navigation(
             onNavigateBack = {
                 navController.navigateToMapScreen(
                     navOptions {
-                        restoreState = true
                         popUpTo(0) { inclusive = true }
                     }
                 )
@@ -141,7 +145,6 @@ fun Navigation(
                 navController.navigateToIntroModel(
                     navOptions {
                         popUpTo(0) { inclusive = true }
-                        launchSingleTop = true
                     }
                 )
             }

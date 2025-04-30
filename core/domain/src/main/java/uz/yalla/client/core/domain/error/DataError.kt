@@ -2,6 +2,7 @@ package uz.yalla.client.core.domain.error
 
 sealed interface DataError : Error {
     enum class Network : DataError {
+        UNAUTHORIZED_ERROR,
         REDIRECT_RESPONSE_ERROR,
         CLIENT_REQUEST_ERROR,
         SERVER_RESPONSE_ERROR,

@@ -23,5 +23,5 @@
     <string name="bonus_and_discounts">Bonuslar va chegirmalar</string>
     <string name="notifications">Yangiliklar va bildirishnomalar</string>
     <string name="you_have_x_bonus">Sizda %s bonus bor</string>
-    <string name="entrance">Kirish</string>
+    <string name="login">Kirish</string>
 </resources>

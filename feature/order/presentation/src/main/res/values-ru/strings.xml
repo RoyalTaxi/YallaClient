@@ -57,4 +57,5 @@
     <string name="bonuses">Бонусы: %s</string>
     <string name="from_x_to_x">от %s до %s</string>
     <string name="use">Использовать</string>
+    <string name="login">Вход</string>
 </resources>

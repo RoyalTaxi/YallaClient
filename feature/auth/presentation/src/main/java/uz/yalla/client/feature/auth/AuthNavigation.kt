@@ -3,6 +3,7 @@ package uz.yalla.client.feature.auth
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.NavOptions
 import androidx.navigation.navigation
 import uz.yalla.client.core.presentation.navigation.safeNavigate
 import uz.yalla.client.core.presentation.navigation.safePopBackStack
@@ -35,4 +36,7 @@ fun NavGraphBuilder.authModule(
     }
 }
 
-fun NavController.navigateToAuthModule() = safeNavigate(AUTH_ROUTE)
+fun NavController.navigateToAuthModule(navOptions: NavOptions? = null) = safeNavigate(
+    screen = AUTH_ROUTE,
+    navOptions = navOptions
+)

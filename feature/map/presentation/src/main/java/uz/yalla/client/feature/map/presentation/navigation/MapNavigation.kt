@@ -10,6 +10,7 @@ import uz.yalla.client.feature.map.presentation.view.MapRoute
 const val MAP_ROUTE = "map_route"
 
 fun NavGraphBuilder.mapScreen(
+    onRegisterClick: () -> Unit,
     onProfileClick: () -> Unit,
     onOrderHistoryClick: () -> Unit,
     onPaymentTypeClick: () -> Unit,
@@ -42,7 +43,8 @@ fun NavGraphBuilder.mapScreen(
             onBecomeDriverClick = onBecomeDriverClick,
             onNotificationsClick = onNotificationsClick,
             onInviteFriendClick = onInviteFriendClick,
-            onClickBonuses = onClickBonuses
+            onClickBonuses = onClickBonuses,
+            onRegister = onRegisterClick
         )
     }
 }

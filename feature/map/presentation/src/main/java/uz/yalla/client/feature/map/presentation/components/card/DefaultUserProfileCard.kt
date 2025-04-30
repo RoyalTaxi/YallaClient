@@ -42,7 +42,7 @@ fun DefaultUserProfileCard(
             )
 
             Text(
-                text = stringResource(R.string.entrance),
+                text = stringResource(R.string.login),
                 style = YallaTheme.font.labelLarge,
                 color = YallaTheme.color.black
             )

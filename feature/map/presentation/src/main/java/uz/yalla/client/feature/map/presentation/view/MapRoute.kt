@@ -61,6 +61,7 @@ import uz.yalla.client.feature.order.presentation.feedback.view.FeedbackSheetInt
 import uz.yalla.client.feature.order.presentation.main.MAIN_SHEET_ROUTE
 import uz.yalla.client.feature.order.presentation.main.navigateToMainSheet
 import uz.yalla.client.feature.order.presentation.main.view.MainSheet
+import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.OrderTaxiSheetIntent
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.PaymentMethodSheetIntent
 import uz.yalla.client.feature.order.presentation.no_service.NO_SERVICE_ROUTE
@@ -85,6 +86,7 @@ private val LocalDrawerState = compositionLocalOf { DrawerState(DrawerValue.Clos
 @Composable
 fun MapRoute(
     onPermissionDenied: () -> Unit,
+    onRegister: () -> Unit,
     onProfileClick: () -> Unit,
     onOrderHistoryClick: () -> Unit,
     onPaymentTypeClick: () -> Unit,
@@ -157,6 +159,8 @@ fun MapRoute(
         val profileJob = vm.getMe()
         val notificationJob = vm.getNotificationsCount()
         val getConfigJob = vm.getSettingConfigUseCase()
+
+        prefs.clearAll()
 
         val markerJob = scope.launch {
             map.isMarkerMoving.collectLatest { (isMarkerMoving, isByUser) ->
@@ -372,6 +376,8 @@ fun MapRoute(
 
                             is PaymentMethodSheetIntent.OnAddNewCard -> onAddNewCard()
 
+                            is MainSheetIntent.FooterIntent.Register -> onRegister()
+
                             else -> {}
                         }
                     }
@@ -555,6 +561,7 @@ fun MapRoute(
                 is MapDrawerIntent.InviteFriend -> onInviteFriendClick(intent.title, intent.url)
                 is MapDrawerIntent.Notifications -> onNotificationsClick()
                 is MapDrawerIntent.Bonus -> onClickBonuses()
+                is MapDrawerIntent.RegisterDevice -> onRegister()
             }
         },
         content = {

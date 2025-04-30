@@ -29,6 +29,7 @@ import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.map.presentation.R
+import uz.yalla.client.feature.map.presentation.components.card.DefaultUserProfileCard
 import uz.yalla.client.feature.map.presentation.components.card.UserProfileCard
 import uz.yalla.client.feature.map.presentation.components.item.DrawerItem
 import uz.yalla.client.feature.profile.domain.model.response.GetMeModel
@@ -47,6 +48,7 @@ fun MapDrawer(
     val paymentType by prefs.paymentType.collectAsState(initial = PaymentType.CASH)
     val inviteUrl by prefs.inviteFriends.collectAsState(initial = "")
     val driveUrl by prefs.becomeDrive.collectAsState(initial = "")
+    val isDeviceRegistered by prefs.isDeviceRegistered.collectAsState(initial = true)
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -60,11 +62,13 @@ fun MapDrawer(
                     .fillMaxHeight()
                     .verticalScroll(rememberScrollState())
             ) {
-                user?.let {
+                if (isDeviceRegistered) user?.let {
                     UserProfileCard(
                         client = user.client,
                         onClick = { onIntent(MapDrawerIntent.Profile) }
                     )
+                } else DefaultUserProfileCard {
+                    onIntent(MapDrawerIntent.RegisterDevice)
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))
