@@ -7,9 +7,10 @@ import androidx.navigation.NavOptions
 import androidx.navigation.navigation
 import uz.yalla.client.core.presentation.navigation.safeNavigate
 import uz.yalla.client.core.presentation.navigation.safePopBackStack
+import uz.yalla.client.feature.intro.language.navigation.LANGUAGE_ROUTE
 import uz.yalla.client.feature.intro.language.navigation.languageScreen
 import uz.yalla.client.feature.intro.language.navigation.navigateToLanguageScreen
-import uz.yalla.client.feature.intro.onboarding.navigation.ONBOARDING_ROUTE
+import uz.yalla.client.feature.intro.onboarding.navigation.navigateToOnboardingScreen
 import uz.yalla.client.feature.intro.onboarding.navigation.onboardingScreen
 import uz.yalla.client.feature.intro.permission.navigation.navigateToPermissionScreen
 import uz.yalla.client.feature.intro.permission.navigation.permissionScreen
@@ -21,21 +22,20 @@ fun NavGraphBuilder.introModule(
     onPermissionGranted: () -> Unit
 ) {
     navigation(
-        startDestination = ONBOARDING_ROUTE,
+        startDestination = LANGUAGE_ROUTE,
         route = INTRO_ROUTE
     ) {
+        languageScreen(
+            onNext = navController::navigateToOnboardingScreen
+        )
+
         onboardingScreen(
             onNext = navController::navigateToPermissionScreen,
-            onJumpNext = navController::navigateToLanguageScreen
+            onJumpNext = navController::navigateToPermissionScreen
         )
 
         permissionScreen(
-            onPermissionGranted = navController::navigateToLanguageScreen
-        )
-
-        languageScreen(
-            onBack = navController::safePopBackStack,
-            onNext = onPermissionGranted
+            onPermissionGranted = onPermissionGranted
         )
     }
 }

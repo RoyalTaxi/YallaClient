@@ -10,7 +10,6 @@ import uz.yalla.client.feature.intro.language.model.LanguageViewModel
 
 @Composable
 internal fun LanguageRoute(
-    onBack: () -> Unit,
     onNext: () -> Unit,
     vm: LanguageViewModel = koinViewModel()
 ) {
@@ -21,7 +20,6 @@ internal fun LanguageRoute(
         uiState = uiState,
         onIntent = { intent ->
             when (intent) {
-                is LanguageIntent.NavigateBack -> onBack()
                 is LanguageIntent.NavigateNext -> onNext()
                 is LanguageIntent.SetLanguage -> vm.setLanguage(
                     language = intent.language,
