@@ -77,6 +77,7 @@ object ShowOrderMapper {
 
     private val taxiMapper: Mapper<ShowOrderResponse.TaxiData?, ShowOrderModel.Taxi> = { remote ->
         ShowOrderModel.Taxi(
+            bonusAmount = remote?.bonus_amount.or0(),
             clientTotalPrice = remote?.client_total_price.or0(),
             distance = remote?.distance.or0(),
             fixedPrice = remote?.fixed_price.orFalse(),

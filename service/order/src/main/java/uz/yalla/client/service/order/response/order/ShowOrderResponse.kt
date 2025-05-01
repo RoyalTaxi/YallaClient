@@ -57,6 +57,7 @@ data class ShowOrderResponse(
 
     @Serializable
     data class TaxiData(
+        val bonus_amount: Int?,
         val client_total_price: Double?,
         val distance: Double?,
         val fixed_price: Boolean,

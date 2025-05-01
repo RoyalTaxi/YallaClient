@@ -53,6 +53,7 @@ data class ShowOrderModel(
     )
 
     data class Taxi(
+        val bonusAmount: Int,
         val clientTotalPrice: Double,
         val distance: Double,
         val fixedPrice: Boolean,

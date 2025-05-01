@@ -22,26 +22,26 @@ import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.morfly.compose.bottomsheet.material3.BottomSheetState
 import org.koin.compose.koinInject
-import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.common.state.SheetValue
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
+import uz.yalla.client.feature.order.presentation.components.buttons.ClearOptionsButton
+import uz.yalla.client.feature.order.presentation.components.buttons.CreateOrderButton
 import uz.yalla.client.feature.order.presentation.components.buttons.LoginButton
 import uz.yalla.client.feature.order.presentation.components.buttons.OptionsButton
+import uz.yalla.client.feature.order.presentation.components.buttons.SecondaryAddressMandatoryButton
 import uz.yalla.client.feature.order.presentation.main.model.MainSheetState
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.FooterIntent
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MainSheetFooter(
-    primaryButtonState: Boolean,
     isTariffValidWithOptions: Boolean,
     sheetState: BottomSheetState<SheetValue>,
     state: MainSheetState,
@@ -52,11 +52,6 @@ fun MainSheetFooter(
     val prefs = koinInject<AppPreferences>()
     val isDeviceRegistered by prefs.isDeviceRegistered.collectAsState(initial = true)
     val density = LocalDensity.current
-    val primaryButtonText = when {
-        isTariffValidWithOptions.not() -> stringResource(R.string.options_not_valid)
-        state.isSecondaryAddressMandatory && state.destinations.isEmpty() -> stringResource(R.string.required_second_address)
-        else -> stringResource(R.string.lets_go)
-    }
 
     Row(
         horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -118,24 +113,22 @@ fun MainSheetFooter(
         )
 
         if (!isDeviceRegistered) {
-            LoginButton { onIntent(FooterIntent.Register) }
-        } else if (secondaryAddressNecassary) {
-            ChooseSecondaryAddressButton
-        } else if (options isnot configured) {
-            Clear optionsButton
-        } else {
-            Create order button
-        }
+            LoginButton(
+                onClick = { onIntent(FooterIntent.Register) }
+            )
+        } else if (state.isSecondaryAddressMandatory && state.destinations.isEmpty()) {
 
-        PrimaryButton(
-            text = primaryButtonText,
-            enabled = primaryButtonState,
-            onClick = { onIntent(FooterIntent.CreateOrder) },
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxHeight()
-                .height(56.dp)
-        )
+            SecondaryAddressMandatoryButton()
+
+        } else if (!isTariffValidWithOptions) {
+
+            ClearOptionsButton()
+
+        } else {
+            CreateOrderButton(
+                onClick = { onIntent(FooterIntent.CreateOrder) }
+            )
+        }
 
         OptionsButton(
             modifier = Modifier.fillMaxHeight(),

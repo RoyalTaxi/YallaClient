@@ -29,6 +29,9 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import io.morfly.compose.bottomsheet.material3.BottomSheetScaffold
 import io.morfly.compose.bottomsheet.material3.rememberBottomSheetScaffoldState
@@ -225,15 +228,33 @@ fun FeedbackOrderInfo(
                 style = YallaTheme.font.title,
                 color = YallaTheme.color.black
             )
+            Row(
+                modifier = Modifier.fillMaxWidth()
+            ) {
 
-            Text(
-                text = when (order.paymentType) {
-                    is PaymentType.CARD -> stringResource(R.string.with_card)
-                    else -> stringResource(R.string.cash)
-                },
-                style = YallaTheme.font.label,
-                color = YallaTheme.color.gray
-            )
+                Text(
+                    text = when (order.paymentType) {
+                        is PaymentType.CARD -> stringResource(R.string.with_card)
+                        else -> stringResource(R.string.cash)
+                    },
+                    style = YallaTheme.font.label,
+                    color = YallaTheme.color.gray
+                )
+
+                order.taxi.bonusAmount.takeIf { it != 0 }?.let {
+                    Text(
+                        text = buildAnnotatedString {
+                            withStyle(style = SpanStyle(color = YallaTheme.color.gray)) {
+                                append(" ${stringResource(R.string.and)} ")
+                            }
+                            withStyle(style = SpanStyle(color = YallaTheme.color.primary)) {
+                                append(stringResource(R.string.with_bonus, it))
+                            }
+                        },
+                        style = YallaTheme.font.label,
+                    )
+                }
+            }
         }
     }
 }
