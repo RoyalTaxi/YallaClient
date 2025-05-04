@@ -19,10 +19,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
+import uz.yalla.client.feature.setting.domain.model.SocialNetwork
 
 @Composable
 fun ContactUsCard(
-    socialNetwork: Triple<Int, String, Int>,
+    socialNetwork: SocialNetwork,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
@@ -40,7 +41,7 @@ fun ContactUsCard(
                 .fillMaxWidth()
         ) {
             Icon(
-                painter = painterResource(socialNetwork.first),
+                painter = painterResource(socialNetwork.iconResId),
                 tint = Color.Unspecified,
                 contentDescription = null,
                 modifier = Modifier
@@ -48,7 +49,7 @@ fun ContactUsCard(
             )
 
             Text(
-                text = stringResource(socialNetwork.third),
+                text = stringResource(socialNetwork.titleResId),
                 style = YallaTheme.font.labelLarge,
                 color = YallaTheme.color.black,
                 textAlign = TextAlign.Center

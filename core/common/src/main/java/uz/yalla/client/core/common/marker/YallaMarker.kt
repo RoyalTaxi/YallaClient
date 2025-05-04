@@ -248,7 +248,13 @@ fun Circle(
             }
         }
 
-        if (state is YallaMarkerState.IDLE && state.timeout == null) {
+        val shouldShowInnerCircle = when (state) {
+            is YallaMarkerState.IDLE -> state.timeout == null
+            is YallaMarkerState.Searching -> true
+            else -> false
+        }
+
+        if (shouldShowInnerCircle) {
             Box(
                 modifier = modifier
                     .size(24.dp)

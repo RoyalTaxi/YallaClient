@@ -151,9 +151,9 @@ object OnTheRideSheet {
                 OrderDetailsBottomSheet(
                     order = it,
                     sheetState = orderDetailsSheetState,
-                    onDismissRequest = {
-                        viewModel.setDetailsBottomSheetVisibility(false)
-                    }
+                    onCancelOrder = {},
+                    onAddNewOrder = { viewModel.onIntent(OnTheRideSheetIntent.AddNewOrder) },
+                    onDismissRequest = { viewModel.setDetailsBottomSheetVisibility(false) }
                 )
             }
         }

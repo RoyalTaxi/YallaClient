@@ -182,6 +182,8 @@ private fun CommentFooter(
         PrimaryButton(
             text = stringResource(R.string.close),
             onClick = onClose,
+            containerColor = YallaTheme.color.gray2,
+            contentColor = YallaTheme.color.black,
             modifier = Modifier
                 .padding(20.dp)
                 .fillMaxWidth()

@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -25,6 +26,8 @@ fun OrderActionsItem(
     text: String,
     imageVector: ImageVector,
     modifier: Modifier = Modifier,
+    tintColor: Color = YallaTheme.color.gray,
+    contentColor: Color = YallaTheme.color.black,
     onClick: () -> Unit
 ) {
     Card(
@@ -40,14 +43,14 @@ fun OrderActionsItem(
             Icon(
                 imageVector = imageVector,
                 contentDescription = null,
-                tint = YallaTheme.color.gray
+                tint = tintColor
             )
 
             Spacer(modifier = Modifier.width(8.dp))
 
             Text(
                 text = text,
-                color = YallaTheme.color.black,
+                color = contentColor,
                 style = YallaTheme.font.labelSemiBold,
                 modifier = Modifier.weight(1f),
                 overflow = TextOverflow.Ellipsis
@@ -58,7 +61,7 @@ fun OrderActionsItem(
             Icon(
                 imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
                 contentDescription = null,
-                tint = YallaTheme.color.gray
+                tint = tintColor
             )
         }
     }

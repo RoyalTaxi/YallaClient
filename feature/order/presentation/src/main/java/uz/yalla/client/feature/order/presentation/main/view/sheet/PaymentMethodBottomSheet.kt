@@ -106,6 +106,7 @@ private fun PaymentMethodContent(
 ) {
     val prefs = koinInject<AppPreferences>()
     val balance by prefs.balance.collectAsState(0)
+    val minBonus by prefs.minBonus.collectAsState(0)
 
     LazyColumn(
         modifier = Modifier
@@ -116,6 +117,7 @@ private fun PaymentMethodContent(
             EnableBonusButton(
                 balance = balance,
                 isBonusEnabled = isBonusEnabled,
+                isBonusPaymentEnabled = balance > minBonus,
                 onSwitchChecked = { isChecked ->
                     onIntent(
                         if (isChecked) PaymentMethodSheetIntent.EnableBonus

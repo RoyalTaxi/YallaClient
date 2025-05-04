@@ -26,12 +26,17 @@ import uz.yalla.client.core.presentation.design.theme.YallaTheme
 fun EnableBonusButton(
     balance: Int,
     isBonusEnabled: Boolean,
+    isBonusPaymentEnabled: Boolean,
     onSwitchChecked: (Boolean) -> Unit,
     onClick: () -> Unit
 ) {
     Card(
         onClick = onClick,
-        colors = CardDefaults.cardColors(Color.Transparent)
+        colors = CardDefaults.cardColors(
+            disabledContainerColor = Color.Transparent,
+            containerColor = Color.Transparent
+        ),
+        enabled = isBonusPaymentEnabled
     ) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -68,7 +73,11 @@ fun EnableBonusButton(
 
             Switch(
                 checked = isBonusEnabled,
-                onCheckedChange = onSwitchChecked,
+                onCheckedChange = {
+                    if (isBonusPaymentEnabled) {
+                        onSwitchChecked(it)
+                    }
+                },
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = YallaTheme.color.white,
                     uncheckedThumbColor = YallaTheme.color.white,

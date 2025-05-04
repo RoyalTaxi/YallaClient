@@ -11,6 +11,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.feature.contact.R
+import uz.yalla.client.feature.setting.domain.model.SocialNetwork
+import uz.yalla.client.feature.setting.domain.model.SocialNetworkType
 import uz.yalla.client.feature.setting.domain.usecase.GetConfigUseCase
 
 internal class ContactUsViewModel(
@@ -28,32 +30,41 @@ internal class ContactUsViewModel(
         _actionState.emit(ContactUsActionState.Loading)
         getConfigUseCase()
             .onSuccess { result ->
-                _uiState.update {
-                    it.copy(
-                        socialNetworks = listOf(
-                            Triple(
-                                R.drawable.ic_telegram,
-                                result.setting.supportTelegramNickname,
-                                R.string.telegram
-                            ),
-                            Triple(
-                                R.drawable.ic_instagram,
-                                result.setting.supportInstagramNickname,
-                                R.string.instagram
-                            ),
-                            Triple(
-                                R.drawable.ic_call,
-                                result.setting.supportPhone,
-                                R.string.contuct_us
-                            ),
-                            Triple(
-                                R.drawable.ic_email,
-                                result.setting.supportEmail,
-                                R.string.email
-                            )
-                        )
+                val allSocialNetworks = listOf(
+                    SocialNetwork(
+                        iconResId = R.drawable.ic_telegram,
+                        titleResId = R.string.telegram,
+                        value = result.setting.supportTelegramNickname,
+                        type = SocialNetworkType.TELEGRAM
+                    ),
+                    SocialNetwork(
+                        iconResId = R.drawable.ic_instagram,
+                        titleResId = R.string.instagram,
+                        value = result.setting.supportInstagramNickname,
+                        type = SocialNetworkType.INSTAGRAM
+                    ),
+                    SocialNetwork(
+                        iconResId = R.drawable.ic_call,
+                        titleResId = R.string.contuct_us,
+                        value = result.setting.supportPhone,
+                        type = SocialNetworkType.PHONE
+                    ),
+                    SocialNetwork(
+                        iconResId = R.drawable.ic_email,
+                        titleResId = R.string.email,
+                        value = result.setting.supportEmail,
+                        type = SocialNetworkType.EMAIL
                     )
+                )
+
+                val filteredSocialNetworks = allSocialNetworks.filter {
+                    it.value.isNotBlank()
                 }
+
+                _uiState.update {
+                    it.copy(socialNetworks = filteredSocialNetworks)
+                }
+
                 prefs.setSupportNumber(result.setting.supportPhone)
                 _actionState.emit(ContactUsActionState.Success)
             }
