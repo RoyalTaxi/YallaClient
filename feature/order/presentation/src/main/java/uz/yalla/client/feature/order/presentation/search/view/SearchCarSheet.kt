@@ -253,6 +253,8 @@ object SearchCarSheet {
                 OrderDetailsBottomSheet(
                     order = it,
                     sheetState = orderDetailsSheetState,
+                    onAddNewOrder = { viewModel.onIntent(SearchCarSheetIntent.AddNewOrder) },
+                    onCancelOrder = { viewModel.setCancelBottomSheetVisibility(true) },
                     onDismissRequest = { viewModel.setDetailsBottomSheetVisibility(false) }
                 )
             }
@@ -283,7 +285,7 @@ object SearchCarSheet {
                     title = stringResource(R.string.error),
                     description = stringResource(R.string.error_body),
                     dismissText = stringResource(R.string.ok),
-                    onDismissRequest = { viewModel.dismissDialog()},
+                    onDismissRequest = { viewModel.dismissDialog() },
                 )
             }
 
@@ -292,11 +294,11 @@ object SearchCarSheet {
                     title = stringResource(R.string.success),
                     description = stringResource(R.string.success_body),
                     dismissText = stringResource(R.string.ok),
-                    onDismissRequest = { viewModel.dismissDialog()},
+                    onDismissRequest = { viewModel.dismissDialog() },
                 )
             }
 
-            is ConfirmationDialogEvent.Invisible -> { }
+            is ConfirmationDialogEvent.Invisible -> {}
         }
 
         DisposableEffect(Unit) {

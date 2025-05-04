@@ -25,6 +25,7 @@ import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.contact.R
 import uz.yalla.client.feature.contact.components.ContactUsCard
 import uz.yalla.client.feature.contact.model.ContactUsUIState
+import uz.yalla.client.feature.setting.domain.model.SocialNetworkType
 
 @Composable
 internal fun ContactUsScreen(
@@ -92,19 +93,19 @@ private fun SocialNetworksList(
                 ContactUsCard(
                     socialNetwork = socialNetwork,
                     onClick = {
-                        when (socialNetwork.third) {
-                            R.string.email -> onIntent(
-                                ContactUsIntent.OnClickEmail(socialNetwork.second)
+                        when (socialNetwork.type) {
+                            SocialNetworkType.EMAIL -> onIntent(
+                                ContactUsIntent.OnClickEmail(socialNetwork.value)
                             )
 
-                            R.string.contuct_us -> onIntent(
-                                ContactUsIntent.OnClickPhone(socialNetwork.second)
+                            SocialNetworkType.PHONE -> onIntent(
+                                ContactUsIntent.OnClickPhone(socialNetwork.value)
                             )
 
                             else -> onIntent(
                                 ContactUsIntent.OnClickUrl(
-                                    socialNetwork.third,
-                                    socialNetwork.second
+                                    socialNetwork.titleResId,
+                                    socialNetwork.value
                                 )
                             )
                         }

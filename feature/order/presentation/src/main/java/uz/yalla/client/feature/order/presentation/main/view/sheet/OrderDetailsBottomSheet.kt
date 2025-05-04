@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
@@ -29,13 +31,16 @@ import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 import uz.yalla.client.feature.order.presentation.R
 import uz.yalla.client.feature.order.presentation.components.buttons.ProvideDescriptionButton
 import uz.yalla.client.feature.order.presentation.components.items.OptionsItem
+import uz.yalla.client.feature.order.presentation.components.items.OrderActionsItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderDetailsBottomSheet(
     order: ShowOrderModel,
     sheetState: SheetState,
-    onDismissRequest: () -> Unit,
+    onCancelOrder: () -> Unit,
+    onAddNewOrder: () -> Unit,
+    onDismissRequest: () -> Unit
 ) {
     ModalBottomSheet(
         shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
@@ -143,18 +148,34 @@ fun OrderDetailsBottomSheet(
                         onClick = {}
                     )
                 }
-            }
 
-            if (order.taxi.services.isNotEmpty()) Column(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(30.dp))
-                    .background(YallaTheme.color.white)
-            ) {
-                order.taxi.services.forEach { service ->
-                    OptionsItem(
-                        option = service,
-                        isSelected = true,
-                        onChecked = {}
+                if (order.taxi.services.isNotEmpty()) Column(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(30.dp))
+                        .background(YallaTheme.color.white)
+                ) {
+                    order.taxi.services.forEach { service ->
+                        OptionsItem(
+                            option = service,
+                            isSelected = true,
+                            onChecked = {}
+                        )
+                    }
+                }
+
+                OrderActionsItem(
+                    text = stringResource(R.string.add_order),
+                    imageVector = Icons.Default.Add,
+                    onClick = onAddNewOrder
+                )
+
+                if (order.status != OrderStatus.InFetters) {
+                    OrderActionsItem(
+                        text = stringResource(R.string.cancel_order),
+                        imageVector = Icons.Default.Close,
+                        tintColor = YallaTheme.color.red,
+                        contentColor = YallaTheme.color.red,
+                        onClick = onCancelOrder
                     )
                 }
             }
@@ -170,6 +191,8 @@ fun OrderDetailsBottomSheet(
                 PrimaryButton(
                     text = stringResource(R.string.close),
                     onClick = onDismissRequest,
+                    containerColor = YallaTheme.color.gray2,
+                    contentColor = YallaTheme.color.black,
                     modifier = Modifier
                         .padding(20.dp)
                         .fillMaxWidth()

@@ -35,6 +35,7 @@ import uz.yalla.client.feature.order.presentation.components.buttons.ClearOption
 import uz.yalla.client.feature.order.presentation.components.buttons.CreateOrderButton
 import uz.yalla.client.feature.order.presentation.components.buttons.LoginButton
 import uz.yalla.client.feature.order.presentation.components.buttons.OptionsButton
+import uz.yalla.client.feature.order.presentation.components.buttons.PaymentOptionsButton
 import uz.yalla.client.feature.order.presentation.components.buttons.SecondaryAddressMandatoryButton
 import uz.yalla.client.feature.order.presentation.main.model.MainSheetState
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.FooterIntent
@@ -95,9 +96,14 @@ fun MainSheetFooter(
             .navigationBarsPadding()
             .padding(20.dp)
     ) {
-        OptionsButton(
+        PaymentOptionsButton(
             modifier = Modifier.fillMaxHeight(),
-            size = 36.dp,
+            cardLastNumber = when (state.selectedPaymentType) {
+                is PaymentType.CARD -> state.selectedPaymentType.cardNumber.takeIf { it.length >= 4 }
+                    ?.takeLast(4)
+
+                else -> null
+            },
             painter = painterResource(
                 when (state.selectedPaymentType) {
                     is PaymentType.CARD -> when (state.selectedPaymentType.cardId.length) {

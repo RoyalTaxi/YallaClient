@@ -237,9 +237,9 @@ object ClientWaitingSheet {
                 OrderDetailsBottomSheet(
                     order = it,
                     sheetState = orderDetailsSheetState,
-                    onDismissRequest = {
-                        viewModel.setDetailsBottomSheetVisibility(false)
-                    }
+                    onAddNewOrder = { viewModel.onIntent(ClientWaitingIntent.AddNewOrder) },
+                    onCancelOrder = { viewModel.setCancelBottomSheetVisibility(true) },
+                    onDismissRequest = { viewModel.setDetailsBottomSheetVisibility(false) }
                 )
             }
         }
