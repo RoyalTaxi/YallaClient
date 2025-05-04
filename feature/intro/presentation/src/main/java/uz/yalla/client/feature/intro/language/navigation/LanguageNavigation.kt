@@ -10,14 +10,12 @@ import uz.yalla.client.feature.intro.language.view.LanguageRoute
 internal const val LANGUAGE_ROUTE = "language_route"
 
 internal fun NavGraphBuilder.languageScreen(
-    onBack: () -> Unit,
     onNext: () -> Unit
 ) {
     composable(
         route = LANGUAGE_ROUTE
     ) {
         LanguageRoute(
-            onBack = onBack,
             onNext = onNext
         )
     }

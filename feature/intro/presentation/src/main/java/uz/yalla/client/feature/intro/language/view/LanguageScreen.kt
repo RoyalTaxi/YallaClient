@@ -34,12 +34,7 @@ internal fun LanguageScreen(
     onIntent: (LanguageIntent) -> Unit
 ) {
     Scaffold(
-        containerColor = YallaTheme.color.white,
-        topBar = {
-            LanguageAppBar {
-                onIntent(LanguageIntent.NavigateBack)
-            }
-        }
+        containerColor = YallaTheme.color.white
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -67,25 +62,6 @@ internal fun LanguageScreen(
             )
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun LanguageAppBar(
-    onClickNavigate: () -> Unit
-) {
-    TopAppBar(
-        colors = TopAppBarDefaults.topAppBarColors(YallaTheme.color.white),
-        title = {},
-        navigationIcon = {
-            IconButton(onClick = onClickNavigate) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                    contentDescription = null
-                )
-            }
-        }
-    )
 }
 
 @Composable
