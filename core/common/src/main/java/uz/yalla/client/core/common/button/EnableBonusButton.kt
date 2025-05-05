@@ -65,7 +65,14 @@ fun EnableBonusButton(
                 )
 
                 Text(
-                    text = stringResource(R.string.bonus_account, balance.toString()),
+                    text = stringResource(
+                        id = if (isBonusPaymentEnabled) {
+                            R.string.bonus_account
+                        } else {
+                            R.string.not_enough_bonus
+                        },
+                        formatArgs = arrayOf(balance.toString())
+                    ),
                     color = YallaTheme.color.gray,
                     style = YallaTheme.font.body
                 )
