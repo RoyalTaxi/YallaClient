@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "uz.yalla.client.service.setting"
+    namespace = "uz.yalla.client.service.config"
 }
 
 dependencies {

@@ -26,4 +26,7 @@
     <string name="bonus_and_discounts">Бонусы и скидки</string>
     <string name="you_have_x_bonus">У вас %s сум</string>
     <string name="login">Вход</string>
+    <string name="location_required">Требуются услуги по местоположению</string>
+    <string name="location_required_body">Пожалуйста, включите службы определения местоположения для корректного использования этого приложения</string>
+    <string name="enable_loacation">Включите службы геолокации.</string>
 </resources>

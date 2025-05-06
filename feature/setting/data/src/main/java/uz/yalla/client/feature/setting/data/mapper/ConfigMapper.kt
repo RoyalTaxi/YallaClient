@@ -2,19 +2,19 @@ package uz.yalla.client.feature.setting.data.mapper
 
 
 import uz.yalla.client.core.data.mapper.Mapper
-import uz.yalla.client.feature.setting.domain.model.SettingsModel
-import uz.yalla.client.service.setting.response.SettingsResponse
+import uz.yalla.client.feature.setting.domain.model.ConfigModel
+import uz.yalla.client.service.setting.response.ConfigResponse
 
-object SettingsMapper {
-    val mapper: Mapper<SettingsResponse?, SettingsModel> = { remote ->
-        SettingsModel(
-            setting = remote?.setting.let(settingMapper)
+object ConfigMapper {
+    val mapper: Mapper<ConfigResponse?, ConfigModel> = { remote ->
+        ConfigModel(
+            setting = remote?.setting.let(configMapper)
         )
     }
 
-    private val settingMapper: Mapper<SettingsResponse.Setting?, SettingsModel.Setting> =
+    private val configMapper: Mapper<ConfigResponse.Setting?, ConfigModel.Setting> =
         { remote ->
-            SettingsModel.Setting(
+            ConfigModel.Setting(
                 facebook = remote?.facebook.orEmpty(),
                 instagram = remote?.instagram.orEmpty(),
                 youtube = remote?.youtube.orEmpty(),

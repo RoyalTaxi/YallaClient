@@ -4,14 +4,14 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import uz.yalla.client.core.domain.error.Either
-import uz.yalla.client.feature.setting.domain.model.SettingsModel
-import uz.yalla.client.feature.setting.domain.repository.SettingRepository
+import uz.yalla.client.feature.setting.domain.model.ConfigModel
+import uz.yalla.client.feature.setting.domain.repository.ConfigRepository
 
 class GetConfigUseCase(
-    private val repository: SettingRepository,
+    private val repository: ConfigRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
-    suspend operator fun invoke(): Result<SettingsModel> {
+    suspend operator fun invoke(): Result<ConfigModel> {
         return withContext(dispatcher) {
             when (val result = repository.getConfig()) {
                 is Either.Error -> Result.failure(Exception(result.error.name))

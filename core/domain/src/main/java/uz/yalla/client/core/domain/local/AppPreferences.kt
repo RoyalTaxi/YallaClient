@@ -71,5 +71,8 @@ interface AppPreferences {
     val isBonusEnabled: Flow<Boolean>
     fun setBonusEnabled(value: Boolean)
 
+    val isCardEnabled: Flow<Boolean>
+    fun setCardEnabled(value: Boolean)
+
     fun clearAll()
 }

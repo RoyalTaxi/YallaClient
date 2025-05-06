@@ -107,6 +107,7 @@ private fun PaymentMethodContent(
     val prefs = koinInject<AppPreferences>()
     val balance by prefs.balance.collectAsState(0)
     val minBonus by prefs.minBonus.collectAsState(0)
+    val isCardEnabled: Boolean by prefs.isCardEnabled.collectAsState(false)
 
     LazyColumn(
         modifier = Modifier
@@ -145,9 +146,7 @@ private fun PaymentMethodContent(
             )
         }
 
-
-
-        items(paymentTypes) { card ->
+        if (isCardEnabled) items(paymentTypes) { card ->
             SelectPaymentTypeItem(
                 painter = painterResource(
                     id = when (card.cardId.length) {

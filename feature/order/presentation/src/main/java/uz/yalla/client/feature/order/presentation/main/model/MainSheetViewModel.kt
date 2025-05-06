@@ -67,8 +67,13 @@ class MainSheetViewModel(
 
     private val _isPolygonLoading = MutableStateFlow(false)
 
-    val buttonAndOptionsState = uiState.map(::mapToButtonAndOptionsState)
-        .stateIn(viewModelScope, SharingStarted.Lazily, ButtonAndOptionsState())
+    val buttonAndOptionsState = uiState
+        .map(::mapToButtonAndOptionsState)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Lazily,
+            initialValue = ButtonAndOptionsState()
+        )
 
     init {
         observeTimeoutUpdate()

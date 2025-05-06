@@ -3,16 +3,16 @@ package uz.yalla.client.feature.setting.data.di
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import uz.yalla.client.core.data.network.NetworkConstants
-import uz.yalla.client.feature.setting.data.repository.SettingRepositoryImpl
-import uz.yalla.client.feature.setting.domain.repository.SettingRepository
+import uz.yalla.client.feature.setting.data.repository.ConfigRepositoryImpl
+import uz.yalla.client.feature.setting.domain.repository.ConfigRepository
 import uz.yalla.client.feature.setting.domain.usecase.GetConfigUseCase
 import uz.yalla.client.feature.setting.domain.usecase.SendFCMTokenUseCase
-import uz.yalla.client.service.setting.service.SettingsService
+import uz.yalla.client.service.setting.service.ConfigService
 
 object SettingsData {
     private val serviceModule = module {
         single {
-            SettingsService(
+            ConfigService(
                 ktorPhp = get(named(NetworkConstants.API_1)),
                 ktorGo = get(named(NetworkConstants.API_2))
             )
@@ -20,7 +20,7 @@ object SettingsData {
     }
 
     private val repositoryModule = module {
-        single<SettingRepository> { SettingRepositoryImpl(get()) }
+        single<ConfigRepository> { ConfigRepositoryImpl(get()) }
     }
 
     private val useCaseModule = module {

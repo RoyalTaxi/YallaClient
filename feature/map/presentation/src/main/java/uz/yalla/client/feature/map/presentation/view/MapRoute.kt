@@ -2,7 +2,15 @@ package uz.yalla.client.feature.map.presentation.view
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.provider.Settings
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.rememberDrawerState
@@ -16,8 +24,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
+import androidx.core.app.ActivityCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.Dispatchers
@@ -27,18 +41,19 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
+import uz.yalla.client.core.common.dialog.BaseDialog
 import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.core.common.map.ConcreteGoogleMap
 import uz.yalla.client.core.common.map.MapStrategy
 import uz.yalla.client.core.common.marker.YallaMarkerState
 import uz.yalla.client.core.common.state.MoveCameraButtonState.FirstLocation
 import uz.yalla.client.core.common.state.MoveCameraButtonState.MyRouteView
-import uz.yalla.client.core.common.state.rememberPermissionState
 import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.MapType
 import uz.yalla.client.core.domain.model.OrderStatus
+import uz.yalla.client.feature.map.presentation.R
 import uz.yalla.client.feature.map.presentation.model.MapUIState
 import uz.yalla.client.feature.map.presentation.model.MapViewModel
 import uz.yalla.client.feature.map.presentation.view.drawer.MapDrawer
@@ -85,7 +100,6 @@ private val LocalDrawerState = compositionLocalOf { DrawerState(DrawerValue.Clos
 
 @Composable
 fun MapRoute(
-    onPermissionDenied: () -> Unit,
     onRegister: () -> Unit,
     onProfileClick: () -> Unit,
     onOrderHistoryClick: () -> Unit,
@@ -103,14 +117,46 @@ fun MapRoute(
     vm: MapViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     val scope = rememberCoroutineScope()
     val prefs = koinInject<AppPreferences>()
-    val permissionsGranted by rememberPermissionState(
-        permissions = listOf(
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        )
-    )
+    var permissionsGranted by remember { mutableStateOf(true) }
+
+    var showPermissionDialog by remember { mutableStateOf(false) }
+
+    val locationPermissionRequest = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        showPermissionDialog = !granted
+    }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                val finePermission = ActivityCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                )
+                val coarsePermission = ActivityCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+
+                if (showPermissionDialog)
+                    showPermissionDialog =
+                        finePermission != PackageManager.PERMISSION_GRANTED ||
+                                coarsePermission != PackageManager.PERMISSION_GRANTED
+
+                permissionsGranted = finePermission == PackageManager.PERMISSION_GRANTED ||
+                        coarsePermission == PackageManager.PERMISSION_GRANTED
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     val state by vm.uiState.collectAsState()
     val isMapEnabled by vm.isMapEnabled.collectAsState()
@@ -149,10 +195,6 @@ fun MapRoute(
 
             state.selectedOrder == null -> (context as? Activity)?.finish()
         }
-    }
-
-    LaunchedEffect(permissionsGranted) {
-        if (!permissionsGranted) onPermissionDenied()
     }
 
     DisposableEffect(Unit) {
@@ -571,6 +613,7 @@ fun MapRoute(
                 state = state,
                 moveCameraButtonState = state.moveCameraButtonState,
                 hamburgerButtonState = hamburgerButtonState,
+                hasLocationPermission = permissionsGranted,
                 navController = navController
             ) { intent ->
                 when (intent) {
@@ -636,6 +679,10 @@ fun MapRoute(
                             }
                         }
                     }
+
+                    MapScreenIntent.MapOverlayIntent.EnableGPS -> {
+                        requestPermission(context, locationPermissionRequest)
+                    }
                 }
             }
         }
@@ -643,6 +690,38 @@ fun MapRoute(
 
     if (state.loading) {
         LoadingDialog()
+    }
+
+    if (showPermissionDialog) {
+        BaseDialog(
+            title = stringResource(R.string.location_required),
+            description = stringResource(R.string.location_required_body),
+            actionText = stringResource(R.string.enable_loacation),
+            onAction = {
+                requestPermission(context, locationPermissionRequest)
+            },
+            onDismiss = {
+                showPermissionDialog = false
+            }
+        )
+    }
+}
+
+private fun requestPermission(
+    context: Context,
+    requestLauncher: ManagedActivityResultLauncher<String, Boolean>
+) {
+    val shouldShowRationale = ActivityCompat.shouldShowRequestPermissionRationale(
+        (context as Activity),
+        Manifest.permission.ACCESS_FINE_LOCATION
+    )
+    if (shouldShowRationale) {
+        requestLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+    } else {
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+            data = Uri.fromParts("package", context.packageName, null)
+        }
+        context.startActivity(intent)
     }
 }
 

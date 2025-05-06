@@ -2,9 +2,9 @@ package uz.yalla.client.feature.setting.domain.repository
 
 import uz.yalla.client.core.domain.error.DataError
 import uz.yalla.client.core.domain.error.Either
-import uz.yalla.client.feature.setting.domain.model.SettingsModel
+import uz.yalla.client.feature.setting.domain.model.ConfigModel
 
-interface SettingRepository {
-    suspend fun getConfig(): Either<SettingsModel, DataError.Network>
+interface ConfigRepository {
+    suspend fun getConfig(): Either<ConfigModel, DataError.Network>
     suspend fun sendFCMToken(token: String): Either<Unit, DataError.Network>
 }

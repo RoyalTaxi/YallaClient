@@ -5,25 +5,25 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import uz.yalla.client.service.setting.response.SettingsResponse
-import uz.yalla.client.service.setting.url.SettingsUrl
 import uz.yalla.client.core.domain.error.DataError
 import uz.yalla.client.core.domain.error.Either
 import uz.yalla.client.core.service.model.ApiResponseWrapper
 import uz.yalla.client.core.service.network.safeApiCall
 import uz.yalla.client.service.setting.request.SendFCMTokenRequest
+import uz.yalla.client.service.setting.response.ConfigResponse
+import uz.yalla.client.service.setting.url.ConfigUrl
 
-class SettingsService(
+class ConfigService(
     private val ktorPhp: HttpClient,
     private val ktorGo: HttpClient
 ) {
-    suspend fun getConfig(): Either<ApiResponseWrapper<SettingsResponse>, DataError.Network> =
+    suspend fun getConfig(): Either<ApiResponseWrapper<ConfigResponse>, DataError.Network> =
         safeApiCall {
-            ktorGo.get(SettingsUrl.CONFIG).body()
+            ktorGo.get(ConfigUrl.CONFIG).body()
         }
 
     suspend fun sendFCMToken(body: SendFCMTokenRequest): Either<Any, DataError.Network> =
         safeApiCall {
-            ktorPhp.post(SettingsUrl.FCM_TOKEN) { setBody(body) }.body()
+            ktorPhp.post(ConfigUrl.FCM_TOKEN) { setBody(body) }.body()
         }
 }

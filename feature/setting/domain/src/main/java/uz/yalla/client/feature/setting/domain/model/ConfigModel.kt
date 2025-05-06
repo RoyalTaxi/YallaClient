@@ -1,6 +1,6 @@
 package uz.yalla.client.feature.setting.domain.model
 
-data class SettingsModel(
+data class ConfigModel(
     val setting: Setting
 ) {
     data class Setting(

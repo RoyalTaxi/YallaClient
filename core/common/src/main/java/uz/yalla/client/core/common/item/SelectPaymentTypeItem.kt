@@ -29,13 +29,19 @@ fun SelectPaymentTypeItem(
     painter: Painter,
     text: String,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     tint: Color = Color.Unspecified,
     onSelect: () -> Unit,
 ) {
     Card(
         modifier = modifier,
         onClick = onSelect,
-        colors = CardDefaults.cardColors(YallaTheme.color.white)
+        enabled = enabled,
+        colors = CardDefaults.cardColors(
+            containerColor = YallaTheme.color.white,
+            disabledContainerColor = YallaTheme.color.white,
+            disabledContentColor = YallaTheme.color.gray
+        )
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,

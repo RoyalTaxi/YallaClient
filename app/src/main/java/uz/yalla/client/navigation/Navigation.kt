@@ -110,7 +110,6 @@ fun Navigation(
             onPaymentTypeClick = navController::navigateToPaymentModule,
             onAddressesClick = navController::navigateToAddressModule,
             onSettingsClick = navController::navigateToSettings,
-            onPermissionDenied = navController::navigateToIntroModel,
             onCancel = navController::navigateToCancelReasonScreen,
             onAddNewCard = navController::navigateToPaymentModule,
             onAboutAppClick = navController::navigateToAboutAppScreen,

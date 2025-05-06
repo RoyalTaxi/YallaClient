@@ -14,7 +14,8 @@ object GetSettingMapper {
             reasons = remote?.reasons?.map(reasonMapper).orEmpty(),
             minBonus = remote?.min_bonus.or0(),
             maxBonus = remote?.max_bonus.or0(),
-            isBonusEnabled = remote?.use_the_bonus.orFalse()
+            isBonusEnabled = remote?.use_the_bonus.orFalse(),
+            isCardEnabled = remote?.use_the_card.orFalse()
         )
     }
 

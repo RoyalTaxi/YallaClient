@@ -9,7 +9,8 @@ data class SettingResponse(
     val reasons: List<CancelReason>?,
     val min_bonus: Int?,
     val max_bonus: Int?,
-    val use_the_bonus: Boolean?
+    val use_the_bonus: Boolean?,
+    val use_the_card: Boolean?
 ) {
     @Serializable
     data class CancelReason(

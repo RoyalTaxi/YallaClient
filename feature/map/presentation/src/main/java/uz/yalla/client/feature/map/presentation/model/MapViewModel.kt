@@ -24,6 +24,7 @@ import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.OrderStatus
+import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.core.domain.model.SelectedLocation
 import uz.yalla.client.feature.domain.usecase.GetNotificationsCountUseCase
 import uz.yalla.client.feature.map.domain.model.request.GetRoutingDtoItem
@@ -208,8 +209,12 @@ class MapViewModel(
     fun getSettingConfigUseCase() = viewModelScope.launch(Dispatchers.IO) {
         getSettingUseCase().onSuccess { setting ->
             prefs.setBonusEnabled(setting.isBonusEnabled)
+            prefs.setCardEnabled(setting.isCardEnabled)
             prefs.setMinBonus(setting.minBonus)
             prefs.setMaxBonus(setting.maxBonus)
+
+            if (setting.isCardEnabled)
+                prefs.setPaymentType(PaymentType.CASH)
         }
     }
 

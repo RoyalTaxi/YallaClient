@@ -8,7 +8,7 @@ android {
 
 dependencies {
     implementation(projects.core.data)
-    implementation(projects.service.setting)
+    implementation(projects.service.config)
     implementation(projects.feature.setting.domain)
 
     testImplementation(projects.core.test)

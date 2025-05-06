@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.common.button.BonusOverlay
+import uz.yalla.client.core.common.button.EnableGPSButton
 import uz.yalla.client.core.common.button.MapButton
 import uz.yalla.client.core.common.marker.YallaMarker
 import uz.yalla.client.core.common.marker.YallaMarkerState
@@ -29,6 +30,7 @@ import uz.yalla.client.feature.map.presentation.view.MapScreenIntent.MapOverlayI
 fun BoxScope.MapOverlay(
     modifier: Modifier,
     state: MapUIState,
+    hasLocationPermission: Boolean,
     moveCameraButtonState: MoveCameraButtonState,
     hamburgerButtonState: HamburgerButtonState,
     onIntent: (MapOverlayIntent) -> Unit
@@ -51,22 +53,27 @@ fun BoxScope.MapOverlay(
         )
 
         if (state.markerState !is YallaMarkerState.Searching) {
-            MapButton(
-                painter = painterResource(
-                    if (moveCameraButtonState == MoveCameraButtonState.MyRouteView) R.drawable.ic_route
-                    else R.drawable.ic_location
-                ),
-                modifier = Modifier.align(Alignment.BottomEnd),
-                onClick = {
-                    when (moveCameraButtonState) {
-                        MoveCameraButtonState.MyLocationView -> onIntent(MapOverlayIntent.AnimateToMyLocation)
-                        MoveCameraButtonState.MyRouteView -> onIntent(MapOverlayIntent.MoveToMyRoute)
-                        MoveCameraButtonState.FirstLocation -> onIntent(MapOverlayIntent.MoveToFirstLocation)
+            if (state.route.isNotEmpty() || hasLocationPermission) {
+                MapButton(
+                    painter = painterResource(
+                        if (moveCameraButtonState == MoveCameraButtonState.MyRouteView) R.drawable.ic_route
+                        else R.drawable.ic_location
+                    ),
+                    modifier = Modifier.align(Alignment.BottomEnd),
+                    onClick = {
+                        when (moveCameraButtonState) {
+                            MoveCameraButtonState.MyLocationView -> onIntent(MapOverlayIntent.AnimateToMyLocation)
+                            MoveCameraButtonState.MyRouteView -> onIntent(MapOverlayIntent.MoveToMyRoute)
+                            MoveCameraButtonState.FirstLocation -> onIntent(MapOverlayIntent.MoveToFirstLocation)
+                        }
                     }
-                }
-            )
+                )
+            } else EnableGPSButton(
+                modifier = Modifier.align(Alignment.BottomEnd),
+            ) {
+                onIntent(MapOverlayIntent.EnableGPS)
+            }
         }
-
 
         Row(
             modifier = Modifier.statusBarsPadding().fillMaxWidth(),
