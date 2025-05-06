@@ -17,6 +17,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 import uz.yalla.client.connectivity.ConnectivityObserver
 import uz.yalla.client.core.common.utils.getCurrentLocation
 import uz.yalla.client.core.domain.local.AppPreferences
+import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.feature.setting.domain.usecase.GetConfigUseCase
 import uz.yalla.client.feature.setting.domain.usecase.SendFCMTokenUseCase
 import kotlin.coroutines.resume
@@ -71,6 +72,10 @@ class MainViewModel(
             prefs.setReferralLink(result.setting.inviteLinkForFriend)
             prefs.setBecomeDrive(result.setting.executorLink)
             prefs.setInviteFriends(result.setting.inviteLinkForFriend)
+            prefs.setCardEnabled(result.setting.isCardEnabled)
+
+            if (result.setting.isCardEnabled)
+                prefs.setPaymentType(PaymentType.CASH)
         }
     }
 

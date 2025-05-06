@@ -19,6 +19,7 @@ data class ConfigResponse(
         val youtube: String?,
         val telegram_nickname: String?,
         val privacy_policy_ru: String?,
-        val privacy_policy_uz: String?
+        val privacy_policy_uz: String?,
+        val payment_type: List<String>?
     )
 }

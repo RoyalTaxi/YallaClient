@@ -209,12 +209,8 @@ class MapViewModel(
     fun getSettingConfigUseCase() = viewModelScope.launch(Dispatchers.IO) {
         getSettingUseCase().onSuccess { setting ->
             prefs.setBonusEnabled(setting.isBonusEnabled)
-            prefs.setCardEnabled(setting.isCardEnabled)
             prefs.setMinBonus(setting.minBonus)
             prefs.setMaxBonus(setting.maxBonus)
-
-            if (setting.isCardEnabled)
-                prefs.setPaymentType(PaymentType.CASH)
         }
     }
 
