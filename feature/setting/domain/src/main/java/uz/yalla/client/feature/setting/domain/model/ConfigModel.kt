@@ -15,6 +15,7 @@ data class ConfigModel(
         val youtube: String,
         val telegram: String,
         val privacyPolicyRu: String,
-        val privacyPolicyUz: String
+        val privacyPolicyUz: String,
+        val isCardEnabled: Boolean
     )
 }

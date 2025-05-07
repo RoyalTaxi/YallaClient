@@ -50,7 +50,7 @@ fun provideNetworkClient(
             header("Content-Type", "application/json")
             header("Device-Mode", "mobile")
             header("Device", "client")
-            header("secret-key", "2f52434c-3068-460d-8dbc-5c80599f2db4")
+            header("secret-key", "227da29a-b4b0-4682-a74f-492466836b6e")
             header(
                 "Authorization",
                 tokenTypeCache.value + accessTokenCache.value

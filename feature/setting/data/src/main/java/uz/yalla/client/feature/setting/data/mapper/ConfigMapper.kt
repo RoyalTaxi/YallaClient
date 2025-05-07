@@ -2,6 +2,7 @@ package uz.yalla.client.feature.setting.data.mapper
 
 
 import uz.yalla.client.core.data.mapper.Mapper
+import uz.yalla.client.core.data.mapper.orFalse
 import uz.yalla.client.feature.setting.domain.model.ConfigModel
 import uz.yalla.client.service.setting.response.ConfigResponse
 
@@ -27,6 +28,7 @@ object ConfigMapper {
                 executorLink = remote?.executor_link.orEmpty(),
                 supportPhone = remote?.support_phone.orEmpty(),
                 supportInstagramNickname = remote?.support_instagram_nickname.orEmpty(),
+                isCardEnabled = remote?.payment_type?.contains("card").orFalse()
             )
         }
 }

@@ -7,7 +7,6 @@ data class SettingModel(
     val minBonus: Int,
     val maxBonus: Int,
     val isBonusEnabled: Boolean,
-    val isCardEnabled: Boolean
 ) {
     data class CancelReason(
         val id: Int,
