@@ -12,4 +12,5 @@
     <string name="delete_profile_desc">Chiqishni hohlaysizmi ?</string>
     <string name="delete">Chiqish</string>
     <string name="stay">Bekor qilish</string>
+    <string name="close">Yopish</string>
 </resources>

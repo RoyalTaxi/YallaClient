@@ -50,7 +50,13 @@ internal class EditProfileViewModel(
                     gender = Gender.fromType(result.client.gender),
                     imageUrl = result.client.image,
                     birthday = parseBirthdayOrNull(result.client.birthday),
-                    phone = result.client.phone
+                    phone = result.client.phone,
+
+                    // Original values for change detection
+                    originalName = result.client.givenNames,
+                    originalSurname = result.client.surname,
+                    originalGender = Gender.fromType(result.client.gender),
+                    originalBirthday = parseBirthdayOrNull(result.client.birthday)
                 )
             }
         }.onFailure {
@@ -70,6 +76,15 @@ internal class EditProfileViewModel(
                     image = newImageUrl
                 )
             ).onSuccess {
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        originalName = currentState.name,
+                        originalSurname = currentState.surname,
+                        originalBirthday = currentState.birthday,
+                        originalGender = currentState.gender,
+                        newImage = null
+                    )
+                }
                 _actionState.emit(EditProfileActionState.UpdateSuccess)
             }.onFailure {
                 _actionState.emit(EditProfileActionState.Error)

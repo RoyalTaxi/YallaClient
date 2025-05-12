@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.common.button.PrimaryButton
+import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
 
 @Composable
@@ -17,6 +18,7 @@ fun RowScope.CreateOrderButton(
     PrimaryButton(
         text = stringResource(R.string.lets_go),
         onClick = onClick,
+        containerColor = YallaTheme.color.black,
         modifier = Modifier
             .weight(1f)
             .fillMaxHeight()

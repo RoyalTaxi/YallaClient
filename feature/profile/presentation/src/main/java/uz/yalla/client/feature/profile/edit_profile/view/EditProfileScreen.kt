@@ -197,7 +197,16 @@ private fun ProfileContent(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        SaveButton(onClick = { onIntent(EditProfileIntent.OnSave) })
+        SaveButton(
+            onClick = {
+                if (uiState.hasChanges) {
+                    onIntent(EditProfileIntent.OnSave)
+                } else {
+                    onIntent(EditProfileIntent.OnNavigateBack)
+                }
+            },
+            hasChanges = uiState.hasChanges
+        )
     }
 }
 
@@ -217,7 +226,6 @@ private fun ProfileImage(
     Box(
         contentAlignment = Alignment.BottomEnd
     ) {
-        // The main profile image
         val imageModifier = Modifier
             .clip(CircleShape)
             .size(100.dp)
@@ -367,13 +375,18 @@ private fun GenderSelection(
 }
 
 @Composable
-private fun SaveButton(onClick: () -> Unit) {
+private fun SaveButton(
+    hasChanges: Boolean,
+    onClick: () -> Unit
+) {
     PrimaryButton(
-        text = stringResource(R.string.save),
+        text = stringResource(if (hasChanges) R.string.save else R.string.close),
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp),
         contentPadding = PaddingValues(vertical = 16.dp),
-        onClick = onClick
+        onClick = onClick,
+        containerColor = if (hasChanges) YallaTheme.color.black else YallaTheme.color.gray2,
+        contentColor = if (hasChanges) YallaTheme.color.white else YallaTheme.color.black,
     )
 }

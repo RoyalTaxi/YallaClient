@@ -17,7 +17,7 @@ internal const val AUTH_ROUTE = "auth_route"
 fun NavGraphBuilder.authModule(
     navController: NavHostController,
     onClientFound: () -> Unit,
-    onClientNotFound: (String, String) -> Unit,
+    onClientNotFound: (String, String) -> Unit
 ) {
     navigation(
         startDestination = LOGIN_ROUTE,
