@@ -16,8 +16,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.common.R
 import uz.yalla.client.core.domain.model.SearchableAddress
-import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.core.domain.model.type.PlaceType
+import uz.yalla.client.core.presentation.design.theme.YallaTheme
 
 @Composable
 fun FoundAddressItem(
