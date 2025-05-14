@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -22,37 +23,22 @@ import uz.yalla.client.feature.map.domain.usecase.SearchAddressUseCase
 import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(FlowPreview::class)
-class SearchByNameBottomSheetViewModel(
+open class BaseAddressSearchViewModel(
     private val searchAddressUseCase: SearchAddressUseCase,
     private val getPolygonUseCase: GetPolygonUseCase,
     private val getSecondaryAddressedUseCase: GetSecondaryAddressedUseCase
 ) : ViewModel() {
 
     private var addresses = listOf<PolygonRemoteItem>()
-    private var hasLoadedSecondaryAddresses = false
+    var hasLoadedSecondaryAddresses = false
 
-    private val _uiState = MutableStateFlow(SearchByNameBottomSheetState())
-    val uiState = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(AddressSearchState())
+    val uiState: StateFlow<AddressSearchState> = _uiState.asStateFlow()
 
     private val _searchQuery = MutableStateFlow("")
-    private val _destinationQuery = MutableStateFlow("")
 
     init {
         _searchQuery
-            .debounce(500.milliseconds)
-            .distinctUntilChanged()
-            .onEach { query ->
-                val lat = uiState.value.currentLat
-                val lng = uiState.value.currentLng
-                if (query.isNotBlank() && lat != null && lng != null) {
-                    searchForAddress(lat, lng, query)
-                } else {
-                    _uiState.update { it.copy(loading = false) }
-                }
-            }
-            .launchIn(viewModelScope)
-
-        _destinationQuery
             .debounce(500.milliseconds)
             .distinctUntilChanged()
             .onEach { query ->
@@ -71,7 +57,7 @@ class SearchByNameBottomSheetViewModel(
         getPolygonUseCase().onSuccess { result -> addresses = result }
     }
 
-    private fun searchForAddress(lat: Double, lng: Double, query: String) =
+    fun searchForAddress(lat: Double, lng: Double, query: String) =
         viewModelScope.launch(Dispatchers.IO) {
             searchAddressUseCase(lat, lng, query).onSuccess { result ->
                 setFoundAddresses(result)
@@ -80,7 +66,7 @@ class SearchByNameBottomSheetViewModel(
             }
         }
 
-    private fun setFoundAddresses(addresses: List<SearchForAddressItemModel>) {
+    fun setFoundAddresses(addresses: List<SearchForAddressItemModel>) {
         _uiState.update {
             it.copy(
                 loading = false,
@@ -99,7 +85,7 @@ class SearchByNameBottomSheetViewModel(
         }
     }
 
-    fun getSecondaryAddresses() {
+    open fun getSecondaryAddresses() {
         val lat = uiState.value.currentLat ?: return
         val lng = uiState.value.currentLng ?: return
 
@@ -127,20 +113,9 @@ class SearchByNameBottomSheetViewModel(
         }
     }
 
-    fun setQuery(query: String) {
-        _uiState.update { it.copy(query = query) }
+    open fun setQuery(query: String) {
+        _uiState.update { it.copy(query = query, loading = true) }
         _searchQuery.value = query
-
-        if (query.isBlank()) {
-            setFoundAddresses(emptyList())
-            if (!hasLoadedSecondaryAddresses) getSecondaryAddresses()
-            else _uiState.update { it.copy(loading = false) }
-        }
-    }
-
-    fun setDestinationQuery(query: String) {
-        _uiState.update { it.copy(destinationQuery = query) }
-        _destinationQuery.value = query
 
         if (query.isBlank()) {
             setFoundAddresses(emptyList())
@@ -151,10 +126,6 @@ class SearchByNameBottomSheetViewModel(
 
     fun setInitialQuery(query: String) {
         _uiState.update { it.copy(query = query) }
-    }
-
-    fun setInitialDestinationQuery(query: String) {
-        _uiState.update { it.copy(destinationQuery = query) }
     }
 
     fun setCurrentLocation(lat: Double, lng: Double) {
@@ -169,17 +140,19 @@ class SearchByNameBottomSheetViewModel(
         }
     }
 
-    fun resetSearchState() {
+    open fun resetSearchState() {
         _searchQuery.value = ""
-        _destinationQuery.value = ""
         _uiState.update {
             it.copy(
                 query = "",
-                destinationQuery = "",
                 recommendedAddresses = emptyList(),
                 foundAddresses = emptyList(),
                 loading = false
             )
         }
+    }
+
+    fun updateState(update: (AddressSearchState) -> AddressSearchState) {
+        _uiState.update(update)
     }
 }

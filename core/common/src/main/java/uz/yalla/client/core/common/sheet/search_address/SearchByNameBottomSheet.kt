@@ -37,6 +37,7 @@ import org.koin.androidx.compose.koinViewModel
 import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.core.common.field.SearchLocationField
 import uz.yalla.client.core.common.item.FoundAddressItem
+import uz.yalla.client.core.common.item.FoundAddressShimmer
 import uz.yalla.client.core.common.utils.getCurrentLocation
 import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.domain.model.Destination
@@ -55,7 +56,7 @@ fun SearchByNameBottomSheet(
     onClickMap: (forDestination: Boolean) -> Unit,
     isForDestination: Boolean,
     deleteDestination: (String) -> Unit,
-    viewModel: SearchByNameBottomSheetViewModel = koinViewModel()
+    viewModel: DualAddressViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
@@ -176,15 +177,21 @@ fun SearchByNameBottomSheet(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        Box {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxHeight(.8f)
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
-                    .background(YallaTheme.color.white)
-            ) {
-                if (uiState.foundAddresses.isNotEmpty()) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(.8f)
+                .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
+                .background(YallaTheme.color.white)
+        ) {
+            when {
+                uiState.loading -> {
+                    items(3) {
+                        FoundAddressShimmer()
+                    }
+                }
+
+                uiState.foundAddresses.isNotEmpty() -> {
                     items(uiState.foundAddresses) { foundAddress ->
                         FoundAddressItem(
                             foundAddress = foundAddress,
@@ -204,10 +211,9 @@ fun SearchByNameBottomSheet(
                         )
                     }
                 }
-                else if ((lastFocusedForDestination && uiState.destinationQuery.isBlank()) ||
-                    (!lastFocusedForDestination && uiState.query.isBlank())
-                ) {
 
+                (lastFocusedForDestination && uiState.destinationQuery.isBlank()) ||
+                        (!lastFocusedForDestination && uiState.query.isBlank()) -> {
                     items(uiState.recommendedAddresses) { recommendedAddress ->
                         FoundAddressItem(
                             foundAddress = recommendedAddress,
@@ -226,17 +232,6 @@ fun SearchByNameBottomSheet(
                             }
                         )
                     }
-                }
-            }
-
-            if (uiState.loading) {
-                Box(
-                    modifier = Modifier
-                        .matchParentSize()
-                        .imePadding(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    LoadingDialog()
                 }
             }
         }
