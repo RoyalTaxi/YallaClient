@@ -1,6 +1,5 @@
 package uz.yalla.client.feature.contact.view
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -86,9 +85,7 @@ private fun SocialNetworksList(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
+        LazyColumn {
             items(uiState.socialNetworks) { socialNetwork ->
                 ContactUsCard(
                     socialNetwork = socialNetwork,
