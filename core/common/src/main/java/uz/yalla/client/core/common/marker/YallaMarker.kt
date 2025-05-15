@@ -46,6 +46,7 @@ import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import uz.yalla.client.core.common.R
 import uz.yalla.client.core.common.shape.squareSize
@@ -76,7 +77,7 @@ fun YallaMarker(
                     }
 
                     jumpJob = launch {
-                        while (true) {
+                        while (isActive) {
                             jumpOffset.animateTo(
                                 targetValue = 9f,
                                 animationSpec = tween(durationMillis = 600)
@@ -89,7 +90,7 @@ fun YallaMarker(
                     }
 
                     rotationJob = launch {
-                        while (true) {
+                        while (isActive) {
                             rotation.animateTo(
                                 targetValue = 360f,
                                 animationSpec = tween(durationMillis = 1000)

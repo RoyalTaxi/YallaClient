@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import uz.yalla.client.core.domain.model.MapPoint
@@ -36,14 +37,14 @@ class SearchCarSheetViewModel(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            while (uiState.value.setting?.orderCancelTime == null) {
+            while (isActive && uiState.value.setting?.orderCancelTime == null) {
                 getSetting()
                 delay(5.seconds)
             }
         }
 
         viewModelScope.launch(Dispatchers.IO) {
-            while (true) {
+            while (isActive) {
                 delay(10.seconds)
                 mutableIntentFlow.emit(SearchCarSheetIntent.ZoomOut)
                 yield()
@@ -54,7 +55,7 @@ class SearchCarSheetViewModel(
             uiState
                 .distinctUntilChangedBy { Pair(it.searchingAddressPoint, it.tariffId) }
                 .collectLatest { state ->
-                    while (true) {
+                    while (isActive) {
                         state.searchingAddressPoint?.let { point ->
                             state.tariffId?.let { tariffId ->
                                 getTimeout(point = point, tariffId = tariffId)
@@ -78,7 +79,7 @@ class SearchCarSheetViewModel(
     }
 
     fun onIntent(intent: SearchCarSheetIntent) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             when (intent) {
                 is SearchCarSheetIntent.SetFooterHeight -> setFooterHeight(intent.height)
                 is SearchCarSheetIntent.SetHeaderHeight -> setHeaderHeight(intent.height)
@@ -90,7 +91,7 @@ class SearchCarSheetViewModel(
     }
 
     private fun getTimeout(point: MapPoint, tariffId: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             getTimeOutUseCase(point.lat, point.lng, tariffId).onSuccess { data ->
                 _uiState.update {
                     it.copy(
@@ -103,7 +104,7 @@ class SearchCarSheetViewModel(
 
     private fun getOrderDetails() {
         val orderId = uiState.value.orderId ?: return
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             getShowOrderUseCase(orderId).onSuccess { data ->
                 _uiState.update { it.copy(selectedOrder = data) }
             }
@@ -113,7 +114,7 @@ class SearchCarSheetViewModel(
     fun orderFaster() {
         val orderId = uiState.value.orderId ?: return
         _uiState.update { it.copy(isFasterEnabled = true) }
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             orderFasterUseCase(orderId)
                 .onSuccess {
                     _uiState.update { it.copy(
@@ -133,7 +134,7 @@ class SearchCarSheetViewModel(
     }
 
     private fun getSetting() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             getSettingUseCase().onSuccess { setting ->
                 _uiState.update { it.copy(setting = setting) }
             }
@@ -142,7 +143,7 @@ class SearchCarSheetViewModel(
 
     fun cancelRide() {
         val orderId = uiState.value.orderId
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             if (orderId != null) {
                 cancelRideUseCase(orderId)
             }

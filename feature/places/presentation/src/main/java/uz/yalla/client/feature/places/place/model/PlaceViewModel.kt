@@ -42,7 +42,7 @@ internal class PlaceViewModel(
             initialValue = false
         )
 
-    fun findOneAddress(id: Int) = viewModelScope.launch(Dispatchers.IO) {
+    fun findOneAddress(id: Int) = viewModelScope.launch {
         _actionFlow.emit(PlaceActionState.Loading)
         findOnePlaceUseCase(id)
             .onSuccess { result ->
@@ -52,14 +52,14 @@ internal class PlaceViewModel(
             .onFailure { _actionFlow.emit(PlaceActionState.Error(it.message.orEmpty())) }
     }
 
-    fun deleteOneAddress(id: Int) = viewModelScope.launch(Dispatchers.IO) {
+    fun deleteOneAddress(id: Int) = viewModelScope.launch {
         _actionFlow.emit(PlaceActionState.Loading)
         deleteOnePlaceUseCase(id)
             .onSuccess { _actionFlow.emit(PlaceActionState.DeleteSuccess) }
             .onFailure { _actionFlow.emit(PlaceActionState.Error(it.message.orEmpty())) }
     }
 
-    fun updateOneAddress(id: Int) = viewModelScope.launch(Dispatchers.IO) {
+    fun updateOneAddress(id: Int) = viewModelScope.launch {
         _actionFlow.emit(PlaceActionState.Loading)
         place.value.let { place ->
             if (
@@ -72,7 +72,7 @@ internal class PlaceViewModel(
         }
     }
 
-    fun createOneAddress() = viewModelScope.launch(Dispatchers.IO) {
+    fun createOneAddress() = viewModelScope.launch {
         _actionFlow.emit(PlaceActionState.Loading)
         place.value.let { place ->
             if (

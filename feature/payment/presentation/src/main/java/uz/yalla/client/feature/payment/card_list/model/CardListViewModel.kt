@@ -26,14 +26,14 @@ internal class CardListViewModel(
     val actionState = _actionState.asSharedFlow()
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             prefs.paymentType.collectLatest { type ->
                 _uiState.update { it.copy(selectedPaymentType = type) }
             }
         }
     }
 
-    fun getCardList() = viewModelScope.launch(Dispatchers.IO) {
+    fun getCardList() = viewModelScope.launch {
         _actionState.emit(CardListActionState.Loading)
         getCardListUseCase().onSuccess { result ->
             _uiState.update { it.copy(cards = result) }
@@ -44,7 +44,7 @@ internal class CardListViewModel(
     }
 
     fun selectPaymentType(paymentType: PaymentType) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             prefs.setPaymentType(paymentType)
         }
     }

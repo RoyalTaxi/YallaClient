@@ -22,7 +22,7 @@ internal class HistoryViewModel(
         getOrders()
     }
 
-    fun getOrders() = viewModelScope.launch(Dispatchers.IO) {
+    fun getOrders() = viewModelScope.launch {
         getOrdersHistoryUseCase()
             .cachedIn(viewModelScope).collectLatest {
             _orders.emit(it)

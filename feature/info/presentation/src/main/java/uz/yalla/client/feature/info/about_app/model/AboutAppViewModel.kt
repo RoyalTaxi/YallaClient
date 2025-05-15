@@ -24,7 +24,7 @@ internal class AboutAppViewModel(
     private val _actionState = MutableSharedFlow<AboutAppActionState>()
     val actionState = _actionState.asSharedFlow()
 
-    fun getConfig() = viewModelScope.launch(Dispatchers.IO) {
+    fun getConfig() = viewModelScope.launch {
         _actionState.emit(AboutAppActionState.Loading)
         getConfigUseCase()
             .onSuccess { result ->

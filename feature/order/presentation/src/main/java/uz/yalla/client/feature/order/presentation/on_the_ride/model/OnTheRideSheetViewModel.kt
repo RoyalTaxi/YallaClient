@@ -35,7 +35,7 @@ class OnTheRideSheetViewModel(
 
     private fun getOrderDetails() {
         val orderId = uiState.value.orderId ?: return
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             getShowOrderUseCase(orderId).onSuccess { data ->
                 _uiState.update { it.copy(selectedDriver = data) }
             }

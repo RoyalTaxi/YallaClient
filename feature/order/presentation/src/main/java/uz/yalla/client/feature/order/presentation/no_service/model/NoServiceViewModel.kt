@@ -26,7 +26,7 @@ class NoServiceViewModel() : ViewModel() {
     }
 
     fun onIntent(intent: NoServiceIntent) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             mutableIntentFlow.emit(intent)
         }
     }

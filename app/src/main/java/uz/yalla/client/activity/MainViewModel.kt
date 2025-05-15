@@ -67,7 +67,7 @@ class MainViewModel(
         }
     }
 
-    private fun getConfig() = viewModelScope.launch(Dispatchers.IO) {
+    private fun getConfig() = viewModelScope.launch {
         getConfigUseCase().onSuccess { result ->
             prefs.setReferralLink(result.setting.inviteLinkForFriend)
             prefs.setBecomeDrive(result.setting.executorLink)
@@ -83,7 +83,7 @@ class MainViewModel(
         prefs.accessToken.collectLatest { accessToken.value = it }
     }
 
-    private fun getLocationAndSave(context: Context) = viewModelScope.launch(Dispatchers.IO) {
+    private fun getLocationAndSave(context: Context) = viewModelScope.launch {
         repeat(MAX_LOCATION_ATTEMPTS) {
             val coordinates = withTimeoutOrNull(DEFAULT_LOCATION_TIMEOUT) {
                 fetchLocationOnce(context)
@@ -131,7 +131,7 @@ class MainViewModel(
     }
 
     private fun sendFCMToken(token: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             sendFCMTokenUseCase(token)
         }
     }

@@ -37,7 +37,7 @@ internal class CardVerificationViewModel(
         }
     }
 
-    fun addCard() = viewModelScope.launch(Dispatchers.IO) {
+    fun addCard() = viewModelScope.launch {
         _uiState.update { it.copy(code = "") }
         uiState.value.apply {
             _actionState.emit(CardVerificationActionState.Loading)
@@ -48,7 +48,7 @@ internal class CardVerificationViewModel(
 
     }
 
-    fun verifyCard() = viewModelScope.launch(Dispatchers.IO) {
+    fun verifyCard() = viewModelScope.launch {
         _actionState.emit(CardVerificationActionState.Loading)
         verifyCardUseCase(key = uiState.value.key, confirmCode = uiState.value.code)
             .onSuccess { _actionState.emit(CardVerificationActionState.VerificationSuccess) }

@@ -26,7 +26,7 @@ internal class ContactUsViewModel(
     private val _actionState = MutableSharedFlow<ContactUsActionState>()
     val actionState = _actionState.asSharedFlow()
 
-    fun getConfig() = viewModelScope.launch(Dispatchers.IO) {
+    fun getConfig() = viewModelScope.launch {
         _actionState.emit(ContactUsActionState.Loading)
         getConfigUseCase()
             .onSuccess { result ->

@@ -32,7 +32,7 @@ internal class RegistrationViewModel(
         lastName: String? = null,
         gender: Gender? = null,
         dateOfBirth: LocalDate? = null
-    ) = viewModelScope.launch(Dispatchers.IO) {
+    ) = viewModelScope.launch {
         _uiState.update { current ->
             current.copy(
                 number = number ?: current.number,
@@ -45,7 +45,7 @@ internal class RegistrationViewModel(
         }
     }
 
-    fun register() = viewModelScope.launch(Dispatchers.IO) {
+    fun register() = viewModelScope.launch {
         _actionFlow.emit(RegistrationActionState.Loading)
         _uiState.value.apply {
             registerUseCase(

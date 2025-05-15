@@ -32,7 +32,7 @@ class DriverWaitingViewModel(
     }
 
     fun onIntent(intent: DriverWaitingIntent) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             when (intent) {
                 is DriverWaitingIntent.SetFooterHeight -> setFooterHeight(intent.height)
                 is DriverWaitingIntent.SetHeaderHeight -> setHeaderHeight(intent.height)
@@ -43,7 +43,7 @@ class DriverWaitingViewModel(
 
     private fun getOrderDetails() {
         val orderId = uiState.value.orderId ?: return
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             getShowOrderUseCase(orderId).onSuccess { data ->
                 _uiState.update { it.copy(selectedDriver = data) }
             }
@@ -52,7 +52,7 @@ class DriverWaitingViewModel(
 
     fun cancelRide() {
         val orderId = uiState.value.orderId
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             if (orderId != null) {
                 cancelRideUseCase(orderId)
             }

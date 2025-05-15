@@ -50,7 +50,7 @@ class VerificationViewModel(
         hasRemainingTime: Boolean? = null,
         remainingMinutes: Int? = null,
         remainingSeconds: Int? = null
-    ) = viewModelScope.launch(Dispatchers.IO) {
+    ) = viewModelScope.launch {
         _uiState.update { current ->
             current.copy(
                 number = number ?: current.number,
@@ -63,7 +63,7 @@ class VerificationViewModel(
         }
     }
 
-    fun verifyAuthCode() = viewModelScope.launch(Dispatchers.IO) {
+    fun verifyAuthCode() = viewModelScope.launch {
         _actionFlow.emit(VerificationActionState.Loading)
         _uiState.value.let { state ->
             verifyCodeUseCase(state.number, state.code.toInt())
@@ -78,7 +78,7 @@ class VerificationViewModel(
         }
     }
 
-    fun resendAuthCode(hash: String?) = viewModelScope.launch(Dispatchers.IO) {
+    fun resendAuthCode(hash: String?) = viewModelScope.launch {
         _actionFlow.emit(VerificationActionState.Loading)
         _uiState.value.let { state ->
             sendCodeUseCase(state.number, hash)
@@ -114,7 +114,7 @@ class VerificationViewModel(
     }
 
     private fun sendFCMToken(token: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             sendFCMTokenUseCase(token)
         }
     }

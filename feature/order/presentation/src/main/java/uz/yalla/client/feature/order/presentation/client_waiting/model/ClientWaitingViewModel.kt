@@ -28,7 +28,7 @@ class ClientWaitingViewModel(
     val uiState = _uiState.asStateFlow()
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             uiState
                 .distinctUntilChangedBy { it.driverRoute }
                 .collectLatest { state ->
@@ -43,7 +43,7 @@ class ClientWaitingViewModel(
     }
 
     fun onIntent(intent: ClientWaitingIntent) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             when (intent) {
                 is ClientWaitingIntent.SetFooterHeight -> setFooterHeight(intent.height)
                 is ClientWaitingIntent.SetHeaderHeight -> setHeaderHeight(intent.height)
@@ -56,7 +56,7 @@ class ClientWaitingViewModel(
 
     private fun getOrderDetails() {
         val orderId = uiState.value.orderId ?: return
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             getShowOrderUseCase(orderId).onSuccess { order ->
                 _uiState.update { it.copy(selectedOrder = order) }
 
@@ -77,7 +77,7 @@ class ClientWaitingViewModel(
 
     fun cancelRide() {
         val orderId = uiState.value.orderId
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             if (orderId != null) {
                 cancelRideUseCase(orderId)
             }
@@ -87,7 +87,7 @@ class ClientWaitingViewModel(
     }
 
     private fun getRouteFromDriverToClient(driverPoint: MapPoint, clientPoint: MapPoint) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             val routingPoints = listOf(
                 GetRoutingDtoItem(
                     type = GetRoutingDtoItem.START,

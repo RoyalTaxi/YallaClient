@@ -41,7 +41,7 @@ internal class LoginViewModel(
         if (number.length <= 9) _phoneNumber.emit(number)
     }
 
-    fun sendAuthCode(hash: String?) = viewModelScope.launch(Dispatchers.IO) {
+    fun sendAuthCode(hash: String?) = viewModelScope.launch {
         _loading.emit(true)
         sendCodeUseCase(
             number = phoneNumber.value,

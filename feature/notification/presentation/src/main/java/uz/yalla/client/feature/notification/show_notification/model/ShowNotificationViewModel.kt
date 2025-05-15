@@ -31,7 +31,7 @@ internal class ShowNotificationViewModel(
             initialValue = true
         )
 
-    fun getNotification(id: Int) = viewModelScope.launch(Dispatchers.IO) {
+    fun getNotification(id: Int) = viewModelScope.launch {
         getNotificationUseCase(id)
             .onSuccess { result ->
                 _stateFlow.update { it.copy(notification = result) }

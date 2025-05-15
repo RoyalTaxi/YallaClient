@@ -10,7 +10,7 @@ import uz.yalla.client.feature.order.presentation.order_canceled.view.OrderCance
 class OrderCanceledSheetViewModel : ViewModel() {
 
     fun onIntent(intent: OrderCanceledSheetIntent) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             mutableIntentFlow.emit(intent)
         }
     }

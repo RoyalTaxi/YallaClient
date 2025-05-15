@@ -8,11 +8,11 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -39,7 +39,8 @@ import uz.yalla.client.feature.order.domain.usecase.tariff.GetTariffsUseCase
 import uz.yalla.client.feature.order.domain.usecase.tariff.GetTimeOutUseCase
 import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
 import uz.yalla.client.feature.order.presentation.main.MAIN_SHEET_ROUTE
-import uz.yalla.client.feature.order.presentation.main.view.MainSheet
+import uz.yalla.client.feature.order.presentation.main.view.MainSheetAction
+import uz.yalla.client.feature.order.presentation.main.view.MainSheetChannel
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.FooterIntent
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.OrderCommentSheetIntent
@@ -47,7 +48,6 @@ import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.Orde
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.PaymentMethodSheetIntent
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.TariffInfoSheetIntent
 import uz.yalla.client.feature.payment.domain.usecase.GetCardListUseCase
-import kotlin.time.Duration.Companion.seconds
 
 class MainSheetViewModel(
     private val getPolygonUseCase: GetPolygonUseCase,
@@ -67,6 +67,10 @@ class MainSheetViewModel(
 
     private val _isPolygonLoading = MutableStateFlow(false)
 
+    val timeoutUpdateTrigger = uiState
+        .map { it.selectedTariff?.id to it.selectedLocation?.point }
+        .distinctUntilChanged()
+
     val buttonAndOptionsState = uiState
         .map(::mapToButtonAndOptionsState)
         .stateIn(
@@ -75,22 +79,34 @@ class MainSheetViewModel(
             initialValue = ButtonAndOptionsState()
         )
 
-    init {
-        observeTimeoutUpdate()
-        periodicallyUpdateTimeout()
-        observeOrderIdForShowOrder()
-        observeTimeoutAndDrivers()
-        observePaymentMethod()
+    fun updateTimeout() {
+        uiState.value.run {
+            selectedLocation?.point?.takeIf { selectedTariff != null }?.let {
+                getTimeout(it)
+            }
+        }
     }
 
-    private fun observePaymentMethod() = viewModelScope.launch(Dispatchers.IO) {
+    fun observePaymentMethod() = viewModelScope.launch {
         prefs.paymentType.collectLatest { type ->
             _uiState.update { it.copy(selectedPaymentType = type) }
         }
     }
 
+    fun observeChannels() {
+        viewModelScope.launch {
+            MainSheetChannel.actionChannel.collectLatest { action ->
+                when (action) {
+                    is MainSheetAction.SetDestination -> setDestination(action.destinations)
+                    is MainSheetAction.SetLocation -> setSelectedLocation(action.location)
+                    is MainSheetAction.SetBonusInfoVisibility -> setBonusInfoVisibility(action.visible)
+                }
+            }
+        }
+    }
+
     fun onIntent(intent: MainSheetIntent) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             when (intent) {
                 is OrderTaxiSheetIntent.SelectTariff -> handleSelectTariff(intent)
                 is OrderTaxiSheetIntent.CurrentLocationClick -> setSearchByNameSheetVisibility(
@@ -146,7 +162,7 @@ class MainSheetViewModel(
                     setBonusAmount(0)
                 }
 
-                else -> MainSheet.mutableIntentFlow.emit(intent)
+                else -> MainSheetChannel.intentChannel.emit(intent)
             }
         }
     }
@@ -177,30 +193,11 @@ class MainSheetViewModel(
         uiState.value.selectedLocationId?.let { getTariffs(it) }
     }
 
-    private fun observeTimeoutUpdate() {
-        viewModelScope.launch(Dispatchers.IO) {
-            uiState.distinctUntilChangedBy { it.selectedTariff to it.selectedLocation }
-                .collectLatest { state -> state.selectedLocation?.point?.let { getTimeout(it) } }
-        }
-    }
-
-    private fun periodicallyUpdateTimeout() {
-        viewModelScope.launch(Dispatchers.IO) {
-            while (true) {
-                delay(10.seconds)
-                uiState.value.run {
-                    selectedLocation?.point?.takeIf { selectedTariff != null }
-                        ?.let { getTimeout(it) }
-                }
-            }
-        }
-    }
-
-    private fun observeTimeoutAndDrivers() {
-        viewModelScope.launch(Dispatchers.IO) {
+    fun observeTimeoutAndDrivers() {
+        viewModelScope.launch {
             uiState.distinctUntilChangedBy { it.drivers to it.timeout }
                 .collectLatest {
-                    MainSheet.mutableIntentFlow.emit(
+                    MainSheetChannel.intentChannel.emit(
                         OrderTaxiSheetIntent.SetTimeout(
                             it.timeout,
                             it.drivers
@@ -210,8 +207,8 @@ class MainSheetViewModel(
         }
     }
 
-    private fun observeOrderIdForShowOrder() {
-        viewModelScope.launch(Dispatchers.IO) {
+    fun observeOrderIdForShowOrder() {
+        viewModelScope.launch {
             uiState.distinctUntilChangedBy { it.orderId }
                 .collectLatest { it.orderId?.let(::getShowOrder) }
         }
@@ -239,7 +236,7 @@ class MainSheetViewModel(
         refreshTariffsIfPossible()
     }
 
-    fun setSelectedLocation(selectedLocation: SelectedLocation) {
+    private fun setSelectedLocation(selectedLocation: SelectedLocation) {
         viewModelScope.launch {
             val fallback = prefs.entryLocation.first()
             val point = selectedLocation.point
@@ -259,11 +256,11 @@ class MainSheetViewModel(
 
         if (inside && addressId != null) {
             suspendGetTariffs(addressId)
-            MainSheet.mutableIntentFlow.emit(OrderTaxiSheetIntent.SetServiceState(true))
+            MainSheetChannel.intentChannel.emit(OrderTaxiSheetIntent.SetServiceState(true))
         } else {
             setSelectedTariff(null)
             handleTariffsFailure()
-            MainSheet.mutableIntentFlow.emit(OrderTaxiSheetIntent.SetServiceState(false))
+            MainSheetChannel.intentChannel.emit(OrderTaxiSheetIntent.SetServiceState(false))
         }
     }
 
@@ -340,11 +337,11 @@ class MainSheetViewModel(
         }
     }
 
-    private fun getTariffs(addressId: Int) = viewModelScope.launch(Dispatchers.IO) {
+    private fun getTariffs(addressId: Int) = viewModelScope.launch {
         suspendGetTariffs(addressId)
     }
 
-    private fun getTimeout(point: MapPoint) = viewModelScope.launch(Dispatchers.IO) {
+    private fun getTimeout(point: MapPoint) = viewModelScope.launch {
         uiState.value.selectedTariff?.id?.let {
             getTimeOutUseCase(point.lat, point.lng, it).onSuccess { result ->
                 _uiState.update { state ->
@@ -357,9 +354,9 @@ class MainSheetViewModel(
         }
     }
 
-    private fun getShowOrder(id: Int) = viewModelScope.launch(Dispatchers.IO) {
+    private fun getShowOrder(id: Int) = viewModelScope.launch {
         getShowOrderUseCase(id).onSuccess {
-            MainSheet.mutableIntentFlow.emit(OrderTaxiSheetIntent.OrderCreated(it))
+            MainSheetChannel.intentChannel.emit(OrderTaxiSheetIntent.OrderCreated(it))
             _uiState.update { s -> s.copy(order = it, loading = false) }
         }.onFailure {
             _uiState.update { s -> s.copy(loading = false) }
@@ -368,7 +365,7 @@ class MainSheetViewModel(
 
     private fun orderTaxi() {
         _uiState.update { it.copy(loading = true) }
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             uiState.value.mapToOrderTaxiDto()?.let {
                 orderTaxiUseCase(it)
                     .onSuccess { o ->
@@ -393,7 +390,7 @@ class MainSheetViewModel(
 
     private fun MapPoint.toPair() = lat to lng
 
-    fun getPolygon() = viewModelScope.launch(Dispatchers.IO) {
+    fun getPolygon() = viewModelScope.launch {
         if (_isPolygonLoading.value) return@launch
         _isPolygonLoading.value = true
         try {
@@ -405,11 +402,11 @@ class MainSheetViewModel(
         }
     }
 
-    fun getCardList() = viewModelScope.launch(Dispatchers.IO) {
+    fun getCardList() = viewModelScope.launch {
         getCardListUseCase().onSuccess { res -> _uiState.update { it.copy(cardList = res) } }
     }
 
-    fun setDestination(dest: List<Destination>) {
+    private fun setDestination(dest: List<Destination>) {
         _uiState.update { it.copy(destinations = dest) }
         refreshTariffsIfPossible()
     }

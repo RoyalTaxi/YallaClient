@@ -20,7 +20,7 @@ internal class CorporateAccountViewModel : ViewModel() {
     val actionState = _actionState.asSharedFlow()
 
     fun processIntent(intent: CorporateAccountIntent) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             _uiState.update { currentState ->
                 when (intent) {
                     is CorporateAccountIntent.SetCompanyName -> currentState.copy(name = intent.name)

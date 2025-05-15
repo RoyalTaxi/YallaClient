@@ -32,13 +32,16 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.android.awaitFrame
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import uz.yalla.client.core.common.dialog.BaseDialog
@@ -46,8 +49,6 @@ import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.core.common.map.ConcreteGoogleMap
 import uz.yalla.client.core.common.map.MapStrategy
 import uz.yalla.client.core.common.marker.YallaMarkerState
-import uz.yalla.client.core.common.state.MoveCameraButtonState.FirstLocation
-import uz.yalla.client.core.common.state.MoveCameraButtonState.MyRouteView
 import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.MapPoint
@@ -75,7 +76,8 @@ import uz.yalla.client.feature.order.presentation.feedback.view.FeedbackSheet
 import uz.yalla.client.feature.order.presentation.feedback.view.FeedbackSheetIntent
 import uz.yalla.client.feature.order.presentation.main.MAIN_SHEET_ROUTE
 import uz.yalla.client.feature.order.presentation.main.navigateToMainSheet
-import uz.yalla.client.feature.order.presentation.main.view.MainSheet
+import uz.yalla.client.feature.order.presentation.main.view.MainSheetAction
+import uz.yalla.client.feature.order.presentation.main.view.MainSheetChannel
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.OrderTaxiSheetIntent
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.PaymentMethodSheetIntent
@@ -95,6 +97,7 @@ import uz.yalla.client.feature.order.presentation.search.SEARCH_CAR_ROUTE
 import uz.yalla.client.feature.order.presentation.search.navigateToSearchForCarBottomSheet
 import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheet
 import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheetIntent
+import kotlin.time.Duration.Companion.seconds
 
 private val LocalDrawerState = compositionLocalOf { DrawerState(DrawerValue.Closed) }
 
@@ -197,83 +200,41 @@ fun MapRoute(
         }
     }
 
-    DisposableEffect(Unit) {
-        val profileJob = vm.getMe()
-        val notificationJob = vm.getNotificationsCount()
-        val getConfigJob = vm.getSettingConfigUseCase()
-
-        val markerJob = scope.launch {
-            map.isMarkerMoving.collectLatest { (isMarkerMoving, isByUser) ->
-                if (state.destinations.isEmpty()) {
-                    when {
-                        isMarkerMoving.not() && state.selectedOrder == null -> {
-                            withContext(Dispatchers.IO) {
-                                vm.getAddressName(map.mapPoint.value)
-                            }
-                        }
-
-                        state.route.isEmpty() && state.selectedOrder?.status == null -> {
-                            vm.setStateToNotFound()
-                        }
-                    }
-                }
-                if (!isMarkerMoving)
-                    when {
-                        state.moveCameraButtonState == MyRouteView && isByUser -> vm.updateState(
-                            state.copy(
-                                moveCameraButtonState = MyRouteView
-                            )
-                        )
-
-                        state.moveCameraButtonState == MyRouteView && !isByUser -> vm.updateState(
-                            state.copy(
-                                moveCameraButtonState = FirstLocation
-                            )
-                        )
-
-                        state.moveCameraButtonState == FirstLocation -> vm.updateState(
-                            state.copy(
-                                moveCameraButtonState = MyRouteView
-                            )
-                        )
-                    }
+    LaunchedEffect(Unit) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            while (isActive) {
+                vm.getActiveOrders()
+                delay(5.seconds)
             }
         }
+    }
 
-        val coordinatorJob = scope.launch {
+    LaunchedEffect(true) {
+        launch {
+            vm.getMe()
+            vm.getNotificationsCount()
+            vm.getSettingConfig()
+        }
+
+        launch {
+            vm.collectMarkerMovement(
+                point = map.mapPoint,
+                collectable = map.isMarkerMoving
+            )
+        }
+
+        launch {
             SheetCoordinator.currentSheetState.collectLatest { sheetState ->
                 sheetState?.let { (_, height) ->
                     handleSheetHeightChange(height, map, vm, state)
                 }
             }
         }
-
-        onDispose {
-            profileJob.cancel()
-            notificationJob.cancel()
-            getConfigJob.cancel()
-            markerJob.cancel()
-            coordinatorJob.cancel()
-        }
     }
 
     LaunchedEffect(state.timeout, state.orderEndsInMinutes) {
         map.updateCarArrivesInMinutes(state.timeout)
         map.updateOrderEndsInMinutes(state.orderEndsInMinutes)
-    }
-
-    fun shouldNavigateToSheet(routePattern: String, orderId: Int): Boolean {
-        val currentDestination = navController.currentDestination
-        val thisRoute = currentDestination?.route ?: ""
-
-        if (!thisRoute.contains(routePattern)) {
-            return true
-        }
-
-        val currentBackStackEntry = navController.currentBackStackEntry
-        val currentOrderId = currentBackStackEntry?.arguments?.getInt(ORDER_ID, -1) ?: -1
-
-        return currentOrderId != orderId
     }
 
     LaunchedEffect(state.selectedOrder) {
@@ -287,7 +248,7 @@ fun MapRoute(
 
         when (order?.status) {
             OrderStatus.Appointed -> {
-                if (shouldNavigateToSheet(CLIENT_WAITING_ROUTE, order.id)) {
+                if (navController.shouldNavigateToSheet(CLIENT_WAITING_ROUTE, order.id)) {
                     navController.navigateToClientWaitingSheet(orderId = order.id)
                 }
 
@@ -297,7 +258,7 @@ fun MapRoute(
             }
 
             OrderStatus.AtAddress -> {
-                if (shouldNavigateToSheet(DRIVER_WAITING_ROUTE, order.id)) {
+                if (navController.shouldNavigateToSheet(DRIVER_WAITING_ROUTE, order.id)) {
                     navController.navigateToDriverWaitingSheet(orderId = order.id)
                 }
 
@@ -315,13 +276,13 @@ fun MapRoute(
             }
 
             OrderStatus.Completed -> {
-                if (shouldNavigateToSheet(FEEDBACK_ROUTE, order.id)) {
+                if (navController.shouldNavigateToSheet(FEEDBACK_ROUTE, order.id)) {
                     navController.navigateToFeedbackSheet(orderId = order.id)
                 }
             }
 
             OrderStatus.InFetters -> {
-                if (shouldNavigateToSheet(ON_THE_RIDE_ROUTE, order.id)) {
+                if (navController.shouldNavigateToSheet(ON_THE_RIDE_ROUTE, order.id)) {
                     navController.navigateToOnTheRideSheet(orderId = order.id)
                 }
 
@@ -346,7 +307,7 @@ fun MapRoute(
             }
 
             else -> {
-                if (shouldNavigateToSheet(SEARCH_CAR_ROUTE, order.id)) {
+                if (navController.shouldNavigateToSheet(SEARCH_CAR_ROUTE, order.id)) {
                     order.taxi.routes.firstOrNull()?.coords?.let { coordinate ->
                         navController.navigateToSearchForCarBottomSheet(
                             tariffId = order.taxi.tariffId,
@@ -379,11 +340,11 @@ fun MapRoute(
         }
     }
 
-    DisposableEffect(currentRoute) {
-        val job = scope.launch(Dispatchers.Main) {
+    LaunchedEffect(currentRoute) {
+        launch(Dispatchers.Main) {
             when {
                 currentRoute.contains(MAIN_SHEET_ROUTE) || currentRoute.contains(NO_SERVICE_ROUTE) -> {
-                    MainSheet.intentFlow.collectLatest { intent ->
+                    MainSheetChannel.intentChannel.collectLatest { intent ->
                         when (intent) {
                             is OrderTaxiSheetIntent.SetSelectedLocation -> {
                                 vm.updateState(state.copy(selectedLocation = intent.selectedLocation))
@@ -523,10 +484,6 @@ fun MapRoute(
                 }
             }
         }
-
-        onDispose {
-            job.cancel()
-        }
     }
 
     LaunchedEffect(state.hasServiceProvided) {
@@ -622,7 +579,11 @@ fun MapRoute(
                     }
 
                     is MapScreenIntent.MapOverlayIntent.OnClickBonus -> {
-                        MainSheet.setBonusInfoSheetVisibility(true)
+                        scope.launch {
+                            MainSheetChannel.actionChannel.emit(
+                                MainSheetAction.SetBonusInfoVisibility(true)
+                            )
+                        }
                     }
 
                     is MapScreenIntent.OnDismissActiveOrders -> {
@@ -709,6 +670,23 @@ fun MapRoute(
             }
         )
     }
+}
+
+private fun NavController.shouldNavigateToSheet(
+    routePattern: String,
+    orderId: Int
+): Boolean {
+    val currentDestination = this.currentDestination
+    val thisRoute = currentDestination?.route ?: ""
+
+    if (!thisRoute.contains(routePattern)) {
+        return true
+    }
+
+    val currentBackStackEntry = this.currentBackStackEntry
+    val currentOrderId = currentBackStackEntry?.arguments?.getInt(ORDER_ID, -1) ?: -1
+
+    return currentOrderId != orderId
 }
 
 private fun requestPermission(

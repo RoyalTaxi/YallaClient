@@ -53,12 +53,12 @@ open class BaseAddressSearchViewModel(
             .launchIn(viewModelScope)
     }
 
-    fun fetchPolygons() = viewModelScope.launch(Dispatchers.IO) {
+    fun fetchPolygons() = viewModelScope.launch {
         getPolygonUseCase().onSuccess { result -> addresses = result }
     }
 
     fun searchForAddress(lat: Double, lng: Double, query: String) =
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             searchAddressUseCase(lat, lng, query).onSuccess { result ->
                 setFoundAddresses(result)
             }.onFailure {
@@ -91,7 +91,7 @@ open class BaseAddressSearchViewModel(
 
         if (uiState.value.recommendedAddresses.isNotEmpty()) return
 
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             _uiState.update {
                 it.copy(
                     loading = true,

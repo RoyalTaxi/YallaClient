@@ -20,6 +20,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.zIndex
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 
@@ -78,7 +79,7 @@ fun rememberDragDropState(
         }
     LaunchedEffect(state) {
         launch(Dispatchers.Main) {
-            while (true) {
+            while (isActive) {
                 val diff = state.scrollChannel.receive()
                 lazyListState.scrollBy(diff)
             }

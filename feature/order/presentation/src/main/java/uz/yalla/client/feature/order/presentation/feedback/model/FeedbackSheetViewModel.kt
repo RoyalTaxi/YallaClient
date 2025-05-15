@@ -24,7 +24,7 @@ class FeedbackSheetViewModel(
     val uiState = _uiState.asStateFlow()
 
     fun onIntent(intent: FeedbackSheetIntent) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             when (intent) {
                 is FeedbackSheetIntent.SetFooterHeight -> setFooterHeight(intent.height)
                 is FeedbackSheetIntent.SetHeaderHeight -> setHeaderHeight(intent.height)
@@ -40,7 +40,7 @@ class FeedbackSheetViewModel(
 
     private fun getOrderDetails() {
         val orderId = uiState.value.orderId ?: return
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             getShowOrderUseCase(orderId).onSuccess { data ->
                 _uiState.update { it.copy(order = data) }
             }

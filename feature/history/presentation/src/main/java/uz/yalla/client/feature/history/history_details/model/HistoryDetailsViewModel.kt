@@ -22,7 +22,7 @@ internal class HistoryDetailsViewModel(
     private val _uiState = MutableStateFlow(HistoryDetailsUIState())
     val uiState = _uiState.asStateFlow()
 
-    fun getOrderHistory(orderId: Int) = viewModelScope.launch(Dispatchers.IO) {
+    fun getOrderHistory(orderId: Int) = viewModelScope.launch {
         _actionState.emit(HistoryDetailsActionState.Loading)
         getOrderHistoryUseCase(orderId)
             .onSuccess { result ->
@@ -34,7 +34,7 @@ internal class HistoryDetailsViewModel(
             }
     }
 
-    fun getMapPoints() = viewModelScope.launch(Dispatchers.IO) {
+    fun getMapPoints() = viewModelScope.launch {
         _actionState.emit(HistoryDetailsActionState.Loading)
         getTariffsUseCase(
             coords = _uiState.value.orderDetails?.taxi?.routes?.map {

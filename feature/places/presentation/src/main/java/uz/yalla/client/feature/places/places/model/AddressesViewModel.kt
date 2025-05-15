@@ -21,7 +21,7 @@ internal class AddressesViewModel(
     private val _actionState = MutableSharedFlow<AddressesActionState>()
     val actionState = _actionState.asSharedFlow()
 
-    fun findAllAddresses() = viewModelScope.launch(Dispatchers.IO) {
+    fun findAllAddresses() = viewModelScope.launch {
         _actionState.emit(AddressesActionState.Loading)
         findAllPlacesUseCase()
             .onSuccess { result ->

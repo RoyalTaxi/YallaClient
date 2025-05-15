@@ -39,7 +39,7 @@ internal class EditProfileViewModel(
     private val _actionState = MutableSharedFlow<EditProfileActionState>()
     val actionState = _actionState.asSharedFlow()
 
-    fun getMe() = viewModelScope.launch(Dispatchers.IO) {
+    fun getMe() = viewModelScope.launch {
         _actionState.emit(EditProfileActionState.Loading)
         getMeUseCase().onSuccess { result ->
             _actionState.emit(EditProfileActionState.GetSuccess)
@@ -64,7 +64,7 @@ internal class EditProfileViewModel(
         }
     }
 
-    fun postMe() = viewModelScope.launch(Dispatchers.IO) {
+    fun postMe() = viewModelScope.launch {
         _actionState.emit(EditProfileActionState.Loading)
         with(uiState.value) {
             updateMeUseCase(
@@ -92,7 +92,7 @@ internal class EditProfileViewModel(
         }
     }
 
-    fun updateAvatar() = viewModelScope.launch(Dispatchers.IO) {
+    fun updateAvatar() = viewModelScope.launch {
         _actionState.emit(EditProfileActionState.Loading)
         uiState.value.newImage?.let { newImage ->
             updateAvatarUseCase(newImage).onSuccess { result ->
@@ -104,7 +104,7 @@ internal class EditProfileViewModel(
         } ?: _actionState.emit(EditProfileActionState.Error)
     }
 
-    fun setNewImage(uri: Uri, context: Context) = viewModelScope.launch(Dispatchers.IO) {
+    fun setNewImage(uri: Uri, context: Context) = viewModelScope.launch {
         context.uriToByteArray(uri)?.let { bytes ->
             _uiState.update { it.copy(newImage = bytes) }
         } ?: _actionState.emit(EditProfileActionState.Error)
@@ -140,7 +140,7 @@ internal class EditProfileViewModel(
         _uiState.update { it.copy(gender = gender) }
     }
 
-    fun logout() = viewModelScope.launch(Dispatchers.IO) {
+    fun logout() = viewModelScope.launch {
         _actionState.emit(EditProfileActionState.Loading)
         logoutUseCase().onSuccess {
             prefs.clearAll()

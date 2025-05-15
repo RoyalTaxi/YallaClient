@@ -1,30 +1,35 @@
 package uz.yalla.client.feature.map.presentation.model
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.yield
 import uz.yalla.client.core.common.marker.YallaMarkerState
 import uz.yalla.client.core.common.state.HamburgerButtonState
-import uz.yalla.client.core.common.state.MoveCameraButtonState
+import uz.yalla.client.core.common.state.MoveCameraButtonState.FirstLocation
+import uz.yalla.client.core.common.state.MoveCameraButtonState.MyLocationView
+import uz.yalla.client.core.common.state.MoveCameraButtonState.MyRouteView
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.OrderStatus
-import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.core.domain.model.SelectedLocation
 import uz.yalla.client.feature.domain.usecase.GetNotificationsCountUseCase
 import uz.yalla.client.feature.map.domain.model.request.GetRoutingDtoItem
@@ -34,7 +39,7 @@ import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 import uz.yalla.client.feature.order.domain.usecase.order.GetActiveOrdersUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.GetSettingUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.GetShowOrderUseCase
-import uz.yalla.client.feature.order.presentation.main.view.MainSheet
+import uz.yalla.client.feature.order.presentation.main.view.MainSheetChannel
 import uz.yalla.client.feature.profile.domain.usecase.GetMeUseCase
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.ceil
@@ -59,10 +64,9 @@ class MapViewModel(
 
     private val requestSequence = AtomicInteger(0)
 
-    init {
-        getMe()
-        getSettingConfigUseCase()
+    private var hasInjectedOnceInThisSession = false
 
+    init {
         val markerStateInputs = uiState
             .map { state ->
                 Triple(
@@ -82,14 +86,14 @@ class MapViewModel(
             }
             .distinctUntilChanged()
 
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             pollingOrderId.collectLatest { orderId ->
                 pollingJob?.cancel()
 
                 orderId ?: return@collectLatest
 
                 pollingJob = viewModelScope.launch(Dispatchers.IO) {
-                    while (true) {
+                    while (isActive) {
                         getShowOrder(orderId)
                         delay(5.seconds)
 
@@ -104,16 +108,16 @@ class MapViewModel(
                 .distinctUntilChangedBy { it.selectedLocation }
                 .collectLatest { state ->
                     state.selectedLocation?.let { location ->
-                        MainSheet.setLocation(location)
+                        MainSheetChannel.setLocation(location)
                     }
                 }
         }
 
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             uiState
                 .distinctUntilChangedBy { it.destinations }
                 .collectLatest { state ->
-                    MainSheet.setDestination(state.destinations)
+                    MainSheetChannel.setDestination(state.destinations)
                 }
         }
 
@@ -134,30 +138,22 @@ class MapViewModel(
             }
         }
 
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             hasLocationChanged.collectLatest { (_, destination) ->
                 if (destination.isNotEmpty()) getRouting()
                 else _uiState.update { it.copy(route = emptyList()) }
             }
         }
 
-        viewModelScope.launch(Dispatchers.IO) {
-            while (true) {
-                getActiveOrders()
-                delay(5.seconds)
-                yield()
-            }
-        }
-
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             uiState
                 .distinctUntilChangedBy { it.route }
                 .collectLatest { state ->
                     _uiState.update {
                         it.copy(
                             moveCameraButtonState = when {
-                                state.route.isEmpty() -> MoveCameraButtonState.MyLocationView
-                                else -> MoveCameraButtonState.MyRouteView
+                                state.route.isEmpty() -> MyLocationView
+                                else -> MyRouteView
                             }
                         )
                     }
@@ -192,21 +188,21 @@ class MapViewModel(
             initialValue = true
         )
 
-    fun getMe() = viewModelScope.launch(Dispatchers.IO) {
+    fun getMe() = viewModelScope.launch {
         getMeUseCase().onSuccess { user ->
             _uiState.update { it.copy(user = user) }
             prefs.setBalance(user.client.balance)
         }
     }
 
-    fun getNotificationsCount() = viewModelScope.launch(Dispatchers.IO) {
+    fun getNotificationsCount() = viewModelScope.launch {
         getNotificationsCountUseCase()
             .onSuccess { count ->
                 _uiState.update { it.copy(notificationsCount = count) }
             }
     }
 
-    fun getSettingConfigUseCase() = viewModelScope.launch(Dispatchers.IO) {
+    fun getSettingConfig() = viewModelScope.launch {
         getSettingUseCase().onSuccess { setting ->
             prefs.setBonusEnabled(setting.isBonusEnabled)
             prefs.setMinBonus(setting.minBonus)
@@ -214,8 +210,8 @@ class MapViewModel(
         }
     }
 
-    fun getAddressName(point: MapPoint) {
-        viewModelScope.launch(Dispatchers.IO) {
+    private fun getAddressName(point: MapPoint) {
+        viewModelScope.launch {
             getAddressNameUseCase(point.lat, point.lng).onSuccess { data ->
                 _uiState.update {
                     it.copy(
@@ -232,7 +228,7 @@ class MapViewModel(
 
     private fun getShowOrder(showingOrderId: Int) {
         val currentSequence = requestSequence.get()
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             getShowOrderUseCase(showingOrderId).onSuccess { order ->
                 if (pollingOrderId.value == showingOrderId && currentSequence == requestSequence.get()) {
                     withContext(Dispatchers.Main.immediate) {
@@ -261,16 +257,26 @@ class MapViewModel(
         }
     }
 
-    private fun getActiveOrders() {
-        viewModelScope.launch(Dispatchers.IO) {
-            getActiveOrdersUseCase().onSuccess { active ->
-                if (uiState.value.hasProcessedOrderOnEntry.not()) {
+    fun getActiveOrders() {
+        viewModelScope.launch {
+            val alreadyMarkedAsProcessed = prefs.hasProcessedOrderOnEntry.first()
+
+            getActiveOrdersUseCase().onSuccess { activeOrders ->
+                val shouldInject = activeOrders.list.size == 1 &&
+                        !alreadyMarkedAsProcessed &&
+                        !hasInjectedOnceInThisSession
+
+                if (shouldInject) {
+                    setSelectedOrder(activeOrders.list.first())
                     prefs.setHasProcessedOrderOnEntry(true)
-                    if (active.list.size == 1) setSelectedOrder(active.list.first())
-                    else if (active.list.size > 1)
-                        _uiState.update { it.copy(isActiveOrdersSheetVisibility = true) }
+                    hasInjectedOnceInThisSession = true
+                } else if (activeOrders.list.size > 1 && !alreadyMarkedAsProcessed) {
+                    _uiState.update { it.copy(isActiveOrdersSheetVisibility = true) }
+                    prefs.setHasProcessedOrderOnEntry(true)
+                    hasInjectedOnceInThisSession = true
                 }
-                _uiState.update { it.copy(orders = active.list) }
+
+                _uiState.update { it.copy(orders = activeOrders.list) }
             }
         }
     }
@@ -287,7 +293,7 @@ class MapViewModel(
             return
         }
 
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             val addresses = mutableListOf<GetRoutingDtoItem>()
 
             addresses.add(
@@ -353,7 +359,7 @@ class MapViewModel(
         }
     }
 
-    fun setStateToNotFound() {
+    private fun setStateToNotFound() {
         _uiState.update {
             it.copy(
                 selectedLocation = null,
@@ -368,6 +374,43 @@ class MapViewModel(
             _uiState.update { it.copy(selectedOrder = order) }
 
             pollingOrderId.value = order.id
+        }
+    }
+
+    fun collectMarkerMovement(
+        point: MutableState<MapPoint>,
+        collectable: Flow<Pair<Boolean, Boolean>>
+    ) = viewModelScope.launch {
+        collectable.collect { (isMarkerMoving, isByUser) ->
+            if (uiState.value.destinations.isEmpty()) {
+                when {
+                    isMarkerMoving.not() && uiState.value.selectedOrder == null -> {
+                        withContext(Dispatchers.IO) {
+                            getAddressName(point.value)
+                        }
+                    }
+
+                    uiState.value.route.isEmpty() && uiState.value.selectedOrder?.status == null -> {
+                        setStateToNotFound()
+                    }
+                }
+            }
+
+            if (!isMarkerMoving) {
+                when {
+                    uiState.value.moveCameraButtonState == MyRouteView && isByUser -> {
+                        _uiState.update { it.copy(moveCameraButtonState = MyRouteView) }
+                    }
+
+                    uiState.value.moveCameraButtonState == MyRouteView && !isByUser -> {
+                        _uiState.update { it.copy(moveCameraButtonState = FirstLocation) }
+                    }
+
+                    uiState.value.moveCameraButtonState == FirstLocation -> {
+                        _uiState.update { it.copy(moveCameraButtonState = MyRouteView) }
+                    }
+                }
+            }
         }
     }
 

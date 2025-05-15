@@ -21,7 +21,7 @@ internal class AddCardViewModel(
     private val _actionState = MutableSharedFlow<AddCardActionState>()
     val actionState = _actionState.asSharedFlow()
 
-    fun addCard() = viewModelScope.launch(Dispatchers.IO) {
+    fun addCard() = viewModelScope.launch {
         uiState.value.apply {
             _actionState.emit(AddCardActionState.Loading)
             addCardUseCase(number = cardNumber, expiry = cardExpiry)

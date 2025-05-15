@@ -23,7 +23,7 @@ internal class NotificationsViewModel(
         getNotifications()
     }
 
-    fun getNotifications() = viewModelScope.launch(Dispatchers.IO) {
+    fun getNotifications() = viewModelScope.launch {
         getNotificationsUseCase()
             .cachedIn(viewModelScope)
             .collectLatest {

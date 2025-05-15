@@ -26,6 +26,8 @@ import androidx.compose.ui.unit.dp
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.Dash
+import com.google.android.gms.maps.model.Gap
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.compose.CameraMoveStartedReason
@@ -382,6 +384,27 @@ private fun Markers(
         Polyline(points = route.map { LatLng(it.lat, it.lng) })
     }
 
+    if (route.isNotEmpty()) {
+        locations.forEachIndexed { index, location ->
+            val target: MapPoint? = when (index) {
+                0 -> route.firstOrNull()
+                locations.lastIndex -> route.lastOrNull()
+                else -> findClosestPointOnRoute(location, route)
+            }
+
+            if (target != null && target != location) {
+                Polyline(
+                    points = listOf(
+                        LatLng(location.lat, location.lng),
+                        LatLng(target.lat, target.lng)
+                    ),
+                    color = YallaTheme.color.gray,
+                    pattern = listOf(Dash(16f), Gap(16f))
+                )
+            }
+        }
+    }
+
     if (locations.isEmpty()) return
 
     if (orderStatus != null || route.isNotEmpty()) {
@@ -413,5 +436,16 @@ private fun Markers(
                 icon = endIcon
             )
         }
+    }
+}
+
+private fun findClosestPointOnRoute(
+    location: MapPoint,
+    route: List<MapPoint>
+): MapPoint? {
+    return route.minByOrNull { routePoint ->
+        val dx = location.lat - routePoint.lat
+        val dy = location.lng - routePoint.lng
+        dx * dx + dy * dy
     }
 }
