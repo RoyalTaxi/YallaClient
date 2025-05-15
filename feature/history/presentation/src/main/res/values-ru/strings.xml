@@ -11,4 +11,8 @@
     <string name="cash">Наличние</string>
     <string name="fixed_cost">%s сум</string>
     <string name="tariff">Тариф</string>
+    <string name="cashback">Кэшбек</string>
+    <string name="with_bonus">C бонуса</string>
+    <string name="to_bonus_balance">На бонусный счет</string>
+    <string name="to_phone_number">Пополнение номер телефона</string>
 </resources>

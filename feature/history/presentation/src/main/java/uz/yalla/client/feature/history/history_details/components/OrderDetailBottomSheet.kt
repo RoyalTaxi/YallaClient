@@ -11,9 +11,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.common.item.LocationItem
+import uz.yalla.client.core.common.item.OrderDetailBonusItem
 import uz.yalla.client.core.common.item.OrderDetailItem
 import uz.yalla.client.core.common.item.OrderDetailsStatus
-import uz.yalla.client.core.common.utils.getOrderStatusText
+import uz.yalla.client.core.common.item.formatWithSpaces
+import uz.yalla.client.core.domain.model.AwardPaymentType
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.domain.model.OrderHistoryModel
 import uz.yalla.client.feature.history.R
@@ -71,7 +73,7 @@ internal fun OrderDetailsBottomSheet(
 
             OrderDetailItem(
                 title = stringResource(R.string.date_and_time),
-                descriptor = "${order.date}, ${order.time}"
+                description = "${order.date}, ${order.time}"
             )
 
             OrderDetailsStatus(
@@ -82,11 +84,29 @@ internal fun OrderDetailsBottomSheet(
             OrderDetailItem(
                 title = stringResource(R.string.payment),
                 bodyText = stringResource(R.string.cash),
-                descriptor = stringResource(
+                description = stringResource(
                     R.string.fixed_cost,
-                    order.taxi.totalPrice.toString()
+                    order.taxi.totalPrice.formatWithSpaces()
                 ),
             )
+
+            order.taxi.bonusAmount.takeIf { it != 0 }?.let {
+                OrderDetailBonusItem(
+                    title = stringResource(R.string.with_bonus),
+                    bonus = it.formatWithSpaces()
+                )
+            }
+
+            order.award.paymentAward.takeIf { it != 0 }?.let {
+                OrderDetailBonusItem(
+                    title = stringResource(R.string.cashback),
+                    bonus = order.award.paymentAward.toString(),
+                    bodyText = when (order.award.paymentType) {
+                        is AwardPaymentType.BALANCE -> stringResource(R.string.to_bonus_balance)
+                        is AwardPaymentType.PAYNET -> stringResource(R.string.to_phone_number)
+                    }
+                )
+            }
 
             if (order.executor.driver.stateNumber.isNotEmpty())
                 OrderDetailItem(
@@ -97,7 +117,7 @@ internal fun OrderDetailsBottomSheet(
 
             OrderDetailItem(
                 title = stringResource(R.string.tariff),
-                descriptor = order.taxi.tariff,
+                description = order.taxi.tariff,
             )
         }
     }

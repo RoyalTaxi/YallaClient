@@ -55,7 +55,8 @@ data class MainSheetState(
     val selectFromMapViewVisibility: SelectFromMapViewValue = SelectFromMapViewValue.INVISIBLE,
     val isAddDestinationSheetVisible: Boolean = false,
     val isArrangeDestinationsSheetVisible: Boolean = false,
-    val isSetBonusAmountBottomSheetVisible: Boolean = false
+    val isSetBonusAmountBottomSheetVisible: Boolean = false,
+    val isBonusInfoSheetVisibility: Boolean = false
 ) {
 
     fun getBadgeText(): String? = when {

@@ -38,5 +38,5 @@ data class MapUIState(
     val isActiveOrdersSheetVisibility: Boolean = false,
     val notificationsCount: Int = 0,
     val bonusAmount: Int = 0,
-    val hasProcessedOrderOnEntry: Boolean = true,
+    val hasProcessedOrderOnEntry: Boolean = true
 )

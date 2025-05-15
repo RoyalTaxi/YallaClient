@@ -13,22 +13,20 @@ import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 
 @Composable
-fun OrderDetailItem(
+fun OrderDetailBonusItem(
     title: String,
-    modifier: Modifier = Modifier,
+    bonus: String? = null,
     bodyText: String? = null,
-    description: String? = null,
-    carNumber: String? = null
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
             .padding(
                 horizontal = 20.dp,
                 vertical = 10.dp
-        )
+            )
     ) {
         Column {
             Text(
@@ -46,21 +44,16 @@ fun OrderDetailItem(
             }
         }
 
-        if (carNumber != null && carNumber.length > 7) CarNumberItem(
-            code = carNumber.slice(0..<2),
-            number = "(\\d+|[A-Za-z]+)"
-                .toRegex()
-                .findAll(carNumber.slice(2..7))
-                .map { it.value }
-                .toList()
-        )
-
-        description?.let {
+        bonus?.let {
             Text(
                 text = it,
-                color = YallaTheme.color.black,
-                style = YallaTheme.font.label
+                color = YallaTheme.color.primary,
+                style = YallaTheme.font.labelSemiBold
             )
         }
     }
+}
+
+fun Int.formatWithSpaces(): String {
+    return toString().reversed().chunked(3).joinToString(" ").reversed()
 }
