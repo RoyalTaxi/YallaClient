@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uz.yalla.client.core.domain.model.MapPoint
+import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.feature.map.domain.model.request.GetRoutingDtoItem
 import uz.yalla.client.feature.map.domain.usecase.GetRoutingUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.CancelRideUseCase
@@ -56,9 +57,16 @@ class ClientWaitingViewModel(
 
     private fun getOrderDetails() {
         val orderId = uiState.value.orderId ?: return
+        _uiState.update { it.copy(isOrderCancellable = false) }
+
         viewModelScope.launch {
             getShowOrderUseCase(orderId).onSuccess { order ->
-                _uiState.update { it.copy(selectedOrder = order) }
+                _uiState.update {
+                    it.copy(
+                        selectedOrder = order,
+                        isOrderCancellable = order.status in OrderStatus.cancellable
+                    )
+                }
 
                 val clientPoint = order.taxi.routes.firstOrNull()?.coords?.let { coords ->
                     MapPoint(coords.lat, coords.lng)
@@ -116,6 +124,7 @@ class ClientWaitingViewModel(
     }
 
     fun setCancelBottomSheetVisibility(isVisible: Boolean) {
+        if (isVisible) getOrderDetails()
         _uiState.update { it.copy(cancelBottomSheetVisibility = isVisible) }
     }
 
