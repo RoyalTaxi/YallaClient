@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.feature.order.domain.usecase.order.CancelRideUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.GetShowOrderUseCase
 import uz.yalla.client.feature.order.presentation.driver_waiting.view.DriverWaitingIntent
@@ -43,9 +44,16 @@ class DriverWaitingViewModel(
 
     private fun getOrderDetails() {
         val orderId = uiState.value.orderId ?: return
+        _uiState.update { it.copy(isOrderCancellable = false) }
+
         viewModelScope.launch {
             getShowOrderUseCase(orderId).onSuccess { data ->
-                _uiState.update { it.copy(selectedDriver = data) }
+                _uiState.update {
+                    it.copy(
+                        selectedDriver = data,
+                        isOrderCancellable = data.status in OrderStatus.cancellable
+                    )
+                }
             }
         }
     }
@@ -75,6 +83,7 @@ class DriverWaitingViewModel(
     }
 
     fun setCancelBottomSheetVisibility(isVisible: Boolean) {
+        if (isVisible) getOrderDetails()
         _uiState.update { it.copy(cancelBottomSheetVisibility = isVisible) }
     }
 

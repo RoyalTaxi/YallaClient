@@ -216,6 +216,7 @@ object ClientWaitingSheet {
                 description = stringResource(R.string.cancel_order_definition),
                 actionText = stringResource(R.string.cancel),
                 dismissText = stringResource(R.string.wait),
+                actionEnabled = state.isOrderCancellable,
                 onDismissRequest = {
                     viewModel.setCancelBottomSheetVisibility(false)
                     scope.launch {
