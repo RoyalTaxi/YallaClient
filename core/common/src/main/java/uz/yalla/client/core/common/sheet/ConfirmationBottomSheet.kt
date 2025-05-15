@@ -25,6 +25,7 @@ import uz.yalla.client.core.presentation.design.theme.YallaTheme
 fun ConfirmationBottomSheet(
     sheetState: SheetState,
     title: String,
+    actionEnabled: Boolean = true,
     description: String? = null,
     actionText: String,
     dismissText: String? = null,
@@ -83,9 +84,10 @@ fun ConfirmationBottomSheet(
             ) {
                 PrimaryButton(
                     text = actionText,
+                    enabled = actionEnabled,
                     onClick = onConfirm,
                     containerColor = YallaTheme.color.gray2,
-                    contentColor = YallaTheme.color.gray,
+                    contentColor = YallaTheme.color.black,
                     contentPadding = PaddingValues(vertical = 20.dp),
                     modifier = Modifier.weight(1f)
                 )

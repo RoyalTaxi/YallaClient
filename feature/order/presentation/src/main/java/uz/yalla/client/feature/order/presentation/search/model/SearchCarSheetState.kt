@@ -21,4 +21,5 @@ data class SearchCarSheetState(
     val headerHeight: Dp = 0.dp,
     val footerHeight: Dp = 0.dp,
     val dialogEvent: ConfirmationDialogEvent = ConfirmationDialogEvent.Invisible,
+    val isOrderCancellable: Boolean = false
 )

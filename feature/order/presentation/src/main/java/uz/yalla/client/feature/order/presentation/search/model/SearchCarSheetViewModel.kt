@@ -104,9 +104,16 @@ class SearchCarSheetViewModel(
 
     private fun getOrderDetails() {
         val orderId = uiState.value.orderId ?: return
+        _uiState.update { it.copy(isOrderCancellable = false) }
+
         viewModelScope.launch {
             getShowOrderUseCase(orderId).onSuccess { data ->
-                _uiState.update { it.copy(selectedOrder = data) }
+                _uiState.update {
+                    it.copy(
+                        selectedOrder = data,
+                        isOrderCancellable = data.status in OrderStatus.cancellable
+                    )
+                }
             }
         }
     }
@@ -117,15 +124,21 @@ class SearchCarSheetViewModel(
         viewModelScope.launch {
             orderFasterUseCase(orderId)
                 .onSuccess {
-                    _uiState.update { it.copy(
-                        dialogEvent = ConfirmationDialogEvent.Success,
-                        isFasterEnabled = false) }
+                    _uiState.update {
+                        it.copy(
+                            dialogEvent = ConfirmationDialogEvent.Success,
+                            isFasterEnabled = false
+                        )
+                    }
                 }
                 .onFailure {
-                    _uiState.update { it.copy(
-                        dialogEvent = ConfirmationDialogEvent.Error,
-                        isFasterEnabled = true) }
-            }
+                    _uiState.update {
+                        it.copy(
+                            dialogEvent = ConfirmationDialogEvent.Error,
+                            isFasterEnabled = true
+                        )
+                    }
+                }
         }
     }
 
@@ -157,6 +170,7 @@ class SearchCarSheetViewModel(
     }
 
     fun setCancelBottomSheetVisibility(isVisible: Boolean) {
+        if (isVisible) getOrderDetails()
         _uiState.update { it.copy(cancelBottomSheetVisibility = isVisible) }
     }
 

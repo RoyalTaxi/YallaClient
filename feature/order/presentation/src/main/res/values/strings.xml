@@ -65,6 +65,6 @@
     <string name="bonus_body">Ekonom va Comfort tariflarida har bir sayohat uchun bonuslar - ulardan keyingi sayohatlaringiz uchun to\'lash uchun foydalaning!</string>
     <string name="second_bonus_body"> Siz Standart va Comfort tariflarida sayohatlarni qisman bonuslar bilan to\'lashingiz mumkin</string>
     <string name="can_pay_with_bonus">Siz bonuslar bilan to\'lashingiz mumkin</string>
-    <string name="added_bonus">+ %s</string>
+    <string name="added_bonus">+%s</string>
     <string name="bonus_percentage">%s%% gacha</string>
 </resources>

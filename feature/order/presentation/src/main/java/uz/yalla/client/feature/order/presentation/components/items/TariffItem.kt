@@ -1,6 +1,7 @@
 package uz.yalla.client.feature.order.presentation.components.items
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -103,6 +104,7 @@ fun TariffItem(
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(2.dp),
                     modifier = Modifier
                         .clip(RoundedCornerShape(8.dp))
                         .background(bonusPercentColor)
@@ -115,7 +117,6 @@ fun TariffItem(
                         modifier = Modifier
                             .size(12.dp)
                     )
-
 
                     Text(
                         text = stringResource(R.string.added_bonus, bonusPercentage),

@@ -64,6 +64,6 @@
     <string name="bonus_body">Бонусов за каждую поездку в тарифах Эконом и Комфорт — оплачивайте ими следующие поездки!</string>
     <string name="second_bonus_body">Можно оплатить поездки в тарифах Стандарт и Комфорт частично бонусами</string>
     <string name="can_pay_with_bonus">Можно оплатить бонусами</string>
-    <string name="added_bonus">+ %s</string>
+    <string name="added_bonus">+%s</string>
     <string name="bonus_percentage">до %s%%</string>
 </resources>
