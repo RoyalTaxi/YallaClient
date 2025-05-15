@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-<string name="edit_profile">Редактировать профиль</string>
-<string name="name">Имя</string>
-<string name="surname">Фамилия</string>
-<string name="date_of_birth">Дата рождения</string>
-<string name="gender_m">Мужчина</string>
-<string name="gender_f">Женщина</string>
-<string name="save">Сохранить</string>
-<string name="error_size">Размер изображения слишком большой</string>
-<string name="delete_profile_title">Внимание !</string>
-<string name="delete_profile_desc">Вы действительно хотите выйти ?</string>
-<string name="delete">Выйти</string>
-<string name="stay">Отмена</string>
+    <string name="edit_profile">Редактировать профиль</string>
+    <string name="name">Имя</string>
+    <string name="surname">Фамилия</string>
+    <string name="date_of_birth">Дата рождения</string>
+    <string name="gender_m">Мужчина</string>
+    <string name="gender_f">Женщина</string>
+    <string name="save">Сохранить</string>
+    <string name="error_size">Размер изображения слишком большой</string>
+    <string name="delete_profile_title">Внимание !</string>
+    <string name="delete_profile_desc">Вы действительно хотите выйти ?</string>
+    <string name="delete">Выйти</string>
+    <string name="stay">Отмена</string>
+    <string name="close">Закрыть</string>
 </resources>
