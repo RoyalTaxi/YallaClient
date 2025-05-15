@@ -28,5 +28,7 @@
     <string name="bonus_account">Bonus hisob: %s so\'m</string>
     <string name="not_enough_bonus">Foydalanishga yetarli emas</string>
     <string name="enable_gps">Включите\nGPS</string>
+    <string name="bonus_balance">Bonus hisobi</string>
+    <string name="percentage">%s%% dan</string>
     <string name="address_not_found">Manzil topilmadi</string>
 </resources>

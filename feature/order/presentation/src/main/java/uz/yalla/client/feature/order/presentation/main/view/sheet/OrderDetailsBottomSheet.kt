@@ -23,7 +23,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.common.item.LocationItem
+import uz.yalla.client.core.common.item.OrderDetailBonusItem
 import uz.yalla.client.core.common.item.OrderDetailItem
+import uz.yalla.client.core.common.item.formatWithSpaces
 import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
@@ -102,7 +104,7 @@ fun OrderDetailsBottomSheet(
             ) {
                 OrderDetailItem(
                     title = stringResource(R.string.tariff),
-                    descriptor = order.taxi.tariff
+                    description = order.taxi.tariff
                 )
 
                 OrderDetailItem(
@@ -111,8 +113,15 @@ fun OrderDetailsBottomSheet(
                         is PaymentType.CARD -> stringResource(R.string.with_card)
                         else -> stringResource(R.string.cash)
                     },
-                    descriptor = order.taxi.totalPrice.takeIf { it != 0 }?.let {
+                    description = order.taxi.totalPrice.takeIf { it != 0 }?.let {
                         stringResource(R.string.fixed_cost, it)
+                    }
+                )
+
+                OrderDetailBonusItem(
+                    title = stringResource(R.string.bonus),
+                    bonus = order.taxi.bonusAmount.takeIf { it != 0}?.let {
+                        stringResource(R.string.added_bonus, it.formatWithSpaces())
                     }
                 )
 
@@ -120,7 +129,7 @@ fun OrderDetailsBottomSheet(
                     if (order.executor.givenNames.isNotEmpty()) {
                         OrderDetailItem(
                             title = stringResource(R.string.driver),
-                            descriptor = order.executor.givenNames
+                            description = order.executor.givenNames
                         )
                     }
 

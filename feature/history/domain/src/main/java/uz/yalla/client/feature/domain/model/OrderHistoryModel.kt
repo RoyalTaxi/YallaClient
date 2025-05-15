@@ -1,16 +1,23 @@
 package uz.yalla.client.feature.domain.model
 
+import uz.yalla.client.core.domain.model.AwardPaymentType
 import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.core.domain.model.ServiceModel
 
 
 data class OrderHistoryModel(
+    val award: Award,
     val date: String,
     val time: String,
     val executor: Executor,
     val status: OrderStatus,
     val taxi: Taxi,
 ) {
+    data class Award(
+        val paymentAward: Int,
+        val paymentType: AwardPaymentType
+    )
+
     data class Executor(
         val driver: Driver
     ) {

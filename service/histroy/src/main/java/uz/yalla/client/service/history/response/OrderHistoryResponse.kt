@@ -5,14 +5,21 @@ import uz.yalla.client.core.service.model.ServiceRemoteModel
 
 @Serializable
 data class OrderHistoryResponse(
+    val award: Award?,
     val date_time: Long?,
     val executor: Executor?,
     val status: String?,
     val taxi: Taxi?,
 ) {
     @Serializable
+    data class Award(
+        val payment_award: Int?,
+        val payment_type: String?
+    )
+
+    @Serializable
     data class Executor(
-        val driver: Driver?
+        val driver: Driver?,
     ) {
         @Serializable
         data class Driver(

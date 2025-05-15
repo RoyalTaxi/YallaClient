@@ -93,7 +93,12 @@ fun BoxScope.MapOverlay(
                 }
             )
 
-            state.user?.client?.balance?.let { BonusOverlay(amount = it) }
+            state.user?.client?.balance?.let {
+                BonusOverlay(
+                    amount = it,
+                    onClick = { onIntent(MapOverlayIntent.OnClickBonus)}
+                )
+            }
         }
 
         if (

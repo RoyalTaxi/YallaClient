@@ -26,5 +26,7 @@
     <string name="bonus_account">Бонусный счет: %s сум</string>
     <string name="not_enough_bonus">Недостаточно для использования</string>
     <string name="enable_gps">GPSni\nyoqing</string>
+    <string name="bonus_balance">Бонусный счет</string>
+    <string name="percentage">до %s%%</string>
     <string name="address_not_found">Адрес не найден</string>
 </resources>

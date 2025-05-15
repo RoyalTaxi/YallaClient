@@ -621,6 +621,10 @@ fun MapRoute(
                         vm.updateState(state.copy(isActiveOrdersSheetVisibility = true))
                     }
 
+                    is MapScreenIntent.MapOverlayIntent.OnClickBonus -> {
+                        MainSheet.setBonusInfoSheetVisibility(true)
+                    }
+
                     is MapScreenIntent.OnDismissActiveOrders -> {
                         vm.updateState(state.copy(isActiveOrdersSheetVisibility = false))
                     }

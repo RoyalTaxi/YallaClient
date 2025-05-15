@@ -18,11 +18,13 @@ import uz.yalla.client.core.presentation.design.theme.YallaTheme
 
 @Composable
 fun BonusOverlay(
-    amount: Int
+    amount: Int,
+    onClick: () -> Unit
 ) {
     Card(
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(YallaTheme.color.primary)
+        colors = CardDefaults.cardColors(YallaTheme.color.primary),
+        onClick = onClick
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,

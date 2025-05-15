@@ -452,4 +452,7 @@ class MainSheetViewModel(
             )
         }
     }
+
+    fun setBonusInfoVisibility(value: Boolean) =
+        _uiState.update { it.copy(isBonusInfoSheetVisibility = value) }
 }

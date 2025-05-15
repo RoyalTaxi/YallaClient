@@ -5,6 +5,7 @@ import uz.yalla.client.core.data.mapper.ServiceMapper
 import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.domain.formations.TimeFormation.toFormattedDate
 import uz.yalla.client.core.domain.formations.TimeFormation.toFormattedTime
+import uz.yalla.client.core.domain.model.AwardPaymentType
 import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.feature.domain.model.OrderHistoryModel
 import uz.yalla.client.service.history.response.OrderHistoryResponse
@@ -17,8 +18,17 @@ object OrderHistoryMapper {
             executor = remote?.executor?.let(executorMapper) ?: defaultExecutor(),
             status = OrderStatus.from(remote?.status),
             taxi = remote?.taxi?.let(taxiMapper) ?: defaultTaxi(),
+            award = remote?.award?.let(awardMapper) ?: defaultAward()
         )
     }
+
+    private val awardMapper: Mapper<OrderHistoryResponse.Award?, OrderHistoryModel.Award> =
+        { remote ->
+            OrderHistoryModel.Award(
+                paymentAward = remote?.payment_award.or0(),
+                paymentType = AwardPaymentType.fromTypeName(remote?.payment_type.orEmpty())
+            )
+        }
 
     private val executorMapper: Mapper<OrderHistoryResponse.Executor?, OrderHistoryModel.Executor> =
         { remote ->
@@ -72,6 +82,11 @@ object OrderHistoryMapper {
 
     private fun defaultExecutor() = OrderHistoryModel.Executor(
         driver = defaultDriver()
+    )
+
+    private fun defaultAward() = OrderHistoryModel.Award(
+        paymentAward = 0,
+        paymentType = AwardPaymentType.fromTypeName("")
     )
 
     private fun defaultDriver() = OrderHistoryModel.Executor.Driver(

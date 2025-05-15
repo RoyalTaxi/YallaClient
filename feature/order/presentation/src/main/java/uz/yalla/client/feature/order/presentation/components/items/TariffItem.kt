@@ -1,16 +1,26 @@
 package uz.yalla.client.feature.order.presentation.components.items
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -25,56 +35,95 @@ fun TariffItem(
     tariff: GetTariffsModel.Tariff,
     isDestinationsEmpty: Boolean,
     selectedState: Boolean,
+    bonusPercentage: Int? = null,
     onSelect: (Boolean) -> Unit
 ) {
     val textColor = if (selectedState) YallaTheme.color.white else YallaTheme.color.black
     val containerColor = if (selectedState) YallaTheme.color.primary else YallaTheme.color.gray2
+    val bonusPercentColor = if (selectedState) YallaTheme.color.black else YallaTheme.color.primary
 
-    Card(
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor),
-        onClick = { onSelect(selectedState) }
+    Box(
+        modifier = Modifier
+            .wrapContentSize()
     ) {
-        Column(
-            modifier = Modifier
-                .widthIn(min = 120.dp)
-                .padding(12.dp)
+        Card(
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor),
+            onClick = { onSelect(selectedState) }
         ) {
-            Text(
-                text = tariff.name,
-                color = textColor,
-                style = YallaTheme.font.labelSemiBold
-            )
+            Column(
+                modifier = Modifier
+                    .widthIn(min = 120.dp)
+                    .padding(12.dp)
+            ) {
+                Text(
+                    text = tariff.name,
+                    color = textColor,
+                    style = YallaTheme.font.labelSemiBold
+                )
 
-            Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
-            Text(
-                text = if (isDestinationsEmpty) stringResource(
-                    R.string.starting_cost,
-                    tariff.cost
-                ) else {
-                    if (tariff.fixedType) stringResource(
-                        R.string.fixed_cost,
-                        tariff.fixedPrice
+                Text(
+                    text = if (isDestinationsEmpty) stringResource(
+                        R.string.starting_cost,
+                        tariff.cost
+                    ) else {
+                        if (tariff.fixedType) stringResource(
+                            R.string.fixed_cost,
+                            tariff.fixedPrice
+                        )
+                        else stringResource(
+                            R.string.fixed_cost,
+                            "~${tariff.fixedPrice}"
+                        )
+                    },
+                    color = textColor,
+                    style = YallaTheme.font.body
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                AsyncImage(
+                    model = tariff.photo,
+                    contentDescription = null,
+                    error = painterResource(R.drawable.img_default_car),
+                    modifier = Modifier.height(30.dp),
+                    contentScale = ContentScale.FillHeight
+                )
+            }
+        }
+
+        bonusPercentage?.let {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .offset(x = 4.dp, y = (-4).dp)
+                    .align(Alignment.TopEnd)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(bonusPercentColor)
+                        .padding(vertical = 2.dp, horizontal = 4.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_coin),
+                        contentDescription = null,
+                        tint = Color.Unspecified,
+                        modifier = Modifier
+                            .size(12.dp)
                     )
-                    else stringResource(
-                        R.string.fixed_cost,
-                        "~${tariff.fixedPrice}"
+
+
+                    Text(
+                        text = stringResource(R.string.added_bonus, bonusPercentage),
+                        color = YallaTheme.color.white,
+                        style = YallaTheme.font.body
                     )
-                },
-                color = textColor,
-                style = YallaTheme.font.body
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            AsyncImage(
-                model = tariff.photo,
-                contentDescription = null,
-                error = painterResource(R.drawable.img_default_car),
-                modifier = Modifier.height(30.dp),
-                contentScale = ContentScale.FillHeight
-            )
+                }
+            }
         }
     }
 }

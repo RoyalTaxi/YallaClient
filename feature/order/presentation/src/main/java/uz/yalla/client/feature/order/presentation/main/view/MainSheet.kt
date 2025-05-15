@@ -56,6 +56,7 @@ import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.Paym
 import uz.yalla.client.feature.order.presentation.main.view.page.OrderTaxiPage
 import uz.yalla.client.feature.order.presentation.main.view.page.TariffInfoPage
 import uz.yalla.client.feature.order.presentation.main.view.sheet.ArrangeDestinationsBottomSheet
+import uz.yalla.client.feature.order.presentation.main.view.sheet.BonusInfoBottomSheet
 import uz.yalla.client.feature.order.presentation.main.view.sheet.OrderCommentBottomSheet
 import uz.yalla.client.feature.order.presentation.main.view.sheet.PaymentMethodBottomSheet
 import uz.yalla.client.feature.order.presentation.main.view.sheet.SetBonusAmountBottomSheet
@@ -89,6 +90,10 @@ object MainSheet {
         )
 
         val paymentMethodSheetState = rememberModalBottomSheetState(
+            skipPartiallyExpanded = true
+        )
+
+        val bonusInfoSheetState = rememberModalBottomSheetState(
             skipPartiallyExpanded = true
         )
 
@@ -201,6 +206,15 @@ object MainSheet {
                 sheetState = paymentMethodSheetState,
                 paymentTypes = state.cardList,
                 selectedPaymentType = state.selectedPaymentType,
+                onIntent = viewModel::onIntent
+            )
+        }
+
+        if (state.isBonusInfoSheetVisibility) {
+            BonusInfoBottomSheet(
+                sheetState = bonusInfoSheetState,
+                isBonusEnabled = state.isBonusEnabled,
+                onDismissRequest = { viewModel.setBonusInfoVisibility(false) },
                 onIntent = viewModel::onIntent
             )
         }
@@ -422,6 +436,7 @@ object MainSheet {
 
     val setDestination: (List<Destination>) -> Unit = viewModel::setDestination
     val setLocation: (SelectedLocation) -> Unit = viewModel::setSelectedLocation
+    val setBonusInfoSheetVisibility: (Boolean) -> Unit = viewModel::setBonusInfoVisibility
 
     internal val mutableIntentFlow: MutableSharedFlow<MainSheetIntent> get() = _intentFlow
 }
