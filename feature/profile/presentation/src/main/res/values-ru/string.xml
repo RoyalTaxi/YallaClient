@@ -10,7 +10,7 @@
     <string name="error_size">Размер изображения слишком большой</string>
     <string name="delete_profile_title">Внимание !</string>
     <string name="delete_profile_desc">Вы действительно хотите выйти ?</string>
-    <string name="delete">Выйти</string>
+    <string name="exit">Выйти</string>
     <string name="stay">Отмена</string>
     <string name="close">Закрыть</string>
 </resources>

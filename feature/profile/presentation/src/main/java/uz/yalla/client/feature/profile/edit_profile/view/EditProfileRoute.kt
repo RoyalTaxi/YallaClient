@@ -158,7 +158,7 @@ internal fun EditProfileRoute(
         sheetState = sheetState,
         title = stringResource(R.string.delete_profile_title),
         description = stringResource(R.string.delete_profile_desc),
-        actionText = stringResource(R.string.delete),
+        actionText = stringResource(R.string.exit),
         dismissText = stringResource(R.string.stay),
         onDismissRequest = {
             sheetVisibility = false
