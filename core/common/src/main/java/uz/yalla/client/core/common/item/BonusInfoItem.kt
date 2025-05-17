@@ -22,10 +22,11 @@ import uz.yalla.client.core.presentation.design.theme.YallaTheme
 
 @Composable
 fun BonusInfoItem(
-    percentage: String,
+    percentage: Int,
     iconId: Int,
     body: String,
     onClick: () -> Unit,
+    enabled: Boolean = false,
     backgroundColor: Color = YallaTheme.color.gray2,
     textColor: Color = YallaTheme.color.black,
     bodyTextColor: Color = YallaTheme.color.gray,
@@ -33,7 +34,11 @@ fun BonusInfoItem(
     Card(
         onClick = onClick,
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(backgroundColor),
+        colors = CardDefaults.cardColors(
+            contentColor = backgroundColor,
+            disabledContainerColor = backgroundColor
+        ),
+        enabled = enabled,
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp)

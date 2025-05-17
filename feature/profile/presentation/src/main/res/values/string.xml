@@ -10,7 +10,7 @@
     <string name="error_size">Rasm hajmi juda katta</string>
     <string name="delete_profile_title">Diqqat !</string>
     <string name="delete_profile_desc">Chiqishni hohlaysizmi ?</string>
-    <string name="delete">Chiqish</string>
+    <string name="exit">Chiqish</string>
     <string name="stay">Bekor qilish</string>
     <string name="close">Yopish</string>
 </resources>

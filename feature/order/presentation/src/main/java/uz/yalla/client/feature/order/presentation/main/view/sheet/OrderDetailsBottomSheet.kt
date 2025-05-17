@@ -118,12 +118,12 @@ fun OrderDetailsBottomSheet(
                     }
                 )
 
-                OrderDetailBonusItem(
-                    title = stringResource(R.string.bonus),
-                    bonus = order.taxi.bonusAmount.takeIf { it != 0}?.let {
-                        stringResource(R.string.added_bonus, it.formatWithSpaces())
-                    }
-                )
+                order.taxi.bonusAmount.takeIf { it != 0 }?.let {
+                    OrderDetailBonusItem(
+                        title = stringResource(R.string.bonus),
+                        bonus = stringResource(R.string.added_bonus, it.formatWithSpaces())
+                    )
+                }
 
                 if (order.status !in OrderStatus.nonInteractive) {
                     if (order.executor.givenNames.isNotEmpty()) {
@@ -167,6 +167,7 @@ fun OrderDetailsBottomSheet(
                         OptionsItem(
                             option = service,
                             isSelected = true,
+                            enabled = false,
                             onChecked = {}
                         )
                     }

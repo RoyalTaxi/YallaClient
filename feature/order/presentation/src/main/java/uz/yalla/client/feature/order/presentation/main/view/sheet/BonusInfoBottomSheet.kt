@@ -77,7 +77,7 @@ fun BonusInfoBottomSheet(
             )
 
             BonusInfoItem(
-                percentage = stringResource(R.string.bonus_percentage, 3),
+                percentage = 3,
                 iconId = R.drawable.img_default_car,
                 body = stringResource(R.string.bonus_body),
                 onClick = {}
@@ -91,7 +91,7 @@ fun BonusInfoBottomSheet(
             )
 
             BonusInfoItem(
-                percentage = stringResource(R.string.bonus_percentage, 50),
+                percentage = 50,
                 iconId = R.drawable.ic_coin,
                 body = stringResource(R.string.second_bonus_body),
                 backgroundColor = YallaTheme.color.primary,

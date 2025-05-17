@@ -25,12 +25,17 @@ fun OptionsItem(
     isSelected: Boolean,
     option: ServiceModel,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     onChecked: (Boolean) -> Unit
 ) {
     Card(
         modifier = modifier,
         shape = RectangleShape,
-        colors = CardDefaults.cardColors(YallaTheme.color.white),
+        enabled = enabled,
+        colors = CardDefaults.cardColors(
+            containerColor = YallaTheme.color.white,
+            disabledContainerColor = YallaTheme.color.white
+        ),
         onClick = { onChecked(!isSelected) }
     ) {
         Row(
