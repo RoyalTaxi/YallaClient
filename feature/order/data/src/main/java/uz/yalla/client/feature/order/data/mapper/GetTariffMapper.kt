@@ -5,6 +5,7 @@ import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.data.mapper.orFalse
 import uz.yalla.client.core.domain.model.ServiceModel
 import uz.yalla.client.core.service.model.ServiceRemoteModel
+import uz.yalla.client.feature.order.domain.model.response.tarrif.AwardPaymentType
 import uz.yalla.client.feature.order.domain.model.response.tarrif.GetTariffsModel
 import uz.yalla.client.service.order.response.tariff.GetTariffsResponse
 
@@ -35,6 +36,7 @@ object GetTariffMapper {
     private val tariffMapper: Mapper<GetTariffsResponse.Tariff?, GetTariffsModel.Tariff> =
         { remote ->
             GetTariffsModel.Tariff(
+                award = remote?.award.let(awardMapper),
                 category = remote?.category.let(tariffCategoryMapper),
                 cost = remote?.cost.or0(),
                 description = remote?.description.orEmpty(),
@@ -46,8 +48,9 @@ object GetTariffMapper {
                 name = remote?.name.orEmpty(),
                 photo = remote?.photo.orEmpty(),
                 isSecondAddressMandatory = remote?.second_address.orFalse(),
-                services = remote?.services?.map(tariffServiceRemoteModelMapper).orEmpty()
-            )
+                services = remote?.services?.map(tariffServiceRemoteModelMapper).orEmpty(),
+
+                )
         }
 
     private val tariffCategoryMapper: Mapper<GetTariffsResponse.Tariff.Category?, GetTariffsModel.Tariff.Category> =
@@ -56,6 +59,16 @@ object GetTariffMapper {
                 id = remote?.id.or0(),
                 name = remote?.name.orEmpty()
             )
+        }
+
+    private val awardMapper: Mapper<GetTariffsResponse.Tariff.Award?, GetTariffsModel.Tariff.Award?> =
+        { remote ->
+            remote?.let {
+                GetTariffsModel.Tariff.Award(
+                    type = AwardPaymentType.fromTypeName(it.cash_or_percentage.orEmpty()),
+                    value = it.value.or0()
+                )
+            }
         }
 
     private val tariffServiceRemoteModelMapper: Mapper<ServiceRemoteModel?, ServiceModel> =

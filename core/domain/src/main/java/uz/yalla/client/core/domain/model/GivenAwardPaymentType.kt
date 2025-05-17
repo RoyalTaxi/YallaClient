@@ -1,11 +1,11 @@
 package uz.yalla.client.core.domain.model
 
-sealed class AwardPaymentType(val typeName: String) {
-    data object BALANCE : AwardPaymentType("balance")
-    data object PAYNET : AwardPaymentType("paynet")
+sealed class GivenAwardPaymentType(val typeName: String) {
+    data object BALANCE : GivenAwardPaymentType("balance")
+    data object PAYNET : GivenAwardPaymentType("paynet")
 
     companion object {
-        fun fromTypeName(typeName: String): AwardPaymentType {
+        fun fromTypeName(typeName: String): GivenAwardPaymentType {
             return when (typeName) {
                 BALANCE.typeName -> BALANCE
                 PAYNET.typeName -> PAYNET

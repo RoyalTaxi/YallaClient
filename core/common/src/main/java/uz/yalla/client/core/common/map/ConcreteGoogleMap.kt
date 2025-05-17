@@ -384,7 +384,7 @@ private fun Markers(
         Polyline(points = route.map { LatLng(it.lat, it.lng) })
     }
 
-    if (route.isNotEmpty()) {
+    if (route.isNotEmpty() && orderStatus !in OrderStatus.cancellable) {
         locations.forEachIndexed { index, location ->
             val target: MapPoint? = when (index) {
                 0 -> route.firstOrNull()

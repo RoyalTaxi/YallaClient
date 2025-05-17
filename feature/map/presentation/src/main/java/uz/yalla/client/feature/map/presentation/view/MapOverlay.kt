@@ -31,6 +31,7 @@ fun BoxScope.MapOverlay(
     modifier: Modifier,
     state: MapUIState,
     hasLocationPermission: Boolean,
+    isLocationEnabled: Boolean,
     moveCameraButtonState: MoveCameraButtonState,
     hamburgerButtonState: HamburgerButtonState,
     onIntent: (MapOverlayIntent) -> Unit
@@ -53,7 +54,7 @@ fun BoxScope.MapOverlay(
         )
 
         if (state.markerState !is YallaMarkerState.Searching) {
-            if (state.route.isNotEmpty() || hasLocationPermission) {
+            if (state.route.isNotEmpty() || (hasLocationPermission && isLocationEnabled)) {
                 MapButton(
                     painter = painterResource(
                         if (moveCameraButtonState == MoveCameraButtonState.MyRouteView) R.drawable.ic_route
@@ -71,7 +72,10 @@ fun BoxScope.MapOverlay(
             } else EnableGPSButton(
                 modifier = Modifier.align(Alignment.BottomEnd),
             ) {
-                onIntent(MapOverlayIntent.EnableGPS)
+                onIntent(
+                    if (isLocationEnabled.not()) MapOverlayIntent.AskForEnable
+                    else MapOverlayIntent.AskForPermission
+                )
             }
         }
 
@@ -93,11 +97,13 @@ fun BoxScope.MapOverlay(
                 }
             )
 
-            state.user?.client?.balance?.let {
-                BonusOverlay(
-                    amount = it,
-                    onClick = { onIntent(MapOverlayIntent.OnClickBonus)}
-                )
+            if (state.selectedOrder == null) {
+                state.user?.client?.balance?.let {
+                    BonusOverlay(
+                        amount = it,
+                        onClick = { onIntent(MapOverlayIntent.OnClickBonus) }
+                    )
+                }
             }
         }
 

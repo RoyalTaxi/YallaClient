@@ -15,7 +15,7 @@ import uz.yalla.client.core.common.item.OrderDetailBonusItem
 import uz.yalla.client.core.common.item.OrderDetailItem
 import uz.yalla.client.core.common.item.OrderDetailsStatus
 import uz.yalla.client.core.common.item.formatWithSpaces
-import uz.yalla.client.core.domain.model.AwardPaymentType
+import uz.yalla.client.core.domain.model.GivenAwardPaymentType
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.domain.model.OrderHistoryModel
 import uz.yalla.client.feature.history.R
@@ -102,8 +102,8 @@ internal fun OrderDetailsBottomSheet(
                     title = stringResource(R.string.cashback),
                     bonus = order.award.paymentAward.toString(),
                     bodyText = when (order.award.paymentType) {
-                        is AwardPaymentType.BALANCE -> stringResource(R.string.to_bonus_balance)
-                        is AwardPaymentType.PAYNET -> stringResource(R.string.to_phone_number)
+                        is GivenAwardPaymentType.BALANCE -> stringResource(R.string.to_bonus_balance)
+                        is GivenAwardPaymentType.PAYNET -> stringResource(R.string.to_phone_number)
                     }
                 )
             }

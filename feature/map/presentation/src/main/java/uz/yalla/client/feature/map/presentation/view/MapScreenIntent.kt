@@ -11,7 +11,8 @@ sealed interface MapScreenIntent {
         data object ClickShowOrders : MapOverlayIntent
         data object OpenDrawer : MapOverlayIntent
         data object NavigateBack : MapOverlayIntent
-        data object EnableGPS : MapOverlayIntent
+        data object AskForPermission : MapOverlayIntent
+        data object AskForEnable : MapOverlayIntent
         data object OnClickBonus: MapOverlayIntent
 
     }

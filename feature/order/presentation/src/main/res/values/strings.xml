@@ -67,4 +67,6 @@
     <string name="can_pay_with_bonus">Siz bonuslar bilan to\'lashingiz mumkin</string>
     <string name="added_bonus">+%s</string>
     <string name="bonus_percentage">%s%% gacha</string>
+    <string name="bonus_added_as_percent">+%s%%</string>
+    <string name="bonus_added_as_cash">+%s so\'m</string>
 </resources>

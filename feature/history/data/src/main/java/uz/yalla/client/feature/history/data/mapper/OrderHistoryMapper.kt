@@ -5,7 +5,7 @@ import uz.yalla.client.core.data.mapper.ServiceMapper
 import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.domain.formations.TimeFormation.toFormattedDate
 import uz.yalla.client.core.domain.formations.TimeFormation.toFormattedTime
-import uz.yalla.client.core.domain.model.AwardPaymentType
+import uz.yalla.client.core.domain.model.GivenAwardPaymentType
 import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.feature.domain.model.OrderHistoryModel
 import uz.yalla.client.service.history.response.OrderHistoryResponse
@@ -26,7 +26,7 @@ object OrderHistoryMapper {
         { remote ->
             OrderHistoryModel.Award(
                 paymentAward = remote?.payment_award.or0(),
-                paymentType = AwardPaymentType.fromTypeName(remote?.payment_type.orEmpty())
+                paymentType = GivenAwardPaymentType.fromTypeName(remote?.payment_type.orEmpty())
             )
         }
 
@@ -86,7 +86,7 @@ object OrderHistoryMapper {
 
     private fun defaultAward() = OrderHistoryModel.Award(
         paymentAward = 0,
-        paymentType = AwardPaymentType.fromTypeName("")
+        paymentType = GivenAwardPaymentType.fromTypeName("")
     )
 
     private fun defaultDriver() = OrderHistoryModel.Executor.Driver(

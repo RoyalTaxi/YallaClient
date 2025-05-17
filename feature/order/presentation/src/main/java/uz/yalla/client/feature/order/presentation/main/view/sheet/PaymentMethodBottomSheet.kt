@@ -146,8 +146,9 @@ private fun PaymentMethodContent(
             )
         }
 
-        if (isCardEnabled) items(paymentTypes) { card ->
+        items(paymentTypes) { card ->
             SelectPaymentTypeItem(
+                enabled = isCardEnabled,
                 painter = painterResource(
                     id = when (card.cardId.length) {
                         16 -> R.drawable.ic_humo
@@ -173,7 +174,7 @@ private fun PaymentMethodContent(
             )
         }
 
-        item {
+        if (isCardEnabled) item {
             SelectPaymentTypeItem(
                 isSelected = false,
                 tint = YallaTheme.color.gray,

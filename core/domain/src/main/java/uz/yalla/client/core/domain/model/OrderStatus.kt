@@ -29,6 +29,6 @@ sealed class OrderStatus(val value: String) {
 
         val nonInteractive = setOfNotNull(New, Sending, UserSending, NonStopSending)
 
-        val cancellable = nonInteractive + setOfNotNull(AtAddress)
+        val cancellable = nonInteractive + setOfNotNull(AtAddress, Appointed)
     }
 }

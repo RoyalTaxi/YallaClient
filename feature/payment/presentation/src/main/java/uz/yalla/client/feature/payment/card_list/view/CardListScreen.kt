@@ -120,7 +120,7 @@ private fun CardListContent(
             )
         }
 
-        item {
+        if (cardEnabled) item {
             SelectPaymentTypeItem(
                 isSelected = false,
                 tint = YallaTheme.color.gray,
@@ -128,25 +128,6 @@ private fun CardListContent(
                 text = stringResource(R.string.add_card),
                 onSelect = { onIntent(CardListIntent.AddNewCard) }
             )
-
-            // Commented out items preserved but moved here for organization
-            /*
-            SelectPaymentTypeItem(
-                isSelected = false,
-                tint = YallaTheme.color.gray,
-                painter = painterResource(R.drawable.ic_add),
-                text = stringResource(R.string.add_corporate_account),
-                onSelect = { onIntent(CardListIntent.AddCorporateAccount) }
-            )
-
-            SelectPaymentTypeItem(
-                isSelected = false,
-                tint = YallaTheme.color.gray,
-                painter = painterResource(R.drawable.ic_add),
-                text = stringResource(R.string.business_account),
-                onSelect = { onIntent(CardListIntent.AddBusinessAccount) }
-            )
-            */
         }
     }
 }

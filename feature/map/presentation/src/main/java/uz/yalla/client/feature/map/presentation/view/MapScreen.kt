@@ -32,6 +32,7 @@ fun MapScreen(
     isMapEnabled: Boolean,
     state: MapUIState,
     hasLocationPermission: Boolean,
+    isLocationEnabled: Boolean,
     moveCameraButtonState: MoveCameraButtonState,
     hamburgerButtonState: HamburgerButtonState,
     navController: NavHostController,
@@ -70,14 +71,17 @@ fun MapScreen(
                 .pointerInput(Unit) {}
         )
 
-        if (currentRoute.contains(ORDER_CANCELED_ROUTE).not()) MapOverlay(
-            modifier = Modifier.padding(bottom = state.sheetHeight),
-            state = state,
-            hasLocationPermission = hasLocationPermission,
-            moveCameraButtonState = moveCameraButtonState,
-            hamburgerButtonState = hamburgerButtonState,
-            onIntent = onIntent
-        )
+        if (currentRoute.contains(ORDER_CANCELED_ROUTE).not()) {
+            MapOverlay(
+                modifier = Modifier.padding(bottom = state.sheetHeight),
+                state = state,
+                hasLocationPermission = hasLocationPermission,
+                isLocationEnabled = isLocationEnabled,
+                moveCameraButtonState = moveCameraButtonState,
+                hamburgerButtonState = hamburgerButtonState,
+                onIntent = onIntent
+            )
+        }
 
         BottomSheetNavHost(
             navController = navController,

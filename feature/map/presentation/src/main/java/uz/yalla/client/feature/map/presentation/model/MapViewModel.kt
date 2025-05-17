@@ -351,6 +351,7 @@ class MapViewModel(
             it.copy(
                 selectedOrder = null,
                 selectedLocation = null,
+                drivers = emptyList(),
                 destinations = emptyList(),
                 selectedTariffId = null,
                 route = emptyList(),

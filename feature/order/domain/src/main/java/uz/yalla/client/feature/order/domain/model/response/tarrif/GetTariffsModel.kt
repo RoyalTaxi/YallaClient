@@ -19,6 +19,7 @@ data class GetTariffsModel(
 
     data class Tariff(
         val category: Category,
+        val award: Award?,
         val cost: Int,
         val description: String,
         val fixedPrice: Int,
@@ -34,6 +35,11 @@ data class GetTariffsModel(
         data class Category(
             val id: Int,
             val name: String
+        )
+
+        data class Award(
+            val type: AwardPaymentType,
+            val value: Int
         )
     }
 }

@@ -33,7 +33,7 @@ class MainViewModel(
 
     companion object {
         private const val MAX_LOCATION_ATTEMPTS = 3
-        private val DEFAULT_LOCATION_TIMEOUT = 5.seconds
+        private val DEFAULT_LOCATION_TIMEOUT = 2.seconds
     }
 
     val isConnected = connectivityObserver

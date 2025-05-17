@@ -66,4 +66,6 @@
     <string name="can_pay_with_bonus">Можно оплатить бонусами</string>
     <string name="added_bonus">+%s</string>
     <string name="bonus_percentage">до %s%%</string>
+    <string name="bonus_added_as_percent">+%s%%</string>
+    <string name="bonus_added_as_cash">+%s so\'m</string>
 </resources>

@@ -24,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -54,6 +55,7 @@ import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.MapType
 import uz.yalla.client.core.domain.model.OrderStatus
+import uz.yalla.client.feature.map.presentation.LocationServiceReceiver
 import uz.yalla.client.feature.map.presentation.R
 import uz.yalla.client.feature.map.presentation.model.MapUIState
 import uz.yalla.client.feature.map.presentation.model.MapViewModel
@@ -123,7 +125,8 @@ fun MapRoute(
     val lifecycleOwner = LocalLifecycleOwner.current
     val scope = rememberCoroutineScope()
     val prefs = koinInject<AppPreferences>()
-    var permissionsGranted by remember { mutableStateOf(true) }
+    var permissionsGranted by remember { mutableStateOf(false) }
+    var isLocationEnabled by remember { mutableStateOf(false) }
 
     var showPermissionDialog by remember { mutableStateOf(false) }
 
@@ -133,31 +136,41 @@ fun MapRoute(
         showPermissionDialog = !granted
     }
 
+    val locationServiceReceiver = rememberUpdatedState(
+        LocationServiceReceiver { isEnabled ->
+            isLocationEnabled = isEnabled
+        }
+    )
+
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                val finePermission = ActivityCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.ACCESS_FINE_LOCATION
+                checkLocation(
+                    context = context,
+                    provideLocationState = { state ->
+                        isLocationEnabled = state
+                    },
+                    providePermissionState = { state ->
+                        permissionsGranted = state
+                    },
+                    provideShowPermissionDialog = { state ->
+                        if (showPermissionDialog)
+                            showPermissionDialog = state
+                    }
                 )
-                val coarsePermission = ActivityCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                )
-
-                if (showPermissionDialog)
-                    showPermissionDialog =
-                        finePermission != PackageManager.PERMISSION_GRANTED ||
-                                coarsePermission != PackageManager.PERMISSION_GRANTED
-
-                permissionsGranted = finePermission == PackageManager.PERMISSION_GRANTED ||
-                        coarsePermission == PackageManager.PERMISSION_GRANTED
             }
         }
 
         lifecycleOwner.lifecycle.addObserver(observer)
+
+        val receiver = locationServiceReceiver.value
+        val filter = android.content.IntentFilter(android.location.LocationManager.PROVIDERS_CHANGED_ACTION)
+
+        context.registerReceiver(receiver, filter)
+
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
+            context.unregisterReceiver(receiver)
         }
     }
 
@@ -571,6 +584,7 @@ fun MapRoute(
                 moveCameraButtonState = state.moveCameraButtonState,
                 hamburgerButtonState = hamburgerButtonState,
                 hasLocationPermission = permissionsGranted,
+                isLocationEnabled = isLocationEnabled,
                 navController = navController
             ) { intent ->
                 when (intent) {
@@ -645,8 +659,12 @@ fun MapRoute(
                         }
                     }
 
-                    MapScreenIntent.MapOverlayIntent.EnableGPS -> {
+                    MapScreenIntent.MapOverlayIntent.AskForPermission -> {
                         requestPermission(context, locationPermissionRequest)
+                    }
+
+                    MapScreenIntent.MapOverlayIntent.AskForEnable -> {
+                        showEnableLocationSettings(context)
                     }
                 }
             }
@@ -722,4 +740,43 @@ private suspend fun handleSheetHeightChange(
         state.selectedLocation?.point?.let { map.move(to = it) }
             ?: map.move(to = map.mapPoint.value)
     }
+}
+
+fun showEnableLocationSettings(context: Context) {
+    val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+    context.startActivity(intent)
+}
+
+private fun checkLocation(
+    context: Context,
+    provideLocationState: (Boolean) -> Unit,
+    providePermissionState: (Boolean) -> Unit,
+    provideShowPermissionDialog: (Boolean) -> Unit
+) {
+    val finePermission = ActivityCompat.checkSelfPermission(
+        context,
+        Manifest.permission.ACCESS_FINE_LOCATION
+    )
+    val coarsePermission = ActivityCompat.checkSelfPermission(
+        context,
+        Manifest.permission.ACCESS_COARSE_LOCATION
+    )
+
+    val locationManager =
+        context.getSystemService(Context.LOCATION_SERVICE) as android.location.LocationManager
+
+    provideLocationState(
+        locationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER) ||
+                locationManager.isProviderEnabled(android.location.LocationManager.NETWORK_PROVIDER)
+    )
+
+    providePermissionState(
+        finePermission == PackageManager.PERMISSION_GRANTED ||
+                coarsePermission == PackageManager.PERMISSION_GRANTED
+    )
+
+    provideShowPermissionDialog(
+        finePermission != PackageManager.PERMISSION_GRANTED ||
+                coarsePermission != PackageManager.PERMISSION_GRANTED
+    )
 }

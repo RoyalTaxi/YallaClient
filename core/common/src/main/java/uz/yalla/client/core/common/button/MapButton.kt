@@ -28,10 +28,6 @@ fun MapButton(
         interactionSource = mutableInteractionSource,
         modifier = modifier.size(50.dp),
         shape = CircleShape,
-        elevation = ButtonDefaults.elevatedButtonElevation(
-            defaultElevation = 10.dp,
-            hoveredElevation = 20.dp
-        ),
         contentPadding = PaddingValues(16.dp),
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(

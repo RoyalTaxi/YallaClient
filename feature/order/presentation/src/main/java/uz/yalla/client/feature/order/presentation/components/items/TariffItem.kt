@@ -16,8 +16,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,6 +31,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
+import uz.yalla.client.feature.order.domain.model.response.tarrif.AwardPaymentType
 import uz.yalla.client.feature.order.domain.model.response.tarrif.GetTariffsModel
 import uz.yalla.client.feature.order.presentation.R
 
@@ -36,7 +40,6 @@ fun TariffItem(
     tariff: GetTariffsModel.Tariff,
     isDestinationsEmpty: Boolean,
     selectedState: Boolean,
-    bonusPercentage: Int? = null,
     onSelect: (Boolean) -> Unit
 ) {
     val textColor = if (selectedState) YallaTheme.color.white else YallaTheme.color.black
@@ -95,7 +98,7 @@ fun TariffItem(
             }
         }
 
-        bonusPercentage?.let {
+        tariff.award?.let {
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
@@ -118,11 +121,20 @@ fun TariffItem(
                             .size(12.dp)
                     )
 
-                    Text(
-                        text = stringResource(R.string.added_bonus, bonusPercentage),
-                        color = YallaTheme.color.white,
-                        style = YallaTheme.font.body
-                    )
+                    CompositionLocalProvider(
+                        LocalTextStyle provides YallaTheme.font.body,
+                        LocalContentColor provides YallaTheme.color.white
+                    ) {
+                        when (it.type) {
+                            AwardPaymentType.CASH -> {
+                                Text(stringResource(R.string.bonus_added_as_cash, it.value))
+                            }
+
+                            AwardPaymentType.PERCENT -> {
+                                Text(stringResource(R.string.bonus_added_as_percent, it.value))
+                            }
+                        }
+                    }
                 }
             }
         }

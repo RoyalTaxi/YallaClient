@@ -185,7 +185,6 @@ fun OrderTaxiPage(
                             tariff = tariff,
                             isDestinationsEmpty = state.destinations.isEmpty(),
                             selectedState = state.selectedTariff?.id == tariff.id,
-                            bonusPercentage = 10,
                             onSelect = { wasSelected ->
                                 coroutineScope.launch {
                                     onIntent(

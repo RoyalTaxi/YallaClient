@@ -25,6 +25,7 @@ data class GetTariffsResponse(
     data class Tariff(
         val category: Category?,
         val cost: Int?,
+        val award: Award?,
         val description: String?,
         val fixed_price: Int?,
         val fixed_type: Boolean?,
@@ -42,6 +43,10 @@ data class GetTariffsResponse(
             val name: String?
         )
 
-
+        @Serializable
+        data class Award(
+            val cash_or_percentage: String?,
+            val value: Int?
+        )
     }
 }
