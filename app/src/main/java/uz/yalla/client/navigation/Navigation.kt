@@ -68,7 +68,11 @@ fun Navigation(
                         }
                     )
                 } else {
-                    navController.navigateToAuthModule()
+                    navController.navigateToAuthModule(
+                        navOptions {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    )
                 }
             }
         )

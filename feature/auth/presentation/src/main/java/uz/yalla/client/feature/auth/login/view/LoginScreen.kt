@@ -33,9 +33,6 @@ internal fun LoginScreen(
     Scaffold(
         modifier = Modifier.imePadding(),
         containerColor = YallaTheme.color.white,
-        topBar = {
-            LoginAppBar(onNavigateBack = { onIntent(LoginIntent.NavigateBack) })
-        },
         content = { paddingValues ->
             Column(
                 modifier = Modifier

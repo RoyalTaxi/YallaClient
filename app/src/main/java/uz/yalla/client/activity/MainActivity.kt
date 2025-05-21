@@ -28,6 +28,7 @@ import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import uz.yalla.client.BuildConfig
+import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.navigation.Navigation
 
 class MainActivity : AppCompatActivity() {
@@ -90,10 +91,12 @@ class MainActivity : AppCompatActivity() {
             val isDeviceRegistered by viewModel.isDeviceRegistered.collectAsState()
 
             isDeviceRegistered?.let { registered ->
-                Navigation(
-                    isConnected = isConnected,
-                    isDeviceRegistered = registered
-                )
+                YallaTheme {
+                    Navigation(
+                        isConnected = isConnected,
+                        isDeviceRegistered = registered
+                    )
+                }
             }
         }
     }
