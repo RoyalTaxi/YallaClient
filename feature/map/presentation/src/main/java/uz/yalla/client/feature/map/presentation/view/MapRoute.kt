@@ -126,7 +126,7 @@ fun MapRoute(
     val scope = rememberCoroutineScope()
     val prefs = koinInject<AppPreferences>()
     var permissionsGranted by remember { mutableStateOf(false) }
-    var isLocationEnabled by remember { mutableStateOf(false) }
+    var isLocationEnabled by remember { mutableStateOf(true) }
 
     var showPermissionDialog by remember { mutableStateOf(false) }
 
