@@ -38,7 +38,7 @@ interface AppPreferences {
     val dateOfBirth: Flow<String>
     fun setDateOfBirth(value: String)
 
-    val mapType: Flow<MapType>
+    val mapType: Flow<MapType?>
     fun setMapType(value: MapType)
 
     val paymentType: Flow<PaymentType>

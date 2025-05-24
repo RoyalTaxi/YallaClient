@@ -117,9 +117,10 @@ internal class AppPreferencesImpl(
         scope.launch { set(Prefs.DOB, value) }
     }
 
-    override val mapType: Flow<MapType> = store.data.map { prefs ->
-        val name = prefs[Prefs.MAP_TYPE] ?: MapType.Google.typeName
-        MapType.fromTypeName(name)
+    override val mapType: Flow<MapType?> = store.data.map { prefs ->
+        prefs[Prefs.MAP_TYPE]?.let { name ->
+            MapType.fromTypeName(name)
+        }
     }
 
     override fun setMapType(value: MapType) {

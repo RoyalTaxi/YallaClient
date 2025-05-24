@@ -18,18 +18,49 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import uz.yalla.client.core.common.utils.rememberMarker
+import uz.yalla.client.core.common.utils.rememberGoogleMarker
+import uz.yalla.client.core.common.utils.rememberLibreMarker
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 
 @Composable
-fun createInfoMarker(
+fun rememberGoogleMarkerWithInfo(
     key: String? = null,
     title: String?,
     description: String?,
     infoColor: Color,
     pointColor: Color
-) = rememberMarker(key) {
+) = rememberGoogleMarker(key) {
+    InfoMarker(
+        title = title,
+        description = description,
+        infoColor = infoColor,
+        pointColor = pointColor
+    )
+}
 
+@Composable
+fun rememberLibreMarkerWithInfo(
+    key: String? = null,
+    title: String?,
+    description: String?,
+    infoColor: Color,
+    pointColor: Color
+) = rememberLibreMarker(key) {
+    InfoMarker(
+        title = title,
+        description = description,
+        infoColor = infoColor,
+        pointColor = pointColor
+    )
+}
+
+@Composable
+private fun InfoMarker(
+    title: String?,
+    description: String?,
+    infoColor: Color,
+    pointColor: Color
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(10.dp)

@@ -52,6 +52,7 @@ jetbrainsKotlinJvm = "2.0.20"
 firebaseCrashlytics = "3.0.3"
 googleServices = "4.4.1"
 datastore = "1.1.4"
+mapLibre = "0.7.0"
 
 [libraries]
 
@@ -130,6 +131,7 @@ truth = { module = "com.google.truth:truth", version.ref = "truth" }
 
 datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
 datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
+maplibre-compose = { module = "dev.sargunv.maplibre-compose:maplibre-compose", version.ref = "mapLibre" }
 
 [plugins]
 

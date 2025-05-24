@@ -11,6 +11,7 @@ import org.koin.java.KoinJavaComponent
 import uz.yalla.client.BuildConfig
 import uz.yalla.client.core.data.di.Common
 import uz.yalla.client.core.domain.local.AppPreferences
+import uz.yalla.client.core.domain.model.MapType
 import uz.yalla.client.di.Navigation
 
 class App : Application() {
@@ -33,5 +34,6 @@ class App : Application() {
 
         val prefs: AppPreferences by lazy { KoinJavaComponent.getKoin().get() }
         prefs.setHasProcessedOrderOnEntry(false)
+        prefs.setMapType(MapType.Libre)
     }
 }

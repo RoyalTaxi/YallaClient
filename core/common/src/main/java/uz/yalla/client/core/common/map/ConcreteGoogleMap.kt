@@ -51,7 +51,8 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import uz.yalla.client.core.common.R
 import uz.yalla.client.core.common.convertor.dpToPx
-import uz.yalla.client.core.common.marker.createInfoMarker
+import uz.yalla.client.core.common.marker.rememberGoogleMarkerWithInfo
+import uz.yalla.client.core.common.utils.findClosestPointOnRoute
 import uz.yalla.client.core.common.utils.getCurrentLocation
 import uz.yalla.client.core.common.utils.hasLocationPermission
 import uz.yalla.client.core.common.utils.vectorToBitmapDescriptor
@@ -65,9 +66,7 @@ import kotlin.properties.Delegates
 
 class ConcreteGoogleMap : MapStrategy, KoinComponent {
     private val prefs by inject<AppPreferences>()
-
     override val isMarkerMoving = MutableStateFlow(false to false)
-
     override val mapPoint: MutableState<MapPoint> = mutableStateOf(MapPoint(0.0, 0.0))
 
     private var driver: MutableState<Executor?> = mutableStateOf(null)
@@ -344,7 +343,7 @@ private fun Markers(
     val originIcon = key(
         locations.firstOrNull()?.hashCode()?.plus(carArrivesInMinutes.hashCode()),
     ) {
-        createInfoMarker(
+        rememberGoogleMarkerWithInfo(
             key = "origin_${locations.firstOrNull()?.hashCode()}",
             title = carArrivesInMinutes?.let {
                 stringResource(
@@ -366,7 +365,7 @@ private fun Markers(
     val endIcon = key(
         locations.lastOrNull()?.hashCode()?.plus(orderEndsInMinutes.hashCode())
     ) {
-        createInfoMarker(
+        rememberGoogleMarkerWithInfo(
             key = "destination_${locations.lastOrNull()?.hashCode()}",
             title = orderEndsInMinutes?.let {
                 stringResource(
@@ -439,13 +438,3 @@ private fun Markers(
     }
 }
 
-private fun findClosestPointOnRoute(
-    location: MapPoint,
-    route: List<MapPoint>
-): MapPoint? {
-    return route.minByOrNull { routePoint ->
-        val dx = location.lat - routePoint.lat
-        val dy = location.lng - routePoint.lng
-        dx * dx + dy * dy
-    }
-}

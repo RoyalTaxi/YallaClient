@@ -25,6 +25,7 @@ import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
+import uz.yalla.client.core.domain.model.MapPoint
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
@@ -263,5 +264,16 @@ fun getCurrentLocation(
 ) {
     MainScope().launch {
         getCurrentLocationSafely(context, onPermissionDenied, onLocationFetched)
+    }
+}
+
+fun findClosestPointOnRoute(
+    location: MapPoint,
+    route: List<MapPoint>
+): MapPoint? {
+    return route.minByOrNull { routePoint ->
+        val dx = location.lat - routePoint.lat
+        val dy = location.lng - routePoint.lng
+        dx * dx + dy * dy
     }
 }

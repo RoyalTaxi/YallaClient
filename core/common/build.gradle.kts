@@ -23,6 +23,7 @@ dependencies {
     implementation(libs.maps.compose)
     implementation(libs.play.services.location)
 
+    implementation(libs.maplibre.compose)
     implementation(libs.lottie.compose)
 
     implementation(libs.androidx.constraintlayout.compose)
