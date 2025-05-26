@@ -177,7 +177,6 @@ fun MapRoute(
     }
 
     val state by vm.uiState.collectAsState()
-    val isMapEnabled by vm.isMapEnabled.collectAsState()
     val hamburgerButtonState by vm.hamburgerButtonState.collectAsState()
     var drawerState = rememberDrawerState(DrawerValue.Closed)
 
@@ -592,7 +591,6 @@ fun MapRoute(
             map?.let { mapInstance ->
                 MapScreen(
                     map = mapInstance,
-                    isMapEnabled = isMapEnabled,
                     state = state,
                     moveCameraButtonState = state.moveCameraButtonState,
                     hamburgerButtonState = hamburgerButtonState,

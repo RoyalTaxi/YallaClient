@@ -1,7 +1,6 @@
 package uz.yalla.client.feature.map.presentation.model
 
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -171,21 +170,6 @@ class MapViewModel(
             scope = viewModelScope,
             started = SharingStarted.Lazily,
             initialValue = HamburgerButtonState.OpenDrawer
-        )
-
-    val isMapEnabled = uiState
-        .map { state ->
-            when {
-                state.markerState == YallaMarkerState.Searching -> false
-                state.selectedOrder == null -> true
-                OrderStatus.nonInteractive.contains(state.selectedOrder.status) -> false
-                else -> true
-            }
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Lazily,
-            initialValue = true
         )
 
     fun getMe() = viewModelScope.launch {
