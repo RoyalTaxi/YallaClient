@@ -19,7 +19,7 @@ fun NavGraphBuilder.clientWaitingBottomSheet() {
         route = CLIENT_WAITING_ROUTE,
         arguments = listOf(navArgument(ORDER_ID) { type = NavType.IntType })
     ) { backStackEntry ->
-        ClientWaitingSheet.View(
+        ClientWaitingSheet(
             orderId = backStackEntry.arguments?.getInt(ORDER_ID).or0()
         )
     }

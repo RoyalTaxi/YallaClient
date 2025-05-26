@@ -3,7 +3,6 @@ package uz.yalla.client.feature.order.presentation.feedback.model
 import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -11,9 +10,8 @@ import kotlinx.coroutines.launch
 import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.feature.order.domain.usecase.order.GetShowOrderUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.RateTheRideUseCase
-import uz.yalla.client.feature.order.presentation.feedback.view.FeedbackSheet
+import uz.yalla.client.feature.order.presentation.feedback.view.FeedbackSheetChannel
 import uz.yalla.client.feature.order.presentation.feedback.view.FeedbackSheetIntent
-import uz.yalla.client.feature.order.presentation.feedback.view.FeedbackSheet.mutableIntentFlow
 
 class FeedbackSheetViewModel(
     private val getShowOrderUseCase: GetShowOrderUseCase,
@@ -28,7 +26,7 @@ class FeedbackSheetViewModel(
             when (intent) {
                 is FeedbackSheetIntent.SetFooterHeight -> setFooterHeight(intent.height)
                 is FeedbackSheetIntent.SetHeaderHeight -> setHeaderHeight(intent.height)
-                else -> mutableIntentFlow.emit(intent)
+                else -> FeedbackSheetChannel.sendIntent(intent)
             }
         }
     }

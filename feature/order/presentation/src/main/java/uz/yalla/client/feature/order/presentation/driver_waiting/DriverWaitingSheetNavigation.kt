@@ -17,9 +17,9 @@ const val DRIVER_WAITING_ROUTE = "$DRIVER_WAITING_ROUTE_BASE?$ORDER_ID={$ORDER_I
 fun NavGraphBuilder.driverWaitingBottomSheet() {
     composable(
         route = DRIVER_WAITING_ROUTE,
-        arguments = listOf(navArgument(ORDER_ID) { type = NavType.IntType})
-    ){backStackEntry ->
-        DriverWaitingSheet.View(
+        arguments = listOf(navArgument(ORDER_ID) { type = NavType.IntType })
+    ) { backStackEntry ->
+        DriverWaitingSheet(
             orderId = backStackEntry.arguments?.getInt(ORDER_ID).or0()
         )
     }

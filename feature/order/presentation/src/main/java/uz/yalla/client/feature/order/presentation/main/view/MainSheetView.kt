@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -61,6 +62,7 @@ import uz.yalla.client.feature.order.presentation.main.view.sheet.BonusInfoBotto
 import uz.yalla.client.feature.order.presentation.main.view.sheet.OrderCommentBottomSheet
 import uz.yalla.client.feature.order.presentation.main.view.sheet.PaymentMethodBottomSheet
 import uz.yalla.client.feature.order.presentation.main.view.sheet.SetBonusAmountBottomSheet
+import uz.yalla.client.feature.order.presentation.no_service.view.NoServiceSheetChannel
 import kotlin.time.Duration.Companion.seconds
 
 
@@ -75,8 +77,6 @@ fun MainSheet(
     val scope = rememberCoroutineScope()
     val prefs = koinInject<AppPreferences>()
     val paymentType by prefs.paymentType.collectAsState(initial = PaymentType.CASH)
-
-    val timeoutUpdateTrigger by viewModel.timeoutUpdateTrigger.collectAsState(null)
 
     val scaffoldState = rememberBottomSheetScaffoldState(
         rememberBottomSheetState(
@@ -104,12 +104,18 @@ fun MainSheet(
         }
     }
 
-    LaunchedEffect(timeoutUpdateTrigger) {
+    LaunchedEffect(Unit) {
+        MainSheetChannel.register(lifecycleOwner)
+    }
+
+    LaunchedEffect(state.selectedTariff?.id, state.selectedLocation?.point) {
         lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            timeoutUpdateTrigger?.second?.let {
-                while (isActive) {
-                    viewModel.updateTimeout()
-                    delay(10.seconds)
+            launch(Dispatchers.IO) {
+                state.selectedLocation?.point.let {
+                    while (isActive) {
+                        viewModel.updateTimeout()
+                        delay(10.seconds)
+                    }
                 }
             }
         }

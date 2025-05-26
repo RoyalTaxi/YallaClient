@@ -9,12 +9,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uz.yalla.client.feature.order.domain.usecase.order.GetShowOrderUseCase
-import uz.yalla.client.feature.order.presentation.on_the_ride.view.OnTheRideSheet.mutableIntentFlow
+import uz.yalla.client.feature.order.presentation.on_the_ride.view.OnTheRideSheetChannel
 import uz.yalla.client.feature.order.presentation.on_the_ride.view.OnTheRideSheetIntent
 
 class OnTheRideSheetViewModel(
     private val getShowOrderUseCase: GetShowOrderUseCase
-) :ViewModel() {
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(OnTheRideSheetState())
     val uiState = _uiState.asStateFlow()
@@ -25,10 +25,10 @@ class OnTheRideSheetViewModel(
     }
 
     fun onIntent(intent: OnTheRideSheetIntent) {
-        viewModelScope.launch ( Dispatchers.IO ) {
+        viewModelScope.launch(Dispatchers.IO) {
             when (intent) {
                 is OnTheRideSheetIntent.SetHeaderHeight -> setHeaderHeight(intent.height)
-                else -> mutableIntentFlow.emit(intent)
+                else -> OnTheRideSheetChannel.sendIntent(intent)
             }
         }
     }

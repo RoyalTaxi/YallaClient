@@ -3,7 +3,6 @@ package uz.yalla.client.feature.order.presentation.main.model
 import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
@@ -12,7 +11,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -67,10 +65,6 @@ class MainSheetViewModel(
 
     private val _isPolygonLoading = MutableStateFlow(false)
 
-    val timeoutUpdateTrigger = uiState
-        .map { it.selectedTariff?.id to it.selectedLocation?.point }
-        .distinctUntilChanged()
-
     val buttonAndOptionsState = uiState
         .map(::mapToButtonAndOptionsState)
         .stateIn(
@@ -95,7 +89,7 @@ class MainSheetViewModel(
 
     fun observeChannels() {
         viewModelScope.launch {
-            MainSheetChannel.actionChannel.collectLatest { action ->
+            MainSheetChannel.actionFlow.collectLatest { action ->
                 when (action) {
                     is MainSheetAction.SetDestination -> setDestination(action.destinations)
                     is MainSheetAction.SetLocation -> setSelectedLocation(action.location)
@@ -162,7 +156,7 @@ class MainSheetViewModel(
                     setBonusAmount(0)
                 }
 
-                else -> MainSheetChannel.intentChannel.emit(intent)
+                else -> MainSheetChannel.sendIntent(intent)
             }
         }
     }
@@ -197,7 +191,7 @@ class MainSheetViewModel(
         viewModelScope.launch {
             uiState.distinctUntilChangedBy { it.drivers to it.timeout }
                 .collectLatest {
-                    MainSheetChannel.intentChannel.emit(
+                    MainSheetChannel.sendIntent(
                         OrderTaxiSheetIntent.SetTimeout(
                             it.timeout,
                             it.drivers
@@ -256,11 +250,11 @@ class MainSheetViewModel(
 
         if (inside && addressId != null) {
             suspendGetTariffs(addressId)
-            MainSheetChannel.intentChannel.emit(OrderTaxiSheetIntent.SetServiceState(true))
+            MainSheetChannel.sendIntent(OrderTaxiSheetIntent.SetServiceState(true))
         } else {
             setSelectedTariff(null)
             handleTariffsFailure()
-            MainSheetChannel.intentChannel.emit(OrderTaxiSheetIntent.SetServiceState(false))
+            MainSheetChannel.sendIntent(OrderTaxiSheetIntent.SetServiceState(false))
         }
     }
 
@@ -356,7 +350,7 @@ class MainSheetViewModel(
 
     private fun getShowOrder(id: Int) = viewModelScope.launch {
         getShowOrderUseCase(id).onSuccess {
-            MainSheetChannel.intentChannel.emit(OrderTaxiSheetIntent.OrderCreated(it))
+            MainSheetChannel.sendIntent(OrderTaxiSheetIntent.OrderCreated(it))
             _uiState.update { s -> s.copy(order = it, loading = false) }
         }.onFailure {
             _uiState.update { s -> s.copy(loading = false) }
