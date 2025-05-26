@@ -3,7 +3,6 @@ package uz.yalla.client.feature.order.presentation.driver_waiting.model
 import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,16 +14,16 @@ import kotlinx.coroutines.launch
 import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.feature.order.domain.usecase.order.CancelRideUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.GetShowOrderUseCase
-import uz.yalla.client.feature.order.presentation.driver_waiting.view.DriverWaitingIntent
-import uz.yalla.client.feature.order.presentation.driver_waiting.view.DriverWaitingSheet.mutableIntentFlow
+import uz.yalla.client.feature.order.presentation.driver_waiting.view.DriverWaitingSheetChannel
+import uz.yalla.client.feature.order.presentation.driver_waiting.view.DriverWaitingSheetIntent
 import kotlin.time.Duration.Companion.seconds
 
-class DriverWaitingViewModel(
+class DriverWaitingSheetViewModel(
     private val cancelRideUseCase: CancelRideUseCase,
     private val getShowOrderUseCase: GetShowOrderUseCase
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(DriverWaitingState())
+    private val _uiState = MutableStateFlow(DriverWaitingSheetState())
     val uiState = _uiState.asStateFlow()
 
     fun setOrderId(orderId: Int) {
@@ -32,12 +31,12 @@ class DriverWaitingViewModel(
         getOrderDetails()
     }
 
-    fun onIntent(intent: DriverWaitingIntent) {
+    fun onIntent(intent: DriverWaitingSheetIntent) {
         viewModelScope.launch {
             when (intent) {
-                is DriverWaitingIntent.SetFooterHeight -> setFooterHeight(intent.height)
-                is DriverWaitingIntent.SetHeaderHeight -> setHeaderHeight(intent.height)
-                else -> mutableIntentFlow.emit(intent)
+                is DriverWaitingSheetIntent.SetFooterHeight -> setFooterHeight(intent.height)
+                is DriverWaitingSheetIntent.SetHeaderHeight -> setHeaderHeight(intent.height)
+                else -> DriverWaitingSheetChannel.sendIntent(intent)
             }
         }
     }
@@ -65,7 +64,7 @@ class DriverWaitingViewModel(
                 cancelRideUseCase(orderId)
             }
         }.invokeOnCompletion {
-            onIntent(DriverWaitingIntent.OnCancelled(uiState.value.orderId))
+            onIntent(DriverWaitingSheetIntent.OnCancelled(uiState.value.orderId))
         }
     }
 

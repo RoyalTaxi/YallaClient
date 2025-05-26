@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.order.presentation.main.view
+package uz.yalla.client.feature.order.presentation.order_canceled.view
 
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
@@ -6,22 +6,16 @@ import androidx.lifecycle.LifecycleOwner
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import uz.yalla.client.core.domain.model.Destination
-import uz.yalla.client.core.domain.model.SelectedLocation
 
-object MainSheetChannel {
+object OrderCanceledSheetChannel {
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private val activeLifecycles = mutableSetOf<LifecycleOwner>()
 
-    private val _intentFlow = MutableSharedFlow<MainSheetIntent>()
+    private val _intentFlow = MutableSharedFlow<OrderCanceledSheetIntent>()
     val intentFlow = _intentFlow.asSharedFlow()
-
-    private val _actionFlow = MutableSharedFlow<MainSheetAction>()
-    val actionFlow = _actionFlow.asSharedFlow()
 
     private val lifecycleObserver = object : DefaultLifecycleObserver {
         override fun onCreate(owner: LifecycleOwner) {
@@ -46,34 +40,10 @@ object MainSheetChannel {
         }
     }
 
-    fun sendIntent(intent: MainSheetIntent) {
+    fun sendIntent(intent: OrderCanceledSheetIntent) {
         if (hasActiveLifecycles()) {
             scope.launch {
                 _intentFlow.emit(intent)
-            }
-        }
-    }
-
-    fun setDestination(destinations: List<Destination>) {
-        if (hasActiveLifecycles()) {
-            scope.launch {
-                _actionFlow.emit(MainSheetAction.SetDestination(destinations))
-            }
-        }
-    }
-
-    fun setLocation(location: SelectedLocation) {
-        if (hasActiveLifecycles()) {
-            scope.launch {
-                _actionFlow.emit(MainSheetAction.SetLocation(location))
-            }
-        }
-    }
-
-    fun setBonusVisibility(isVisible: Boolean) {
-        if (hasActiveLifecycles()) {
-            scope.launch {
-                _actionFlow.emit(MainSheetAction.SetBonusInfoVisibility(isVisible))
             }
         }
     }

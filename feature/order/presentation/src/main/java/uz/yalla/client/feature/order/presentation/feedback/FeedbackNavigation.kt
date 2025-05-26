@@ -19,7 +19,7 @@ fun NavGraphBuilder.feedbackBottomSheet() {
         route = FEEDBACK_ROUTE,
         arguments = listOf(navArgument(ORDER_ID) { type = NavType.IntType })
     ) {backStackEntry ->
-        FeedbackSheet.View(
+        FeedbackSheet(
             orderID = backStackEntry.arguments?.getInt(ORDER_ID).or0()
         )
     }

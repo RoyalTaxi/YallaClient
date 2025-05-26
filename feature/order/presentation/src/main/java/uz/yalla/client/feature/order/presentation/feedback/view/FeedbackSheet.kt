@@ -37,10 +37,8 @@ import io.morfly.compose.bottomsheet.material3.BottomSheetScaffold
 import io.morfly.compose.bottomsheet.material3.rememberBottomSheetScaffoldState
 import io.morfly.compose.bottomsheet.material3.rememberBottomSheetState
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import org.koin.java.KoinJavaComponent.getKoin
+import org.koin.androidx.compose.koinViewModel
 import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.common.state.SheetValue
 import uz.yalla.client.core.domain.model.PaymentType
@@ -53,143 +51,138 @@ import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
 import uz.yalla.client.feature.order.presentation.feedback.model.FeedbackSheetViewModel
 import uz.yalla.client.feature.order.presentation.on_the_ride.ON_THE_RIDE_ROUTE
 
-object FeedbackSheet {
-    private val viewModel: FeedbackSheetViewModel by lazy { getKoin().get() }
-    internal val mutableIntentFlow = MutableSharedFlow<FeedbackSheetIntent>()
-    val intentFlow = mutableIntentFlow.asSharedFlow()
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@Composable
+fun FeedbackSheet(
+    orderID: Int,
+    viewModel: FeedbackSheetViewModel = koinViewModel()
+) {
+    val density = LocalDensity.current
+    val state by viewModel.uiState.collectAsState()
+    var rating by remember { mutableIntStateOf(0) }
+    val scaffoldState = rememberBottomSheetScaffoldState(
+        rememberBottomSheetState(
+            initialValue = SheetValue.Expanded,
+            defineValues = {
+                SheetValue.PartiallyExpanded at height(state.headerHeight + state.footerHeight + 40.dp)
+                SheetValue.Expanded at contentHeight
+            }
+        )
+    )
 
-    @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
-    @Composable
-    fun View(
-        orderID: Int,
-    ) {
-        val density = LocalDensity.current
-        val state by viewModel.uiState.collectAsState()
-        var rating by remember { mutableIntStateOf(0) }
-        val scaffoldState = rememberBottomSheetScaffoldState(
-            rememberBottomSheetState(
-                initialValue = SheetValue.Expanded,
-                defineValues = {
-                    SheetValue.PartiallyExpanded at height(state.headerHeight + state.footerHeight + 40.dp)
-                    SheetValue.Expanded at contentHeight
-                }
+    LaunchedEffect(Unit) {
+        launch(Dispatchers.IO) {
+            viewModel.setOrderId(orderID)
+        }
+    }
+
+    LaunchedEffect(state.footerHeight, state.headerHeight) {
+        launch(Dispatchers.Main) {
+            scaffoldState.sheetState.refreshValues()
+            SheetCoordinator.updateSheetHeight(
+                route = ON_THE_RIDE_ROUTE,
+                height = state.headerHeight + state.footerHeight + 40.dp
             )
-        )
-
-        LaunchedEffect(Unit) {
-            launch(Dispatchers.IO) {
-                viewModel.setOrderId(orderID)
-            }
         }
+    }
 
-        LaunchedEffect(state.footerHeight, state.headerHeight) {
-            launch(Dispatchers.Main) {
-                scaffoldState.sheetState.refreshValues()
-                SheetCoordinator.updateSheetHeight(
-                    route = ON_THE_RIDE_ROUTE,
-                    height = state.headerHeight + state.footerHeight + 40.dp
-                )
-            }
-        }
+    BackHandler { viewModel.onIntent(FeedbackSheetIntent.OnCompleteOrder) }
 
-        BackHandler { viewModel.onIntent(FeedbackSheetIntent.OnCompleteOrder) }
-
-        BottomSheetScaffold(
-            scaffoldState = scaffoldState,
-            sheetDragHandle = null,
-            sheetContainerColor = YallaTheme.color.gray2,
-            content = {},
-            sheetContent = {
-                Box(
-                    contentAlignment = Alignment.BottomCenter
+    BottomSheetScaffold(
+        scaffoldState = scaffoldState,
+        sheetDragHandle = null,
+        sheetContainerColor = YallaTheme.color.gray2,
+        content = {},
+        sheetContent = {
+            Box(
+                contentAlignment = Alignment.BottomCenter
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    modifier = Modifier
+                        .background(
+                            color = YallaTheme.color.gray2,
+                            shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
+                        )
+                        .padding(bottom = state.footerHeight + 10.dp)
                 ) {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                    OrderSheetHeader(
+                        text = stringResource(R.string.order_completed),
+                        selectedDriver = state.order,
                         modifier = Modifier
-                            .background(
-                                color = YallaTheme.color.gray2,
-                                shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
-                            )
-                            .padding(bottom = state.footerHeight + 10.dp)
-                    ) {
-                        OrderSheetHeader(
-                            text = stringResource(R.string.order_completed),
-                            selectedDriver = state.order,
-                            modifier = Modifier
-                                .onSizeChanged {
-                                    with(density) {
-                                        viewModel.onIntent(
-                                            FeedbackSheetIntent.SetHeaderHeight(it.height.toDp())
-                                        )
-                                    }
+                            .onSizeChanged {
+                                with(density) {
+                                    viewModel.onIntent(
+                                        FeedbackSheetIntent.SetHeaderHeight(it.height.toDp())
+                                    )
                                 }
+                            }
+                    )
+
+                    FeedbackOrderInfo(
+                        order = state.order
+                    )
+
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                color = YallaTheme.color.white,
+                                shape = RoundedCornerShape(30.dp)
+                            )
+                            .padding(20.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.rate_the_trip),
+                            style = YallaTheme.font.title,
+                            color = YallaTheme.color.black
                         )
 
-                        FeedbackOrderInfo(
-                            order = state.order
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        RatingStarsItem(
+                            maxRating = 5,
+                            currentRating = rating,
+                            onRatingChange = { rating = it }
                         )
-
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(4.dp),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(
-                                    color = YallaTheme.color.white,
-                                    shape = RoundedCornerShape(30.dp)
-                                )
-                                .padding(20.dp)
-                        ) {
-                            Text(
-                                text = stringResource(R.string.rate_the_trip),
-                                style = YallaTheme.font.title,
-                                color = YallaTheme.color.black
-                            )
-
-                            Spacer(modifier = Modifier.height(10.dp))
-
-                            RatingStarsItem(
-                                maxRating = 5,
-                                currentRating = rating,
-                                onRatingChange = { rating = it }
-                            )
-                        }
                     }
                 }
             }
-        )
+        }
+    )
 
-        Box(
-            contentAlignment = Alignment.BottomCenter,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier
-                    .pointerInput(Unit) {}
-                    .onSizeChanged {
-                        with(density) {
-                            viewModel.onIntent(
-                                FeedbackSheetIntent.SetFooterHeight(it.height.toDp())
-                            )
-                        }
+    Box(
+        contentAlignment = Alignment.BottomCenter,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier
+                .pointerInput(Unit) {}
+                .onSizeChanged {
+                    with(density) {
+                        viewModel.onIntent(
+                            FeedbackSheetIntent.SetFooterHeight(it.height.toDp())
+                        )
                     }
-                    .background(
-                        color = YallaTheme.color.white,
-                        shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
-                    )
-                    .navigationBarsPadding()
-                    .padding(20.dp)
-            ) {
-                PrimaryButton(
-                    text = if (rating == 0) stringResource(R.string.create_new_order)
-                    else stringResource(R.string.rate),
-                    onClick = {
-                        viewModel.onIntent(FeedbackSheetIntent.OnCompleteOrder)
-                        if (rating != 0) viewModel.rateTheRide(rating)
-                    },
-                    modifier = Modifier.fillMaxWidth()
+                }
+                .background(
+                    color = YallaTheme.color.white,
+                    shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
                 )
-            }
+                .navigationBarsPadding()
+                .padding(20.dp)
+        ) {
+            PrimaryButton(
+                text = if (rating == 0) stringResource(R.string.create_new_order)
+                else stringResource(R.string.rate),
+                onClick = {
+                    viewModel.onIntent(FeedbackSheetIntent.OnCompleteOrder)
+                    if (rating != 0) viewModel.rateTheRide(rating)
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }

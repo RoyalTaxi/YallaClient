@@ -1,6 +1,7 @@
 package uz.yalla.client.feature.order.presentation.search.model
 
 import androidx.compose.ui.unit.Dp
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +22,7 @@ import uz.yalla.client.feature.order.domain.usecase.order.GetShowOrderUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.OrderFasterUseCase
 import uz.yalla.client.feature.order.domain.usecase.tariff.GetTimeOutUseCase
 import uz.yalla.client.feature.order.presentation.components.dialog.ConfirmationDialogEvent
-import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheet.mutableIntentFlow
+import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheetChannel
 import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheetIntent
 import kotlin.time.Duration.Companion.seconds
 
@@ -36,21 +37,6 @@ class SearchCarSheetViewModel(
     val uiState = _uiState.asStateFlow()
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
-            while (isActive && uiState.value.setting?.orderCancelTime == null) {
-                getSetting()
-                delay(5.seconds)
-            }
-        }
-
-        viewModelScope.launch(Dispatchers.IO) {
-            while (isActive) {
-                delay(10.seconds)
-                mutableIntentFlow.emit(SearchCarSheetIntent.ZoomOut)
-                yield()
-            }
-        }
-
         viewModelScope.launch(Dispatchers.IO) {
             uiState
                 .distinctUntilChangedBy { Pair(it.searchingAddressPoint, it.tariffId) }
@@ -84,7 +70,7 @@ class SearchCarSheetViewModel(
                 is SearchCarSheetIntent.SetFooterHeight -> setFooterHeight(intent.height)
                 is SearchCarSheetIntent.SetHeaderHeight -> setHeaderHeight(intent.height)
                 else -> {
-                    mutableIntentFlow.emit(intent)
+                    SearchCarSheetChannel.sendIntent(intent)
                 }
             }
         }
@@ -146,7 +132,7 @@ class SearchCarSheetViewModel(
         _uiState.update { it.copy(dialogEvent = ConfirmationDialogEvent.Invisible) }
     }
 
-    private fun getSetting() {
+    fun getSetting() {
         viewModelScope.launch {
             getSettingUseCase().onSuccess { setting ->
                 _uiState.update { it.copy(setting = setting) }

@@ -13,7 +13,7 @@ fun NavGraphBuilder.noServiceSheet() {
     composable(
         route = NO_SERVICE_ROUTE
     ) {
-        NoServiceSheet.View()
+        NoServiceSheet()
     }
 }
 
