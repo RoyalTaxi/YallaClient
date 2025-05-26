@@ -87,8 +87,8 @@ import uz.yalla.client.feature.order.presentation.no_service.view.NoServiceSheet
 import uz.yalla.client.feature.order.presentation.no_service.view.NoServiceSheetIntent
 import uz.yalla.client.feature.order.presentation.on_the_ride.ON_THE_RIDE_ROUTE
 import uz.yalla.client.feature.order.presentation.on_the_ride.navigateToOnTheRideSheet
-import uz.yalla.client.feature.order.presentation.on_the_ride.view.OnTheRideSheetIntent
 import uz.yalla.client.feature.order.presentation.on_the_ride.view.OnTheRideSheetChannel
+import uz.yalla.client.feature.order.presentation.on_the_ride.view.OnTheRideSheetIntent
 import uz.yalla.client.feature.order.presentation.order_canceled.ORDER_CANCELED_ROUTE
 import uz.yalla.client.feature.order.presentation.order_canceled.navigateToCanceledOrder
 import uz.yalla.client.feature.order.presentation.order_canceled.view.OrderCanceledSheetChannel
@@ -123,7 +123,7 @@ fun MapRoute(
     val lifecycleOwner = LocalLifecycleOwner.current
     val scope = rememberCoroutineScope()
     val prefs = koinInject<AppPreferences>()
-    var permissionsGranted by remember { mutableStateOf(false) }
+    var permissionsGranted by remember { mutableStateOf(true) }
     var isLocationEnabled by remember { mutableStateOf(true) }
 
     var showPermissionDialog by remember { mutableStateOf(false) }
