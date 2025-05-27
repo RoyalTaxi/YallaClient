@@ -8,5 +8,6 @@ android {
 
 dependencies {
     implementation(projects.core.service)
+
     testImplementation(projects.core.test)
 }
