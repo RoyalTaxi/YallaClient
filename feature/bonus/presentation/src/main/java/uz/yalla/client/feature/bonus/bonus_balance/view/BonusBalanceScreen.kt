@@ -21,7 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.common.item.BonusInfoItem
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
-import uz.yalla.client.feature.presentation.R
+import uz.yalla.client.feature.bonus.presentation.R
 
 @Composable
 internal fun BonusBalanceScreen(

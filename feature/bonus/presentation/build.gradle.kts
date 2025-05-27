@@ -4,10 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "uz.yalla.client.feature.presentation"
+    namespace = "uz.yalla.client.feature.bonus.presentation"
 }
 
 dependencies {
-
     implementation(projects.core.common)
+    testImplementation(projects.core.test)
+    androidTestImplementation(projects.core.test)
 }
