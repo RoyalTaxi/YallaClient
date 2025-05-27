@@ -2,6 +2,7 @@ package uz.yalla.client.core.common.utils
 
 import android.app.Activity
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.view.LayoutInflater
 import android.view.View.MeasureSpec
@@ -13,6 +14,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.graphics.createBitmap
@@ -21,7 +25,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import uz.yalla.client.core.common.R
 
 @Composable
-fun rememberMarker(
+fun rememberGoogleMarker(
     key: String? = null,
     content: @Composable () -> Unit
 ): BitmapDescriptor? {
@@ -36,7 +40,28 @@ fun rememberMarker(
             content = content
         )
     }
+
     return descriptor
+}
+
+@Composable
+fun rememberLibreMarker(
+    key: String? = null,
+    content: @Composable () -> Unit
+): Painter? {
+    val context = LocalContext.current
+    var bitmap by remember { mutableStateOf<Bitmap?>(null) }
+    val layoutRes = R.layout.custom_marker
+
+    LaunchedEffect(key, layoutRes) {
+        bitmap = createBitmapFromXml(
+            context = context,
+            layoutRes = layoutRes,
+            content = content
+        )
+    }
+
+    return bitmap?.toPainter()
 }
 
 private fun createBitmapDescriptorFromXml(
@@ -68,4 +93,43 @@ private fun createBitmapDescriptorFromXml(
     } finally {
         root.removeView(markerView)
     }
+}
+
+
+private fun createBitmapFromXml(
+    context: Context,
+    @LayoutRes layoutRes: Int,
+    content: @Composable () -> Unit
+): Bitmap {
+    val markerView = LayoutInflater.from(context).inflate(layoutRes, null, false) as ViewGroup
+    val composeView = markerView.findViewById<ComposeView>(R.id.composeView)
+    val root = (context as Activity).findViewById<ViewGroup>(android.R.id.content)
+
+    root.addView(
+        markerView, ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+    )
+
+    return try {
+        composeView.setContent { content() }
+        markerView.measure(
+            MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
+            MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+        )
+        val w = markerView.measuredWidth
+        val h = markerView.measuredHeight
+        markerView.layout(0, 0, w, h)
+
+        val bitmap = createBitmap(w, h)
+        markerView.draw(Canvas(bitmap))
+        bitmap
+    } finally {
+        root.removeView(markerView)
+    }
+}
+
+fun Bitmap.toPainter(): Painter {
+    return BitmapPainter(this.asImageBitmap())
 }

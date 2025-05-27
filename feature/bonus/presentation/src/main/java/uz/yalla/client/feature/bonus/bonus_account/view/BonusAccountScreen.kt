@@ -1,6 +1,5 @@
 package uz.yalla.client.feature.bonus.bonus_account.view
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,9 +28,8 @@ import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.common.item.BonusBalanceItem
 import uz.yalla.client.core.common.item.OrderOptionsItem
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
-import uz.yalla.client.feature.presentation.R
+import uz.yalla.client.feature.bonus.presentation.R
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun BonusAccountScreen(
     balance: Int,

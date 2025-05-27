@@ -47,6 +47,7 @@ import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.common.button.SelectCurrentLocationButton
 import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.core.common.map.ConcreteGoogleMap
+import uz.yalla.client.core.common.map.ConcreteLibreMap
 import uz.yalla.client.core.common.map.MapStrategy
 import uz.yalla.client.core.common.marker.YallaMarker
 import uz.yalla.client.core.common.marker.YallaMarkerState
@@ -88,25 +89,27 @@ fun SelectFromMapView(
 
     BackHandler(onBack = onDismissRequest)
 
-    LaunchedEffect(Unit) {
-        map.isMarkerMoving.collectLatest { pair ->
-            isMarkerMoving = pair.first
+    map?.let { mapInstance ->
+        LaunchedEffect(Unit) {
+            mapInstance.isMarkerMoving.collectLatest { pair ->
+                isMarkerMoving = pair.first
+            }
         }
-    }
 
-    LaunchedEffect(isMarkerMoving) {
-        if (isMarkerMoving) {
-            viewModel.changeStateToNotFound()
-        } else {
-            viewModel.getAddressName(map.mapPoint.value)
+        LaunchedEffect(isMarkerMoving) {
+            if (isMarkerMoving) {
+                viewModel.changeStateToNotFound()
+            } else {
+                viewModel.getAddressName(mapInstance.mapPoint.value)
+            }
         }
-    }
 
-    LaunchedEffect(mapBottomPadding) {
-        if (mapBottomPadding > 0.dp) {
-            launch(Dispatchers.Main) {
-                awaitFrame()
-                initializeMapPosition(map, startingPoint, viewModel)
+        LaunchedEffect(mapBottomPadding) {
+            if (mapBottomPadding > 0.dp) {
+                launch(Dispatchers.Main) {
+                    awaitFrame()
+                    initializeMapPosition(mapInstance, startingPoint, viewModel)
+                }
             }
         }
     }
@@ -127,21 +130,24 @@ fun SelectFromMapView(
                 .pointerInput(Unit) { }
         )
 
-        MapContent(
-            map = map,
-            mapBottomPadding = mapBottomPadding,
-            startingPoint = startingPoint,
-            onMapReady = { loading = false }
-        )
+        // Only render map if available
+        map?.let { mapInstance ->
+            MapContent(
+                map = mapInstance,
+                mapBottomPadding = mapBottomPadding,
+                startingPoint = startingPoint,
+                onMapReady = { loading = false }
+            )
 
-        MapControlsLayer(
-            map = map,
-            mapBottomPadding = mapBottomPadding,
-            isMarkerMoving = isMarkerMoving,
-            selectedLocationName = uiState.selectedLocation?.name,
-            onBackClick = onDismissRequest,
-            boxPadding = boxPadding
-        )
+            MapControlsLayer(
+                map = mapInstance,
+                mapBottomPadding = mapBottomPadding,
+                isMarkerMoving = isMarkerMoving,
+                selectedLocationName = uiState.selectedLocation?.name,
+                onBackClick = onDismissRequest,
+                boxPadding = boxPadding
+            )
+        }
 
         BottomPanel(
             selectedLocationName = uiState.selectedLocation?.name,
@@ -159,21 +165,25 @@ fun SelectFromMapView(
         )
     }
 
-    if (loading) LoadingDialog()
+    // Show loading while waiting for map type or map initialization
+    if (loading || map == null) LoadingDialog()
 }
 
 @Composable
-private fun rememberMapImplementation(): MapStrategy {
+private fun rememberMapImplementation(): MapStrategy? {
     val prefs = koinInject<AppPreferences>()
 
     val mapType by prefs
         .mapType
-        .collectAsState(initial = MapType.Google)
+        .collectAsState(initial = null) // Don't provide default value
 
     return remember(mapType) {
-        when (mapType) {
-            MapType.Google -> ConcreteGoogleMap()
-            MapType.Gis -> ConcreteGoogleMap()
+        mapType?.let { type ->
+            when (type) {
+                MapType.Google -> ConcreteGoogleMap()
+                MapType.Gis -> ConcreteGoogleMap()
+                MapType.Libre -> ConcreteLibreMap()
+            }
         }
     }
 }

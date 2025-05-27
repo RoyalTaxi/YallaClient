@@ -5,7 +5,7 @@ import org.koin.dsl.module
 import uz.yalla.client.feature.order.data.di.OrderData
 import uz.yalla.client.feature.order.presentation.cancel_reason.model.CancelReasonViewModel
 import uz.yalla.client.feature.order.presentation.client_waiting.model.ClientWaitingViewModel
-import uz.yalla.client.feature.order.presentation.driver_waiting.model.DriverWaitingViewModel
+import uz.yalla.client.feature.order.presentation.driver_waiting.model.DriverWaitingSheetViewModel
 import uz.yalla.client.feature.order.presentation.feedback.model.FeedbackSheetViewModel
 import uz.yalla.client.feature.order.presentation.main.model.MainSheetViewModel
 import uz.yalla.client.feature.order.presentation.no_service.model.NoServiceViewModel
@@ -20,7 +20,7 @@ object Order {
         viewModelOf(::CancelReasonViewModel)
         viewModelOf(::OrderCanceledSheetViewModel)
         viewModelOf(::ClientWaitingViewModel)
-        viewModelOf(::DriverWaitingViewModel)
+        viewModelOf(::DriverWaitingSheetViewModel)
         viewModelOf(::OnTheRideSheetViewModel)
         viewModelOf(::FeedbackSheetViewModel)
         viewModelOf(::NoServiceViewModel)

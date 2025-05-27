@@ -3,7 +3,6 @@ package uz.yalla.client.feature.order.presentation.client_waiting.model
 import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -16,8 +15,8 @@ import uz.yalla.client.feature.map.domain.model.request.GetRoutingDtoItem
 import uz.yalla.client.feature.map.domain.usecase.GetRoutingUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.CancelRideUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.GetShowOrderUseCase
-import uz.yalla.client.feature.order.presentation.client_waiting.view.ClientWaitingIntent
-import uz.yalla.client.feature.order.presentation.client_waiting.view.ClientWaitingSheet.mutableIntentFlow
+import uz.yalla.client.feature.order.presentation.client_waiting.view.ClientWaitingSheetChannel
+import uz.yalla.client.feature.order.presentation.client_waiting.view.ClientWaitingSheetIntent
 
 class ClientWaitingViewModel(
     private val cancelRideUseCase: CancelRideUseCase,
@@ -33,7 +32,7 @@ class ClientWaitingViewModel(
             uiState
                 .distinctUntilChangedBy { it.driverRoute }
                 .collectLatest { state ->
-                    onIntent(ClientWaitingIntent.UpdateRoute(state.driverRoute))
+                    onIntent(ClientWaitingSheetIntent.UpdateRoute(state.driverRoute))
                 }
         }
     }
@@ -43,13 +42,13 @@ class ClientWaitingViewModel(
         getOrderDetails()
     }
 
-    fun onIntent(intent: ClientWaitingIntent) {
+    fun onIntent(intent: ClientWaitingSheetIntent) {
         viewModelScope.launch {
             when (intent) {
-                is ClientWaitingIntent.SetFooterHeight -> setFooterHeight(intent.height)
-                is ClientWaitingIntent.SetHeaderHeight -> setHeaderHeight(intent.height)
+                is ClientWaitingSheetIntent.SetFooterHeight -> setFooterHeight(intent.height)
+                is ClientWaitingSheetIntent.SetHeaderHeight -> setHeaderHeight(intent.height)
                 else -> {
-                    mutableIntentFlow.emit(intent)
+                    ClientWaitingSheetChannel.sendIntent(intent)
                 }
             }
         }
@@ -90,7 +89,7 @@ class ClientWaitingViewModel(
                 cancelRideUseCase(orderId)
             }
         }.invokeOnCompletion {
-            onIntent(ClientWaitingIntent.OnCancelled(uiState.value.orderId))
+            onIntent(ClientWaitingSheetIntent.OnCancelled(uiState.value.orderId))
         }
     }
 

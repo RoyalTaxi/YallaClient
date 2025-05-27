@@ -3,7 +3,6 @@ package uz.yalla.client.feature.order.presentation.search
 import android.os.Build
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavOptions
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
@@ -30,7 +29,7 @@ fun NavGraphBuilder.searchForCarBottomSheet() {
         )
     ) { backStackEntry ->
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-            SearchCarSheet.View(
+            SearchCarSheet(
                 point = backStackEntry
                     .arguments
                     ?.getParcelable(POINT, MapPoint::class.java)
@@ -43,7 +42,7 @@ fun NavGraphBuilder.searchForCarBottomSheet() {
                     ?.getInt(TARIFF_ID).or0()
 
             )
-        else SearchCarSheet.View(
+        else SearchCarSheet(
             point = backStackEntry
                 .arguments
                 ?.getParcelable(POINT) ?: MapPoint.Zero,
