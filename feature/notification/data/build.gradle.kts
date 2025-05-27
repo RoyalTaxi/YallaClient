@@ -12,5 +12,6 @@ dependencies {
     implementation(projects.feature.notification.domain)
     implementation(libs.paging.common)
     implementation(libs.paging.compose.common)
+
     testImplementation(projects.core.test)
 }
