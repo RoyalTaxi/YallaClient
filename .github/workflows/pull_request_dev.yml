@@ -2,10 +2,10 @@ name: Run test
 
 on:
   pull_request:
-    branches: [main]
+    branches: [ dev ]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
 
     steps:
