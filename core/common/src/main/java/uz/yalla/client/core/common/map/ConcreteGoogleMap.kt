@@ -406,7 +406,7 @@ private fun Markers(
 
     if (locations.isEmpty()) return
 
-    if (orderStatus != null || route.isNotEmpty()) {
+    if ((orderStatus != null && orderStatus in OrderStatus.nonInteractive) || route.isNotEmpty()) {
         val start = locations.first()
         key(start.hashCode()) {
             Marker(

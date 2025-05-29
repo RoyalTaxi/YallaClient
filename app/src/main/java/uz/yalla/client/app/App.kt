@@ -34,6 +34,6 @@ class App : Application() {
 
         val prefs: AppPreferences by lazy { KoinJavaComponent.getKoin().get() }
         prefs.setHasProcessedOrderOnEntry(false)
-        prefs.setMapType(MapType.Google)
+        prefs.setMapType(MapType.Libre)
     }
 }

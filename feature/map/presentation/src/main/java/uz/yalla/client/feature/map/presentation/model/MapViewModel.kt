@@ -366,11 +366,12 @@ class MapViewModel(
         point: MutableState<MapPoint>,
         collectable: Flow<Pair<Boolean, Boolean>>
     ) = viewModelScope.launch {
-        collectable.collect { (isMarkerMoving, isByUser) ->
+        collectable.collectLatest { (isMarkerMoving, isByUser) ->
             if (uiState.value.destinations.isEmpty()) {
                 when {
                     isMarkerMoving.not() && uiState.value.selectedOrder == null -> {
                         withContext(Dispatchers.IO) {
+                            delay(300)
                             getAddressName(point.value)
                         }
                     }
