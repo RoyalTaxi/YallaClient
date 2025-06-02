@@ -34,8 +34,7 @@ fun BonusBalanceItem(
             disabledContainerColor = YallaTheme.color.primary
         ),
         shape = RoundedCornerShape(20.dp),
-        enabled = enabled,
-        modifier = Modifier.padding(horizontal = 20.dp)
+        enabled = enabled
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,

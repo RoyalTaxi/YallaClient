@@ -47,7 +47,7 @@ fun BonusInfoBottomSheet(
             modifier = Modifier
                 .background(YallaTheme.color.white)
                 .fillMaxWidth()
-                .padding(vertical = 20.dp)
+                .padding(20.dp)
         ) {
             BonusBalanceItem(
                 balance = balance.toString(),
@@ -73,7 +73,7 @@ fun BonusInfoBottomSheet(
                 text = stringResource(R.string.bonus),
                 style = YallaTheme.font.title2,
                 color = YallaTheme.color.black,
-                modifier = Modifier.padding(horizontal = 40.dp, vertical = 17.dp)
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 17.dp)
             )
 
             BonusInfoItem(
@@ -87,7 +87,7 @@ fun BonusInfoBottomSheet(
                 text = stringResource(R.string.can_pay_with_bonus),
                 style = YallaTheme.font.title2,
                 color = YallaTheme.color.black,
-                modifier = Modifier.padding(horizontal = 40.dp, vertical = 17.dp)
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 17.dp)
             )
 
             BonusInfoItem(
