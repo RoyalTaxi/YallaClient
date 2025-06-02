@@ -36,6 +36,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var updateFlowLauncher: ActivityResultLauncher<IntentSenderRequest>
     private val appUpdateManager: AppUpdateManager by lazy { AppUpdateManagerFactory.create(this) }
     private val viewModel: MainViewModel by viewModel()
+    private lateinit var contactPermissionLauncher: ActivityResultLauncher<String>
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -66,6 +67,16 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        contactPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted ->
+            if (isGranted) {
+                viewModel.loadContacts(this)
+            } else {
+                Toast.makeText(this, "Kontaktlarga ruxsat berilmadi", Toast.LENGTH_SHORT).show()
+            }
+        }
+
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.light(
                 Color.Transparent.toArgb(),
@@ -85,6 +96,8 @@ class MainActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             checkNotificationPermission()
         }
+
+        checkContactPermission()
 
         setContent {
             val isConnected by viewModel.isConnected.collectAsState()
@@ -134,6 +147,18 @@ class MainActivity : AppCompatActivity() {
 
         appUpdateInfoTask.addOnFailureListener { exception ->
             showErrorDialog(exception.message ?: "Неизвестная ошибка")
+        }
+    }
+
+    private fun checkContactPermission() {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.READ_CONTACTS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            contactPermissionLauncher.launch(Manifest.permission.READ_CONTACTS)
+        } else {
+            viewModel.loadContacts(this)
         }
     }
 

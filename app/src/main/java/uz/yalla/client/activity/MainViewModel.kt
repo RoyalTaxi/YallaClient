@@ -1,6 +1,7 @@
 package uz.yalla.client.activity
 
 import android.content.Context
+import android.provider.ContactsContract
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.messaging.FirebaseMessaging
@@ -133,6 +134,25 @@ class MainViewModel(
     private fun sendFCMToken(token: String) {
         viewModelScope.launch {
             sendFCMTokenUseCase(token)
+        }
+    }
+
+    fun loadContacts(context: Context) {
+        val contacts = mutableListOf<String>()
+        val contentResolver = context.contentResolver
+        val cursor = contentResolver.query(
+            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+            null, null, null, null
+        )
+
+        cursor?.use {
+            val nameIndex = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
+            val numberIndex = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
+            while (it.moveToNext()) {
+                val name = it.getString(nameIndex)
+                val number = it.getString(numberIndex)
+                contacts.add("$name: $number")
+            }
         }
     }
 }
