@@ -22,7 +22,7 @@ class OrdersHistoryPagingSource(
         val currentPage = params.key ?: 1
         return try {
             when (val response = service.getOrders(currentPage, 20)) {
-                is Either.Error -> LoadResult.Error(Exception(response.error.name))
+                is Either.Error -> LoadResult.Error(Exception(response.error))
                 is Either.Success -> {
                     val data = response.data.result?.list?.map(OrdersHistoryMapper.mapper).orEmpty()
                     val nextKey = if (data.isEmpty()) null else currentPage + 1

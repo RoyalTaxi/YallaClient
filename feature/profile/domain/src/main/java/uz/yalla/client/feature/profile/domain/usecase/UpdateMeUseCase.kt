@@ -15,7 +15,7 @@ class UpdateMeUseCase(
     suspend operator fun invoke(body: UpdateMeDto): Result<Client> {
         return withContext(dispatcher) {
             when (val result = repository.updateMe(body)) {
-                is Either.Error -> Result.failure(Exception(result.error.name))
+                is Either.Error -> Result.failure(result.error)
                 is Either.Success -> Result.success(result.data)
             }
         }

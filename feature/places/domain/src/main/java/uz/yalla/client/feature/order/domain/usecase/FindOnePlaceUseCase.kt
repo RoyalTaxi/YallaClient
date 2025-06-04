@@ -14,7 +14,7 @@ class FindOnePlaceUseCase(
     suspend operator fun invoke(id: Int): Result<PlaceModel> {
         return withContext(dispatcher) {
             when (val result = repository.findOne(id)) {
-                is Either.Error -> Result.failure(Exception(result.error.name))
+                is Either.Error -> Result.failure(result.error)
                 is Either.Success -> Result.success(result.data)
             }
         }

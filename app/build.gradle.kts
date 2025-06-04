@@ -43,6 +43,12 @@ android {
                 "proguard-rules.pro"
             )
         }
+        create("benchmark") {
+            initWith(buildTypes.getByName("release"))
+            signingConfig = signingConfigs.getByName("debug")
+            matchingFallbacks += listOf("release")
+            isDebuggable = false
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -98,6 +104,8 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.animation.android)
+    implementation(libs.androidx.runtime.tracing)
+    implementation(libs.androidx.profileinstaller)
     implementation(libs.play.services.auth.api.phone)
     debugImplementation(libs.compose.ui.tooling)
 
@@ -168,4 +176,11 @@ dependencies {
     implementation(libs.firebase.crashlytics.ktx)
     implementation(libs.firebase.analytics.ktx)
     implementation(libs.firebase.messaging.ktx)
+}
+
+configurations.all {
+    exclude(group = "org.jogamp.gluegen", module = "gluegen-rt")
+    exclude(group = "org.jogamp.jogl", module = "jogl-all")
+    exclude(group = "dev.datlag", module = "jcef")
+    exclude(group = "dev.datlag", module = "kcef")
 }

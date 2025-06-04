@@ -31,4 +31,16 @@
     <string name="bonus_balance">Bonus hisobi</string>
     <string name="percentage">%s%% dan</string>
     <string name="address_not_found">Manzil topilmadi</string>
+    <string name="error_no_internet">Internetga ulanish yo\'q. Iltimos, tarmoq sozlamalaringizni tekshiring.</string>
+    <string name="error_connection_timeout">Ulanish vaqti tugadi. Iltimos, qayta urinib ko\'ring.</string>
+    <string name="error_session_expired">Sessiya muddati tugadi. Iltimos, qayta kiring.</string>
+    <string name="error_client_request">Bizning tarafimizda qandaydir xatolik yuz berdi. Iltimos, keyinroq qayta urinib ko\'ring.</string>
+    <string name="error_server_busy">Serverlarimiz band. Iltimos, bir ozdan keyin qayta urinib ko\'ring.</string>
+    <string name="error_unexpected_redirection">Kutilmagan yo\'naltirish. Iltimos, qo\'llab-quvvatlash xizmati bilan bog\'laning.</string>
+    <string name="error_data_format">Ma\'lumotlar formati xatosi. Iltimos, ilovangizni yangilang.</string>
+    <string name="error_network_unexpected">Kutilmagan tarmoq xatosi yuz berdi.</string>
+    <string name="error_application_generic">Ilova xatosi yuz berdi. Iltimos, qo\'llab-quvvatlash xizmati bilan bog\'laning.</string>
+    <string name="error_unknown_generic">Noma\'lum xatolik yuz berdi. Iltimos, qayta urinib ko\'ring.</string>
+    <string name="error_unexpected_fallback">Kutilmagan xatolik yuz berdi. Iltimos, keyinroq qayta urinib ko\'ring.</string>
+
 </resources>

@@ -1,14 +1,14 @@
 package uz.yalla.client.core.domain.error
 
-sealed interface DataError : Error {
-    enum class Network : DataError {
-        UNAUTHORIZED_ERROR,
-        REDIRECT_RESPONSE_ERROR,
-        CLIENT_REQUEST_ERROR,
-        SERVER_RESPONSE_ERROR,
-        NO_INTERNET_ERROR,
-        SERIALIZATION_ERROR,
-        SOCKET_TIME_OUT_ERROR,
-        UNKNOWN_ERROR
+sealed class DataError : Error() {
+    sealed class Network : DataError() {
+        data object UNAUTHORIZED_ERROR : Network()
+        data object REDIRECT_RESPONSE_ERROR : Network()
+        data object CLIENT_REQUEST_ERROR : Network()
+        data object SERVER_RESPONSE_ERROR : Network()
+        data object NO_INTERNET_ERROR : Network()
+        data object SERIALIZATION_ERROR : Network()
+        data object SOCKET_TIME_OUT_ERROR : Network()
+        data object UNKNOWN_ERROR : Network()
     }
 }

@@ -16,12 +16,6 @@ dependencies {
     implementation(libs.play.services.auth)
     implementation(libs.play.services.auth.api.phone)
 
-    // Firebase
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.crashlytics.ktx)
-    implementation(libs.firebase.analytics.ktx)
-    implementation(libs.firebase.messaging.ktx)
-
     testImplementation(projects.core.test)
     androidTestImplementation(projects.core.test)
 }

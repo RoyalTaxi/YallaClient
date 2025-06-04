@@ -14,7 +14,7 @@ class GetAddressNameUseCase(
     suspend operator fun invoke(lat: Double, lng: Double): Result<PlaceNameModel> {
         return withContext(dispatcher) {
             when (val result = repository.getAddress(lat, lng)) {
-                is Either.Error -> Result.failure(Exception(result.error.name))
+                is Either.Error -> Result.failure(result.error)
                 is Either.Success -> Result.success(result.data)
             }
         }

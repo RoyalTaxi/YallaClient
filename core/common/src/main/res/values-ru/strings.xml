@@ -29,4 +29,16 @@
     <string name="bonus_balance">Бонусный счет</string>
     <string name="percentage">до %s%%</string>
     <string name="address_not_found">Адрес не найден</string>
+    <string name="error_no_internet">Нет подключения к интернету. Пожалуйста, проверьте настройки сети.</string>
+    <string name="error_connection_timeout">Истекло время ожидания соединения. Пожалуйста, попробуйте еще раз.</string>
+    <string name="error_session_expired">Срок действия сессии истек. Пожалуйста, войдите снова.</string>
+    <string name="error_client_request">На нашей стороне что-то пошло не так. Пожалуйста, попробуйте позже.</string>
+    <string name="error_server_busy">Наши серверы заняты. Пожалуйста, попробуйте через некоторое время.</string>
+    <string name="error_unexpected_redirection">Неожиданное перенаправление. Пожалуйста, свяжитесь со службой поддержки.</string>
+    <string name="error_data_format">Ошибка формата данных. Пожалуйста, обновите приложение.</string>
+    <string name="error_network_unexpected">Произошла непредвиденная сетевая ошибка.</string>
+    <string name="error_application_generic">Произошла ошибка приложения. Пожалуйста, свяжитесь со службой поддержки.</string>
+    <string name="error_unknown_generic">Произошла неизвестная ошибка. Пожалуйста, попробуйте еще раз.</string>
+    <string name="error_unexpected_fallback">Произошло что-то неожиданное. Пожалуйста, попробуйте позже.</string>
+
 </resources>

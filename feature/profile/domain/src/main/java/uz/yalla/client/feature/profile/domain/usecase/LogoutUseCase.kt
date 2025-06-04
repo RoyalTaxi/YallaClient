@@ -13,7 +13,7 @@ class LogoutUseCase(
     suspend operator fun invoke(): Result<Unit> {
         return withContext(dispatcher) {
             when (val result = repository.logout()) {
-                is Either.Error -> Result.failure(Exception(result.error.name))
+                is Either.Error -> Result.failure(result.error)
                 is Either.Success -> Result.success(Unit)
             }
         }

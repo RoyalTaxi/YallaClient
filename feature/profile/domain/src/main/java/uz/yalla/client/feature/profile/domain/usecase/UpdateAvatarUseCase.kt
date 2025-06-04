@@ -14,7 +14,7 @@ class UpdateAvatarUseCase(
     suspend operator fun invoke(image: ByteArray): Result<UpdateAvatarModel> {
         return withContext(dispatcher) {
             when (val result = repository.updateAvatar(image)) {
-                is Either.Error -> Result.failure(Exception(result.error.name))
+                is Either.Error -> Result.failure(result.error)
                 is Either.Success -> Result.success(result.data)
             }
         }

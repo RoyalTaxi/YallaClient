@@ -14,7 +14,7 @@ class GetCardListUseCase(
     suspend operator fun invoke(): Result<List<CardListItemModel>> {
         return withContext(dispatcher) {
             when (val result = repository.getCardList()) {
-                is Either.Error -> Result.failure(Exception(result.error.name))
+                is Either.Error -> Result.failure(result.error)
                 is Either.Success -> Result.success(result.data)
             }
         }
