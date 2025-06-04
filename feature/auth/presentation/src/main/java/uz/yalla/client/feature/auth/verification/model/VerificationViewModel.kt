@@ -2,8 +2,6 @@ package uz.yalla.client.feature.auth.verification.model
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.messaging.FirebaseMessaging
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -19,14 +17,14 @@ import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.feature.auth.domain.model.auth.VerifyAuthCodeModel
 import uz.yalla.client.feature.auth.domain.usecase.auth.SendCodeUseCase
 import uz.yalla.client.feature.auth.domain.usecase.auth.VerifyCodeUseCase
-import uz.yalla.client.feature.setting.domain.usecase.SendFCMTokenUseCase
+import uz.yalla.client.feature.setting.domain.usecase.RefreshFCMTokenUseCase
 import kotlin.time.Duration.Companion.seconds
 
 class VerificationViewModel(
     private val prefs: AppPreferences,
     private val verifyCodeUseCase: VerifyCodeUseCase,
     private val sendCodeUseCase: SendCodeUseCase,
-    private val sendFCMTokenUseCase: SendFCMTokenUseCase
+    private val refreshFCMTokenUseCase: RefreshFCMTokenUseCase
 ) : ViewModel() {
 
     private val _actionFlow = MutableSharedFlow<VerificationActionState>()
@@ -69,7 +67,7 @@ class VerificationViewModel(
             verifyCodeUseCase(state.number, state.code.toInt())
                 .onSuccess { result ->
                     saveAuthResult(result)
-                    getFCMToken()
+                    refreshFCMToken()
                     _actionFlow.emit(VerificationActionState.VerifySuccess(result))
                 }
                 .onFailure {
@@ -99,24 +97,8 @@ class VerificationViewModel(
         }
     }
 
-    private fun getFCMToken() {
-        viewModelScope.launch(Dispatchers.IO) {
-            FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val token = task.result
-                    prefs.setFirebaseToken(token)
-                    if (accessToken.value.isNotBlank()) {
-                        sendFCMToken(token)
-                    }
-                }
-            }
-        }
-    }
-
-    private fun sendFCMToken(token: String) {
-        viewModelScope.launch {
-            sendFCMTokenUseCase(token)
-        }
+    private fun refreshFCMToken() {
+        viewModelScope.launch { refreshFCMTokenUseCase() }
     }
 
     private fun saveAuthResult(result: VerifyAuthCodeModel) {

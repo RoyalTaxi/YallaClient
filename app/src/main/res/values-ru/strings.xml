@@ -4,4 +4,5 @@
     <string name="repeat">Повторить</string>
     <string name="no_internet_connection">Нет подключение к интернету</string>
     <string name="no_internet_connection_body">Проверьте интернет-соединение или позвоните чтобы вызвать такси</string>
+
 </resources>

@@ -14,7 +14,7 @@ class AddCardUseCase(
     suspend operator fun invoke(number: String, expiry: String): Result<AddCardModel> {
         return withContext(dispatcher) {
             when (val result = repository.addCard(number, expiry)) {
-                is Either.Error -> Result.failure(Exception(result.error.name))
+                is Either.Error -> Result.failure(result.error)
                 is Either.Success -> Result.success(result.data)
             }
         }

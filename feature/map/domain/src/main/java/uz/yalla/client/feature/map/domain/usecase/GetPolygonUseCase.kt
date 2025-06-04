@@ -14,7 +14,7 @@ class GetPolygonUseCase(
     suspend operator fun invoke(): Result<List<PolygonRemoteItem>> {
         return withContext(dispatcher) {
             when (val result = repository.getPolygon()) {
-                is Either.Error -> Result.failure(Exception(result.error.name))
+                is Either.Error -> Result.failure(result.error)
                 is Either.Success -> Result.success(result.data)
             }
         }

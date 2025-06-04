@@ -14,7 +14,7 @@ class SearchCarUseCase(
     suspend operator fun invoke(lat: Double, lng: Double, tariffId: Int): Result<SearchCarModel> {
         return withContext(dispatcher) {
             when (val result = repository.searchCar(lat, lng, tariffId)) {
-                is Either.Error -> Result.failure(Exception(result.error.name))
+                is Either.Error -> Result.failure(result.error)
                 is Either.Success -> Result.success(result.data)
             }
         }

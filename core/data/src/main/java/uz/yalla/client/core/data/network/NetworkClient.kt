@@ -39,7 +39,9 @@ fun provideNetworkClient(
 
     return HttpClient(Android) {
         if (BuildConfig.DEBUG) {
-            install(InspektifyKtor)
+            install(InspektifyKtor) {
+                shortcutEnabled = true
+            }
         }
 
         defaultRequest {

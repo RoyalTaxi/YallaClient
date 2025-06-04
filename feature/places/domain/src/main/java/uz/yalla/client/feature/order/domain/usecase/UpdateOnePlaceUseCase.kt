@@ -14,7 +14,7 @@ class UpdateOnePlaceUseCase(
     suspend operator fun invoke(id: Int, body: PostOnePlaceDto): Result<Unit> {
         return withContext(dispatcher) {
             when (val result = repository.updateOne(id, body)) {
-                is Either.Error -> Result.failure(Exception(result.error.name))
+                is Either.Error -> Result.failure(result.error)
                 is Either.Success -> Result.success(Unit)
             }
         }
