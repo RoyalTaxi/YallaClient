@@ -1,7 +1,6 @@
 package uz.yalla.client.feature.places.place.view
 
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -15,9 +14,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import uz.yalla.client.core.common.dialog.BaseDialog
 import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.core.common.sheet.AddDestinationBottomSheet
 import uz.yalla.client.core.common.sheet.ConfirmationBottomSheet
@@ -25,7 +24,6 @@ import uz.yalla.client.core.common.sheet.select_from_map.SelectFromMapView
 import uz.yalla.client.core.common.sheet.select_from_map.SelectFromMapViewValue
 import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.domain.model.type.PlaceType
-import uz.yalla.client.feature.places.place.model.PlaceActionState
 import uz.yalla.client.feature.places.place.model.PlaceViewModel
 import uz.yalla.client.feature.places.presentation.R
 
@@ -40,7 +38,7 @@ internal fun AddressRoute(
     val place by viewModel.place.collectAsState()
     val saveButtonState by viewModel.saveButtonState.collectAsState()
     val scope = rememberCoroutineScope()
-    var loading by remember { mutableStateOf(false) }
+    val loading by viewModel.loading.collectAsState()
     var deleteId by remember { mutableIntStateOf(-1) }
     var isSearchVisible by remember { mutableStateOf(false) }
     var isMapVisible by remember { mutableStateOf(false) }
@@ -49,39 +47,20 @@ internal fun AddressRoute(
     val confirmCancellationState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val snackbarHostState = remember { SnackbarHostState() }
 
+    val showErrorDialog by viewModel.showErrorDialog.collectAsState()
+    val currentErrorMessageId by viewModel.currentErrorMessageId.collectAsState()
 
     LaunchedEffect(Unit) {
         launch(Dispatchers.IO) {
             if (id != null) viewModel.findOneAddress(id)
             viewModel.updateType(type)
         }
+    }
 
+    LaunchedEffect(Unit) {
         launch(Dispatchers.Main) {
-            viewModel.actionFlow.collectLatest { action ->
-                loading = when (action) {
-                    PlaceActionState.DeleteSuccess -> {
-                        onNavigateBack()
-                        false
-                    }
-
-                    is PlaceActionState.Error -> {
-                        launch {
-                            snackbarHostState.showSnackbar(
-                                message = action.errorMessage,
-                                withDismissAction = true,
-                                duration = SnackbarDuration.Short
-                            )
-                        }
-                        false
-                    }
-
-                    PlaceActionState.GetSuccess -> false
-                    PlaceActionState.Loading -> true
-                    PlaceActionState.PutSuccess -> {
-                        onNavigateBack()
-                        false
-                    }
-                }
+            viewModel.navigationChannel.collect {
+                onNavigateBack()
             }
         }
     }
@@ -170,5 +149,17 @@ internal fun AddressRoute(
         )
     }
 
-    if (loading) LoadingDialog()
+    if (showErrorDialog) {
+        BaseDialog(
+            title = stringResource(R.string.error),
+            description = currentErrorMessageId?.let { stringResource(it) },
+            actionText = stringResource(R.string.ok),
+            onAction = { viewModel.dismissErrorDialog() },
+            onDismiss = { viewModel.dismissErrorDialog() }
+        )
+    }
+
+    if (loading) {
+        LoadingDialog()
+    }
 }

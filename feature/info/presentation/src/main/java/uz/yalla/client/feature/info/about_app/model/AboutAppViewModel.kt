@@ -1,14 +1,9 @@
 package uz.yalla.client.feature.info.about_app.model
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
+import uz.yalla.client.core.common.viewmodel.BaseViewModel
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.feature.info.R
 import uz.yalla.client.feature.setting.domain.usecase.GetConfigUseCase
@@ -16,16 +11,12 @@ import uz.yalla.client.feature.setting.domain.usecase.GetConfigUseCase
 internal class AboutAppViewModel(
     private val getConfigUseCase: GetConfigUseCase,
     private val prefs: AppPreferences
-) : ViewModel() {
+) : BaseViewModel() {
 
     private val _uiState = MutableStateFlow(AboutAppUIState())
     val uiState = _uiState.asStateFlow()
 
-    private val _actionState = MutableSharedFlow<AboutAppActionState>()
-    val actionState = _actionState.asSharedFlow()
-
-    fun getConfig() = viewModelScope.launch {
-        _actionState.emit(AboutAppActionState.Loading)
+    fun getConfig() = viewModelScope.launchWithLoading {
         getConfigUseCase()
             .onSuccess { result ->
                 _uiState.update {
@@ -57,10 +48,7 @@ internal class AboutAppViewModel(
                     )
                 }
                 prefs.setSupportNumber(result.setting.supportPhone)
-                _actionState.emit(AboutAppActionState.Success)
             }
-            .onFailure {
-                _actionState.emit(AboutAppActionState.Error)
-            }
+            .onFailure(::handleException)
     }
 }

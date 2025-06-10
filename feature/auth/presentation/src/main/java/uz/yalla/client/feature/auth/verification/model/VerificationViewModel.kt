@@ -1,7 +1,5 @@
 package uz.yalla.client.feature.auth.verification.model
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -13,6 +11,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import uz.yalla.client.core.common.viewmodel.BaseViewModel
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.feature.auth.domain.model.auth.VerifyAuthCodeModel
 import uz.yalla.client.feature.auth.domain.usecase.auth.SendCodeUseCase
@@ -25,7 +24,7 @@ class VerificationViewModel(
     private val verifyCodeUseCase: VerifyCodeUseCase,
     private val sendCodeUseCase: SendCodeUseCase,
     private val refreshFCMTokenUseCase: RefreshFCMTokenUseCase
-) : ViewModel() {
+) : BaseViewModel() {
 
     private val _actionFlow = MutableSharedFlow<VerificationActionState>()
     val actionFlow = _actionFlow.asSharedFlow()
@@ -61,8 +60,7 @@ class VerificationViewModel(
         }
     }
 
-    fun verifyAuthCode() = viewModelScope.launch {
-        _actionFlow.emit(VerificationActionState.Loading)
+    fun verifyAuthCode() = viewModelScope.launchWithLoading {
         _uiState.value.let { state ->
             verifyCodeUseCase(state.number, state.code.toInt())
                 .onSuccess { result ->
@@ -70,22 +68,17 @@ class VerificationViewModel(
                     refreshFCMToken()
                     _actionFlow.emit(VerificationActionState.VerifySuccess(result))
                 }
-                .onFailure {
-                    _actionFlow.emit(VerificationActionState.Error)
-                }
+                .onFailure(::handleException)
         }
     }
 
-    fun resendAuthCode(hash: String?) = viewModelScope.launch {
-        _actionFlow.emit(VerificationActionState.Loading)
+    fun resendAuthCode(hash: String?) = viewModelScope.launchWithLoading {
         _uiState.value.let { state ->
             sendCodeUseCase(state.number, hash)
                 .onSuccess { result ->
                     _actionFlow.emit(VerificationActionState.SendSMSSuccess(result))
                 }
-                .onFailure {
-                    _actionFlow.emit(VerificationActionState.Error)
-                }
+                .onFailure(::handleException)
         }
     }
 

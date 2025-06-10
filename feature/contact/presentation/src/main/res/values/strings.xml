@@ -4,4 +4,6 @@
     <string name="instagram" translatable="false">Instagram</string>
     <string name="contuct_us">Biz bilan bog\'lanish</string>
     <string name="email">Elektron pochta</string>
+    <string name="ok">Tushunarli</string>
+    <string name="error">Xatolik</string>
 </resources>

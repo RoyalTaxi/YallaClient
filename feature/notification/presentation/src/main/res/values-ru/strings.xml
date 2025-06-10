@@ -4,4 +4,6 @@
     <string name="no_notification_body">Новостей пока нет. Заглядывайте позже — здесь обязательно что-то появится!</string>
     <string name="today">Сегодня</string>
     <string name="yesterday">Вчера</string>
+    <string name="ok">Понятно</string>
+    <string name="error">Ошибка</string>
 </resources>

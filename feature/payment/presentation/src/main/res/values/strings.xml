@@ -42,4 +42,6 @@
     <string name="add_employee">Xodimni qo\'shing</string>
     <string name="add">Qo\'shish</string>
     <string name="full_name">FIO</string>
+    <string name="ok">Tushunarli</string>
+    <string name="error">Xatolik</string>
 </resources>

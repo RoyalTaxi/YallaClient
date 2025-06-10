@@ -2,4 +2,6 @@
 <resources>
     <string name="contuct_us">Связаться с нами</string>
     <string name="email">Электронная почта</string>
+    <string name="ok">Понятно</string>
+    <string name="error">Ошибка</string>
 </resources>

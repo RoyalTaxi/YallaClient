@@ -1,18 +1,16 @@
 package uz.yalla.client.feature.payment.card_verification.model
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
+import uz.yalla.client.core.common.viewmodel.BaseViewModel
 import uz.yalla.client.feature.payment.domain.usecase.AddCardUseCase
 import uz.yalla.client.feature.payment.domain.usecase.VerifyCardUseCase
 import kotlin.time.Duration.Companion.seconds
@@ -20,14 +18,13 @@ import kotlin.time.Duration.Companion.seconds
 internal class CardVerificationViewModel(
     private val addCardUseCase: AddCardUseCase,
     private val verifyCardUseCase: VerifyCardUseCase
-) : ViewModel() {
-
-    private val _actionState = MutableSharedFlow<CardVerificationActionState>()
-    val actionState = _actionState.asSharedFlow()
+) : BaseViewModel() {
 
     private val _uiState = MutableStateFlow(CardVerificationUIState())
     val uiState = _uiState.asStateFlow()
 
+    private val _navigationChannel: Channel<Unit> = Channel(Channel.CONFLATED)
+    val navigationChannel = _navigationChannel.receiveAsFlow()
 
     fun countDownTimer(countDown: Int) = flow {
         for (seconds in countDown downTo 0) {
@@ -37,22 +34,29 @@ internal class CardVerificationViewModel(
         }
     }
 
-    fun addCard() = viewModelScope.launch {
+    fun addCard() = viewModelScope.launchWithLoading {
         _uiState.update { it.copy(code = "") }
         uiState.value.apply {
-            _actionState.emit(CardVerificationActionState.Loading)
             addCardUseCase(number = cardNumber, expiry = cardExpiry)
-                .onSuccess { _actionState.emit(CardVerificationActionState.ResendSuccess) }
-                .onFailure { _actionState.emit(CardVerificationActionState.Error) }
+                .onSuccess {
+                    countDownTimer(60).collectLatest { seconds ->
+                        updateUiState(
+                            buttonState = seconds != 0 && code.length == 6,
+                            remainingMinutes = seconds / 60,
+                            remainingSeconds = seconds % 60,
+                            hasRemainingTime = seconds > 0
+                        )
+                    }
+                }
+                .onFailure(::handleException)
         }
 
     }
 
-    fun verifyCard() = viewModelScope.launch {
-        _actionState.emit(CardVerificationActionState.Loading)
+    fun verifyCard() = viewModelScope.launchWithLoading {
         verifyCardUseCase(key = uiState.value.key, confirmCode = uiState.value.code)
-            .onSuccess { _actionState.emit(CardVerificationActionState.VerificationSuccess) }
-            .onFailure { _actionState.emit(CardVerificationActionState.Error) }
+            .onSuccess { _navigationChannel.send(Unit) }
+            .onFailure(::handleException)
     }
 
     fun updateUiState(

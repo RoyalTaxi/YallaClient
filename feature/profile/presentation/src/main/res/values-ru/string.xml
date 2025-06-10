@@ -13,4 +13,6 @@
     <string name="exit">Выйти</string>
     <string name="stay">Отмена</string>
     <string name="close">Закрыть</string>
+    <string name="ok">Понятно</string>
+    <string name="error">Ошибка</string>
 </resources>
