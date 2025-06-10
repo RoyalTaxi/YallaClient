@@ -15,4 +15,6 @@
     <string name="with_bonus">C бонуса</string>
     <string name="to_bonus_balance">На бонусный счет</string>
     <string name="to_phone_number">Пополнение номер телефона</string>
+    <string name="ok">Понятно</string>
+    <string name="error">Ошибка</string>
 </resources>

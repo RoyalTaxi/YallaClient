@@ -11,4 +11,6 @@
     <string name="version_x">Versiya %s</string>
     <string name="we_on_social_networks">Biz ijtimoiy tarmoqlardamiz</string>
     <string name="rate">Baholash</string>
+    <string name="ok">Tushunarli</string>
+    <string name="error">Xatolik</string>
 </resources>

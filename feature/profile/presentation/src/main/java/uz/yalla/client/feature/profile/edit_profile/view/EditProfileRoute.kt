@@ -21,17 +21,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
+import uz.yalla.client.core.common.dialog.BaseDialog
 import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.core.common.sheet.ConfirmationBottomSheet
 import uz.yalla.client.core.common.system.isFileSizeTooLarge
 import uz.yalla.client.core.common.system.isImageDimensionTooLarge
 import uz.yalla.client.feature.profile.R
-import uz.yalla.client.feature.profile.edit_profile.model.EditProfileActionState
 import uz.yalla.client.feature.profile.edit_profile.model.EditProfileViewModel
+import uz.yalla.client.feature.profile.edit_profile.model.NavigationEvent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,13 +40,16 @@ internal fun EditProfileRoute(
     viewModel: EditProfileViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
-    var loading by remember { mutableStateOf(true) }
+    val loading by viewModel.loading.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
     val focusManager = LocalFocusManager.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val sheetState = rememberModalBottomSheetState(true)
     var sheetVisibility by remember { mutableStateOf(false) }
+
+    val showErrorDialog by viewModel.showErrorDialog.collectAsState()
+    val currentErrorMessageId by viewModel.currentErrorMessageId.collectAsState()
 
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberStandardBottomSheetState(
@@ -78,33 +80,13 @@ internal fun EditProfileRoute(
         }
 
         launch(Dispatchers.Main) {
-            viewModel.actionState.collectLatest { action ->
-                loading = when (action) {
-                    EditProfileActionState.Error -> false
-                    EditProfileActionState.GetSuccess -> false
-                    EditProfileActionState.Loading -> true
-                    EditProfileActionState.UpdateAvatarSuccess -> {
-                        withContext(Dispatchers.IO) {
-                            viewModel.postMe()
-                        }
-                        false
-                    }
-
-                    EditProfileActionState.UpdateSuccess -> {
-                        onNavigateBack()
-                        false
-                    }
-
-                    EditProfileActionState.LogoutSuccess -> {
-                        onNavigateToStart()
-                        false
-                    }
-
-                    EditProfileActionState.LogoutError -> false
+            viewModel.navigationChannel.collect { event ->
+                when (event) {
+                    is NavigationEvent.NavigateBack -> onNavigateBack()
+                    is NavigationEvent.NavigateToStart -> onNavigateToStart()
                 }
             }
         }
-
     }
 
     LaunchedEffect(uiState.isDatePickerVisible) {
@@ -165,10 +147,21 @@ internal fun EditProfileRoute(
             scope.launch { sheetState.hide() }
         },
         onConfirm = {
-            loading = true
             viewModel.logout()
         }
     )
 
-    if (loading) LoadingDialog()
+    if (showErrorDialog) {
+        BaseDialog(
+            title = stringResource(R.string.error),
+            description = currentErrorMessageId?.let { stringResource(it) },
+            actionText = stringResource(R.string.ok),
+            onAction = { viewModel.dismissErrorDialog() },
+            onDismiss = { viewModel.dismissErrorDialog() }
+        )
+    }
+
+    if (loading) {
+        LoadingDialog()
+    }
 }

@@ -8,4 +8,6 @@
     <string name="gender_m">Erkak</string>
     <string name="gender_f">Ayol</string>
     <string name="next">Keyingi</string>
+    <string name="ok">Tushunarli</string>
+    <string name="error">Xatolik</string>
 </resources>

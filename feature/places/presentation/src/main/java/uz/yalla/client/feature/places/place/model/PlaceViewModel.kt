@@ -1,18 +1,15 @@
 package uz.yalla.client.feature.places.place.model
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
+import uz.yalla.client.core.common.viewmodel.BaseViewModel
 import uz.yalla.client.core.domain.model.type.PlaceType
 import uz.yalla.client.feature.order.domain.model.response.PlaceModel
 import uz.yalla.client.feature.order.domain.usecase.DeleteOnePlaceUseCase
@@ -25,13 +22,13 @@ internal class PlaceViewModel(
     private val postOnePlaceUseCase: PostOnePlaceUseCase,
     private val updateOnePlaceUseCase: UpdateOnePlaceUseCase,
     private val deleteOnePlaceUseCase: DeleteOnePlaceUseCase
-) : ViewModel() {
+) : BaseViewModel() {
 
     private val _place = MutableStateFlow(PlaceModel.EMPTY)
     val place = _place.asStateFlow()
 
-    private val _actionFlow = MutableSharedFlow<PlaceActionState>()
-    val actionFlow = _actionFlow.asSharedFlow()
+    private val _navigationChannel: Channel<Unit> = Channel(Channel.CONFLATED)
+    val navigationChannel = _navigationChannel.receiveAsFlow()
 
     val saveButtonState = place
         .distinctUntilChangedBy { Pair(it.name, it.coords) }
@@ -42,44 +39,40 @@ internal class PlaceViewModel(
             initialValue = false
         )
 
-    fun findOneAddress(id: Int) = viewModelScope.launch {
-        _actionFlow.emit(PlaceActionState.Loading)
+    fun findOneAddress(id: Int) = viewModelScope.launchWithLoading {
         findOnePlaceUseCase(id)
             .onSuccess { result ->
                 _place.emit(result)
-                _actionFlow.emit(PlaceActionState.GetSuccess)
             }
-            .onFailure { _actionFlow.emit(PlaceActionState.Error(it.message.orEmpty())) }
+            .onFailure(::handleException)
     }
 
-    fun deleteOneAddress(id: Int) = viewModelScope.launch {
-        _actionFlow.emit(PlaceActionState.Loading)
+    fun deleteOneAddress(id: Int) = viewModelScope.launchWithLoading {
         deleteOnePlaceUseCase(id)
-            .onSuccess { _actionFlow.emit(PlaceActionState.DeleteSuccess) }
-            .onFailure { _actionFlow.emit(PlaceActionState.Error(it.message.orEmpty())) }
+            .onSuccess { _navigationChannel.send(Unit) }
+            .onFailure(::handleException)
     }
 
-    fun updateOneAddress(id: Int) = viewModelScope.launch {
-        _actionFlow.emit(PlaceActionState.Loading)
+    fun updateOneAddress(id: Int) = viewModelScope.launchWithLoading {
         place.value.let { place ->
             if (
                 place.coords.takeIf { it.lat != 0.0 && it.lng != 0.0 } != null
             ) updateOnePlaceUseCase(
                 id = id,
                 body = place.mapToPlaceDto()
-            ).onSuccess { _actionFlow.emit(PlaceActionState.PutSuccess) }
-                .onFailure { _actionFlow.emit(PlaceActionState.Error(it.message.orEmpty())) }
+            )
+                .onSuccess { _navigationChannel.send(Unit) }
+                .onFailure(::handleException)
         }
     }
 
-    fun createOneAddress() = viewModelScope.launch {
-        _actionFlow.emit(PlaceActionState.Loading)
+    fun createOneAddress() = viewModelScope.launchWithLoading {
         place.value.let { place ->
             if (
                 place.coords.takeIf { it.lat != 0.0 && it.lng != 0.0 } != null
             ) postOnePlaceUseCase(place.mapToPlaceDto())
-                .onSuccess { _actionFlow.emit(PlaceActionState.PutSuccess) }
-                .onFailure { _actionFlow.emit(PlaceActionState.Error(it.message.orEmpty())) }
+                .onSuccess { _navigationChannel.send(Unit) }
+                .onFailure(::handleException)
         }
     }
 

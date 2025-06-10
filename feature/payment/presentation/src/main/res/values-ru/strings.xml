@@ -42,4 +42,6 @@
     <string name="add_employee">Добавить сотрудника</string>
     <string name="add">Добавить</string>
     <string name="full_name">ФИО</string>
+    <string name="ok">Понятно</string>
+    <string name="error">Ошибка</string>
 </resources>

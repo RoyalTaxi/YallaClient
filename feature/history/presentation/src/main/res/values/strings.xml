@@ -15,4 +15,6 @@
     <string name="with_bonus">Bonusdan ishlatildi</string>
     <string name="to_bonus_balance">Bonus balansiga</string>
     <string name="to_phone_number">Telefon raqam balansiga</string>
+    <string name="ok">Tushunarli</string>
+    <string name="error">Xatolik</string>
 </resources>

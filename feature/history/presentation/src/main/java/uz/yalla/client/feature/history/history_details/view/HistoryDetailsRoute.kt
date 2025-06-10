@@ -4,14 +4,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
+import uz.yalla.client.core.common.dialog.BaseDialog
 import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.core.common.map.ConcreteGoogleMap
 import uz.yalla.client.core.common.map.ConcreteLibreMap
@@ -20,7 +19,7 @@ import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.MapType
 import uz.yalla.client.core.domain.model.OrderStatus
-import uz.yalla.client.feature.history.history_details.model.HistoryDetailsActionState
+import uz.yalla.client.feature.history.R
 import uz.yalla.client.feature.history.history_details.model.HistoryDetailsViewModel
 
 @Composable
@@ -32,12 +31,13 @@ internal fun HistoryDetailsRoute(
     val prefs = koinInject<AppPreferences>()
 
     val uiState by vm.uiState.collectAsState()
-    var loading by remember { mutableStateOf(true) }
+    val loading by vm.loading.collectAsState()
 
-    // Fixed: Use nullable mapType without default value
+    val showErrorDialog by vm.showErrorDialog.collectAsState()
+    val currentErrorMessageId by vm.currentErrorMessageId.collectAsState()
+
     val mapType by prefs.mapType.collectAsState(initial = null)
 
-    // Fixed: Create map based on mapType with proper null handling
     val map: MapStrategy? = remember(mapType) {
         mapType?.let { type ->
             when (type) {
@@ -49,7 +49,6 @@ internal fun HistoryDetailsRoute(
     }
 
     fun updateRoute() {
-        // Only proceed if map is available
         map?.let { mapInstance ->
             val routes = uiState.orderDetails?.taxi?.routes ?: return
             if (routes.isEmpty()) return
@@ -81,27 +80,11 @@ internal fun HistoryDetailsRoute(
     }
 
     LaunchedEffect(Unit) {
-        // fetch history
         launch(Dispatchers.IO) {
             vm.getOrderHistory(orderId)
         }
-        // observe actionState for loading & success
-        launch(Dispatchers.Main) {
-            vm.actionState.collectLatest { action ->
-                loading = when (action) {
-                    is HistoryDetailsActionState.Loading -> true
-                    is HistoryDetailsActionState.DetailsSuccess -> {
-                        vm.getMapPoints()
-                        false
-                    }
-
-                    else -> false
-                }
-            }
-        }
     }
 
-    // Only render screen when map is available
     map?.let { mapInstance ->
         HistoryDetailsScreen(
             uiState = uiState,
@@ -116,8 +99,17 @@ internal fun HistoryDetailsRoute(
         )
     }
 
-    // Show loading while waiting for map type preference or while fetching data
-    if (loading || map == null) {
+    if (showErrorDialog) {
+        BaseDialog(
+            title = stringResource(R.string.error),
+            description = currentErrorMessageId?.let { stringResource(it) },
+            actionText = stringResource(R.string.ok),
+            onAction = { vm.dismissErrorDialog() },
+            onDismiss = { vm.dismissErrorDialog() }
+        )
+    }
+
+    if (loading) {
         LoadingDialog()
     }
 }

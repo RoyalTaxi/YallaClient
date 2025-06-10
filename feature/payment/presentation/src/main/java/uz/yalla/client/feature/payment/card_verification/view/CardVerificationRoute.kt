@@ -1,23 +1,19 @@
 package uz.yalla.client.feature.payment.card_verification.view
 
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
+import uz.yalla.client.core.common.dialog.BaseDialog
 import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.feature.payment.R
-import uz.yalla.client.feature.payment.card_verification.model.CardVerificationActionState
 import uz.yalla.client.feature.payment.card_verification.model.CardVerificationViewModel
 
 @Composable
@@ -29,9 +25,11 @@ internal fun CardVerificationRoute(
     viewModel: CardVerificationViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    var loading by remember { mutableStateOf(false) }
+    val loading by viewModel.loading.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val errorMessage = stringResource(R.string.error_message)
+
+    val showErrorDialog by viewModel.showErrorDialog.collectAsState()
 
     LaunchedEffect(Unit) {
         launch(Dispatchers.Default) {
@@ -54,41 +52,8 @@ internal fun CardVerificationRoute(
         }
 
         launch(Dispatchers.IO) {
-            viewModel.actionState.collectLatest { action ->
-                loading = when (action) {
-                    is CardVerificationActionState.Error -> {
-                        viewModel.updateUiState(buttonState = false)
-
-                        withContext(Dispatchers.Main) {
-                            snackbarHostState.showSnackbar(
-                                message = errorMessage,
-                                withDismissAction = true,
-                                duration = SnackbarDuration.Short
-                            )
-                        }
-                        false
-                    }
-
-                    is CardVerificationActionState.Loading -> true
-                    is CardVerificationActionState.VerificationSuccess -> {
-                        onNavigateBack()
-                        false
-                    }
-
-                    is CardVerificationActionState.ResendSuccess -> {
-                        withContext(Dispatchers.Default) {
-                            viewModel.countDownTimer(60).collectLatest { seconds ->
-                                viewModel.updateUiState(
-                                    buttonState = seconds != 0 && uiState.code.length == 6,
-                                    remainingMinutes = seconds / 60,
-                                    remainingSeconds = seconds % 60,
-                                    hasRemainingTime = seconds > 0
-                                )
-                            }
-                        }
-                        false
-                    }
-                }
+            viewModel.navigationChannel.collect {
+                onNavigateBack()
             }
         }
     }
@@ -113,5 +78,18 @@ internal fun CardVerificationRoute(
         }
     )
 
-    if (loading) LoadingDialog()
+    if (showErrorDialog) {
+        viewModel.updateUiState(buttonState = false)
+        BaseDialog(
+            title = stringResource(R.string.error),
+            description = errorMessage,
+            actionText = stringResource(R.string.ok),
+            onAction = { viewModel.dismissErrorDialog() },
+            onDismiss = { viewModel.dismissErrorDialog() }
+        )
+    }
+
+    if (loading) {
+        LoadingDialog()
+    }
 }
