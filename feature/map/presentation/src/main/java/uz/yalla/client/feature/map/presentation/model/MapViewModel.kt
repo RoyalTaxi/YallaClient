@@ -9,6 +9,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -20,6 +21,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import uz.yalla.client.core.common.map.ConcreteGoogleMap
+import uz.yalla.client.core.common.map.ConcreteLibreMap
+import uz.yalla.client.core.common.map.MapStrategy
 import uz.yalla.client.core.common.marker.YallaMarkerState
 import uz.yalla.client.core.common.state.HamburgerButtonState
 import uz.yalla.client.core.common.state.MoveCameraButtonState.FirstLocation
@@ -28,6 +32,7 @@ import uz.yalla.client.core.common.state.MoveCameraButtonState.MyRouteView
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.MapPoint
+import uz.yalla.client.core.domain.model.MapType
 import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.core.domain.model.SelectedLocation
 import uz.yalla.client.feature.domain.usecase.GetNotificationsCountUseCase
@@ -60,6 +65,9 @@ class MapViewModel(
 
     private val pollingOrderId = MutableStateFlow<Int?>(null)
     private var pollingJob: Job? = null
+
+    private val _map = MutableStateFlow<MapStrategy?>(null)
+    val map: StateFlow<MapStrategy?> = _map.asStateFlow()
 
     private val requestSequence = AtomicInteger(0)
 
@@ -171,6 +179,23 @@ class MapViewModel(
             started = SharingStarted.Lazily,
             initialValue = HamburgerButtonState.OpenDrawer
         )
+
+    fun initializeMap(mapType: MapType) {
+        if (_map.value?.javaClass != mapType.toStrategyClass()) {
+            _map.value = when (mapType) {
+                MapType.Google -> ConcreteGoogleMap()
+                MapType.Gis -> ConcreteGoogleMap()
+                MapType.Libre -> ConcreteLibreMap()
+            }
+        }
+    }
+
+    private fun MapType.toStrategyClass(): Class<out MapStrategy> {
+        return when (this) {
+            MapType.Google, MapType.Gis -> ConcreteGoogleMap::class.java
+            MapType.Libre -> ConcreteLibreMap::class.java
+        }
+    }
 
     fun getMe() = viewModelScope.launch {
         getMeUseCase().onSuccess { user ->

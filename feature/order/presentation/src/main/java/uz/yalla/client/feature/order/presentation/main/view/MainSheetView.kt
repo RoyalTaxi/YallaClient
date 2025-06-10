@@ -256,7 +256,7 @@ fun MainSheet(
             initialDestination = state.destinations.lastOrNull(),
             isForDestination = state.isSearchByNameSheetVisible == SearchByNameSheetValue.FOR_DEST,
             onAddressSelected = { name, lat, lng, addressId ->
-                scope.launch(Dispatchers.IO) {
+                if (addressId != 0) scope.launch(Dispatchers.IO) {
                     MainSheetChannel.sendIntent(
                         OrderTaxiSheetIntent.SetSelectedLocation(
                             selectedLocation = SelectedLocation(

@@ -1,6 +1,9 @@
 package uz.yalla.client.core.common.map
 
 import android.content.Context
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -38,7 +41,6 @@ import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerComposable
-import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
@@ -62,6 +64,11 @@ import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.pow
+import kotlin.math.sin
+import kotlin.math.sqrt
 import kotlin.properties.Delegates
 
 class ConcreteGoogleMap : MapStrategy, KoinComponent {
@@ -159,7 +166,7 @@ class ConcreteGoogleMap : MapStrategy, KoinComponent {
 
             Driver(driver = driver)
 
-            Drivers(drivers = drivers)
+            DriversWithAnimation(drivers = drivers)
         }
     }
 
@@ -311,21 +318,86 @@ private fun Driver(
 }
 
 @Composable
-private fun Drivers(
+private fun DriversWithAnimation(
     drivers: SnapshotStateList<Executor>
 ) {
     drivers.take(20).forEach { driver ->
-        MarkerComposable(
-            flat = true,
-            rotation = driver.heading.toFloat(),
-            state = remember(driver) { MarkerState(LatLng(driver.lat, driver.lng)) }
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.img_car_marker),
-                contentDescription = null,
-                tint = Color.Unspecified,
-                modifier = Modifier.size(48.dp)
-            )
+        key(driver.id) {
+            val markerState = rememberMarkerState(key = driver.id.toString())
+            val coroutineScope = rememberCoroutineScope()
+
+            // Use Animatable for more precise control
+            val animatedLat = remember { Animatable(driver.lat.toFloat()) }
+            val animatedLng = remember { Animatable(driver.lng.toFloat()) }
+            val animatedHeading = remember { Animatable(driver.heading.toFloat()) }
+
+            // Track animation state to prevent overlapping animations
+            val isAnimating = remember { mutableStateOf(false) }
+
+            LaunchedEffect(driver.lat, driver.lng, driver.heading) {
+                if (!isAnimating.value) {
+                    isAnimating.value = true
+
+                    // Calculate distance for dynamic duration
+                    val distance = calculateDistance(
+                        animatedLat.value.toDouble(),
+                        animatedLng.value.toDouble(),
+                        driver.lat,
+                        driver.lng
+                    )
+
+                    val duration = when {
+                        distance < 0.0005 -> 300 // Very close
+                        distance < 0.002 -> 800  // Close
+                        distance < 0.01 -> 1200  // Medium
+                        else -> 1800             // Far
+                    }
+
+                    // Animate all properties simultaneously
+                    launch {
+                        animatedLat.animateTo(
+                            targetValue = driver.lat.toFloat(),
+                            animationSpec = tween(duration, easing = FastOutSlowInEasing)
+                        )
+                    }
+
+                    launch {
+                        animatedLng.animateTo(
+                            targetValue = driver.lng.toFloat(),
+                            animationSpec = tween(duration, easing = FastOutSlowInEasing)
+                        )
+                    }
+
+                    launch {
+                        val targetHeading = normalizeHeading(driver.heading.toFloat())
+                        animatedHeading.animateTo(
+                            targetValue = targetHeading,
+                            animationSpec = tween(
+                                (duration * 1.1).toInt(),
+                                easing = FastOutSlowInEasing
+                            )
+                        )
+                    }
+
+                    isAnimating.value = false
+                }
+            }
+
+            markerState.position =
+                LatLng(animatedLat.value.toDouble(), animatedLng.value.toDouble())
+
+            MarkerComposable(
+                state = markerState,
+                rotation = animatedHeading.value,
+                flat = true
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.img_car_marker),
+                    contentDescription = "Driver",
+                    tint = Color.Unspecified,
+                    modifier = Modifier.size(48.dp)
+                )
+            }
         }
     }
 }
@@ -438,3 +510,20 @@ private fun Markers(
     }
 }
 
+private fun calculateDistance(lat1: Double, lng1: Double, lat2: Double, lng2: Double): Double {
+    val earthRadiusKm = 6371.0
+    val dLat = Math.toRadians(lat2 - lat1)
+    val dLng = Math.toRadians(lng2 - lng1)
+    val a =
+        sin(dLat / 2).pow(2) + cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) * sin(dLng / 2).pow(
+            2
+        )
+    val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    return earthRadiusKm * c
+}
+
+private fun normalizeHeading(heading: Float): Float {
+    var normalized = heading % 360
+    if (normalized < 0) normalized += 360
+    return normalized
+}

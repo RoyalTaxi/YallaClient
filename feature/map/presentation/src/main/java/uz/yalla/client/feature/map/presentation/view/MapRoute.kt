@@ -51,14 +51,11 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import uz.yalla.client.core.common.dialog.BaseDialog
 import uz.yalla.client.core.common.dialog.LoadingDialog
-import uz.yalla.client.core.common.map.ConcreteGoogleMap
-import uz.yalla.client.core.common.map.ConcreteLibreMap
 import uz.yalla.client.core.common.map.MapStrategy
 import uz.yalla.client.core.common.marker.YallaMarkerState
 import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.MapPoint
-import uz.yalla.client.core.domain.model.MapType
 import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.feature.map.presentation.LocationServiceReceiver
 import uz.yalla.client.feature.map.presentation.R
@@ -183,17 +180,16 @@ fun MapRoute(
     val hamburgerButtonState by vm.hamburgerButtonState.collectAsState()
     var drawerState = rememberDrawerState(DrawerValue.Closed)
 
-    // Fixed: Use nullable mapType and remove default value
     val mapType by prefs.mapType.collectAsState(initial = null)
 
-    // Fixed: Create map based on mapType with proper remember key
-    val map: MapStrategy? = remember(mapType) {
-        mapType?.let { type ->
-            when (type) {
-                MapType.Google -> ConcreteGoogleMap()
-                MapType.Gis -> ConcreteGoogleMap()
-                MapType.Libre -> ConcreteLibreMap()
-            }
+    // ✅ FIX: Get the map instance from the ViewModel
+    val map by vm.map.collectAsState()
+
+    // ✅ FIX: Trigger map initialization from a LaunchedEffect
+    // This runs only when mapType changes from null to a real value
+    LaunchedEffect(mapType) {
+        mapType?.let {
+            vm.initializeMap(it)
         }
     }
 
@@ -453,7 +449,8 @@ fun MapRoute(
                                 vm.updateState(state.copy(selectedLocation = intent.selectedLocation))
                                 if (state.route.isEmpty()) {
                                     intent.selectedLocation.point?.let { point ->
-                                        scope.launch(Dispatchers.Main.immediate) {
+                                        scope.launch(Dispatchers.Main) {
+                                            while (map == null) delay(100)
                                             map?.animate(to = point)
                                         }
                                     }
