@@ -8,4 +8,6 @@
     <string name="enter_otp_definition">Biz +998%s raqamiga yuborgan 5 xonali kodni kiriting</string>
     <string name="resend_in">Kod\'ni %s dan so\'ng qayta yuborish</string>
     <string name="resend">Kodni qayta yuborish</string>
+    <string name="ok">Tushunarli</string>
+    <string name="error">Xatolik</string>
 </resources>

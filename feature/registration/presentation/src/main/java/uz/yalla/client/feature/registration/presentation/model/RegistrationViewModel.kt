@@ -1,29 +1,27 @@
 package uz.yalla.client.feature.registration.presentation.model
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.threeten.bp.LocalDate
 import uz.yalla.client.core.common.formation.formatWithDotsDMY
+import uz.yalla.client.core.common.viewmodel.BaseViewModel
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.feature.auth.domain.usecase.register.RegisterUseCase
 
 internal class RegistrationViewModel(
     private val registerUseCase: RegisterUseCase,
     private val prefs: AppPreferences
-) : ViewModel() {
-
-    private val _actionFlow = MutableSharedFlow<RegistrationActionState>()
-    val actionFlow = _actionFlow.asSharedFlow()
+) : BaseViewModel() {
 
     private val _uiState = MutableStateFlow(RegistrationUIState())
     val uiState = _uiState.asStateFlow()
+
+    private val _navigationChannel: Channel<Unit> = Channel(Channel.CONFLATED)
+    val navigationChannel = _navigationChannel.receiveAsFlow()
 
     fun updateUiState(
         number: String? = null,
@@ -45,8 +43,7 @@ internal class RegistrationViewModel(
         }
     }
 
-    fun register() = viewModelScope.launch {
-        _actionFlow.emit(RegistrationActionState.Loading)
+    fun register() = viewModelScope.launchWithLoading {
         _uiState.value.apply {
             registerUseCase(
                 formattedNumber(),
@@ -64,10 +61,8 @@ internal class RegistrationViewModel(
                 prefs.setLastName(lastName)
                 prefs.setGender(gender.name)
                 prefs.setDateOfBirth(dateOfBirth.formatWithDotsDMY())
-                _actionFlow.emit(RegistrationActionState.Success(result))
-            }.onFailure {
-                _actionFlow.emit(RegistrationActionState.Error)
-            }
+                _navigationChannel.send(Unit)
+            }.onFailure(::handleException)
         }
     }
 

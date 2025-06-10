@@ -6,7 +6,7 @@ import uz.yalla.client.core.data.network.NetworkConstants
 import uz.yalla.client.feature.setting.data.repository.ConfigRepositoryImpl
 import uz.yalla.client.feature.setting.domain.repository.ConfigRepository
 import uz.yalla.client.feature.setting.domain.usecase.GetConfigUseCase
-import uz.yalla.client.feature.setting.domain.usecase.SendFCMTokenUseCase
+import uz.yalla.client.feature.setting.domain.usecase.RefreshFCMTokenUseCase
 import uz.yalla.client.service.setting.service.ConfigService
 
 object SettingsData {
@@ -20,12 +20,12 @@ object SettingsData {
     }
 
     private val repositoryModule = module {
-        single<ConfigRepository> { ConfigRepositoryImpl(get()) }
+        single<ConfigRepository> { ConfigRepositoryImpl(get(), get()) }
     }
 
     private val useCaseModule = module {
         single { GetConfigUseCase(get()) }
-        single { SendFCMTokenUseCase(get()) }
+        single { RefreshFCMTokenUseCase(get(), get()) }
     }
 
     val modules = listOf(serviceModule, repositoryModule, useCaseModule)

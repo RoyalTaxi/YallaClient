@@ -6,5 +6,11 @@ import uz.yalla.client.feature.setting.domain.model.ConfigModel
 
 interface ConfigRepository {
     suspend fun getConfig(): Either<ConfigModel, DataError.Network>
-    suspend fun sendFCMToken(token: String): Either<Unit, DataError.Network>
+
+    suspend fun getAndSaveFirebaseToken(): Either<String, DataError.Network>
+
+    suspend fun sendFCMTokenToBackend(
+        token: String,
+        accessToken: String
+    ): Either<Unit, DataError.Network>
 }

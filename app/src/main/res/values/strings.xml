@@ -7,4 +7,6 @@
     <string name="no_internet_connection_body">Internet aloqangizni tekshiring yoki taksi chaqirish uchun qo\'ng\'iroq qiling</string>
     <string name="repeat">Takrorlash</string>
     <string name="call">Qo\'ng\'iroq qilish</string>
+    <string name="ok">Tushunarli</string>
+    <string name="error">Xatolik</string>
 </resources>

@@ -28,7 +28,7 @@ class RegisterUseCase(
                 dateOfBirth = dateOfBirth,
                 key = key
             )) {
-                is Either.Error -> Result.failure(Exception(result.error.name))
+                is Either.Error -> Result.failure(result.error)
                 is Either.Success -> Result.success(result.data)
             }
         }

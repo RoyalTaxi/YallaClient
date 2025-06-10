@@ -20,7 +20,7 @@ class GetSecondaryAddressedUseCase(
                 lat = lat,
                 lng = lng
             )) {
-                is Either.Error -> Result.failure(Exception(result.error.name))
+                is Either.Error -> Result.failure(result.error)
                 is Either.Success -> Result.success(
                     result.data.map {
                         SearchableAddress(

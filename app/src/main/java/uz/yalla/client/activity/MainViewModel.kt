@@ -1,9 +1,7 @@
 package uz.yalla.client.activity
 
+import uz.yalla.client.core.common.viewmodel.BaseViewModel
 import android.content.Context
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -19,7 +17,7 @@ import uz.yalla.client.core.common.utils.getCurrentLocation
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.feature.setting.domain.usecase.GetConfigUseCase
-import uz.yalla.client.feature.setting.domain.usecase.SendFCMTokenUseCase
+import uz.yalla.client.feature.setting.domain.usecase.RefreshFCMTokenUseCase
 import kotlin.coroutines.resume
 import kotlin.time.Duration.Companion.seconds
 
@@ -27,18 +25,21 @@ class MainViewModel(
     private val appContext: Context,
     connectivityObserver: ConnectivityObserver,
     private val getConfigUseCase: GetConfigUseCase,
-    private val sendFCMTokenUseCase: SendFCMTokenUseCase,
+    private val refreshFCMTokenUseCase: RefreshFCMTokenUseCase,
     private val prefs: AppPreferences
-) : ViewModel() {
+) : BaseViewModel() {
 
     companion object {
         private const val MAX_LOCATION_ATTEMPTS = 3
         private val DEFAULT_LOCATION_TIMEOUT = 2.seconds
     }
 
-    val isConnected = connectivityObserver
-        .isConnected
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
+    val isConnected = connectivityObserver.isConnected
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = true
+        )
 
     private val _isReady = MutableStateFlow<ReadyState>(ReadyState.Loading)
     val isReady = _isReady.asStateFlow()
@@ -116,23 +117,7 @@ class MainViewModel(
             )
         }
 
-    fun initializeFcm() {
-        viewModelScope.launch(Dispatchers.IO) {
-            FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val token = task.result
-                    prefs.setFirebaseToken(token)
-                    if (accessToken.value.isNotBlank()) {
-                        sendFCMToken(token)
-                    }
-                }
-            }
-        }
-    }
-
-    private fun sendFCMToken(token: String) {
-        viewModelScope.launch {
-            sendFCMTokenUseCase(token)
-        }
+    fun refreshFCMToken() {
+        viewModelScope.launch { refreshFCMTokenUseCase() }
     }
 }

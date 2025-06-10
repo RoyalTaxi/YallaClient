@@ -27,6 +27,7 @@ fun EnableBonusButton(
     balance: Int,
     isBonusEnabled: Boolean,
     isBonusPaymentEnabled: Boolean,
+    innerModifier: Modifier = Modifier,
     onSwitchChecked: (Boolean) -> Unit,
     onClick: () -> Unit
 ) {
@@ -41,12 +42,9 @@ fun EnableBonusButton(
         Row(
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
+            modifier = innerModifier
                 .fillMaxWidth()
-                .padding(
-                    horizontal = 20.dp,
-                    vertical = 12.dp
-                )
+                .padding(vertical = 12.dp)
         ) {
             Image(
                 painter = painterResource(R.drawable.ic_coin),

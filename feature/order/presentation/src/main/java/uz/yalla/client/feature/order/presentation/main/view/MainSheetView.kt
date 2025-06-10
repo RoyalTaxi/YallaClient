@@ -9,7 +9,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -62,7 +61,6 @@ import uz.yalla.client.feature.order.presentation.main.view.sheet.BonusInfoBotto
 import uz.yalla.client.feature.order.presentation.main.view.sheet.OrderCommentBottomSheet
 import uz.yalla.client.feature.order.presentation.main.view.sheet.PaymentMethodBottomSheet
 import uz.yalla.client.feature.order.presentation.main.view.sheet.SetBonusAmountBottomSheet
-import uz.yalla.client.feature.order.presentation.no_service.view.NoServiceSheetChannel
 import kotlin.time.Duration.Companion.seconds
 
 
@@ -258,7 +256,7 @@ fun MainSheet(
             initialDestination = state.destinations.lastOrNull(),
             isForDestination = state.isSearchByNameSheetVisible == SearchByNameSheetValue.FOR_DEST,
             onAddressSelected = { name, lat, lng, addressId ->
-                scope.launch(Dispatchers.IO) {
+                if (addressId != 0) scope.launch(Dispatchers.IO) {
                     MainSheetChannel.sendIntent(
                         OrderTaxiSheetIntent.SetSelectedLocation(
                             selectedLocation = SelectedLocation(

@@ -1,39 +1,29 @@
 package uz.yalla.client.feature.payment.add_card.model
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
+import uz.yalla.client.core.common.viewmodel.BaseViewModel
 import uz.yalla.client.feature.payment.domain.usecase.AddCardUseCase
 
 internal class AddCardViewModel(
     private val addCardUseCase: AddCardUseCase,
-) : ViewModel() {
+) : BaseViewModel() {
 
     private val _uiState = MutableStateFlow(AddCardUIState())
     val uiState = _uiState.asStateFlow()
 
-    private val _actionState = MutableSharedFlow<AddCardActionState>()
-    val actionState = _actionState.asSharedFlow()
+    private val _navigationChannel: Channel<String> = Channel(Channel.CONFLATED)
+    val navigationChannel = _navigationChannel.receiveAsFlow()
 
-    fun addCard() = viewModelScope.launch {
+    fun addCard() = viewModelScope.launchWithLoading {
         uiState.value.apply {
-            _actionState.emit(AddCardActionState.Loading)
             addCardUseCase(number = cardNumber, expiry = cardExpiry)
                 .onSuccess { result ->
-                    _actionState.emit(
-                        AddCardActionState.Success(
-                            key = result.key,
-                            cardNumber = uiState.value.cardNumber,
-                            cardExpiry = uiState.value.cardExpiry
-                        )
-                    )
-                }.onFailure { _actionState.emit(AddCardActionState.Error) }
+                    _navigationChannel.send(result.key)
+                }.onFailure(::handleException)
         }
     }
 

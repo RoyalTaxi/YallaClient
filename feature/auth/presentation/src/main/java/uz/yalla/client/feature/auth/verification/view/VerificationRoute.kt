@@ -5,15 +5,12 @@ import android.content.Intent
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
@@ -24,6 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import uz.yalla.client.core.common.dialog.BaseDialog
 import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.feature.auth.R
 import uz.yalla.client.feature.auth.verification.model.VerificationActionState
@@ -44,10 +42,12 @@ internal fun VerificationRoute(
     val focusManager = LocalFocusManager.current
     val uiState by vm.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
-    var loading by remember { mutableStateOf(false) }
+    val loading by vm.loading.collectAsState()
     val errorMessage = stringResource(R.string.error_message)
     val context = LocalContext.current
     val smsRetriever = remember { SmsRetriever.getClient(context) }
+
+    val showErrorDialog by vm.showErrorDialog.collectAsState()
 
     val smsRetrieverLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
@@ -115,25 +115,7 @@ internal fun VerificationRoute(
         launch(Dispatchers.Main) {
             vm.actionFlow.collectLatest {
                 when (it) {
-                    is VerificationActionState.Error -> {
-                        vm.updateUiState(buttonState = false)
-                        loading = false
-                        launch {
-                            snackbarHostState.showSnackbar(
-                                message = errorMessage,
-                                withDismissAction = true,
-                                duration = SnackbarDuration.Short
-                            )
-                        }
-                    }
-
-                    is VerificationActionState.Loading -> {
-                        vm.updateUiState(buttonState = false)
-                        loading = true
-                    }
-
                     is VerificationActionState.SendSMSSuccess -> {
-                        loading = false
                         vm.updateUiState(
                             code = "",
                             hasRemainingTime = expiresIn > 0,
@@ -183,6 +165,16 @@ internal fun VerificationRoute(
             }
         }
     )
+
+    if (showErrorDialog) {
+        BaseDialog(
+            title = stringResource(R.string.error),
+            description = errorMessage,
+            actionText = stringResource(R.string.ok),
+            onAction = { vm.dismissErrorDialog() },
+            onDismiss = { vm.dismissErrorDialog() }
+        )
+    }
 
     if (loading) LoadingDialog()
 }

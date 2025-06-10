@@ -4,4 +4,6 @@
     <string name="no_notification_body">Hozircha yangilik yo\'q. Keyinroq tekshiring - bu yerda biror narsa paydo bo\'lishi aniq!</string>
     <string name="today">Bugun</string>
     <string name="yesterday">Kecha</string>
+    <string name="ok">Tushunarli</string>
+    <string name="error">Xatolik</string>
 </resources>

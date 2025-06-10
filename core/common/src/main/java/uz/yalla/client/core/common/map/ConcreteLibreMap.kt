@@ -47,6 +47,7 @@ import io.github.dellisd.spatialk.geojson.LineString
 import io.github.dellisd.spatialk.geojson.Point
 import io.github.dellisd.spatialk.geojson.Position
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
@@ -120,41 +121,33 @@ class ConcreteLibreMap : MapStrategy, KoinComponent {
         // Separate initialization logic
         LaunchedEffect(cameraState, savedLoc) {
             if (savedLoc.first == 0.0 && savedLoc.second == 0.0) return@LaunchedEffect
+            coroutineScope {
+                try {
+                    cameraState.awaitInitialized()
 
-            try {
-                // Wait for camera to be fully initialized
-                cameraState.awaitInitialized()
+                    // Small delay to ensure map is fully ready (similar to Google Maps onMapLoaded)
+                    kotlinx.coroutines.delay(100)
 
-                // Small delay to ensure map is fully ready (similar to Google Maps onMapLoaded)
-                kotlinx.coroutines.delay(100)
+                    // Update map point from saved location
+                    mapPoint.value = MapPoint(savedLoc.first, savedLoc.second)
 
-                // Update map point from saved location
-                mapPoint.value = MapPoint(savedLoc.first, savedLoc.second)
+                    // Move to starting point or saved location using immediate positioning
+                    val targetPoint = startingPoint ?: MapPoint(savedLoc.first, savedLoc.second)
 
-                // Move to starting point or saved location using immediate positioning
-                val targetPoint = startingPoint ?: MapPoint(savedLoc.first, savedLoc.second)
-
-                // Use moveTo for immediate positioning without animation during initialization
-                cameraState.animateTo(
-                    CameraPosition(
-                        zoom = 15.0,
-                        target = Position(
-                            latitude = targetPoint.lat,
-                            longitude = targetPoint.lng
+                    // Use moveTo for immediate positioning without animation during initialization
+                    cameraState.animateTo(
+                        CameraPosition(
+                            zoom = 15.0,
+                            target = Position(
+                                latitude = targetPoint.lat,
+                                longitude = targetPoint.lng
+                            )
                         )
                     )
-                )
 
-                // Call onMapReady only once after everything is set up
-                if (!mapReadyCalled.value) {
-                    mapReadyCalled.value = true
                     onMapReady()
-                }
-            } catch (e: Exception) {
-                Log.e("ConcreteLibreMap", "Error initializing map", e)
-                // Still call onMapReady to prevent UI hanging
-                if (!mapReadyCalled.value) {
-                    mapReadyCalled.value = true
+                } catch (e: Exception) {
+                    Log.e("ConcreteLibreMap", "Error initializing map", e)
                     onMapReady()
                 }
             }
@@ -204,7 +197,6 @@ class ConcreteLibreMap : MapStrategy, KoinComponent {
 
     override fun move(to: MapPoint) {
         coroutineScope.launch {
-            cameraState.awaitInitialized()
             cameraState.animateTo(
                 duration = 1.milliseconds,
                 finalPosition = CameraPosition(

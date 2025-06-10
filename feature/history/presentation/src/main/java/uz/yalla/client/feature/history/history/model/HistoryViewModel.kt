@@ -1,22 +1,21 @@
 package uz.yalla.client.feature.history.history.model
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import app.cash.paging.cachedIn
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import uz.yalla.client.core.common.viewmodel.BaseViewModel
 import uz.yalla.client.feature.domain.model.OrdersHistory
 import uz.yalla.client.feature.domain.usecase.GetOrdersHistoryUseCase
 
 internal class HistoryViewModel(
     private val getOrdersHistoryUseCase: GetOrdersHistoryUseCase
-) : ViewModel() {
-    private val _orders = MutableSharedFlow<PagingData<OrdersHistory>>()
-    val orders = _orders.asSharedFlow()
+) : BaseViewModel() {
+
+    private val _orders = MutableStateFlow<PagingData<OrdersHistory>>(PagingData.empty())
+    val orders = _orders.asStateFlow()
 
     init {
         getOrders()
@@ -24,8 +23,9 @@ internal class HistoryViewModel(
 
     fun getOrders() = viewModelScope.launch {
         getOrdersHistoryUseCase()
-            .cachedIn(viewModelScope).collectLatest {
-            _orders.emit(it)
-        }
+            .cachedIn(viewModelScope)
+            .collectLatest {
+                _orders.emit(it)
+            }
     }
 }

@@ -1,9 +1,5 @@
 package uz.yalla.client.feature.auth.verification.model
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.google.firebase.messaging.FirebaseMessaging
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -15,19 +11,20 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import uz.yalla.client.core.common.viewmodel.BaseViewModel
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.feature.auth.domain.model.auth.VerifyAuthCodeModel
 import uz.yalla.client.feature.auth.domain.usecase.auth.SendCodeUseCase
 import uz.yalla.client.feature.auth.domain.usecase.auth.VerifyCodeUseCase
-import uz.yalla.client.feature.setting.domain.usecase.SendFCMTokenUseCase
+import uz.yalla.client.feature.setting.domain.usecase.RefreshFCMTokenUseCase
 import kotlin.time.Duration.Companion.seconds
 
 class VerificationViewModel(
     private val prefs: AppPreferences,
     private val verifyCodeUseCase: VerifyCodeUseCase,
     private val sendCodeUseCase: SendCodeUseCase,
-    private val sendFCMTokenUseCase: SendFCMTokenUseCase
-) : ViewModel() {
+    private val refreshFCMTokenUseCase: RefreshFCMTokenUseCase
+) : BaseViewModel() {
 
     private val _actionFlow = MutableSharedFlow<VerificationActionState>()
     val actionFlow = _actionFlow.asSharedFlow()
@@ -63,31 +60,25 @@ class VerificationViewModel(
         }
     }
 
-    fun verifyAuthCode() = viewModelScope.launch {
-        _actionFlow.emit(VerificationActionState.Loading)
+    fun verifyAuthCode() = viewModelScope.launchWithLoading {
         _uiState.value.let { state ->
             verifyCodeUseCase(state.number, state.code.toInt())
                 .onSuccess { result ->
                     saveAuthResult(result)
-                    getFCMToken()
+                    refreshFCMToken()
                     _actionFlow.emit(VerificationActionState.VerifySuccess(result))
                 }
-                .onFailure {
-                    _actionFlow.emit(VerificationActionState.Error)
-                }
+                .onFailure(::handleException)
         }
     }
 
-    fun resendAuthCode(hash: String?) = viewModelScope.launch {
-        _actionFlow.emit(VerificationActionState.Loading)
+    fun resendAuthCode(hash: String?) = viewModelScope.launchWithLoading {
         _uiState.value.let { state ->
             sendCodeUseCase(state.number, hash)
                 .onSuccess { result ->
                     _actionFlow.emit(VerificationActionState.SendSMSSuccess(result))
                 }
-                .onFailure {
-                    _actionFlow.emit(VerificationActionState.Error)
-                }
+                .onFailure(::handleException)
         }
     }
 
@@ -99,24 +90,8 @@ class VerificationViewModel(
         }
     }
 
-    private fun getFCMToken() {
-        viewModelScope.launch(Dispatchers.IO) {
-            FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val token = task.result
-                    prefs.setFirebaseToken(token)
-                    if (accessToken.value.isNotBlank()) {
-                        sendFCMToken(token)
-                    }
-                }
-            }
-        }
-    }
-
-    private fun sendFCMToken(token: String) {
-        viewModelScope.launch {
-            sendFCMTokenUseCase(token)
-        }
+    private fun refreshFCMToken() {
+        viewModelScope.launch { refreshFCMTokenUseCase() }
     }
 
     private fun saveAuthResult(result: VerifyAuthCodeModel) {

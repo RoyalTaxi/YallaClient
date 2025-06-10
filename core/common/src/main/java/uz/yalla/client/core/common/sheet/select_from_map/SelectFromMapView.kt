@@ -155,7 +155,7 @@ fun SelectFromMapView(
             onSizeChanged = { height -> mapBottomPadding = with(density) { height.toDp() } },
             onConfirmClick = {
                 uiState.selectedLocation?.let {
-                    onSelectLocation(it)
+                    if (it.addressId != null) onSelectLocation(it)
                     onDismissRequest()
                 }
             },

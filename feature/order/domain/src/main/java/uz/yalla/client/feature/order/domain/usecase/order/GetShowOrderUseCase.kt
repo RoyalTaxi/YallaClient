@@ -14,7 +14,7 @@ class GetShowOrderUseCase(
     suspend operator fun invoke(orderId: Int): Result<ShowOrderModel> {
         return withContext(dispatcher) {
             when (val result = repository.getShowOrder(orderId)) {
-                is Either.Error -> Result.failure(Exception(result.error.name))
+                is Either.Error -> Result.failure(result.error)
                 is Either.Success -> Result.success(result.data)
             }
         }

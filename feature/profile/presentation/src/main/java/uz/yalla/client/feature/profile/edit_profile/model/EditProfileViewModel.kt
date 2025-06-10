@@ -2,19 +2,16 @@ package uz.yalla.client.feature.profile.edit_profile.model
 
 import android.content.Context
 import android.net.Uri
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.format.DateTimeParseException
 import uz.yalla.client.core.common.formation.formatWithDotsDMY
+import uz.yalla.client.core.common.viewmodel.BaseViewModel
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.feature.profile.domain.model.request.UpdateMeDto
 import uz.yalla.client.feature.profile.domain.usecase.GetMeUseCase
@@ -25,24 +22,27 @@ import uz.yalla.client.feature.profile.edit_profile.components.Gender
 import uz.yalla.client.feature.profile.edit_profile.components.uriToByteArray
 import java.util.Locale
 
+internal sealed class NavigationEvent {
+    data object NavigateBack : NavigationEvent()
+    data object NavigateToStart : NavigationEvent()
+}
+
 internal class EditProfileViewModel(
     private val updateMeUseCase: UpdateMeUseCase,
     private val getMeUseCase: GetMeUseCase,
     private val updateAvatarUseCase: UpdateAvatarUseCase,
     private val logoutUseCase: LogoutUseCase,
     private val prefs: AppPreferences
-) : ViewModel() {
+) : BaseViewModel() {
 
     private val _uiState = MutableStateFlow(EditProfileUIState())
     val uiState = _uiState.asStateFlow()
 
-    private val _actionState = MutableSharedFlow<EditProfileActionState>()
-    val actionState = _actionState.asSharedFlow()
+    private val _navigationChannel = Channel<NavigationEvent>(Channel.CONFLATED)
+    val navigationChannel = _navigationChannel.receiveAsFlow()
 
-    fun getMe() = viewModelScope.launch {
-        _actionState.emit(EditProfileActionState.Loading)
+    fun getMe() = viewModelScope.launchWithLoading {
         getMeUseCase().onSuccess { result ->
-            _actionState.emit(EditProfileActionState.GetSuccess)
             _uiState.update {
                 it.copy(
                     name = result.client.givenNames,
@@ -52,20 +52,16 @@ internal class EditProfileViewModel(
                     birthday = parseBirthdayOrNull(result.client.birthday),
                     phone = result.client.phone,
 
-                    // Original values for change detection
                     originalName = result.client.givenNames,
                     originalSurname = result.client.surname,
                     originalGender = Gender.fromType(result.client.gender),
                     originalBirthday = parseBirthdayOrNull(result.client.birthday)
                 )
             }
-        }.onFailure {
-            _actionState.emit(EditProfileActionState.Error)
-        }
+        }.onFailure(::handleException)
     }
 
-    fun postMe() = viewModelScope.launch {
-        _actionState.emit(EditProfileActionState.Loading)
+    fun postMe() = viewModelScope.launchWithLoading {
         with(uiState.value) {
             updateMeUseCase(
                 UpdateMeDto(
@@ -85,29 +81,28 @@ internal class EditProfileViewModel(
                         newImage = null
                     )
                 }
-                _actionState.emit(EditProfileActionState.UpdateSuccess)
-            }.onFailure {
-                _actionState.emit(EditProfileActionState.Error)
-            }
+                _navigationChannel.trySend(
+                    NavigationEvent.NavigateBack
+                )
+            }.onFailure(::handleException)
         }
     }
 
-    fun updateAvatar() = viewModelScope.launch {
-        _actionState.emit(EditProfileActionState.Loading)
+    fun updateAvatar() = viewModelScope.launchWithLoading {
         uiState.value.newImage?.let { newImage ->
             updateAvatarUseCase(newImage).onSuccess { result ->
                 _uiState.update { it.copy(newImageUrl = result.image) }
-                _actionState.emit(EditProfileActionState.UpdateAvatarSuccess)
-            }.onFailure {
-                _actionState.emit(EditProfileActionState.Error)
-            }
-        } ?: _actionState.emit(EditProfileActionState.Error)
+                postMe()
+            }.onFailure(::handleException)
+        }
     }
 
-    fun setNewImage(uri: Uri, context: Context) = viewModelScope.launch {
-        context.uriToByteArray(uri)?.let { bytes ->
-            _uiState.update { it.copy(newImage = bytes) }
-        } ?: _actionState.emit(EditProfileActionState.Error)
+    fun setNewImage(uri: Uri, context: Context) = viewModelScope.launchWithLoading {
+        runCatching {
+            context.uriToByteArray(uri)?.let { bytes ->
+                _uiState.update { it.copy(newImage = bytes) }
+            }
+        }.onFailure(::handleException)
     }
 
     private fun parseBirthdayOrNull(birthdayStr: String?): LocalDate? {
@@ -140,13 +135,12 @@ internal class EditProfileViewModel(
         _uiState.update { it.copy(gender = gender) }
     }
 
-    fun logout() = viewModelScope.launch {
-        _actionState.emit(EditProfileActionState.Loading)
+    fun logout() = viewModelScope.launchWithLoading {
         logoutUseCase().onSuccess {
             prefs.clearAll()
-            _actionState.emit(EditProfileActionState.LogoutSuccess)
-        }.onFailure {
-            _actionState.emit(EditProfileActionState.LogoutError)
-        }
+            _navigationChannel.trySend(
+                NavigationEvent.NavigateToStart
+            )
+        }.onFailure(::handleException)
     }
 }

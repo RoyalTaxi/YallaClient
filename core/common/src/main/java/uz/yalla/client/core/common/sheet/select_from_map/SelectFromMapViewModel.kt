@@ -48,7 +48,6 @@ class SelectFromMapViewModel(
         getPolygonUseCase().onSuccess { result ->
             _uiState.update { it.copy(polygon = result) }
             if (result.isNotEmpty()) {
-                // Precompute and cache the polygon vertices when fetched
                 result.forEach { polygonItem ->
                     polygonVerticesCache[polygonItem.addressId] = polygonItem.polygons.map {
                         Pair(it.lat, it.lng)
@@ -77,7 +76,7 @@ class SelectFromMapViewModel(
             isPointInsidePolygon(point)
         }
 
-        val updatedLocation = if (isInsidePolygon && polygonAddressId != null) {
+        val updatedLocation = if (isInsidePolygon) {
             selectedLocation.copy(addressId = polygonAddressId)
         } else {
             selectedLocation
@@ -90,8 +89,8 @@ class SelectFromMapViewModel(
         return uiState.value.polygon
             .asSequence()
             .map { polygonItem -> isPointInPolygon(point, polygonItem) }
-            .filter { it.first }
-            .lastOrNull() ?: Pair(false, null)
+            .firstOrNull { it.first }
+            ?: Pair(false, null)
     }
 
     private fun isPointInPolygon(
@@ -110,20 +109,23 @@ class SelectFromMapViewModel(
         val pointLng = point.lng
         val pointLat = point.lat
 
-        for (i in vertices.indices) {
-            val j = if (i == 0) vertices.lastIndex else i - 1
+        var i = 0
+        var j = vertices.lastIndex
+        while (i < vertices.size) {
             val (lat1, lng1) = vertices[i]
             val (lat2, lng2) = vertices[j]
 
             val hasVerticalCrossing = (lng1 > pointLng) != (lng2 > pointLng)
             if (hasVerticalCrossing) {
-                if (lng2 - lng1 == 0.0) continue
-
-                val intersectionLatitude = (lat2 - lat1) * (pointLng - lng1) / (lng2 - lng1) + lat1
-                if (pointLat < intersectionLatitude) {
-                    isInside = !isInside
+                if (lng2 - lng1 != 0.0) {
+                    val intersectionLatitude =
+                        (lat2 - lat1) * (pointLng - lng1) / (lng2 - lng1) + lat1
+                    if (pointLat < intersectionLatitude) {
+                        isInside = !isInside
+                    }
                 }
             }
+            j = i++
         }
 
         return if (isInside) {
@@ -132,6 +134,7 @@ class SelectFromMapViewModel(
             Pair(false, null)
         }
     }
+
 
     override fun onCleared() {
         super.onCleared()

@@ -13,4 +13,6 @@
     <string name="exit">Chiqish</string>
     <string name="stay">Bekor qilish</string>
     <string name="close">Yopish</string>
+    <string name="ok">Tushunarli</string>
+    <string name="error">Xatolik</string>
 </resources>

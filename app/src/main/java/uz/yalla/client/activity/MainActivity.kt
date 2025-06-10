@@ -35,6 +35,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var updateFlowLauncher: ActivityResultLauncher<IntentSenderRequest>
     private val appUpdateManager: AppUpdateManager by lazy { AppUpdateManagerFactory.create(this) }
+
     private val viewModel: MainViewModel by viewModel()
 
     private val requestPermissionLauncher = registerForActivityResult(
@@ -77,7 +78,7 @@ class MainActivity : AppCompatActivity() {
             )
         )
 
-        viewModel.initializeFcm()
+        viewModel.refreshFCMToken()
 
         val client = SmsRetriever.getClient(this)
         client.startSmsUserConsent(null)

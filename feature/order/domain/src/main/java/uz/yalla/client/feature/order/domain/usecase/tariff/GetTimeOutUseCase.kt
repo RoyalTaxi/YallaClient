@@ -18,7 +18,7 @@ class GetTimeOutUseCase(
     ): Result<GetTimeOutModel> {
         return withContext(dispatcher) {
             when (val result = repository.getTimeOut(lat = lat, lng = lng, tariffId = tariffId)) {
-                is Either.Error -> Result.failure(Exception(result.error.name))
+                is Either.Error -> Result.failure(result.error)
                 is Either.Success -> Result.success(result.data)
             }
         }

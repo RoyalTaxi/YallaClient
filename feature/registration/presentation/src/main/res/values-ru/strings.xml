@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-<string name="lets_meet">Давайте\nпознакомимся</string>
-<string name="lets_meet_desc">Сообщите нам, как правильно к вам\nобращаться</string>
-<string name="name">Имя</string>
-<string name="surname">Фамилия</string>
-<string name="date_of_birth">Дата рождения</string>
-<string name="gender_m">Мужчина</string>
-<string name="gender_f">Женщина</string>
-<string name="next">Далее</string>
+    <string name="lets_meet">Давайте\nпознакомимся</string>
+    <string name="lets_meet_desc">Сообщите нам, как правильно к вам\nобращаться</string>
+    <string name="name">Имя</string>
+    <string name="surname">Фамилия</string>
+    <string name="date_of_birth">Дата рождения</string>
+    <string name="gender_m">Мужчина</string>
+    <string name="gender_f">Женщина</string>
+    <string name="next">Далее</string>
+    <string name="ok">Понятно</string>
+    <string name="error">Ошибка</string>
 </resources>

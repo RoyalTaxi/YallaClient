@@ -14,7 +14,7 @@ class GetOrderHistoryUseCase(
     suspend operator fun invoke(orderId: Int): Result<OrderHistoryModel> {
         return withContext(dispatcher) {
             when (val result = repository.getOrderHistory(orderId)) {
-                is Either.Error -> Result.failure(Exception(result.error.name))
+                is Either.Error -> Result.failure(result.error)
                 is Either.Success -> Result.success(result.data)
             }
         }

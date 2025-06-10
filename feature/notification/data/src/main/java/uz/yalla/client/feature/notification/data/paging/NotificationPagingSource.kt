@@ -23,7 +23,7 @@ class NotificationPagingSource(
         return try {
             when (val response = service.getNotifications(currentPage, params.loadSize)) {
                 is Either.Error -> {
-                    LoadResult.Error(Exception(response.error.name))
+                    LoadResult.Error(Exception(response.error))
                 }
                 is Either.Success -> {
                     val data = response.data.result?.list?.map ( NotificationsMapper.mapper ).orEmpty()
