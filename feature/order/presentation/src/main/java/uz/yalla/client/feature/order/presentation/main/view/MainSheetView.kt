@@ -1,5 +1,6 @@
 package uz.yalla.client.feature.order.presentation.main.view
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -99,6 +100,12 @@ fun MainSheet(
     val fraction by remember {
         derivedStateOf {
             calculateTransitionFraction(scaffoldState.sheetState)
+        }
+    }
+
+    BackHandler(enabled = state.selectedTariff != null && fraction >= 0.5f) {
+        scope.launch {
+            scaffoldState.sheetState.animateTo(SheetValue.PartiallyExpanded)
         }
     }
 
