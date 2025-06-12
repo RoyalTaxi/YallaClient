@@ -12,6 +12,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
@@ -98,11 +99,17 @@ class ConcreteGoogleMap : MapStrategy, KoinComponent {
         onMapReady: () -> Unit
     ) {
         context = LocalContext.current
-        mapPadding = dpToPx(context, 100)
+        mapPadding = dpToPx(context, 110)
         coroutineScope = rememberCoroutineScope()
         cameraPositionState = rememberCameraPositionState()
 
         val savedLoc by prefs.entryLocation.collectAsState(initial = 0.0 to 0.0)
+
+        val currentZoom by remember {
+            derivedStateOf { cameraPositionState.position.zoom }
+        }
+
+        val shouldShowDrivers = currentZoom >= 14f
 
         LaunchedEffect(savedLoc) {
             mapPoint.value = MapPoint(savedLoc.first, savedLoc.second)
@@ -164,9 +171,11 @@ class ConcreteGoogleMap : MapStrategy, KoinComponent {
                 orderEndsInMinutes = orderEndsInMinutes.value.takeIf { orderStatus.value == null }
             )
 
-            Driver(driver = driver)
+            if (shouldShowDrivers) {
+                Driver(driver = driver)
 
-            DriversWithAnimation(drivers = drivers)
+                DriversWithAnimation(drivers = drivers)
+            }
         }
     }
 
