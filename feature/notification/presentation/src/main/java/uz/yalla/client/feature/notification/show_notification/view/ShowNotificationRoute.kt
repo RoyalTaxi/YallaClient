@@ -2,9 +2,9 @@ package uz.yalla.client.feature.notification.show_notification.view
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -20,11 +20,11 @@ internal fun ShowNotificationRoute(
     onNavigateBack: () -> Unit,
     viewModel: ShowNotificationViewModel = koinViewModel()
 ) {
-    val state by viewModel.stateFlow.collectAsState()
-    val loading by viewModel.loading.collectAsState()
+    val state by viewModel.stateFlow.collectAsStateWithLifecycle()
+    val loading by viewModel.loading.collectAsStateWithLifecycle()
 
-    val showErrorDialog by viewModel.showErrorDialog.collectAsState()
-    val currentErrorMessageId by viewModel.currentErrorMessageId.collectAsState()
+    val showErrorDialog by viewModel.showErrorDialog.collectAsStateWithLifecycle()
+    val currentErrorMessageId by viewModel.currentErrorMessageId.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         launch(Dispatchers.IO) {

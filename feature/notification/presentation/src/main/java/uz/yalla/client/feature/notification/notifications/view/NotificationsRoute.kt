@@ -2,9 +2,9 @@ package uz.yalla.client.feature.notification.notifications.view
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import app.cash.paging.compose.collectAsLazyPagingItems
 import org.koin.androidx.compose.koinViewModel
@@ -21,9 +21,9 @@ internal fun NotificationRoute(
 ) {
 
     val notifications = viewModel.notifications.collectAsLazyPagingItems()
-    val baseLoading by viewModel.loading.collectAsState()
-    val showErrorDialog by viewModel.showErrorDialog.collectAsState()
-    val currentErrorMessageId by viewModel.currentErrorMessageId.collectAsState()
+    val baseLoading by viewModel.loading.collectAsStateWithLifecycle()
+    val showErrorDialog by viewModel.showErrorDialog.collectAsStateWithLifecycle()
+    val currentErrorMessageId by viewModel.currentErrorMessageId.collectAsStateWithLifecycle()
 
 
     LaunchedEffect(notifications.loadState) {

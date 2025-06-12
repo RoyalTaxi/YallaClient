@@ -11,7 +11,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -24,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import io.morfly.compose.bottomsheet.material3.BottomSheetScaffold
 import io.morfly.compose.bottomsheet.material3.BottomSheetState
@@ -70,12 +70,12 @@ import kotlin.time.Duration.Companion.seconds
 fun MainSheet(
     viewModel: MainSheetViewModel = koinViewModel()
 ) {
-    val state by viewModel.uiState.collectAsState()
-    val buttonAndOptionsState by viewModel.buttonAndOptionsState.collectAsState()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val buttonAndOptionsState by viewModel.buttonAndOptionsState.collectAsStateWithLifecycle()
     val lifecycleOwner = LocalLifecycleOwner.current
     val scope = rememberCoroutineScope()
     val prefs = koinInject<AppPreferences>()
-    val paymentType by prefs.paymentType.collectAsState(initial = PaymentType.CASH)
+    val paymentType by prefs.paymentType.collectAsStateWithLifecycle(PaymentType.CASH)
 
     val scaffoldState = rememberBottomSheetScaffoldState(
         rememberBottomSheetState(
@@ -404,7 +404,7 @@ fun MainSheet(
     }
 
     if (state.loading) {
-        LoadingDialog()
+        LoadingDialog(modifier = Modifier.zIndex(3f))
     }
 }
 

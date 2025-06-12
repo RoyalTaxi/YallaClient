@@ -24,12 +24,12 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.koinInject
 import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.common.otp.OtpView
@@ -47,7 +47,7 @@ internal fun CardVerificationScreen(
     onIntent: (CardVerificationIntent) -> Unit
 ) {
     val prefs = koinInject<AppPreferences>()
-    val number by prefs.number.collectAsState(initial = "")
+    val number by prefs.number.collectAsStateWithLifecycle("")
 
     Scaffold(
         modifier = Modifier.imePadding(),

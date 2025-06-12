@@ -8,16 +8,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -33,33 +27,35 @@ internal fun LanguageScreen(
     uiState: LanguageUIState,
     onIntent: (LanguageIntent) -> Unit
 ) {
-    Scaffold(
-        containerColor = YallaTheme.color.white
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-        ) {
-            Spacer(modifier = Modifier.height(40.dp))
+    key(uiState.selectedLanguage) {
+        Scaffold(
+            containerColor = YallaTheme.color.white
+        ) { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                Spacer(modifier = Modifier.height(40.dp))
 
-            LanguageHeader()
+                LanguageHeader()
 
-            Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
-            LanguageOptions(
-                languages = uiState.languages,
-                selectedLanguageTag = uiState.selectedLanguage?.languageTag,
-                onLanguageSelected = { lang -> onIntent(LanguageIntent.SetLanguage(lang)) }
-            )
+                LanguageOptions(
+                    languages = uiState.languages,
+                    selectedLanguageTag = uiState.selectedLanguage?.languageTag,
+                    onLanguageSelected = { lang -> onIntent(LanguageIntent.SetLanguage(lang)) }
+                )
 
-            Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.weight(1f))
 
-            LanguageFooter(
-                isButtonEnabled = uiState.selectedLanguage?.languageTag.isNullOrBlank().not(),
-                onNext = { onIntent(LanguageIntent.NavigateNext) }
-            )
+                LanguageFooter(
+                    isButtonEnabled = uiState.selectedLanguage?.languageTag.isNullOrBlank().not(),
+                    onNext = { onIntent(LanguageIntent.NavigateNext) }
+                )
+            }
         }
     }
 }

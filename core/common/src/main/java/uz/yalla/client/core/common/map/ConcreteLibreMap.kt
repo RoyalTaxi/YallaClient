@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
@@ -24,6 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.sargunv.maplibrecompose.compose.CameraState
 import dev.sargunv.maplibrecompose.compose.MaplibreMap
 import dev.sargunv.maplibrecompose.compose.StyleState
@@ -97,9 +97,8 @@ class ConcreteLibreMap : MapStrategy, KoinComponent {
         coroutineScope = rememberCoroutineScope()
         styleState = rememberStyleState()
 
-        val savedLoc by prefs.entryLocation.collectAsState(initial = 0.0 to 0.0)
+        val savedLoc by prefs.entryLocation.collectAsStateWithLifecycle(0.0 to 0.0)
 
-        // Initialize map point from saved location immediately
         LaunchedEffect(savedLoc) {
             if (savedLoc.first != 0.0 && savedLoc.second != 0.0) {
                 mapPoint.value = MapPoint(savedLoc.first, savedLoc.second)

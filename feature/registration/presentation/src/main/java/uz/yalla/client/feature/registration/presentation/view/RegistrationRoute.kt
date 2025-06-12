@@ -2,11 +2,11 @@ package uz.yalla.client.feature.registration.presentation.view
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -23,13 +23,13 @@ internal fun RegistrationRoute(
     onNext: () -> Unit,
     vm: RegistrationViewModel = koinViewModel()
 ) {
-    val uiState by vm.uiState.collectAsState()
+    val uiState by vm.uiState.collectAsStateWithLifecycle()
     val focusManager = LocalFocusManager.current
     val scope = rememberCoroutineScope()
-    val loading by vm.loading.collectAsState()
+    val loading by vm.loading.collectAsStateWithLifecycle()
 
-    val showErrorDialog by vm.showErrorDialog.collectAsState()
-    val currentErrorMessageId by vm.currentErrorMessageId.collectAsState()
+    val showErrorDialog by vm.showErrorDialog.collectAsStateWithLifecycle()
+    val currentErrorMessageId by vm.currentErrorMessageId.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         launch(Dispatchers.IO) {

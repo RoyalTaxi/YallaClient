@@ -11,8 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
@@ -27,6 +25,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -103,13 +102,11 @@ class ConcreteGoogleMap : MapStrategy, KoinComponent {
         coroutineScope = rememberCoroutineScope()
         cameraPositionState = rememberCameraPositionState()
 
-        val savedLoc by prefs.entryLocation.collectAsState(initial = 0.0 to 0.0)
+        val savedLoc by prefs.entryLocation.collectAsStateWithLifecycle(0.0 to 0.0)
 
-        val currentZoom by remember {
-            derivedStateOf { cameraPositionState.position.zoom }
+        val driversVisibility by remember(cameraPositionState.position.zoom) {
+            mutableStateOf(cameraPositionState.position.zoom >= 14)
         }
-
-        val shouldShowDrivers = currentZoom >= 14f
 
         LaunchedEffect(savedLoc) {
             mapPoint.value = MapPoint(savedLoc.first, savedLoc.second)
@@ -171,7 +168,7 @@ class ConcreteGoogleMap : MapStrategy, KoinComponent {
                 orderEndsInMinutes = orderEndsInMinutes.value.takeIf { orderStatus.value == null }
             )
 
-            if (shouldShowDrivers) {
+            if (driversVisibility) {
                 Driver(driver = driver)
 
                 DriversWithAnimation(drivers = drivers)
@@ -333,9 +330,7 @@ private fun DriversWithAnimation(
     drivers.take(20).forEach { driver ->
         key(driver.id) {
             val markerState = rememberMarkerState(key = driver.id.toString())
-            val coroutineScope = rememberCoroutineScope()
 
-            // Use Animatable for more precise control
             val animatedLat = remember { Animatable(driver.lat.toFloat()) }
             val animatedLng = remember { Animatable(driver.lng.toFloat()) }
             val animatedHeading = remember { Animatable(driver.heading.toFloat()) }

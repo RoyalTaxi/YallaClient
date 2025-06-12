@@ -18,7 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,6 +32,7 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -176,14 +176,14 @@ fun MapRoute(
         }
     }
 
-    val state by vm.uiState.collectAsState()
-    val hamburgerButtonState by vm.hamburgerButtonState.collectAsState()
+    val state by vm.uiState.collectAsStateWithLifecycle()
+    val hamburgerButtonState by vm.hamburgerButtonState.collectAsStateWithLifecycle()
     var drawerState = rememberDrawerState(DrawerValue.Closed)
 
-    val mapType by prefs.mapType.collectAsState(initial = null)
+    val mapType by prefs.mapType.collectAsStateWithLifecycle(null)
 
     // ✅ FIX: Get the map instance from the ViewModel
-    val map by vm.map.collectAsState()
+    val map by vm.map.collectAsStateWithLifecycle()
 
     // ✅ FIX: Trigger map initialization from a LaunchedEffect
     // This runs only when mapType changes from null to a real value

@@ -1,8 +1,8 @@
 package uz.yalla.client.feature.bonus.bonus_account.view
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.koinInject
 import uz.yalla.client.core.domain.local.AppPreferences
 
@@ -12,7 +12,7 @@ internal fun BonusAccountRoute(
     onBonusClicked: () -> Unit,
     prefs: AppPreferences = koinInject()
 ) {
-    val balance by prefs.balance.collectAsState(0)
+    val balance by prefs.balance.collectAsStateWithLifecycle(0)
 
     BonusAccountScreen(
         balance = balance,

@@ -7,7 +7,7 @@ package uz.yalla.client.core.common.map
 //import androidx.compose.runtime.LaunchedEffect
 //import androidx.compose.runtime.MutableState
 //import androidx.compose.runtime.State
-//import androidx.compose.runtime.collectAsState
+//import androidx.lifecycle.compose.collectAsStateWithLifecycle
 //import androidx.compose.runtime.getValue
 //import androidx.compose.runtime.mutableStateListOf
 //import androidx.compose.runtime.mutableStateOf
@@ -67,7 +67,7 @@ package uz.yalla.client.core.common.map
 //        context = LocalContext.current
 //        coroutineScope = rememberCoroutineScope()
 //        cameraState = rememberCameraState(CameraPosition(GeoPoint(0.0, 0.0), Zoom(2.0f)))
-//        val cameraNode by cameraState.node.collectAsState()
+//        val cameraNode by cameraState.node.collectAsStateWithLifecycle()
 //
 //        LaunchedEffect(cameraState.position.point) {
 //            launch(Dispatchers.Main) {

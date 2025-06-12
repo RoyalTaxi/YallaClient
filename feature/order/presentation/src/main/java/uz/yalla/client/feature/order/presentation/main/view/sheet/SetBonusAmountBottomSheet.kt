@@ -22,7 +22,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -33,6 +32,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.koinInject
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
@@ -48,9 +48,9 @@ fun SetBonusAmountBottomSheet(
     onDismissRequest: (amount: Int) -> Unit
 ) {
     val prefs = koinInject<AppPreferences>()
-    val balance by prefs.balance.collectAsState(0)
-    val minBonus by prefs.minBonus.collectAsState(0)
-    val maxBonus by prefs.maxBonus.collectAsState(0)
+    val balance by prefs.balance.collectAsStateWithLifecycle(0)
+    val minBonus by prefs.minBonus.collectAsStateWithLifecycle(0)
+    val maxBonus by prefs.maxBonus.collectAsStateWithLifecycle(0)
     var currentBonusAmount by remember(minBonus, maxBonus) {
         mutableIntStateOf(
             amount.coerceIn(
@@ -104,7 +104,11 @@ private fun SetBonusBackground(
         colors = CardDefaults.cardColors(YallaTheme.color.white),
         shape = RoundedCornerShape(30.dp)
     ) {
-        content(Modifier.padding(20.dp).fillMaxWidth())
+        content(
+            Modifier
+                .padding(20.dp)
+                .fillMaxWidth()
+        )
     }
 }
 

@@ -3,10 +3,10 @@ package uz.yalla.client.feature.payment.card_verification.view
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -24,12 +24,12 @@ internal fun CardVerificationRoute(
     onNavigateBack: () -> Unit,
     viewModel: CardVerificationViewModel = koinViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val loading by viewModel.loading.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val loading by viewModel.loading.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val errorMessage = stringResource(R.string.error_message)
 
-    val showErrorDialog by viewModel.showErrorDialog.collectAsState()
+    val showErrorDialog by viewModel.showErrorDialog.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         launch(Dispatchers.Default) {

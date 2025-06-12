@@ -15,7 +15,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,6 +23,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.androidx.compose.koinViewModel
 import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.common.sheet.AddDestinationBottomSheet
@@ -42,7 +42,7 @@ fun NoServiceSheet(
     viewModel: NoServiceViewModel = koinViewModel()
 ) {
     val density = LocalDensity.current
-    val state by viewModel.uiState.collectAsState()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
     val addDestinationSheetState = rememberModalBottomSheetState(true)
     val lifecycleOwner = LocalLifecycleOwner.current
 
