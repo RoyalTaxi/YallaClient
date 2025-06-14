@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -180,7 +181,7 @@ fun MapRoute(
     val hamburgerButtonState by vm.hamburgerButtonState.collectAsStateWithLifecycle()
     var drawerState = rememberDrawerState(DrawerValue.Closed)
 
-    val mapType by prefs.mapType.collectAsStateWithLifecycle(null)
+    val mapType by prefs.mapType.collectAsState(initial = null)
 
     // ✅ FIX: Get the map instance from the ViewModel
     val map by vm.map.collectAsStateWithLifecycle()

@@ -90,12 +90,14 @@ class MainActivity : AppCompatActivity() {
         setContent {
             val isConnected by viewModel.isConnected.collectAsStateWithLifecycle()
             val isDeviceRegistered by viewModel.isDeviceRegistered.collectAsStateWithLifecycle()
+            val skipOnboarding by viewModel.skipOnboarding.collectAsStateWithLifecycle()
 
-            isDeviceRegistered?.let { registered ->
+            if (isDeviceRegistered != null && skipOnboarding != null) {
                 YallaTheme {
                     Navigation(
                         isConnected = isConnected,
-                        isDeviceRegistered = registered
+                        isDeviceRegistered = isDeviceRegistered!!,
+                        skipOnboarding = skipOnboarding!!
                     )
                 }
             }

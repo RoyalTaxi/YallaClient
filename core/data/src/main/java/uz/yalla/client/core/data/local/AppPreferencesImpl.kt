@@ -54,6 +54,7 @@ internal class AppPreferencesImpl(
         val BALANCE = intPreferencesKey("balance")
         val IS_BONUS_ENABLED = booleanPreferencesKey("isBonusEnabled")
         val IS_CARD_ENABLED = booleanPreferencesKey("isCardEnabled")
+        val SKIP_ONBOARDING = booleanPreferencesKey("skipOnboarding")
     }
 
     private fun <T> get(key: Key<T>, default: T): Flow<T> =
@@ -117,10 +118,9 @@ internal class AppPreferencesImpl(
         scope.launch { set(Prefs.DOB, value) }
     }
 
-    override val mapType: Flow<MapType?> = store.data.map { prefs ->
-        prefs[Prefs.MAP_TYPE]?.let { name ->
-            MapType.fromTypeName(name)
-        }
+    override val mapType: Flow<MapType> = store.data.map { prefs ->
+        val name = prefs[Prefs.MAP_TYPE] ?: MapType.Google.typeName
+        MapType.fromTypeName(name)
     }
 
     override fun setMapType(value: MapType) {
@@ -187,6 +187,11 @@ internal class AppPreferencesImpl(
         }
     }
 
+    override val skipOnboarding: Flow<Boolean> = get(Prefs.SKIP_ONBOARDING, false)
+    override fun setSkipOnboarding(value: Boolean) {
+        scope.launch { set(Prefs.SKIP_ONBOARDING, value) }
+    }
+
     override val maxBonus: Flow<Int> = get(Prefs.MAX_BONUS, 0)
     override fun setMaxBonus(value: Int) {
         scope.launch { set(Prefs.MAX_BONUS, value) }
@@ -212,9 +217,12 @@ internal class AppPreferencesImpl(
         scope.launch { set(Prefs.IS_CARD_ENABLED, value) }
     }
 
-    override fun clearAll() {
+    override fun performLogout() {
         scope.launch {
-            store.edit { it.clear() }
+            store.edit { prefs ->
+                prefs.clear()
+                prefs[Prefs.SKIP_ONBOARDING] = true
+            }
         }
     }
 }

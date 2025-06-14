@@ -63,6 +63,12 @@ fun SearchByNameBottomSheet(
     val destinationFocusRequester = remember { FocusRequester() }
     var lastFocusedForDestination by remember { mutableStateOf(isForDestination) }
 
+    val isQueryBlank = if (lastFocusedForDestination) {
+        uiState.destinationQuery.isBlank()
+    } else {
+        uiState.query.isBlank()
+    }
+
     LaunchedEffect(Unit) {
         launch(Dispatchers.IO) {
             initialAddress?.let { viewModel.setInitialQuery(it.name.orEmpty()) }
@@ -210,8 +216,7 @@ fun SearchByNameBottomSheet(
                     }
                 }
 
-                (lastFocusedForDestination && uiState.destinationQuery.isBlank()) ||
-                        (!lastFocusedForDestination && uiState.query.isBlank()) -> {
+                isQueryBlank && uiState.recommendedAddresses.isNotEmpty() -> {
                     items(uiState.recommendedAddresses) { recommendedAddress ->
                         FoundAddressItem(
                             foundAddress = recommendedAddress,

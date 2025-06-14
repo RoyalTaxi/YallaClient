@@ -53,6 +53,13 @@ class MainViewModel(
             initialValue = null
         )
 
+    val skipOnboarding = prefs.skipOnboarding
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = null
+        )
+
     init {
         getConfig()
         observeAccessToken()

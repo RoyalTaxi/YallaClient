@@ -41,8 +41,6 @@ internal fun RegistrationScreen(
     uiState: RegistrationUIState,
     onIntent: (RegistrationIntent) -> Unit
 ) {
-    BackHandler(onBack = { onIntent(RegistrationIntent.NavigateBack) })
-
     val sheetState = rememberModalBottomSheetState()
 
     RegistrationContent(
