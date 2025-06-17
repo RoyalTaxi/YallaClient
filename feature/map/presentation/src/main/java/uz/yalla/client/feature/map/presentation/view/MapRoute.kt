@@ -240,10 +240,7 @@ fun MapRoute(
             }
 
             launch {
-                vm.collectMarkerMovement(
-                    point = mapInstance.mapPoint,
-                    collectable = mapInstance.isMarkerMoving
-                )
+                vm.collectMarkerMovement(mapInstance.isMarkerMoving)
             }
 
             launch {
@@ -833,10 +830,10 @@ private suspend fun optimizedHandleSheetHeightChange(
     awaitFrame()
 
     state.selectedOrder?.taxi?.routes?.firstOrNull()?.coords?.let { coordinate ->
-        map.move(to = MapPoint(coordinate.lat, coordinate.lng))
+        map.moveWithoutZoom(to = MapPoint(coordinate.lat, coordinate.lng))
     } ?: run {
         state.selectedLocation?.point?.let { map.move(to = it) }
-            ?: map.move(to = map.mapPoint.value)
+            ?: map.moveToMyLocation()
     }
 }
 
