@@ -44,8 +44,11 @@ import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import uz.yalla.client.core.common.R
@@ -68,9 +71,7 @@ import kotlin.math.sqrt
 import kotlin.properties.Delegates
 
 class ConcreteGoogleMap : MapStrategy, KoinComponent {
-    override val isMarkerMoving = MutableStateFlow(false to false)
-    override val mapPoint: MutableState<MapPoint> = mutableStateOf(MapPoint(0.0, 0.0))
-
+    override val isMarkerMoving = MutableStateFlow(Triple(false, false, MapPoint(0.0, 0.0)))
     private var driver: MutableState<Executor?> = mutableStateOf(null)
     private val drivers: SnapshotStateList<Executor> = mutableStateListOf()
     private val route: SnapshotStateList<MapPoint> = mutableStateListOf()
@@ -84,6 +85,7 @@ class ConcreteGoogleMap : MapStrategy, KoinComponent {
     private lateinit var cameraPositionState: CameraPositionState
     private var mapPadding by Delegates.notNull<Int>()
 
+    @OptIn(FlowPreview::class)
     @Composable
     override fun Map(
         startingPoint: MapPoint?,
@@ -113,15 +115,18 @@ class ConcreteGoogleMap : MapStrategy, KoinComponent {
 
         LaunchedEffect(cameraPositionState) {
             snapshotFlow { cameraPositionState.isMoving }
+                .distinctUntilChanged()
+                .debounce(50)
                 .collect { isMoving ->
-                    isMarkerMoving.emit(
-                        isMoving to
-                                (cameraPositionState.cameraMoveStartedReason == CameraMoveStartedReason.GESTURE)
-                    )
+                    val isGesture =
+                        cameraPositionState.cameraMoveStartedReason == CameraMoveStartedReason.GESTURE
+
                     if (!isMoving) {
                         val target = cameraPositionState.position.target
                         mapPoint.value = MapPoint(target.latitude, target.longitude)
                     }
+
+                    isMarkerMoving.emit(Triple(isMoving, isGesture, mapPoint.value))
                 }
         }
 
@@ -171,6 +176,17 @@ class ConcreteGoogleMap : MapStrategy, KoinComponent {
             cameraPositionState.move(
                 update = CameraUpdateFactory.newCameraPosition(
                     CameraPosition(LatLng(to.lat, to.lng), 15f, 0.0f, 0.0f)
+                )
+            )
+        }
+    }
+
+    override fun moveWithoutZoom(to: MapPoint) {
+        if (::cameraPositionState.isInitialized) {
+            mapPoint.value = to
+            cameraPositionState.move(
+                update = CameraUpdateFactory.newLatLng(
+                    LatLng(to.lat, to.lng)
                 )
             )
         }

@@ -22,11 +22,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -44,7 +45,6 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -61,23 +61,32 @@ fun YallaMarker(
     val jumpOffset = remember { Animatable(initialValue = 3f) }
     val rotation = remember { Animatable(initialValue = 0f) }
 
+    // Use rememberCoroutineScope for better lifecycle management
+    val animationScope = rememberCoroutineScope()
 
-    var jumpJob: Job? by remember { mutableStateOf(null) }
-    var rotationJob: Job? by remember { mutableStateOf(null) }
+    // Track current jobs for proper cancellation
+    val currentJobs = remember { mutableStateOf<Pair<Job?, Job?>>(null to null) }
 
     LaunchedEffect(state) {
-        launch(Dispatchers.Main) {
-            when (state) {
-                is YallaMarkerState.LOADING, is YallaMarkerState.Searching -> {
-                    if (jumpOffset.value < 9f) {
-                        jumpOffset.animateTo(
-                            targetValue = 17f,
-                            animationSpec = tween(durationMillis = 600)
-                        )
-                    }
+        // Cancel any existing animations immediately
+        currentJobs.value.first?.cancel()
+        currentJobs.value.second?.cancel()
 
-                    jumpJob = launch {
-                        while (isActive) {
+        when (state) {
+            is YallaMarkerState.LOADING, is YallaMarkerState.Searching -> {
+                // Ensure we start from a consistent state
+                if (jumpOffset.value <= 5f) {
+                    jumpOffset.snapTo(3f)
+                    jumpOffset.animateTo(
+                        targetValue = 17f,
+                        animationSpec = tween(durationMillis = 400) // Faster initial jump
+                    )
+                }
+
+                // Start continuous animations
+                val jumpJob = animationScope.launch {
+                    while (isActive) {
+                        try {
                             jumpOffset.animateTo(
                                 targetValue = 9f,
                                 animationSpec = tween(durationMillis = 600)
@@ -86,28 +95,57 @@ fun YallaMarker(
                                 targetValue = 17f,
                                 animationSpec = tween(durationMillis = 600)
                             )
+                        } catch (e: Exception) {
+                            // Animation was cancelled, exit gracefully
+                            break
                         }
                     }
+                }
 
-                    rotationJob = launch {
-                        while (isActive) {
+                val rotationJob = animationScope.launch {
+                    while (isActive) {
+                        try {
                             rotation.animateTo(
                                 targetValue = 360f,
                                 animationSpec = tween(durationMillis = 1000)
                             )
                             rotation.snapTo(0f)
+                        } catch (e: Exception) {
+                            // Animation was cancelled, exit gracefully
+                            break
                         }
                     }
                 }
 
-                is YallaMarkerState.IDLE -> {
+                currentJobs.value = jumpJob to rotationJob
+            }
+
+            is YallaMarkerState.IDLE -> {
+                // Cancel ongoing animations and return to idle state
+                currentJobs.value = null to null
+
+                // Smooth transition to idle state
+                animationScope.launch {
                     jumpOffset.animateTo(
                         targetValue = 3f,
-                        animationSpec = tween(durationMillis = 600)
+                        animationSpec = tween(durationMillis = 400)
                     )
-                    rotation.snapTo(0f)
+                }
+                animationScope.launch {
+                    rotation.animateTo(
+                        targetValue = 0f,
+                        animationSpec = tween(durationMillis = 200)
+                    )
                 }
             }
+        }
+    }
+
+    // Cleanup on disposal
+    DisposableEffect(Unit) {
+        onDispose {
+            currentJobs.value.first?.cancel()
+            currentJobs.value.second?.cancel()
         }
     }
 

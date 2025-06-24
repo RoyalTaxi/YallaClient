@@ -5,5 +5,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ValidateAuthCodeRequest(
     val phone: String,
-    val code: Int
+    val code: String
 )

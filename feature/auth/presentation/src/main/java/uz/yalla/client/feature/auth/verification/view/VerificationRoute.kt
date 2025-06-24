@@ -54,10 +54,7 @@ internal fun VerificationRoute(
                 val message = data.getStringExtra(SmsRetriever.EXTRA_SMS_MESSAGE)
                 val extractedCode = extractCode(message)
                 if (extractedCode.isNotEmpty()) {
-                    vm.updateUiState(
-                        code = extractedCode,
-                        buttonState = uiState.hasRemainingTime && extractedCode.length == uiState.otpLength
-                    )
+                    vm.updateUiState(code = extractedCode, buttonState = uiState.hasRemainingTime && extractedCode.length == uiState.otpLength)
                 }
             }
         }
@@ -95,6 +92,8 @@ internal fun VerificationRoute(
                 hasRemainingTime = expiresIn > 0,
                 remainingMinutes = expiresIn / 60,
                 remainingSeconds = expiresIn % 60
+                buttonState = (expiresIn > 0) && uiState.code.length == uiState.otpLength
+
             )
         }
 

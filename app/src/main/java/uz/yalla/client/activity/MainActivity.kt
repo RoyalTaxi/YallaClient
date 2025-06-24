@@ -149,10 +149,10 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (!BuildConfig.DEBUG) {
-            checkForImmediateUpdate()
-        }
-    }
+//    override fun onResume() {
+//        super.onResume()
+//        if (!BuildConfig.DEBUG) {
+//            checkForImmediateUpdate()
+//        }
+//    }
 }

@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navOptions
 import uz.yalla.client.feature.auth.AUTH_ROUTE
 import uz.yalla.client.feature.auth.authModule
 import uz.yalla.client.feature.auth.navigateToAuthModule

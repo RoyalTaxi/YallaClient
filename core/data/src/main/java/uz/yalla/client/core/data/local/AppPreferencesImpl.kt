@@ -217,6 +217,11 @@ internal class AppPreferencesImpl(
         scope.launch { set(Prefs.IS_CARD_ENABLED, value) }
     }
 
+    override val skipOnboarding: Flow<Boolean> = get(Prefs.SKIP_ONBOARDING, false)
+    override fun setSkipOnboarding(value: Boolean) {
+        scope.launch { set(Prefs.SKIP_ONBOARDING, value) }
+    }
+
     override fun performLogout() {
         scope.launch {
             store.edit { prefs ->

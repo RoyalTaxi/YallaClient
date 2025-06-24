@@ -25,7 +25,7 @@ class AuthRepositoryImpl(
 
     override suspend fun validateAuthCode(
         number: String,
-        code: Int
+        code: String
     ): Either<VerifyAuthCodeModel, DataError.Network> {
         return when (val result = service.validateAuthCode(ValidateAuthCodeRequest(number, code))) {
             is Either.Error -> Either.Error(result.error)

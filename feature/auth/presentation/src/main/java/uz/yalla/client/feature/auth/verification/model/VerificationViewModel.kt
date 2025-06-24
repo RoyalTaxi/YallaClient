@@ -71,7 +71,7 @@ class VerificationViewModel(
 
     fun verifyAuthCode() = viewModelScope.launchWithLoading {
         _uiState.value.let { state ->
-            verifyCodeUseCase(state.number, state.code.toInt())
+            verifyCodeUseCase(state.number, state.code)
                 .onSuccess { result ->
                     saveAuthResult(result)
                     refreshFCMToken()

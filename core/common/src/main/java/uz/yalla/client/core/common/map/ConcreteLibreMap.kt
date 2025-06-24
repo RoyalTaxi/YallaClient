@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
@@ -23,7 +24,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.sargunv.maplibrecompose.compose.CameraState
 import dev.sargunv.maplibrecompose.compose.MaplibreMap
 import dev.sargunv.maplibrecompose.compose.StyleState
@@ -48,6 +48,7 @@ import io.github.dellisd.spatialk.geojson.Point
 import io.github.dellisd.spatialk.geojson.Position
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
@@ -67,7 +68,7 @@ import kotlin.time.Duration.Companion.milliseconds
 class ConcreteLibreMap : MapStrategy, KoinComponent {
     private val prefs by inject<AppPreferences>()
 
-    override val isMarkerMoving = MutableStateFlow(false to false)
+    override val isMarkerMoving = MutableStateFlow(Triple(false, false, MapPoint(0.0, 0.0)))
     override val mapPoint: MutableState<MapPoint> = mutableStateOf(MapPoint(0.0, 0.0))
 
     private var padding = mutableStateOf(PaddingValues())
@@ -97,8 +98,9 @@ class ConcreteLibreMap : MapStrategy, KoinComponent {
         coroutineScope = rememberCoroutineScope()
         styleState = rememberStyleState()
 
-        val savedLoc by prefs.entryLocation.collectAsStateWithLifecycle(0.0 to 0.0)
+        val savedLoc by prefs.entryLocation.collectAsState(initial = 0.0 to 0.0)
 
+        // Initialize map point from saved location immediately
         LaunchedEffect(savedLoc) {
             if (savedLoc.first != 0.0 && savedLoc.second != 0.0) {
                 mapPoint.value = MapPoint(savedLoc.first, savedLoc.second)
@@ -125,7 +127,7 @@ class ConcreteLibreMap : MapStrategy, KoinComponent {
                     cameraState.awaitInitialized()
 
                     // Small delay to ensure map is fully ready (similar to Google Maps onMapLoaded)
-                    kotlinx.coroutines.delay(100)
+                    delay(100)
 
                     // Update map point from saved location
                     mapPoint.value = MapPoint(savedLoc.first, savedLoc.second)
@@ -157,7 +159,11 @@ class ConcreteLibreMap : MapStrategy, KoinComponent {
             snapshotFlow { cameraState.isCameraMoving }
                 .collect { isMoving ->
                     isMarkerMoving.emit(
-                        isMoving to (cameraState.moveReason == CameraMoveReason.GESTURE)
+                        Triple(
+                            isMoving,
+                            cameraState.moveReason == CameraMoveReason.GESTURE,
+                            mapPoint.value
+                        )
                     )
                     if (!isMoving) {
                         val target = cameraState.position.target
@@ -200,6 +206,21 @@ class ConcreteLibreMap : MapStrategy, KoinComponent {
                 duration = 1.milliseconds,
                 finalPosition = CameraPosition(
                     zoom = 15.0,
+                    padding = padding.value,
+                    target = Position(
+                        latitude = to.lat,
+                        longitude = to.lng
+                    )
+                )
+            )
+        }
+    }
+
+    override fun moveWithoutZoom(to: MapPoint) {
+        coroutineScope.launch {
+            cameraState.animateTo(
+                duration = 1.milliseconds,
+                finalPosition = CameraPosition(
                     padding = padding.value,
                     target = Position(
                         latitude = to.lat,
