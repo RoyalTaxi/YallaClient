@@ -72,8 +72,6 @@ import kotlin.properties.Delegates
 
 class ConcreteGoogleMap : MapStrategy, KoinComponent {
     override val isMarkerMoving = MutableStateFlow(Triple(false, false, MapPoint(0.0, 0.0)))
-    override val mapPoint: MutableState<MapPoint> = mutableStateOf(MapPoint(0.0, 0.0))
-
     private var driver: MutableState<Executor?> = mutableStateOf(null)
     private val drivers: SnapshotStateList<Executor> = mutableStateListOf()
     private val route: SnapshotStateList<MapPoint> = mutableStateListOf()
@@ -437,7 +435,7 @@ private fun Markers(
             },
             description = stringResource(R.string.coming),
             infoColor = YallaTheme.color.primary,
-            pointColor = YallaTheme.color.gray
+            pointColor = YallaTheme.color.gray,
         )
     }
 

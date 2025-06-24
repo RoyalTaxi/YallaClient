@@ -23,7 +23,7 @@ suspend inline fun <reified T> safeApiCall(
         val response = retryIO { call() }
         when (response.status.value) {
             in 401..401 -> {
-                prefs.clearAll()
+                prefs.performLogout()
                 Either.Error(DataError.Network.UNAUTHORIZED_ERROR)
             }
 

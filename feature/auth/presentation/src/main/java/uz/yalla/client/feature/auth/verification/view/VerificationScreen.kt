@@ -38,8 +38,8 @@ import java.util.Locale
 
 @Composable
 internal fun VerificationScreen(
+    loading: Boolean,
     uiState: VerificationUIState,
-    snackbarHostState: SnackbarHostState,
     onIntent: (VerificationIntent) -> Unit
 ) {
     Scaffold(
@@ -59,14 +59,14 @@ internal fun VerificationScreen(
 
                 LoginContent(
                     uiState = uiState,
-                    sendCode = { onIntent(VerificationIntent.SetCode(it)) },
+                    setCode = { onIntent(VerificationIntent.SetCode(it)) },
                     reSendCode = { onIntent(VerificationIntent.ResendCode(uiState.number)) }
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
 
                 LoginFooter(
-                    primaryButtonState = uiState.buttonState,
+                    primaryButtonState = uiState.buttonState && loading.not(),
                     onVerifyCode = {
                         onIntent(
                             VerificationIntent.VerifyCode(
@@ -77,9 +77,6 @@ internal fun VerificationScreen(
                     }
                 )
             }
-        },
-        snackbarHost = {
-            SnackBar(hostState = snackbarHostState)
         }
     )
 }
@@ -106,7 +103,7 @@ private fun LoginAppBar(
 @Composable
 private fun LoginContent(
     uiState: VerificationUIState,
-    sendCode: (String) -> Unit,
+    setCode: (String) -> Unit,
     reSendCode: () -> Unit
 ) {
     Text(
@@ -118,7 +115,11 @@ private fun LoginContent(
     Spacer(modifier = Modifier.height(20.dp))
 
     Text(
-        text = stringResource(id = R.string.enter_otp_definition, uiState.number),
+        text = stringResource(
+            id = R.string.enter_otp_definition,
+            uiState.number,
+            uiState.otpLength
+        ),
         color = YallaTheme.color.gray,
         style = YallaTheme.font.body
     )
@@ -128,7 +129,8 @@ private fun LoginContent(
     OtpView(
         modifier = Modifier.fillMaxWidth(),
         otpText = uiState.code,
-        onOtpTextChange = { sendCode(it) }
+        otpCount = uiState.otpLength,
+        onOtpTextChange = { setCode(it) }
     )
 
     Spacer(modifier = Modifier.height(20.dp))

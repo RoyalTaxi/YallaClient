@@ -77,5 +77,5 @@ interface AppPreferences {
     val skipOnboarding: Flow<Boolean>
     fun setSkipOnboarding(value: Boolean)
 
-    fun clearAll()
+    fun performLogout()
 }

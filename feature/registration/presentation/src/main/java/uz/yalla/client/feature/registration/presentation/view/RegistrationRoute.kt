@@ -1,9 +1,12 @@
 package uz.yalla.client.feature.registration.presentation.view
 
+import android.app.Activity
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -26,10 +29,13 @@ internal fun RegistrationRoute(
     val uiState by vm.uiState.collectAsStateWithLifecycle()
     val focusManager = LocalFocusManager.current
     val scope = rememberCoroutineScope()
+    val activity = LocalContext.current as Activity
     val loading by vm.loading.collectAsStateWithLifecycle()
 
     val showErrorDialog by vm.showErrorDialog.collectAsStateWithLifecycle()
     val currentErrorMessageId by vm.currentErrorMessageId.collectAsStateWithLifecycle()
+
+    BackHandler { activity.moveTaskToBack(true) }
 
     LaunchedEffect(Unit) {
         launch(Dispatchers.IO) {
