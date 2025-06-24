@@ -54,6 +54,7 @@ internal class AppPreferencesImpl(
         val BALANCE = intPreferencesKey("balance")
         val IS_BONUS_ENABLED = booleanPreferencesKey("isBonusEnabled")
         val IS_CARD_ENABLED = booleanPreferencesKey("isCardEnabled")
+        val SKIP_ONBOARDING = booleanPreferencesKey("skipOnboarding")
     }
 
     private fun <T> get(key: Key<T>, default: T): Flow<T> =
@@ -210,6 +211,11 @@ internal class AppPreferencesImpl(
     override val isCardEnabled: Flow<Boolean> = get(Prefs.IS_CARD_ENABLED, false)
     override fun setCardEnabled(value: Boolean) {
         scope.launch { set(Prefs.IS_CARD_ENABLED, value) }
+    }
+
+    override val skipOnboarding: Flow<Boolean> = get(Prefs.SKIP_ONBOARDING, false)
+    override fun setSkipOnboarding(value: Boolean) {
+        scope.launch { set(Prefs.SKIP_ONBOARDING, value) }
     }
 
     override fun clearAll() {

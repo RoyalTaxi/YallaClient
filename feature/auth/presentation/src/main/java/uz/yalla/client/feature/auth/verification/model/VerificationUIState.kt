@@ -7,4 +7,5 @@ data class VerificationUIState(
     val hasRemainingTime: Boolean = false,
     val remainingMinutes: Int = 0,
     val remainingSeconds: Int = 0,
+    val otpLength: Int = 5
 )

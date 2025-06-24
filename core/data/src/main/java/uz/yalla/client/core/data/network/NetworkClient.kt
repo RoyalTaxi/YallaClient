@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import sp.bvantur.inspektify.ktor.InspektifyKtor
@@ -27,6 +28,12 @@ fun provideNetworkClient(
     baseUrl: String,
     preferences: AppPreferences
 ): HttpClient {
+    cacheScope.launch {
+        localeCache.value = preferences.locale.last()
+        tokenTypeCache.value = preferences.tokenType.last()
+        accessTokenCache.value = preferences.accessToken.last()
+    }
+
     cacheScope.launch {
         preferences.locale.collectLatest { localeCache.value = it }
     }

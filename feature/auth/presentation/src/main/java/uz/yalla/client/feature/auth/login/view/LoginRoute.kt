@@ -10,8 +10,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 import uz.yalla.client.core.common.dialog.BaseDialog
 import uz.yalla.client.core.common.dialog.LoadingDialog
+import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.feature.auth.R
 import uz.yalla.client.feature.auth.login.model.LoginViewModel
 import uz.yalla.client.feature.auth.verification.signature.SignatureHelper
@@ -20,6 +22,7 @@ import uz.yalla.client.feature.auth.verification.signature.SignatureHelper
 internal fun LoginRoute(
     onBack: () -> Unit,
     onNext: (String, Int) -> Unit,
+    prefs: AppPreferences = koinInject(),
     viewModel: LoginViewModel = koinViewModel()
 ) {
     val focusManager = LocalFocusManager.current
@@ -37,6 +40,10 @@ internal fun LoginRoute(
                 onNext(phoneNumber, time)
             }
         }
+    }
+
+    LaunchedEffect(Unit) {
+        prefs.setSkipOnboarding(true)
     }
 
     LoginScreen(

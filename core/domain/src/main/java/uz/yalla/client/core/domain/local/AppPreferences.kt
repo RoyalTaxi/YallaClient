@@ -74,5 +74,8 @@ interface AppPreferences {
     val isCardEnabled: Flow<Boolean>
     fun setCardEnabled(value: Boolean)
 
+    val skipOnboarding: Flow<Boolean>
+    fun setSkipOnboarding(value: Boolean)
+
     fun clearAll()
 }

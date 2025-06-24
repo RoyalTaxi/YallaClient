@@ -59,7 +59,7 @@ internal fun VerificationRoute(
             if (extractedCode.isNotEmpty()) {
                 vm.updateUiState(
                     code = extractedCode,
-                    buttonState = uiState.hasRemainingTime && extractedCode.length == 5
+                    buttonState = uiState.hasRemainingTime && extractedCode.length == uiState.otpLength
                 )
             }
         }
@@ -100,14 +100,14 @@ internal fun VerificationRoute(
                 hasRemainingTime = expiresIn > 0,
                 remainingMinutes = expiresIn / 60,
                 remainingSeconds = expiresIn % 60,
-                buttonState = (expiresIn > 0) && uiState.code.length == 5
+                buttonState = (expiresIn > 0) && uiState.code.length == uiState.otpLength
             )
         }
 
         launch(Dispatchers.IO) {
             vm.countDownTimer(expiresIn).collectLatest { seconds ->
                 vm.updateUiState(
-                    buttonState = seconds != 0 && uiState.code.length == 5,
+                    buttonState = seconds != 0 && uiState.code.length == uiState.otpLength,
                     remainingMinutes = seconds / 60,
                     remainingSeconds = seconds % 60,
                     hasRemainingTime = seconds > 0
@@ -130,7 +130,7 @@ internal fun VerificationRoute(
                         launch(Dispatchers.IO) {
                             vm.countDownTimer(newExpiresIn).collectLatest { seconds ->
                                 vm.updateUiState(
-                                    buttonState = seconds != 0 && uiState.code.length == 5,
+                                    buttonState = seconds != 0 && uiState.code.length == uiState.otpLength,
                                     remainingMinutes = seconds / 60,
                                     remainingSeconds = seconds % 60,
                                     hasRemainingTime = seconds > 0
@@ -158,14 +158,12 @@ internal fun VerificationRoute(
                 is VerificationIntent.VerifyCode -> vm.verifyAuthCode()
                 is VerificationIntent.SetCode -> {
                     val newCode = intent.code.filter { it.isDigit() }
-                    if (newCode.length <= 5) {
-                        vm.updateUiState(
-                            code = newCode,
-                            buttonState = uiState.hasRemainingTime && newCode.length == 5
-                        )
-                        if (newCode.length == 5) {
-                            focusManager.clearFocus(true)
-                        }
+                    vm.updateUiState(
+                        code = newCode,
+                        buttonState = uiState.hasRemainingTime && newCode.length == uiState.otpLength
+                    )
+                    if (newCode.length == uiState.otpLength) {
+                        focusManager.clearFocus(true)
                     }
                 }
             }
