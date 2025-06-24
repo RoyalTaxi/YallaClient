@@ -1,13 +1,7 @@
 package uz.yalla.client.core.common.item
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
@@ -18,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.dp
@@ -55,7 +50,9 @@ fun SelectPaymentTypeItem(
         ) {
             Icon(
                 painter = painter,
-                modifier = Modifier.size(28.dp),
+                modifier = Modifier
+                    .size(28.dp)
+                    .alpha(if (enabled) 1f else .5f),
                 contentDescription = null,
                 tint = tint
             )
@@ -64,7 +61,7 @@ fun SelectPaymentTypeItem(
 
             Text(
                 text = text,
-                color = YallaTheme.color.black,
+                color = YallaTheme.color.black.copy(alpha = if (enabled) 1f else .5f),
                 style = YallaTheme.font.labelSemiBold
             )
 

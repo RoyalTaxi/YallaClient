@@ -1,12 +1,8 @@
 package uz.yalla.client.core.data.local
 
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.core.Preferences.Key
-import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -185,11 +181,6 @@ internal class AppPreferencesImpl(
         scope.launch {
             set(Prefs.ENTRY_LOCATION, "$lat,$lng")
         }
-    }
-
-    override val skipOnboarding: Flow<Boolean> = get(Prefs.SKIP_ONBOARDING, false)
-    override fun setSkipOnboarding(value: Boolean) {
-        scope.launch { set(Prefs.SKIP_ONBOARDING, value) }
     }
 
     override val maxBonus: Flow<Int> = get(Prefs.MAX_BONUS, 0)

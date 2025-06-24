@@ -37,5 +37,4 @@ data class MapUIState(
     val markerState: YallaMarkerState = YallaMarkerState.LOADING,
     val isActiveOrdersSheetVisibility: Boolean = false,
     val notificationsCount: Int = 0,
-    val bonusAmount: Int = 0
 )

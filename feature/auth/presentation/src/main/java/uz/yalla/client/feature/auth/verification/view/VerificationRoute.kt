@@ -91,7 +91,7 @@ internal fun VerificationRoute(
                 number = number,
                 hasRemainingTime = expiresIn > 0,
                 remainingMinutes = expiresIn / 60,
-                remainingSeconds = expiresIn % 60
+                remainingSeconds = expiresIn % 60,
                 buttonState = (expiresIn > 0) && uiState.code.length == uiState.otpLength
 
             )
