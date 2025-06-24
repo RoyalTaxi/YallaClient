@@ -122,12 +122,13 @@ class ConcreteGoogleMap : MapStrategy, KoinComponent {
                 .collect { isMoving ->
                     val isGesture =
                         cameraPositionState.cameraMoveStartedReason == CameraMoveStartedReason.GESTURE
-                    isMarkerMoving.emit(Triple(isMoving, isGesture, mapPoint.value))
 
-                    if (!isMoving && isGesture) {
+                    if (!isMoving) {
                         val target = cameraPositionState.position.target
                         mapPoint.value = MapPoint(target.latitude, target.longitude)
                     }
+
+                    isMarkerMoving.emit(Triple(isMoving, isGesture, mapPoint.value))
                 }
         }
 

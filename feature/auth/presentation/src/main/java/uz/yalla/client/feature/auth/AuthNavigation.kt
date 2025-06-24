@@ -12,7 +12,7 @@ import uz.yalla.client.feature.auth.login.navigation.loginScreen
 import uz.yalla.client.feature.auth.verification.navigation.navigateToVerificationScreen
 import uz.yalla.client.feature.auth.verification.navigation.verificationScreen
 
-internal const val AUTH_ROUTE = "auth_route"
+const val AUTH_ROUTE = "auth_route"
 
 fun NavGraphBuilder.authModule(
     navController: NavHostController,

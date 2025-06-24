@@ -253,7 +253,7 @@ fun Circle(
                     is YallaMarkerState.IDLE -> state.timeout?.toString().orEmpty()
                     else -> ""
                 },
-                color = YallaTheme.color.black,
+                color = YallaTheme.color.white,
                 style = YallaTheme.font.title
             )
             Text(
@@ -261,7 +261,7 @@ fun Circle(
                     is YallaMarkerState.IDLE -> if (state.timeout != null) stringResource(R.string.min) else ""
                     else -> ""
                 },
-                color = YallaTheme.color.black,
+                color = YallaTheme.color.white,
                 style = YallaTheme.font.body
             )
         }

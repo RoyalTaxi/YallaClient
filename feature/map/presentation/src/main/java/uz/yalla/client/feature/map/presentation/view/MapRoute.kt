@@ -76,6 +76,8 @@ import uz.yalla.client.feature.order.presentation.driver_waiting.view.DriverWait
 import uz.yalla.client.feature.order.presentation.driver_waiting.view.DriverWaitingSheetIntent
 import uz.yalla.client.feature.order.presentation.feedback.FEEDBACK_ROUTE
 import uz.yalla.client.feature.order.presentation.feedback.navigateToFeedbackSheet
+import uz.yalla.client.feature.order.presentation.feedback.view.FeedbackSheetChannel
+import uz.yalla.client.feature.order.presentation.feedback.view.FeedbackSheetIntent
 import uz.yalla.client.feature.order.presentation.main.MAIN_SHEET_ROUTE
 import uz.yalla.client.feature.order.presentation.main.navigateToMainSheet
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetChannel
@@ -611,6 +613,22 @@ fun MapRoute(
                         }
                     }
             }
+
+            launch {
+                FeedbackSheetChannel.intentFlow
+                    .debounce(50.milliseconds)
+                    .collectLatest { intent ->
+                        if (intent is FeedbackSheetIntent.OnCompleteOrder) {
+                            withContext(Dispatchers.Default) {
+                                vm.clearState()
+                            }
+
+                            scope.launch(Dispatchers.Main.immediate) {
+                                navController.navigateToMainSheet()
+                            }
+                        }
+                    }
+            }
         }
     }
 
@@ -832,7 +850,7 @@ private suspend fun optimizedHandleSheetHeightChange(
     state.selectedOrder?.taxi?.routes?.firstOrNull()?.coords?.let { coordinate ->
         map.moveWithoutZoom(to = MapPoint(coordinate.lat, coordinate.lng))
     } ?: run {
-        state.selectedLocation?.point?.let { map.move(to = it) }
+        state.selectedLocation?.point?.let { map.moveWithoutZoom(to = it) }
             ?: map.moveToMyLocation()
     }
 }

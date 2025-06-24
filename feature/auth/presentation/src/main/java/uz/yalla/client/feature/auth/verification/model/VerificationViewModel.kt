@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
@@ -38,6 +39,14 @@ class VerificationViewModel(
         viewModelScope.launch {
             prefs.accessToken.collectLatest { accessToken.value = it }
         }
+
+        viewModelScope.launch {
+            _uiState
+                .distinctUntilChangedBy { it.code }
+                .collectLatest {
+                    if (it.code.length == it.otpLength) verifyAuthCode()
+                }
+        }
     }
 
     fun updateUiState(
@@ -62,7 +71,7 @@ class VerificationViewModel(
 
     fun verifyAuthCode() = viewModelScope.launchWithLoading {
         _uiState.value.let { state ->
-            verifyCodeUseCase(state.number, state.code.toInt())
+            verifyCodeUseCase(state.number, state.code)
                 .onSuccess { result ->
                     saveAuthResult(result)
                     refreshFCMToken()
