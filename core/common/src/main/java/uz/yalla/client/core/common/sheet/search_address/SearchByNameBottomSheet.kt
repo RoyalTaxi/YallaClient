@@ -17,7 +17,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,6 +27,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -56,12 +56,18 @@ fun SearchByNameBottomSheet(
     deleteDestination: (String) -> Unit,
     viewModel: DualAddressViewModel = koinViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
     val addressFocusRequester = remember { FocusRequester() }
     val destinationFocusRequester = remember { FocusRequester() }
     var lastFocusedForDestination by remember { mutableStateOf(isForDestination) }
+
+    val isQueryBlank = if (lastFocusedForDestination) {
+        uiState.destinationQuery.isBlank()
+    } else {
+        uiState.query.isBlank()
+    }
 
     LaunchedEffect(Unit) {
         launch(Dispatchers.IO) {
@@ -210,8 +216,7 @@ fun SearchByNameBottomSheet(
                     }
                 }
 
-                (lastFocusedForDestination && uiState.destinationQuery.isBlank()) ||
-                        (!lastFocusedForDestination && uiState.query.isBlank()) -> {
+                isQueryBlank && uiState.recommendedAddresses.isNotEmpty() -> {
                     items(uiState.recommendedAddresses) { recommendedAddress ->
                         FoundAddressItem(
                             foundAddress = recommendedAddress,

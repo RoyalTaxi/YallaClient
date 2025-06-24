@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
+import uz.yalla.client.feature.auth.AUTH_ROUTE
 import uz.yalla.client.feature.auth.authModule
 import uz.yalla.client.feature.auth.navigateToAuthModule
 import uz.yalla.client.feature.bonus.bonusModule
@@ -45,14 +46,19 @@ import uz.yalla.client.ui.screens.offline.OfflineScreen
 @Composable
 fun Navigation(
     isConnected: Boolean,
-    isDeviceRegistered: Boolean
+    isDeviceRegistered: Boolean,
+    skipOnboarding: Boolean
 ) {
     val navController = rememberNavController()
 
     NavHost(
         modifier = Modifier.fillMaxSize(),
         navController = navController,
-        startDestination = if (!isDeviceRegistered) INTRO_ROUTE else MAP_ROUTE,
+        startDestination = when {
+            isDeviceRegistered -> MAP_ROUTE
+            skipOnboarding -> AUTH_ROUTE
+            else -> INTRO_ROUTE
+        },
         enterTransition = { slideInHorizontally(initialOffsetX = { it }) },
         popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) },
         exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) },
@@ -61,54 +67,24 @@ fun Navigation(
         introModule(
             navController = navController,
             onPermissionGranted = {
-                if (isDeviceRegistered) {
-                    navController.navigateToMapScreen(
-                        navOptions {
-                            popUpTo(0) { inclusive = true }
-                        }
-                    )
-                } else {
-                    navController.navigateToAuthModule(
-                        navOptions {
-                            popUpTo(0) { inclusive = true }
-                        }
-                    )
-                }
+                if (isDeviceRegistered) navController.navigateToMapScreen()
+                else navController.navigateToAuthModule()
             }
         )
 
         authModule(
             navController = navController,
             onClientNotFound = navController::navigateToRegistrationScreen,
-            onClientFound = {
-                navController.navigateToMapScreen(
-                    navOptions {
-                        restoreState = true
-                        popUpTo(0) { inclusive = true }
-                    }
-                )
-            }
+            onClientFound = navController::navigateToMapScreen
         )
 
         registrationScreen(
             onBack = navController::safePopBackStack,
-            onNext = {
-                navController.navigateToMapScreen(
-                    navOptions {
-                        popUpTo(0) { inclusive = true }
-                    }
-                )
-            }
+            onNext = navController::navigateToMapScreen
         )
 
         mapScreen(
-            onRegisterClick = {
-                navController.navigateToAuthModule(
-                    navOptions {
-                        popUpTo(0) { inclusive = true }
-                    }
-                )
-            },
+            onRegisterClick = navController::navigateToAuthModule,
             onProfileClick = navController::navigateToEditProfileScreen,
             onOrderHistoryClick = navController::navigateToHistoryModule,
             onPaymentTypeClick = navController::navigateToPaymentModule,
@@ -131,26 +107,14 @@ fun Navigation(
         paymentModule(navController = navController)
 
         cancelReasonScreen(
-            onNavigateBack = {
-                navController.navigateToMapScreen(
-                    navOptions {
-                        popUpTo(0) { inclusive = true }
-                    }
-                )
-            }
+            onNavigateBack = navController::navigateToMapScreen
         )
 
         addressModule(navController = navController)
 
         editProfileScreen(
             onNavigateBack = navController::safePopBackStack,
-            onNavigateToStart = {
-                navController.navigateToIntroModel(
-                    navOptions {
-                        popUpTo(0) { inclusive = true }
-                    }
-                )
-            }
+            onNavigateToStart = navController::navigateToIntroModel
         )
 
         settingsScreen(onNavigateBack = navController::safePopBackStack)

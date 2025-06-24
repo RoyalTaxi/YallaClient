@@ -11,7 +11,7 @@ class VerifyCodeUseCase(
     private val repository: AuthRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    suspend operator fun invoke(number: String, code: Int): Result<VerifyAuthCodeModel> {
+    suspend operator fun invoke(number: String, code: String): Result<VerifyAuthCodeModel> {
         return withContext(dispatcher) {
             when (val result = repository.validateAuthCode(number.getFormattedNumber(), code)) {
                 is Either.Error -> Result.failure(result.error)

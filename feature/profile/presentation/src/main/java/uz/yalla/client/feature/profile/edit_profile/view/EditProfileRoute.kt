@@ -11,7 +11,6 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -20,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -40,16 +40,16 @@ internal fun EditProfileRoute(
     viewModel: EditProfileViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
-    val loading by viewModel.loading.collectAsState()
-    val uiState by viewModel.uiState.collectAsState()
+    val loading by viewModel.loading.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val focusManager = LocalFocusManager.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val sheetState = rememberModalBottomSheetState(true)
     var sheetVisibility by remember { mutableStateOf(false) }
 
-    val showErrorDialog by viewModel.showErrorDialog.collectAsState()
-    val currentErrorMessageId by viewModel.currentErrorMessageId.collectAsState()
+    val showErrorDialog by viewModel.showErrorDialog.collectAsStateWithLifecycle()
+    val currentErrorMessageId by viewModel.currentErrorMessageId.collectAsStateWithLifecycle()
 
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberStandardBottomSheetState(

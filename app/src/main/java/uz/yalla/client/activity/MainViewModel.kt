@@ -44,8 +44,6 @@ class MainViewModel(
     private val _isReady = MutableStateFlow<ReadyState>(ReadyState.Loading)
     val isReady = _isReady.asStateFlow()
 
-    private val accessToken = MutableStateFlow("")
-
     val isDeviceRegistered = prefs.isDeviceRegistered
         .stateIn(
             scope = viewModelScope,
@@ -53,10 +51,14 @@ class MainViewModel(
             initialValue = null
         )
 
-    init {
-        getConfig()
-        observeAccessToken()
+    val skipOnboarding = prefs.skipOnboarding
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = null
+        )
 
+    init {
         viewModelScope.launch {
             isDeviceRegistered.collectLatest { isRegistered ->
                 when (isRegistered) {
@@ -66,6 +68,8 @@ class MainViewModel(
                 }
             }
         }
+
+        getConfig()
     }
 
     private fun getConfig() = viewModelScope.launch {
@@ -78,10 +82,6 @@ class MainViewModel(
             if (result.setting.isCardEnabled)
                 prefs.setPaymentType(PaymentType.CASH)
         }
-    }
-
-    private fun observeAccessToken() = viewModelScope.launch {
-        prefs.accessToken.collectLatest { accessToken.value = it }
     }
 
     private fun getLocationAndSave(context: Context) = viewModelScope.launch {

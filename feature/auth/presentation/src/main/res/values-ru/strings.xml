@@ -5,7 +5,7 @@
     <string name="we_send_code">Мы отправим вам код подтверждения</string>
     <string name="error_message">Вы ввели неверный код, попробуйте еще раз.</string>
     <string name="enter_otp">Введите код безопасности</string>
-    <string name="enter_otp_definition">Введите 5-значный код, который мы отправили на номер +998%s</string>
+    <string name="enter_otp_definition">На номер +998%s отправлен %s-значный код, который нужно ввести</string>
     <string name="resend_in">Оптравить код ещё раз через %s</string>
     <string name="resend">Оптравить код ещё раз</string>
     <string name="ok">Понятно</string>

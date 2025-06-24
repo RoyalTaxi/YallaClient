@@ -1,8 +1,8 @@
 package uz.yalla.client.feature.payment.add_employee.model
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.androidx.compose.koinViewModel
 import uz.yalla.client.feature.payment.add_employee.view.AddEmployeeIntent
 import uz.yalla.client.feature.payment.add_employee.view.AddEmployeeScreen
@@ -12,7 +12,7 @@ internal fun AddEmployeeRoute(
     onNavigateBack: () -> Unit,
     viewModel: AddEmployeeViewModel = koinViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     AddEmployeeScreen(
         uiState = uiState,

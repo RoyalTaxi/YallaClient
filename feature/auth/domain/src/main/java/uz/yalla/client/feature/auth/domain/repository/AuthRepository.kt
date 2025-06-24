@@ -14,6 +14,6 @@ interface AuthRepository {
 
     suspend fun validateAuthCode(
         number: String,
-        code: Int
+        code: String
     ): Either<VerifyAuthCodeModel, DataError.Network>
 }

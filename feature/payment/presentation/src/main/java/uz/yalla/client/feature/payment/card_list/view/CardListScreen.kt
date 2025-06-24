@@ -18,12 +18,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.koinInject
 import uz.yalla.client.core.common.item.SelectPaymentTypeItem
 import uz.yalla.client.core.domain.local.AppPreferences
@@ -80,7 +80,7 @@ private fun CardListContent(
     onIntent: (CardListIntent) -> Unit
 ) {
     val prefs = koinInject<AppPreferences>()
-    val cardEnabled by prefs.isCardEnabled.collectAsState(initial = false)
+    val cardEnabled by prefs.isCardEnabled.collectAsStateWithLifecycle(false)
     LazyColumn(modifier = modifier) {
         item { Spacer(modifier = Modifier.height(40.dp)) }
 

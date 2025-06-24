@@ -1,8 +1,8 @@
 package uz.yalla.client.feature.payment.top_up_balance.view
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.androidx.compose.koinViewModel
 import uz.yalla.client.feature.payment.top_up_balance.model.TopUpViewModel
 
@@ -11,7 +11,7 @@ internal fun TopUpRoute(
     onNavigateBack: () -> Unit,
     viewModel: TopUpViewModel = koinViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     TopUpScreen(
         uiState = uiState,

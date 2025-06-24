@@ -33,6 +33,7 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -76,6 +77,8 @@ import uz.yalla.client.feature.order.presentation.driver_waiting.view.DriverWait
 import uz.yalla.client.feature.order.presentation.driver_waiting.view.DriverWaitingSheetIntent
 import uz.yalla.client.feature.order.presentation.feedback.FEEDBACK_ROUTE
 import uz.yalla.client.feature.order.presentation.feedback.navigateToFeedbackSheet
+import uz.yalla.client.feature.order.presentation.feedback.view.FeedbackSheetChannel
+import uz.yalla.client.feature.order.presentation.feedback.view.FeedbackSheetIntent
 import uz.yalla.client.feature.order.presentation.main.MAIN_SHEET_ROUTE
 import uz.yalla.client.feature.order.presentation.main.navigateToMainSheet
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetChannel
@@ -176,14 +179,14 @@ fun MapRoute(
         }
     }
 
-    val state by vm.uiState.collectAsState()
-    val hamburgerButtonState by vm.hamburgerButtonState.collectAsState()
+    val state by vm.uiState.collectAsStateWithLifecycle()
+    val hamburgerButtonState by vm.hamburgerButtonState.collectAsStateWithLifecycle()
     var drawerState = rememberDrawerState(DrawerValue.Closed)
 
     val mapType by prefs.mapType.collectAsState(initial = null)
 
     // ✅ FIX: Get the map instance from the ViewModel
-    val map by vm.map.collectAsState()
+    val map by vm.map.collectAsStateWithLifecycle()
 
     // ✅ FIX: Trigger map initialization from a LaunchedEffect
     // This runs only when mapType changes from null to a real value
@@ -240,10 +243,7 @@ fun MapRoute(
             }
 
             launch {
-                vm.collectMarkerMovement(
-                    point = mapInstance.mapPoint,
-                    collectable = mapInstance.isMarkerMoving
-                )
+                vm.collectMarkerMovement(mapInstance.isMarkerMoving)
             }
 
             launch {
@@ -614,6 +614,22 @@ fun MapRoute(
                         }
                     }
             }
+
+            launch {
+                FeedbackSheetChannel.intentFlow
+                    .debounce(50.milliseconds)
+                    .collectLatest { intent ->
+                        if (intent is FeedbackSheetIntent.OnCompleteOrder) {
+                            withContext(Dispatchers.Default) {
+                                vm.clearState()
+                            }
+
+                            scope.launch(Dispatchers.Main.immediate) {
+                                navController.navigateToMainSheet()
+                            }
+                        }
+                    }
+            }
         }
     }
 
@@ -833,10 +849,10 @@ private suspend fun optimizedHandleSheetHeightChange(
     awaitFrame()
 
     state.selectedOrder?.taxi?.routes?.firstOrNull()?.coords?.let { coordinate ->
-        map.move(to = MapPoint(coordinate.lat, coordinate.lng))
+        map.moveWithoutZoom(to = MapPoint(coordinate.lat, coordinate.lng))
     } ?: run {
-        state.selectedLocation?.point?.let { map.move(to = it) }
-            ?: map.move(to = map.mapPoint.value)
+        state.selectedLocation?.point?.let { map.moveWithoutZoom(to = it) }
+            ?: map.moveToMyLocation()
     }
 }
 

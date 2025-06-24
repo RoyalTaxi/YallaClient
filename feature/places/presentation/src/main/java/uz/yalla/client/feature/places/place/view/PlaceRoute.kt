@@ -5,7 +5,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -13,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -35,10 +35,10 @@ internal fun AddressRoute(
     onNavigateBack: () -> Unit,
     viewModel: PlaceViewModel = koinViewModel()
 ) {
-    val place by viewModel.place.collectAsState()
-    val saveButtonState by viewModel.saveButtonState.collectAsState()
+    val place by viewModel.place.collectAsStateWithLifecycle()
+    val saveButtonState by viewModel.saveButtonState.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
-    val loading by viewModel.loading.collectAsState()
+    val loading by viewModel.loading.collectAsStateWithLifecycle()
     var deleteId by remember { mutableIntStateOf(-1) }
     var isSearchVisible by remember { mutableStateOf(false) }
     var isMapVisible by remember { mutableStateOf(false) }
@@ -47,8 +47,8 @@ internal fun AddressRoute(
     val confirmCancellationState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val snackbarHostState = remember { SnackbarHostState() }
 
-    val showErrorDialog by viewModel.showErrorDialog.collectAsState()
-    val currentErrorMessageId by viewModel.currentErrorMessageId.collectAsState()
+    val showErrorDialog by viewModel.showErrorDialog.collectAsStateWithLifecycle()
+    val currentErrorMessageId by viewModel.currentErrorMessageId.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         launch(Dispatchers.IO) {

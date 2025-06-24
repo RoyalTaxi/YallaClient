@@ -10,11 +10,11 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.koinInject
 import uz.yalla.client.core.common.button.EnableBonusButton
 import uz.yalla.client.core.common.item.BonusBalanceItem
@@ -33,8 +33,8 @@ fun BonusInfoBottomSheet(
     onIntent: (PaymentMethodSheetIntent) -> Unit
 ) {
     val prefs = koinInject<AppPreferences>()
-    val balance by prefs.balance.collectAsState(0)
-    val minBonus by prefs.minBonus.collectAsState(0)
+    val balance by prefs.balance.collectAsStateWithLifecycle(0)
+    val minBonus by prefs.minBonus.collectAsStateWithLifecycle(0)
 
     ModalBottomSheet(
         shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),

@@ -14,12 +14,12 @@ import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.gms.auth.api.phone.SmsRetriever
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
@@ -88,14 +88,16 @@ class MainActivity : AppCompatActivity() {
         }
 
         setContent {
-            val isConnected by viewModel.isConnected.collectAsState()
-            val isDeviceRegistered by viewModel.isDeviceRegistered.collectAsState()
+            val isConnected by viewModel.isConnected.collectAsStateWithLifecycle()
+            val isDeviceRegistered by viewModel.isDeviceRegistered.collectAsStateWithLifecycle()
+            val skipOnboarding by viewModel.skipOnboarding.collectAsStateWithLifecycle()
 
-            isDeviceRegistered?.let { registered ->
+            if (isDeviceRegistered != null && skipOnboarding != null) {
                 YallaTheme {
                     Navigation(
                         isConnected = isConnected,
-                        isDeviceRegistered = registered
+                        isDeviceRegistered = isDeviceRegistered!!,
+                        skipOnboarding = skipOnboarding!!
                     )
                 }
             }
@@ -147,10 +149,10 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (!BuildConfig.DEBUG) {
-            checkForImmediateUpdate()
-        }
-    }
+//    override fun onResume() {
+//        super.onResume()
+//        if (!BuildConfig.DEBUG) {
+//            checkForImmediateUpdate()
+//        }
+//    }
 }

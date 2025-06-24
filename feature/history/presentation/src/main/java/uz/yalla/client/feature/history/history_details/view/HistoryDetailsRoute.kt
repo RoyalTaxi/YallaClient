@@ -2,10 +2,10 @@ package uz.yalla.client.feature.history.history_details.view
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -30,13 +30,13 @@ internal fun HistoryDetailsRoute(
 ) {
     val prefs = koinInject<AppPreferences>()
 
-    val uiState by vm.uiState.collectAsState()
-    val loading by vm.loading.collectAsState()
+    val uiState by vm.uiState.collectAsStateWithLifecycle()
+    val loading by vm.loading.collectAsStateWithLifecycle()
 
-    val showErrorDialog by vm.showErrorDialog.collectAsState()
-    val currentErrorMessageId by vm.currentErrorMessageId.collectAsState()
+    val showErrorDialog by vm.showErrorDialog.collectAsStateWithLifecycle()
+    val currentErrorMessageId by vm.currentErrorMessageId.collectAsStateWithLifecycle()
 
-    val mapType by prefs.mapType.collectAsState(initial = null)
+    val mapType by prefs.mapType.collectAsStateWithLifecycle(null)
 
     val map: MapStrategy? = remember(mapType) {
         mapType?.let { type ->

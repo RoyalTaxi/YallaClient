@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uz.yalla.client.feature.payment.corporate_account.view.CorporateAccountIntent
-import kotlinx.coroutines.Dispatchers
 
 internal class CorporateAccountViewModel : ViewModel() {
 
@@ -34,7 +33,7 @@ internal class CorporateAccountViewModel : ViewModel() {
                     is CorporateAccountIntent.SetIndex -> currentState.copy(index = intent.index)
                     is CorporateAccountIntent.SetStreet -> currentState.copy(street = intent.street)
                     is CorporateAccountIntent.SetHomeOffice -> currentState.copy(homeOffice = intent.homeOffice)
-                    CorporateAccountIntent.sendData -> TODO()
+                    is CorporateAccountIntent.sendData -> currentState.copy() // Suspicious
                 }
             }
         }

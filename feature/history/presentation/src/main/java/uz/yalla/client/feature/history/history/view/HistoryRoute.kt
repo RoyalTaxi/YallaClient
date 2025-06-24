@@ -2,9 +2,9 @@ package uz.yalla.client.feature.history.history.view
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import app.cash.paging.compose.collectAsLazyPagingItems
 import org.koin.androidx.compose.koinViewModel
@@ -21,10 +21,10 @@ internal fun HistoryRoute(
 ) {
 
     val orders = vm.orders.collectAsLazyPagingItems()
-    val baseLoading by vm.loading.collectAsState()
+    val baseLoading by vm.loading.collectAsStateWithLifecycle()
 
-    val showErrorDialog by vm.showErrorDialog.collectAsState()
-    val currentErrorMessageId by vm.currentErrorMessageId.collectAsState()
+    val showErrorDialog by vm.showErrorDialog.collectAsStateWithLifecycle()
+    val currentErrorMessageId by vm.currentErrorMessageId.collectAsStateWithLifecycle()
 
 
     LaunchedEffect(orders.loadState) {

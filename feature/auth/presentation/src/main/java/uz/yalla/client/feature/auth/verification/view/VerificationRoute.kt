@@ -5,15 +5,14 @@ import android.content.Intent
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.gms.auth.api.phone.SmsRetriever
 import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.common.api.Status
@@ -40,14 +39,12 @@ internal fun VerificationRoute(
     vm: VerificationViewModel = koinViewModel()
 ) {
     val focusManager = LocalFocusManager.current
-    val uiState by vm.uiState.collectAsState()
-    val snackbarHostState = remember { SnackbarHostState() }
-    val loading by vm.loading.collectAsState()
+    val uiState by vm.uiState.collectAsStateWithLifecycle()
+    val loading by vm.loading.collectAsStateWithLifecycle()
     val errorMessage = stringResource(R.string.error_message)
     val context = LocalContext.current
     val smsRetriever = remember { SmsRetriever.getClient(context) }
-
-    val showErrorDialog by vm.showErrorDialog.collectAsState()
+    val showErrorDialog by vm.showErrorDialog.collectAsStateWithLifecycle()
 
     val smsRetrieverLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
@@ -57,10 +54,7 @@ internal fun VerificationRoute(
                 val message = data.getStringExtra(SmsRetriever.EXTRA_SMS_MESSAGE)
                 val extractedCode = extractCode(message)
                 if (extractedCode.isNotEmpty()) {
-                    vm.updateUiState(
-                        code = extractedCode,
-                        buttonState = uiState.hasRemainingTime && extractedCode.length == 5
-                    )
+                    vm.updateUiState(code = extractedCode, buttonState = uiState.hasRemainingTime && extractedCode.length == uiState.otpLength)
                 }
             }
         }
@@ -97,14 +91,16 @@ internal fun VerificationRoute(
                 number = number,
                 hasRemainingTime = expiresIn > 0,
                 remainingMinutes = expiresIn / 60,
-                remainingSeconds = expiresIn % 60
+                remainingSeconds = expiresIn % 60,
+                buttonState = (expiresIn > 0) && uiState.code.length == uiState.otpLength
+
             )
         }
 
         launch(Dispatchers.IO) {
             vm.countDownTimer(expiresIn).collectLatest { seconds ->
                 vm.updateUiState(
-                    buttonState = seconds != 0 && uiState.code.length == 5,
+                    buttonState = seconds != 0 && uiState.code.length == uiState.otpLength,
                     remainingMinutes = seconds / 60,
                     remainingSeconds = seconds % 60,
                     hasRemainingTime = seconds > 0
@@ -126,7 +122,7 @@ internal fun VerificationRoute(
                         launch {
                             vm.countDownTimer(it.data.time).collectLatest { seconds ->
                                 vm.updateUiState(
-                                    buttonState = seconds != 0 && uiState.code.length == 5,
+                                    buttonState = seconds != 0 && uiState.code.length == uiState.otpLength,
                                     remainingMinutes = seconds / 60,
                                     remainingSeconds = seconds % 60,
                                     hasRemainingTime = seconds > 0
@@ -146,7 +142,7 @@ internal fun VerificationRoute(
 
     VerificationScreen(
         uiState = uiState,
-        snackbarHostState = snackbarHostState,
+        loading = loading,
         onIntent = { intent ->
             when (intent) {
                 VerificationIntent.NavigateBack -> onBack()
@@ -156,9 +152,9 @@ internal fun VerificationRoute(
                     val newCode = intent.code.filter { it.isDigit() }
                     vm.updateUiState(
                         code = newCode,
-                        buttonState = uiState.hasRemainingTime && newCode.length == 5
+                        buttonState = uiState.hasRemainingTime && newCode.length == uiState.otpLength
                     )
-                    if (newCode.length == 5) {
+                    if (newCode.length == uiState.otpLength) {
                         focusManager.clearFocus(true)
                     }
                 }
@@ -176,5 +172,7 @@ internal fun VerificationRoute(
         )
     }
 
-    if (loading) LoadingDialog()
+    if (loading) {
+        LoadingDialog()
+    }
 }

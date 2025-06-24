@@ -137,7 +137,7 @@ internal class EditProfileViewModel(
 
     fun logout() = viewModelScope.launchWithLoading {
         logoutUseCase().onSuccess {
-            prefs.clearAll()
+            prefs.performLogout()
             _navigationChannel.trySend(
                 NavigationEvent.NavigateToStart
             )

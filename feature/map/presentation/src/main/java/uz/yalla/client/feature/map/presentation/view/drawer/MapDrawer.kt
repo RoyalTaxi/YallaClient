@@ -16,7 +16,6 @@ import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,6 +23,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.koinInject
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.PaymentType
@@ -45,10 +45,10 @@ fun MapDrawer(
 ) {
     val context = LocalContext.current
     val prefs = koinInject<AppPreferences>()
-    val paymentType by prefs.paymentType.collectAsState(initial = PaymentType.CASH)
-    val inviteUrl by prefs.inviteFriends.collectAsState(initial = "")
-    val driveUrl by prefs.becomeDrive.collectAsState(initial = "")
-    val isDeviceRegistered by prefs.isDeviceRegistered.collectAsState(initial = true)
+    val paymentType by prefs.paymentType.collectAsStateWithLifecycle(PaymentType.CASH)
+    val inviteUrl by prefs.inviteFriends.collectAsStateWithLifecycle("")
+    val driveUrl by prefs.becomeDrive.collectAsStateWithLifecycle("")
+    val isDeviceRegistered by prefs.isDeviceRegistered.collectAsStateWithLifecycle(true)
 
     ModalNavigationDrawer(
         drawerState = drawerState,
