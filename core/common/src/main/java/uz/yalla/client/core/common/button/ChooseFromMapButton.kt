@@ -26,7 +26,7 @@ fun ChooseFromMapButton(
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(YallaTheme.color.white),
+        colors = CardDefaults.cardColors(YallaTheme.color.background),
         onClick = onClick
     ) {
         Column(
@@ -38,12 +38,12 @@ fun ChooseFromMapButton(
             Icon(
                 painter = painterResource(R.drawable.ic_pin),
                 contentDescription = null,
-                tint = YallaTheme.color.black
+                tint = YallaTheme.color.onBackground
             )
 
             Text(
                 text = stringResource(R.string.map),
-                color = YallaTheme.color.black,
+                color = YallaTheme.color.onBackground,
                 style = YallaTheme.font.body.copy(fontSize = 10.sp)
             )
         }

@@ -9,8 +9,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,7 +30,7 @@ fun PrimaryButton(
     enabled: Boolean = true,
     contentPadding: PaddingValues = PaddingValues(vertical = 16.dp, horizontal = 32.dp),
     containerColor: Color = YallaTheme.color.primary,
-    contentColor: Color = YallaTheme.color.white,
+    contentColor: Color = YallaTheme.color.onPrimary,
     leadingIcon: Painter? = null,
     trailingIcon: Painter? = null,
     itemArrangement: Arrangement.Horizontal = Arrangement.spacedBy(6.dp),
@@ -78,7 +76,7 @@ fun PrimaryButton(
         contentPadding = adjustedContentPadding,
         colors = ButtonDefaults.buttonColors(
             containerColor = containerColor,
-            disabledContainerColor = YallaTheme.color.gray2,
+            disabledContainerColor = YallaTheme.color.surface,
             contentColor = contentColor,
             disabledContentColor = YallaTheme.color.gray
         )

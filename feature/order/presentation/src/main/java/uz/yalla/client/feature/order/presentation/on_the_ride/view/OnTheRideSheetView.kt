@@ -88,7 +88,7 @@ fun OnTheRideSheet(
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
         sheetDragHandle = null,
-        sheetContainerColor = YallaTheme.color.gray2,
+        sheetContainerColor = YallaTheme.color.surface,
         content = {},
         sheetContent = {
             Box(
@@ -97,7 +97,7 @@ fun OnTheRideSheet(
                 Column(
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                     modifier = Modifier.background(
-                        color = YallaTheme.color.gray2,
+                        color = YallaTheme.color.surface,
                         shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
                     )
                 ) {
@@ -119,7 +119,7 @@ fun OnTheRideSheet(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
-                            .background(YallaTheme.color.white)
+                            .background(YallaTheme.color.background)
                             .navigationBarsPadding()
                     ) {
 

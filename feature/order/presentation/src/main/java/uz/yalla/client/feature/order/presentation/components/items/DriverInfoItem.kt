@@ -30,7 +30,7 @@ fun DriverInfoItem(
         Text(
             text = stringResource(R.string.driver),
             style = YallaTheme.font.title,
-            color = YallaTheme.color.black
+            color = YallaTheme.color.onBackground
         )
 
         Text(

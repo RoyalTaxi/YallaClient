@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -56,7 +57,7 @@ fun MapDrawer(
         drawerContent = {
             ModalDrawerSheet(
                 drawerShape = RoundedCornerShape(topEnd = 30.dp, bottomEnd = 30.dp),
-                drawerContainerColor = YallaTheme.color.gray2,
+                drawerContainerColor = YallaTheme.color.surface,
                 modifier = Modifier
                     .fillMaxWidth(.8f)
                     .fillMaxHeight()
@@ -77,7 +78,7 @@ fun MapDrawer(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(30.dp))
-                        .background(YallaTheme.color.white)
+                        .background(YallaTheme.color.background)
                 ) {
                     DrawerItem(
                         title = stringResource(R.string.orders_history),
@@ -98,6 +99,7 @@ fun MapDrawer(
                             bonusAmount.toString()
                         ),
                         painter = painterResource(R.drawable.ic_coin),
+                        tintColor = Color.Unspecified,
                         onClick = { onIntent(MapDrawerIntent.Bonus) }
                     )
 
@@ -128,7 +130,7 @@ fun MapDrawer(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(30.dp))
-                        .background(YallaTheme.color.white)
+                        .background(YallaTheme.color.background)
                 ) {
                     DrawerItem(
                         title = stringResource(R.string.invite_friends),
@@ -185,7 +187,7 @@ fun MapDrawer(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(30.dp))
-                        .background(YallaTheme.color.white)
+                        .background(YallaTheme.color.background)
                 ) {
                     DrawerItem(
                         title = stringResource(R.string.settings),

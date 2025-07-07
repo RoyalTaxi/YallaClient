@@ -28,7 +28,7 @@ fun OrderOptionsItem(
     Card(
         onClick = onClick,
         shape = RectangleShape,
-        colors = CardDefaults.cardColors(YallaTheme.color.white),
+        colors = CardDefaults.cardColors(YallaTheme.color.background),
         modifier = modifier.fillMaxWidth()
     ) {
         Row(
@@ -46,7 +46,7 @@ fun OrderOptionsItem(
             ) {
                 Text(
                     text = title,
-                    color = YallaTheme.color.black,
+                    color = YallaTheme.color.onBackground,
                     style = YallaTheme.font.labelSemiBold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis

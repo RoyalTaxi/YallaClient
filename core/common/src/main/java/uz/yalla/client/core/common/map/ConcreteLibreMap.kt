@@ -382,7 +382,7 @@ private fun Markers(
                 )
             },
             description = stringResource(R.string.on_the_way),
-            infoColor = YallaTheme.color.black,
+            infoColor = YallaTheme.color.onBackground,
             pointColor = YallaTheme.color.primary
         )
     }

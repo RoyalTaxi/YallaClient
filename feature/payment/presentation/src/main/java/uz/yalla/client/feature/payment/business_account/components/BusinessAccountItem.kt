@@ -32,13 +32,13 @@ fun BusinessAccountItem(
     ) {
         Text(
             text = stringResource(R.string.overall_balance),
-            color = YallaTheme.color.white,
+            color = YallaTheme.color.background,
             style = YallaTheme.font.label
         )
 
         Text(
             text = overallBalance,
-            color = YallaTheme.color.white,
+            color = YallaTheme.color.background,
             style = YallaTheme.font.title
         )
 
@@ -46,13 +46,13 @@ fun BusinessAccountItem(
 
         Text(
             text = stringResource(R.string.employees),
-            color = YallaTheme.color.white,
+            color = YallaTheme.color.background,
             style = YallaTheme.font.label
         )
 
         Text(
             text = employeeCount,
-            color = YallaTheme.color.white,
+            color = YallaTheme.color.background,
             style = YallaTheme.font.title
         )
     }

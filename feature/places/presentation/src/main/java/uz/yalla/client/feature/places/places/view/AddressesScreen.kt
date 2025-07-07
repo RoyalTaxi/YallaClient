@@ -44,10 +44,10 @@ internal fun AddressesScreen(
 ) {
     Scaffold(
         floatingActionButtonPosition = FabPosition.End,
-        containerColor = YallaTheme.color.white,
+        containerColor = YallaTheme.color.background,
         modifier = Modifier
             .fillMaxSize()
-            .background(YallaTheme.color.white)
+            .background(YallaTheme.color.background)
             .imePadding()
             .navigationBarsPadding(),
         topBar = { AddressesTopBar { onIntent(AddressesIntent.OnNavigateBack) } },
@@ -71,20 +71,20 @@ private fun AddressesTopBar(
     onNavigateBack: () -> Unit
 ) {
     TopAppBar(
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.background),
         title = {},
         navigationIcon = {
             IconButton(onClick = onNavigateBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                    contentDescription = null
+                    contentDescription = null,
+                    tint = YallaTheme.color.onBackground
                 )
             }
         }
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun AddressesContent(
     modifier: Modifier,
@@ -126,7 +126,7 @@ private fun AddressesContent(
 private fun AddressesHeader() {
     Text(
         text = stringResource(R.string.my_places),
-        color = YallaTheme.color.black,
+        color = YallaTheme.color.onBackground,
         style = YallaTheme.font.headline,
         modifier = Modifier.padding(start = 20.dp, end = 60.dp)
     )
@@ -135,7 +135,7 @@ private fun AddressesHeader() {
 
     Text(
         text = stringResource(R.string.my_places_desc),
-        color = YallaTheme.color.black,
+        color = YallaTheme.color.onBackground,
         style = YallaTheme.font.body,
         modifier = Modifier.padding(start = 20.dp, end = 60.dp)
     )
@@ -236,7 +236,7 @@ private fun AddAddressButton(
             Icon(
                 imageVector = Icons.Default.Add,
                 contentDescription = null,
-                tint = YallaTheme.color.white
+                tint = YallaTheme.color.onBlack
             )
         }
     )

@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.MapType
 import uz.yalla.client.core.domain.model.PaymentType
+import uz.yalla.client.core.domain.model.type.ThemeType
 
 
 internal class AppPreferencesImpl(
@@ -51,6 +52,8 @@ internal class AppPreferencesImpl(
         val IS_BONUS_ENABLED = booleanPreferencesKey("isBonusEnabled")
         val IS_CARD_ENABLED = booleanPreferencesKey("isCardEnabled")
         val SKIP_ONBOARDING = booleanPreferencesKey("skipOnboarding")
+        val IS_VERIFICATION_REQUIRED = booleanPreferencesKey("isVerificationRequired")
+        val THEME_TYPE = stringPreferencesKey("themeType")
     }
 
     private fun <T> get(key: Key<T>, default: T): Flow<T> =
@@ -211,6 +214,19 @@ internal class AppPreferencesImpl(
     override val skipOnboarding: Flow<Boolean> = get(Prefs.SKIP_ONBOARDING, false)
     override fun setSkipOnboarding(value: Boolean) {
         scope.launch { set(Prefs.SKIP_ONBOARDING, value) }
+    }
+
+    override val isVerificationRequired: Flow<Boolean> = get(Prefs.IS_VERIFICATION_REQUIRED, false)
+    override fun setIsVerificationRequired(value: Boolean) {
+        scope.launch { set(Prefs.IS_VERIFICATION_REQUIRED, value) }
+    }
+
+    override val themeType: Flow<ThemeType> = store.data.map { prefs ->
+        val typeName = prefs[Prefs.THEME_TYPE] ?: ThemeType.SYSTEM.name
+        ThemeType.fromValue(typeName)
+    }
+    override fun setThemeType(value: ThemeType) {
+        scope.launch { set(Prefs.THEME_TYPE, value.name) }
     }
 
     override fun performLogout() {

@@ -51,11 +51,11 @@ internal fun CardVerificationScreen(
 
     Scaffold(
         modifier = Modifier.imePadding(),
-        containerColor = YallaTheme.color.white,
+        containerColor = YallaTheme.color.background,
         topBar = {
             TopAppBar(
                 title = {},
-                colors = TopAppBarDefaults.topAppBarColors(YallaTheme.color.white),
+                colors = TopAppBarDefaults.topAppBarColors(YallaTheme.color.background),
                 navigationIcon = {
                     IconButton(onClick = { onIntent(CardVerificationIntent.NavigateBack) }) {
                         Icon(
@@ -75,7 +75,7 @@ internal fun CardVerificationScreen(
             ) {
                 Text(
                     text = stringResource(id = R.string.enter_otp),
-                    color = YallaTheme.color.black,
+                    color = YallaTheme.color.onBackground,
                     style = YallaTheme.font.headline
                 )
 
@@ -123,7 +123,7 @@ internal fun CardVerificationScreen(
                         Modifier.clickable(
                             onClick = { onIntent(CardVerificationIntent.ResendCode) },
                             interactionSource = remember { MutableInteractionSource() },
-                            indication = ripple(color = YallaTheme.color.white)
+                            indication = ripple(color = YallaTheme.color.background)
                         )
                     } else {
                         Modifier
@@ -145,7 +145,7 @@ internal fun CardVerificationScreen(
                 Snackbar(
                     snackbarData = data,
                     containerColor = YallaTheme.color.red,
-                    contentColor = YallaTheme.color.white
+                    contentColor = YallaTheme.color.background
                 )
             }
         }

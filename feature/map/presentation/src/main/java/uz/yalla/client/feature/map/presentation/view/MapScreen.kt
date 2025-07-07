@@ -79,17 +79,15 @@ fun MapScreen(
             }
         )
 
-        if (isMapEnabled.not()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .pointerInput(Unit) {}
-            )
-        }
+        if (isMapEnabled.not()) Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .pointerInput(Unit) {}
+        )
 
         if (currentRoute.contains(ORDER_CANCELED_ROUTE).not()) {
             MapOverlay(
-                modifier = Modifier.padding(bottom = state.sheetHeight),
+                modifier = Modifier.padding(bottom = state.overlayPadding),
                 state = state,
                 hasLocationPermission = hasLocationPermission,
                 isLocationEnabled = isLocationEnabled,

@@ -21,13 +21,13 @@ internal fun AddressFormField(
         value = value,
         modifier = modifier,
         onValueChange = onValueChange,
-        textStyle = YallaTheme.font.label,
+        textStyle = YallaTheme.font.label.copy(color = YallaTheme.color.onBackground),
         colors = TextFieldDefaults.colors(
-            focusedContainerColor = YallaTheme.color.gray2,
-            unfocusedContainerColor = YallaTheme.color.gray2,
+            focusedContainerColor = YallaTheme.color.surface,
+            unfocusedContainerColor = YallaTheme.color.surface,
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
-            cursorColor = YallaTheme.color.black
+            cursorColor = YallaTheme.color.onBackground
         ),
         placeholder = {
             Text(

@@ -45,7 +45,7 @@ fun GenderButton(
 
             Text(
                 text = text,
-                color = YallaTheme.color.black,
+                color = YallaTheme.color.onBackground,
                 style = YallaTheme.font.label
             )
         }

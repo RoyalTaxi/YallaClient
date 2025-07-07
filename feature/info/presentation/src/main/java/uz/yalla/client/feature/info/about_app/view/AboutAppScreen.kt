@@ -4,12 +4,15 @@ import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -22,6 +25,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,15 +37,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.koinInject
+import  uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.common.navigable.ItemNavigable
 import uz.yalla.client.core.common.utils.openPlayMarket
-import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.info.R
 import uz.yalla.client.feature.info.about_app.model.AboutAppUIState
+import uz.yalla.client.feature.setting.domain.model.SocialNetwork
+import uz.yalla.client.feature.setting.domain.model.SocialNetworkType
 
 @Composable
 internal fun AboutAppScreen(
@@ -50,7 +55,7 @@ internal fun AboutAppScreen(
 ) {
     val context = LocalContext.current
     Scaffold(
-        containerColor = YallaTheme.color.white,
+        containerColor = YallaTheme.color.background,
         modifier = Modifier,
         topBar = { TopBar { onIntent(AboutAppIntent.OnNavigateBack) } },
         content = { paddingValues ->
@@ -81,6 +86,7 @@ internal fun AboutAppScreen(
 
                 PrimaryButton(
                     text = stringResource(id = R.string.rate),
+                    contentColor = YallaTheme.color.onPrimary,
                     onClick = { openPlayMarket(context) },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -97,11 +103,11 @@ private fun TopBar(
     onNavigateBack: () -> Unit
 ) {
     CenterAlignedTopAppBar(
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.background),
         title = {
             Text(
                 text = stringResource(R.string.about_app),
-                color = YallaTheme.color.black,
+                color = YallaTheme.color.onBackground,
                 style = YallaTheme.font.labelLarge
             )
         },
@@ -109,7 +115,8 @@ private fun TopBar(
             IconButton(onClick = onNavigateBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                    contentDescription = null
+                    contentDescription = null,
+                    tint = YallaTheme.color.onBackground
                 )
             }
         }
@@ -135,7 +142,7 @@ private fun AppInfoSection(context: Context) {
         Text(
             text = stringResource(R.string.app_name),
             style = YallaTheme.font.title,
-            color = YallaTheme.color.black,
+            color = YallaTheme.color.onBackground,
             textAlign = TextAlign.Center
         )
 
@@ -161,7 +168,7 @@ private fun PrivacyPolicySection(
     onClickPrivacyPolicy: (Int, String) -> Unit
 ) {
     val prefs = koinInject<AppPreferences>()
-    val locale by prefs.locale.collectAsStateWithLifecycle("uz")
+    val locale by prefs.locale.collectAsState("uz")
     ItemNavigable(
         title = stringResource(R.string.user_agreement),
         onClick = {
@@ -188,31 +195,46 @@ private fun PrivacyPolicySection(
 
 @Composable
 private fun SocialNetworksSection(
-    socialNetworks: List<Triple<Int, String, Int>>,
-    onClickSocialNetwork: (Int, String) -> Unit
+    socialNetworks: List<SocialNetwork>,
+    onClickSocialNetwork: (Int, String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Text(
-        text = stringResource(R.string.we_on_social_networks),
-        style = YallaTheme.font.body,
-        color = YallaTheme.color.black,
-        textAlign = TextAlign.Center
-    )
+    if (socialNetworks.isEmpty()) return
 
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(24.dp),
-        verticalAlignment = Alignment.CenterVertically
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        socialNetworks.forEach { socialNetwork ->
-            IconButton(
-                onClick = {
-                    onClickSocialNetwork(socialNetwork.third, socialNetwork.second)
+        Text(
+            text = stringResource(R.string.we_on_social_networks),
+            style = YallaTheme.font.body,
+            color = YallaTheme.color.onBackground,
+            textAlign = TextAlign.Center
+        )
+
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(24.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            contentPadding = PaddingValues(horizontal = 16.dp)
+        ) {
+            items(socialNetworks) { socialNetwork ->
+                IconButton(
+                    onClick = {
+                        onClickSocialNetwork(
+                            socialNetwork.titleResId,
+                            socialNetwork.value
+                        )
+                    },
+                    modifier = modifier.size(48.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(socialNetwork.iconResId),
+                        contentDescription = stringResource(socialNetwork.titleResId),
+                        tint = Color.Unspecified,
+                        modifier = Modifier.size(32.dp)
+                    )
                 }
-            ) {
-                Icon(
-                    painter = painterResource(socialNetwork.first),
-                    tint = Color.Unspecified,
-                    contentDescription = null
-                )
             }
         }
     }

@@ -57,7 +57,7 @@ fun SelectDestinationButton(
 
     Button(
         shape = RoundedCornerShape(16.dp),
-        colors = ButtonDefaults.buttonColors(YallaTheme.color.gray2),
+        colors = ButtonDefaults.buttonColors(YallaTheme.color.surface),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
         onClick = onClick,
         modifier = modifier
@@ -76,7 +76,7 @@ fun SelectDestinationButton(
                 destinations.size > 2 -> {
                     Text(
                         text = stringResource(R.string.destination_count, destinations.size),
-                        color = YallaTheme.color.black,
+                        color = YallaTheme.color.onBackground,
                         style = YallaTheme.font.labelLarge,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -93,7 +93,7 @@ fun SelectDestinationButton(
                         Text(
                             modifier = Modifier.weight(.5f),
                             text = destinations[0].name.orEmpty(),
-                            color = YallaTheme.color.black,
+                            color = YallaTheme.color.onBackground,
                             style = YallaTheme.font.labelLarge,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
@@ -114,7 +114,7 @@ fun SelectDestinationButton(
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
                                 text = destinations[1].name.orEmpty(),
-                                color = YallaTheme.color.black,
+                                color = YallaTheme.color.onBackground,
                                 style = YallaTheme.font.labelLarge,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
@@ -141,7 +141,7 @@ fun SelectDestinationButton(
 
                                         Text(
                                             text = destination.name.orEmpty(),
-                                            color = YallaTheme.color.black,
+                                            color = YallaTheme.color.onBackground,
                                             style = YallaTheme.font.labelLarge,
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis
@@ -200,7 +200,7 @@ fun SelectDestinationButton(
                         .clip(CircleShape)
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
-                            indication = ripple(color = YallaTheme.color.black),
+                            indication = ripple(color = YallaTheme.color.onBackground),
                             onClick = onAddNewLocation
                         )
                 )

@@ -53,7 +53,7 @@ fun ArrangeDestinationsBottomSheet(
 
     ModalBottomSheet(
         sheetState = sheetState,
-        containerColor = YallaTheme.color.gray2,
+        containerColor = YallaTheme.color.surface,
         dragHandle = null,
         shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
         onDismissRequest = { onDismissRequest(orderedDestinations) }
@@ -65,7 +65,7 @@ fun ArrangeDestinationsBottomSheet(
             modifier = Modifier
                 .dragContainer(dragDropState)
                 .background(
-                    color = YallaTheme.color.white,
+                    color = YallaTheme.color.background,
                     shape = RoundedCornerShape(30.dp)
                 ),
         ) {
@@ -91,7 +91,7 @@ fun ArrangeDestinationsBottomSheet(
 
         Box(
             modifier = Modifier.background(
-                color = YallaTheme.color.white,
+                color = YallaTheme.color.background,
                 shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
             )
         ) {

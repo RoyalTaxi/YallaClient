@@ -253,7 +253,7 @@ fun Circle(
                     is YallaMarkerState.IDLE -> state.timeout?.toString().orEmpty()
                     else -> ""
                 },
-                color = YallaTheme.color.white,
+                color = YallaTheme.color.onPrimary,
                 style = YallaTheme.font.title
             )
             Text(
@@ -261,7 +261,7 @@ fun Circle(
                     is YallaMarkerState.IDLE -> if (state.timeout != null) stringResource(R.string.min) else ""
                     else -> ""
                 },
-                color = YallaTheme.color.white,
+                color = YallaTheme.color.onPrimary,
                 style = YallaTheme.font.body
             )
         }
@@ -277,7 +277,7 @@ fun Circle(
                 Icon(
                     painter = painterResource(R.drawable.ic_loading_marker),
                     contentDescription = null,
-                    tint = YallaTheme.color.white,
+                    tint = YallaTheme.color.onPrimary,
                     modifier = Modifier
                         .size(24.dp)
                         .graphicsLayer {
@@ -298,7 +298,7 @@ fun Circle(
                 modifier = modifier
                     .size(24.dp)
                     .clip(CircleShape)
-                    .background(YallaTheme.color.white)
+                    .background(YallaTheme.color.onPrimary)
                     .graphicsLayer { clip = true }
                     .align(Alignment.Center)
             )
@@ -315,7 +315,7 @@ private fun Stick(
             .height(20.dp)
             .width(2.dp)
             .clip(RoundedCornerShape(bottomStart = 10.dp, bottomEnd = 10.dp))
-            .background(YallaTheme.color.black)
+            .background(YallaTheme.color.onBackground)
     )
 }
 
@@ -328,7 +328,7 @@ private fun Indicator(
             .height(6.dp)
             .width(8.dp)
             .clip(CircleShape)
-            .background(YallaTheme.color.black)
+            .background(YallaTheme.color.onBackground)
 
     )
 }
@@ -360,7 +360,7 @@ private fun AddressName(
         ) { targetText ->
             Text(
                 text = targetText,
-                color = YallaTheme.color.white,
+                color = YallaTheme.color.onBlack,
                 style = YallaTheme.font.labelSemiBold,
                 textAlign = TextAlign.Center,
                 maxLines = 1,

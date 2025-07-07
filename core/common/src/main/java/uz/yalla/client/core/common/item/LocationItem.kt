@@ -29,7 +29,7 @@ fun LocationItem(
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         modifier = modifier
             .background(
-                color = YallaTheme.color.gray2,
+                color = YallaTheme.color.surface,
                 shape = RoundedCornerShape(16.dp)
             )
             .padding(16.dp)
@@ -66,7 +66,7 @@ fun LocationItem(
 
         Text(
             text = location,
-            color = YallaTheme.color.black,
+            color = YallaTheme.color.onBackground,
             style = YallaTheme.font.labelSemiBold,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis

@@ -32,10 +32,10 @@ const val OTP_VIEW_TYPE_BORDER = 2
 fun OtpView(
     otpText: String,
     modifier: Modifier = Modifier,
-    charColor: Color = YallaTheme.color.black,
+    charColor: Color = YallaTheme.color.onBackground,
     containerColor: Color = Color.Transparent,
     selectedContainerColor: Color = YallaTheme.color.primary,
-    charBackground: Color = YallaTheme.color.gray2,
+    charBackground: Color = YallaTheme.color.surface,
     charSize: TextUnit = 14.sp,
     containerRadius: Dp = 12.dp,
     otpCount: Int = 5,
@@ -71,7 +71,7 @@ fun OtpView(
                 onOtpTextChange.invoke(filteredText)
             }
         },
-        cursorBrush = SolidColor(YallaTheme.color.black),
+        cursorBrush = SolidColor(YallaTheme.color.onBackground),
         enabled = enabled,
         keyboardOptions = keyboardOptions,
         decorationBox = {

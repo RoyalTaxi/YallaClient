@@ -25,7 +25,7 @@ fun TariffItemShimmer(
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(YallaTheme.color.gray2)
+        colors = CardDefaults.cardColors(YallaTheme.color.surface)
     ) {
         Column(
             modifier = Modifier

@@ -36,7 +36,7 @@ internal fun BonusAccountScreen(
     onIntent: (BonusAccountIntent) -> Unit
 ) {
     Scaffold(
-        containerColor = YallaTheme.color.white,
+        containerColor = YallaTheme.color.background,
         topBar = {
             BonusAccountTopBar {
                 onIntent(BonusAccountIntent.OnNavigateBack)
@@ -44,7 +44,7 @@ internal fun BonusAccountScreen(
         },
         modifier = Modifier
             .fillMaxSize()
-            .background(YallaTheme.color.white)
+            .background(YallaTheme.color.background)
             .navigationBarsPadding(),
         content = { paddingValues ->
             LazyColumn(
@@ -76,13 +76,14 @@ private fun BonusAccountTopBar(
     onNavigateBack: () -> Unit
 ) {
     TopAppBar(
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.background),
         title = {},
         navigationIcon = {
             IconButton(onClick = onNavigateBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                    contentDescription = null
+                    contentDescription = null,
+                    tint = YallaTheme.color.onBackground
                 )
             }
         }
@@ -93,7 +94,7 @@ private fun BonusAccountTopBar(
 private fun BonusAccountHeader() {
     Text(
         text = stringResource(R.string.bonus_promocode),
-        color = YallaTheme.color.black,
+        color = YallaTheme.color.onBackground,
         style = YallaTheme.font.headline
     )
 
@@ -115,7 +116,7 @@ private fun PromoCodes(
         Text(
             text = stringResource(R.string.promocodes),
             style = YallaTheme.font.title2,
-            color = YallaTheme.color.black,
+            color = YallaTheme.color.onBackground,
             modifier = Modifier.padding(vertical = 17.dp, horizontal = 20.dp)
         )
 
@@ -125,7 +126,7 @@ private fun PromoCodes(
                 Icon(
                     painter = painterResource(R.drawable.ic_coupon),
                     contentDescription = null,
-                    tint = YallaTheme.color.black
+                    tint = YallaTheme.color.onBackground
                 )
 
                 Spacer(modifier = Modifier.width(16.dp))

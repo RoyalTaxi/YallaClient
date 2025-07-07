@@ -56,7 +56,7 @@ fun OrderCanceledSheet(
                     }
                 }
                 .background(
-                    color = YallaTheme.color.gray2,
+                    color = YallaTheme.color.surface,
                     shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
                 )
         ) {
@@ -64,14 +64,14 @@ fun OrderCanceledSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(
-                        color = YallaTheme.color.white,
+                        color = YallaTheme.color.background,
                         shape = RoundedCornerShape(30.dp)
                     )
                     .padding(20.dp)
             ) {
                 Text(
                     text = stringResource(R.string.canceled),
-                    color = YallaTheme.color.black,
+                    color = YallaTheme.color.onBackground,
                     style = YallaTheme.font.title
                 )
 
@@ -86,7 +86,7 @@ fun OrderCanceledSheet(
 
             Box(
                 modifier = Modifier.background(
-                    color = YallaTheme.color.white,
+                    color = YallaTheme.color.background,
                     shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
                 )
                     .navigationBarsPadding()

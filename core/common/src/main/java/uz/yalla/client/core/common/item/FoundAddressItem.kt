@@ -29,7 +29,7 @@ fun FoundAddressItem(
         modifier = modifier,
         shape = RectangleShape,
         onClick = { onClick(foundAddress) },
-        colors = CardDefaults.cardColors(YallaTheme.color.white)
+        colors = CardDefaults.cardColors(YallaTheme.color.background)
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
@@ -53,7 +53,7 @@ fun FoundAddressItem(
             ) {
                 Text(
                     text = foundAddress.name,
-                    color = YallaTheme.color.black,
+                    color = YallaTheme.color.onBackground,
                     style = YallaTheme.font.labelSemiBold
                 )
 

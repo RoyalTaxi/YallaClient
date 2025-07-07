@@ -33,8 +33,8 @@ fun SelectPaymentTypeItem(
         onClick = onSelect,
         enabled = enabled,
         colors = CardDefaults.cardColors(
-            containerColor = YallaTheme.color.white,
-            disabledContainerColor = YallaTheme.color.white,
+            containerColor = YallaTheme.color.background,
+            disabledContainerColor = YallaTheme.color.background,
             disabledContentColor = YallaTheme.color.gray
         )
     ) {
@@ -61,7 +61,7 @@ fun SelectPaymentTypeItem(
 
             Text(
                 text = text,
-                color = YallaTheme.color.black.copy(alpha = if (enabled) 1f else .5f),
+                color = YallaTheme.color.onBackground.copy(alpha = if (enabled) 1f else .5f),
                 style = YallaTheme.font.labelSemiBold
             )
 
@@ -70,10 +70,10 @@ fun SelectPaymentTypeItem(
             Icon(
                 imageVector = Icons.Filled.Done,
                 contentDescription = null,
-                tint = YallaTheme.color.white,
+                tint = YallaTheme.color.background,
                 modifier = Modifier
                     .background(
-                        color = if (isSelected) YallaTheme.color.primary else YallaTheme.color.white,
+                        color = if (isSelected) YallaTheme.color.primary else YallaTheme.color.background,
                         shape = CircleShape
                     )
                     .padding(6.dp)

@@ -37,7 +37,7 @@ fun ActiveOrderItem(
     ) {
     Card(
         onClick = onClick,
-        colors = CardDefaults.cardColors(YallaTheme.color.gray2),
+        colors = CardDefaults.cardColors(YallaTheme.color.surface),
         shape = RoundedCornerShape(16.dp),
         modifier = modifier.fillMaxWidth()
     ) {
@@ -49,7 +49,7 @@ fun ActiveOrderItem(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = getOrderStatusText(order.status),
-                    color = YallaTheme.color.black,
+                    color = YallaTheme.color.onBackground,
                     style = YallaTheme.font.labelSemiBold
                 )
 
@@ -78,7 +78,7 @@ fun ActiveOrderItem(
 
                     Text(
                         text = order.taxi.routes.firstOrNull()?.fullAddress.orEmpty(),
-                        color = YallaTheme.color.black,
+                        color = YallaTheme.color.onBackground,
                         style = YallaTheme.font.labelSemiBold
                     )
                 }

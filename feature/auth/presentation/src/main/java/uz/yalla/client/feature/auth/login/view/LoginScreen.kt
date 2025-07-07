@@ -32,7 +32,7 @@ internal fun LoginScreen(
 ) {
     Scaffold(
         modifier = Modifier.imePadding(),
-        containerColor = YallaTheme.color.white,
+        containerColor = YallaTheme.color.background,
         content = { paddingValues ->
             Column(
                 modifier = Modifier
@@ -69,13 +69,14 @@ private fun LoginAppBar(
     onNavigateBack: () -> Unit
 ) {
     TopAppBar(
-        colors = TopAppBarDefaults.topAppBarColors(YallaTheme.color.white),
+        colors = TopAppBarDefaults.topAppBarColors(YallaTheme.color.background),
         title = {},
         navigationIcon = {
             IconButton(onClick = onNavigateBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                    contentDescription = null
+                    contentDescription = null,
+                    tint = YallaTheme.color.onBackground
                 )
             }
         }
@@ -86,7 +87,7 @@ private fun LoginAppBar(
 private fun LoginHeader() {
     Text(
         text = stringResource(id = R.string.enter_phone_number),
-        color = YallaTheme.color.black,
+        color = YallaTheme.color.onBackground,
         style = YallaTheme.font.headline
     )
 
@@ -118,6 +119,8 @@ private fun LoginFooter(
     PrimaryButton(
         modifier = Modifier.fillMaxWidth(),
         text = stringResource(id = R.string.next),
+        containerColor = YallaTheme.color.black,
+        contentColor = YallaTheme.color.onBlack,
         enabled = sendCodeButtonState,
         onClick = onClickButton
     )

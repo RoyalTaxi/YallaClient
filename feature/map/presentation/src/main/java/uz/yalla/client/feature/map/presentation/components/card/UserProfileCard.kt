@@ -35,7 +35,7 @@ fun UserProfileCard(
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(30.dp),
-        colors = CardDefaults.cardColors(YallaTheme.color.white),
+        colors = CardDefaults.cardColors(YallaTheme.color.background),
         onClick = onClick
     ) {
         Row(
@@ -62,7 +62,7 @@ fun UserProfileCard(
             ) {
                 Text(
                     text = "${client.givenNames} ${client.surname}",
-                    color = YallaTheme.color.black,
+                    color = YallaTheme.color.onBackground,
                     style = YallaTheme.font.labelLarge
                 )
 

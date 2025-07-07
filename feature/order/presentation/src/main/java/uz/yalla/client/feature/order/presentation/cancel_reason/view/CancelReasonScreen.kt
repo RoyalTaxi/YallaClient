@@ -34,7 +34,7 @@ fun CancelReasonScreen(
     onIntent: (CancelReasonIntent) -> Unit,
 ) {
     Scaffold(
-        containerColor = YallaTheme.color.white,
+        containerColor = YallaTheme.color.background,
         topBar = { CancelReasonTopBar { onIntent(CancelReasonIntent.NavigateBack) } },
         content = { paddingValues ->
             Column(
@@ -70,13 +70,14 @@ private fun CancelReasonTopBar(
     onNavigateBack: () -> Unit
 ) {
     TopAppBar(
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.background),
         title = {},
         navigationIcon = {
             IconButton(onClick = onNavigateBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                    contentDescription = null
+                    contentDescription = null,
+                    tint = YallaTheme.color.onBackground
                 )
             }
         }
@@ -87,7 +88,7 @@ private fun CancelReasonTopBar(
 private fun CancelReasonInfo() {
     Text(
         text = stringResource(R.string.why_canceled),
-        color = YallaTheme.color.black,
+        color = YallaTheme.color.onBackground,
         style = YallaTheme.font.headline,
         modifier = Modifier.padding(20.dp)
     )

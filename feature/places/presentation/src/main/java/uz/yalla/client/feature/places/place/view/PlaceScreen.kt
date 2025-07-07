@@ -51,7 +51,7 @@ internal fun AddressScreen(
     onIntent: (PlaceIntent) -> Unit
 ) {
     Scaffold(
-        containerColor = YallaTheme.color.white,
+        containerColor = YallaTheme.color.background,
         modifier = Modifier
             .fillMaxSize()
             .imePadding(),
@@ -86,7 +86,7 @@ private fun AddressTopBar(
     onDelete: () -> Unit
 ) {
     CenterAlignedTopAppBar(
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.background),
         title = {
             Text(
                 text = stringResource(
@@ -96,7 +96,7 @@ private fun AddressTopBar(
                         PlaceType.OTHER -> R.string.other
                     }
                 ),
-                color = YallaTheme.color.black,
+                color = YallaTheme.color.onBackground,
                 style = YallaTheme.font.labelLarge
             )
         },
@@ -106,7 +106,7 @@ private fun AddressTopBar(
                     Icon(
                         imageVector = Icons.Default.Delete,
                         contentDescription = null,
-                        tint = YallaTheme.color.black
+                        tint = YallaTheme.color.onBackground
                     )
                 }
             }
@@ -115,7 +115,8 @@ private fun AddressTopBar(
             IconButton(onClick = onNavigateBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                    contentDescription = null
+                    contentDescription = null,
+                    tint = YallaTheme.color.onBackground
                 )
             }
         }
@@ -145,7 +146,7 @@ private fun AddressContent(
                     modifier = Modifier
                         .size(16.dp)
                         .clip(CircleShape)
-                        .background(YallaTheme.color.white)
+                        .background(YallaTheme.color.background)
                         .border(
                             width = 4.dp,
                             color = YallaTheme.color.primary,
@@ -238,7 +239,7 @@ private fun AddressSnackbarHost(
             Snackbar(
                 snackbarData = snackbarData,
                 containerColor = YallaTheme.color.red,
-                contentColor = YallaTheme.color.white
+                contentColor = YallaTheme.color.background
             )
         }
     )

@@ -58,7 +58,7 @@ fun EnableBonusButton(
             ) {
                 Text(
                     text = stringResource(R.string.pay_with_bonus),
-                    color = YallaTheme.color.black,
+                    color = YallaTheme.color.onBackground,
                     style = YallaTheme.font.labelSemiBold
                 )
 
@@ -84,12 +84,12 @@ fun EnableBonusButton(
                     }
                 },
                 colors = SwitchDefaults.colors(
-                    checkedThumbColor = YallaTheme.color.white,
-                    uncheckedThumbColor = YallaTheme.color.white,
+                    checkedThumbColor = YallaTheme.color.background,
+                    uncheckedThumbColor = YallaTheme.color.background,
                     checkedTrackColor = YallaTheme.color.primary,
-                    uncheckedTrackColor = YallaTheme.color.gray2,
+                    uncheckedTrackColor = YallaTheme.color.surface,
                     checkedBorderColor = YallaTheme.color.primary,
-                    uncheckedBorderColor = YallaTheme.color.gray2,
+                    uncheckedBorderColor = YallaTheme.color.surface,
                 )
             )
         }

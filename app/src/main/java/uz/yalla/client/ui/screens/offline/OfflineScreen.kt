@@ -55,7 +55,7 @@ fun OfflineScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
-            .background(color = YallaTheme.color.white)
+            .background(color = YallaTheme.color.background)
             .systemBarsPadding()
             .padding(20.dp)
     ) {
@@ -64,7 +64,7 @@ fun OfflineScreen(
         Text(
             text = stringResource(R.string.no_internet_connection),
             style = YallaTheme.font.title,
-            color = YallaTheme.color.black,
+            color = YallaTheme.color.onBackground,
             textAlign = TextAlign.Center
         )
 

@@ -160,7 +160,7 @@ private fun TariffSectionBackground(
     Card(
         modifier = modifier,
         shape = shape,
-        colors = CardDefaults.cardColors(YallaTheme.color.white)
+        colors = CardDefaults.cardColors(YallaTheme.color.background)
     ) {
         Column { content() }
     }
@@ -185,7 +185,7 @@ private fun TariffInfoSection(
                     .height(4.dp)
                     .padding(top = 4.dp, bottom = 2.dp)
                     .clip(RoundedCornerShape(10.dp))
-                    .background(YallaTheme.color.gray2)
+                    .background(YallaTheme.color.surface)
                     .align(Alignment.CenterHorizontally)
             )
 
@@ -193,7 +193,7 @@ private fun TariffInfoSection(
 
             Text(
                 text = tariff.name,
-                color = YallaTheme.color.black,
+                color = YallaTheme.color.onBackground,
                 style = YallaTheme.font.title,
             )
 
@@ -202,7 +202,7 @@ private fun TariffInfoSection(
 
                 Text(
                     text = tariff.description,
-                    color = YallaTheme.color.black,
+                    color = YallaTheme.color.onBackground,
                     style = YallaTheme.font.label,
                 )
             }
@@ -221,7 +221,7 @@ private fun TariffInfoSection(
 
             Text(
                 style = YallaTheme.font.labelSemiBold,
-                color = YallaTheme.color.black,
+                color = YallaTheme.color.onBackground,
                 modifier = Modifier.padding(vertical = 10.dp),
                 text = when {
                     isDestinationsEmpty -> stringResource(

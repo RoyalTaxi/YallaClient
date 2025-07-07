@@ -27,8 +27,8 @@ fun BonusInfoItem(
     body: String,
     onClick: () -> Unit,
     enabled: Boolean = false,
-    backgroundColor: Color = YallaTheme.color.gray2,
-    textColor: Color = YallaTheme.color.black,
+    backgroundColor: Color = YallaTheme.color.surface,
+    textColor: Color = YallaTheme.color.onBackground,
     bodyTextColor: Color = YallaTheme.color.gray,
 ) {
     Card(

@@ -36,7 +36,7 @@ fun CallButton(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 imageVector = Icons.Default.Call,
-                tint = YallaTheme.color.white,
+                tint = YallaTheme.color.background,
                 contentDescription = null
             )
 
@@ -45,7 +45,7 @@ fun CallButton(
             Text(
                 text = stringResource(R.string.call),
                 style = YallaTheme.font.labelLarge,
-                color = YallaTheme.color.white
+                color = YallaTheme.color.background
             )
         }
     }

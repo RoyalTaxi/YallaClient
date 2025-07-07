@@ -35,7 +35,7 @@ internal fun BusinessAccountScreen(
     onIntent: (BusinessAccountIntent) -> Unit
 ) {
     Scaffold(
-        containerColor = YallaTheme.color.white,
+        containerColor = YallaTheme.color.background,
         modifier = Modifier.imePadding(),
         topBar = { BusinessTopBar { onIntent(BusinessAccountIntent.OnNavigateBack) } },
         content = { paddingValues ->
@@ -56,11 +56,11 @@ private fun BusinessTopBar(
     onNavigateBack: () -> Unit
 ) {
     CenterAlignedTopAppBar(
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.background),
         title = {
             Text(
                 text = stringResource(R.string.business_account),
-                color = YallaTheme.color.black,
+                color = YallaTheme.color.onBackground,
                 style = YallaTheme.font.labelLarge
             )
         },
@@ -68,7 +68,8 @@ private fun BusinessTopBar(
             IconButton(onClick = onNavigateBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                    contentDescription = null
+                    contentDescription = null,
+                    tint = YallaTheme.color.onBackground
                 )
             }
         }
@@ -125,7 +126,7 @@ private fun EmployeesSection(
 ) {
     Text(
         text = stringResource(R.string.employees),
-        color = YallaTheme.color.black,
+        color = YallaTheme.color.onBackground,
         style = YallaTheme.font.title2,
         modifier = Modifier.padding(20.dp)
     )
@@ -149,14 +150,14 @@ private fun AddEmployeeButton(
 ) {
     FloatingActionButton(
         modifier = modifier,
-        containerColor = YallaTheme.color.black,
+        containerColor = YallaTheme.color.onBackground,
         shape = CircleShape,
         onClick = onClick,
     ) {
         Icon(
             painter = painterResource(R.drawable.ic_add),
             contentDescription = null,
-            tint = YallaTheme.color.white
+            tint = YallaTheme.color.background
         )
     }
 }

@@ -3,6 +3,7 @@ package uz.yalla.client.feature.order.presentation.main.view.sheet
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,16 +39,17 @@ fun BonusInfoBottomSheet(
 
     ModalBottomSheet(
         shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
-        contentColor = YallaTheme.color.white,
+        containerColor = YallaTheme.color.background,
         sheetState = sheetState,
         onDismissRequest = onDismissRequest,
         dragHandle = null
     ) {
         Column(
             modifier = Modifier
-                .background(YallaTheme.color.white)
+                .background(YallaTheme.color.background)
                 .fillMaxWidth()
                 .padding(20.dp)
+                .navigationBarsPadding()
         ) {
             BonusBalanceItem(
                 balance = balance.toString(),
@@ -72,7 +74,7 @@ fun BonusInfoBottomSheet(
             Text(
                 text = stringResource(R.string.bonus),
                 style = YallaTheme.font.title2,
-                color = YallaTheme.color.black,
+                color = YallaTheme.color.onBackground,
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 17.dp)
             )
 
@@ -86,7 +88,7 @@ fun BonusInfoBottomSheet(
             Text(
                 text = stringResource(R.string.can_pay_with_bonus),
                 style = YallaTheme.font.title2,
-                color = YallaTheme.color.black,
+                color = YallaTheme.color.onBackground,
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 17.dp)
             )
 
@@ -95,8 +97,8 @@ fun BonusInfoBottomSheet(
                 iconId = R.drawable.ic_coin,
                 body = stringResource(R.string.second_bonus_body),
                 backgroundColor = YallaTheme.color.primary,
-                textColor = YallaTheme.color.white,
-                bodyTextColor = YallaTheme.color.white,
+                textColor = YallaTheme.color.onPrimary,
+                bodyTextColor = YallaTheme.color.onPrimary,
                 onClick = {}
             )
         }

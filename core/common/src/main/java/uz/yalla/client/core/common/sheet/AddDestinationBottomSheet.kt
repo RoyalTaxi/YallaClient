@@ -82,7 +82,7 @@ fun AddDestinationBottomSheet(
 
     ModalBottomSheet(
         shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
-        containerColor = YallaTheme.color.gray2,
+        containerColor = YallaTheme.color.surface,
         sheetState = sheetState,
         dragHandle = null,
         onDismissRequest = {
@@ -93,7 +93,7 @@ fun AddDestinationBottomSheet(
         Column(
             modifier = Modifier
                 .background(
-                    color = YallaTheme.color.white,
+                    color = YallaTheme.color.background,
                     shape = RoundedCornerShape(30.dp)
                 )
                 .imePadding()
@@ -123,7 +123,7 @@ fun AddDestinationBottomSheet(
                 .fillMaxWidth()
                 .fillMaxHeight(.8f)
                 .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
-                .background(YallaTheme.color.white)
+                .background(YallaTheme.color.background)
         ) {
             when {
                 uiState.loading -> {

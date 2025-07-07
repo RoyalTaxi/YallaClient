@@ -49,7 +49,7 @@ fun BonusBalanceItem(
                 Text(
                     text = stringResource(R.string.bonus_balance),
                     style = YallaTheme.font.label,
-                    color = YallaTheme.color.white
+                    color = YallaTheme.color.onPrimary
                 )
 
                 Row(
@@ -59,7 +59,7 @@ fun BonusBalanceItem(
                     Text(
                         text = balance,
                         style = YallaTheme.font.title,
-                        color = YallaTheme.color.white
+                        color = YallaTheme.color.onPrimary
                     )
 
                     Image(
@@ -73,7 +73,7 @@ fun BonusBalanceItem(
             if (enabled) Icon(
                 painter = painterResource(R.drawable.ic_arrow_right),
                 contentDescription = null,
-                tint = YallaTheme.color.white
+                tint = YallaTheme.color.onPrimary
             )
         }
     }

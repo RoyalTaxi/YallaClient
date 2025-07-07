@@ -26,13 +26,13 @@ internal fun OrderDetailsBottomSheet(
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp),
-        modifier = Modifier.background(YallaTheme.color.gray2)
+        modifier = Modifier.background(YallaTheme.color.surface)
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier
                 .background(
-                    color = YallaTheme.color.white,
+                    color = YallaTheme.color.background,
                     shape = RoundedCornerShape(bottomStart = 30.dp, bottomEnd = 30.dp)
                 )
                 .padding(20.dp)
@@ -65,7 +65,7 @@ internal fun OrderDetailsBottomSheet(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(
-                    color = YallaTheme.color.white,
+                    color = YallaTheme.color.background,
                     shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
                 )
                 .padding(vertical = 10.dp)

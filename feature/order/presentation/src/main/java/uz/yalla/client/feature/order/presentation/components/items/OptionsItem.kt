@@ -33,8 +33,8 @@ fun OptionsItem(
         shape = RectangleShape,
         enabled = enabled,
         colors = CardDefaults.cardColors(
-            containerColor = YallaTheme.color.white,
-            disabledContainerColor = YallaTheme.color.white
+            containerColor = YallaTheme.color.background,
+            disabledContainerColor = YallaTheme.color.background
         ),
         onClick = { onChecked(!isSelected) }
     ) {
@@ -51,7 +51,7 @@ fun OptionsItem(
             Column {
                 Text(
                     text = option.name,
-                    color = YallaTheme.color.black,
+                    color = YallaTheme.color.onBackground,
                     style = YallaTheme.font.labelSemiBold
                 )
 
@@ -72,12 +72,12 @@ fun OptionsItem(
                 checked = isSelected,
                 onCheckedChange = onChecked,
                 colors = SwitchDefaults.colors(
-                    checkedThumbColor = YallaTheme.color.white,
-                    uncheckedThumbColor = YallaTheme.color.white,
+                    checkedThumbColor = YallaTheme.color.background,
+                    uncheckedThumbColor = YallaTheme.color.background,
                     checkedTrackColor = YallaTheme.color.primary,
-                    uncheckedTrackColor = YallaTheme.color.gray2,
+                    uncheckedTrackColor = YallaTheme.color.surface,
                     checkedBorderColor = YallaTheme.color.primary,
-                    uncheckedBorderColor = YallaTheme.color.gray2,
+                    uncheckedBorderColor = YallaTheme.color.surface,
                 )
             )
         }

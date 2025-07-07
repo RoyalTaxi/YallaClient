@@ -42,7 +42,7 @@ fun BaseDialog(
     ) {
         Card(
             shape = RoundedCornerShape(30.dp),
-            colors = CardDefaults.cardColors(YallaTheme.color.white)
+            colors = CardDefaults.cardColors(YallaTheme.color.background)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -50,7 +50,7 @@ fun BaseDialog(
             ) {
                 Text(
                     text = title,
-                    color = YallaTheme.color.black,
+                    color = YallaTheme.color.onBackground,
                     style = YallaTheme.font.title,
                     textAlign = TextAlign.Center
                 )
@@ -71,8 +71,8 @@ fun BaseDialog(
                 PrimaryButton(
                     text = actionText,
                     onClick = onAction,
-                    containerColor = YallaTheme.color.black,
-                    contentColor = YallaTheme.color.white,
+                    containerColor = YallaTheme.color.onBackground,
+                    contentColor = YallaTheme.color.background,
                     contentPadding = PaddingValues(20.dp),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -83,8 +83,8 @@ fun BaseDialog(
                     PrimaryButton(
                         text = dismissText,
                         onClick = onDismiss,
-                        containerColor = YallaTheme.color.gray2,
-                        contentColor = YallaTheme.color.black,
+                        containerColor = YallaTheme.color.surface,
+                        contentColor = YallaTheme.color.onBackground,
                         contentPadding = PaddingValues(20.dp),
                         modifier = Modifier.fillMaxWidth()
                     )

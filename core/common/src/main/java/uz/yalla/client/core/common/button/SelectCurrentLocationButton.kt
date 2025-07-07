@@ -27,7 +27,7 @@ fun SelectCurrentLocationButton(
 ) {
     Button(
         shape = RoundedCornerShape(16.dp),
-        colors = ButtonDefaults.buttonColors(YallaTheme.color.gray2),
+        colors = ButtonDefaults.buttonColors(YallaTheme.color.surface),
         contentPadding = PaddingValues(vertical = 10.dp, horizontal = 16.dp),
         onClick = onClick,
         modifier = modifier
@@ -44,7 +44,7 @@ fun SelectCurrentLocationButton(
 
             Text(
                 text = text,
-                color = YallaTheme.color.black,
+                color = YallaTheme.color.onBackground,
                 style = YallaTheme.font.labelLarge,
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1

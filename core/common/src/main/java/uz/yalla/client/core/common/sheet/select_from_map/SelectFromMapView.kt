@@ -122,7 +122,7 @@ fun SelectFromMapView(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(YallaTheme.color.gray2)
+            .background(YallaTheme.color.surface)
     ) {
         Box(
             modifier = Modifier
@@ -249,7 +249,7 @@ private fun BoxScope.MapControlsLayer(
         }
 
         YallaMarker(
-            color = YallaTheme.color.black,
+            color = YallaTheme.color.primary,
             state = markerState,
             modifier = Modifier
                 .matchParentSize()
@@ -280,7 +280,7 @@ private fun BoxScope.BottomPanel(
         modifier = Modifier
             .align(Alignment.BottomCenter)
             .clip(topCornerShape)
-            .background(YallaTheme.color.gray2)
+            .background(YallaTheme.color.surface)
             .onSizeChanged { onSizeChanged(it.height) }
     ) {
         LocationDisplaySection(
@@ -312,7 +312,7 @@ private fun LocationDisplaySection(
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .fillMaxWidth()
-            .background(color = YallaTheme.color.white, shape = bottomCornerShape)
+            .background(color = YallaTheme.color.background, shape = bottomCornerShape)
     ) {
         SelectCurrentLocationButton(
             modifier = Modifier.padding(standardPadding),
@@ -344,7 +344,7 @@ private fun ActionButtonSection(
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .fillMaxWidth()
-            .background(color = YallaTheme.color.white, shape = topCornerShape)
+            .background(color = YallaTheme.color.background, shape = topCornerShape)
             .navigationBarsPadding()
     ) {
         PrimaryButton(

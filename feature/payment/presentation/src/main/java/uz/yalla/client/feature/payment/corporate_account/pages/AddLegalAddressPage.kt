@@ -35,7 +35,7 @@ internal fun AddLegalAddressPage(
     ) {
         Text(
             text = stringResource(R.string.legal_address),
-            color = YallaTheme.color.black,
+            color = YallaTheme.color.onBackground,
             style = YallaTheme.font.headline,
         )
 

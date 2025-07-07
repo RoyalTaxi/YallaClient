@@ -1,50 +1,41 @@
 package uz.yalla.client.core.common.dialog
 
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.res.painterResource
-import uz.yalla.client.core.common.R
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 
 @Composable
 fun LoadingDialog(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    alpha: Float = 1f
 ) {
-    val transition = rememberInfiniteTransition("loading")
-    val degrees by transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        label = "loading",
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1000),
-            repeatMode = RepeatMode.Restart
-        )
-    )
-
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .fillMaxSize()
-            .background(YallaTheme.color.white)
+            .background(YallaTheme.color.background.copy(alpha = alpha))
             .pointerInput(Unit) { }
     ) {
-        Image(
-            painter = painterResource(R.drawable.ic_loading),
-            contentDescription = null,
-            modifier = Modifier.graphicsLayer { rotationZ = degrees }
+        CircularProgressIndicator(
+            color = YallaTheme.color.primary,
+            strokeWidth = 5.dp,
+            trackColor = YallaTheme.color.background,
         )
     }
+}
+
+
+@Preview
+@Composable
+fun Preview() {
+    LoadingDialog(alpha = .3f)
 }

@@ -42,8 +42,8 @@ fun TariffItem(
     selectedState: Boolean,
     onSelect: (Boolean) -> Unit
 ) {
-    val textColor = if (selectedState) YallaTheme.color.white else YallaTheme.color.black
-    val containerColor = if (selectedState) YallaTheme.color.primary else YallaTheme.color.gray2
+    val textColor = if (selectedState) YallaTheme.color.onPrimary else YallaTheme.color.onBackground
+    val containerColor = if (selectedState) YallaTheme.color.primary else YallaTheme.color.surface
     val bonusPercentColor = if (selectedState) YallaTheme.color.black else YallaTheme.color.primary
 
     Box(
@@ -123,7 +123,7 @@ fun TariffItem(
 
                     CompositionLocalProvider(
                         LocalTextStyle provides YallaTheme.font.body,
-                        LocalContentColor provides YallaTheme.color.white
+                        LocalContentColor provides YallaTheme.color.onPrimary
                     ) {
                         when (it.type) {
                             AwardPaymentType.CASH -> {

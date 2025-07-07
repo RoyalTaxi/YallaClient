@@ -22,11 +22,11 @@ import uz.yalla.client.feature.settings.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun ChangeLanguageBottomSheet(
-    languages: List<Language>,
+internal fun ChangeThemeBottomSheet(
+    themes: List<Theme>,
     sheetState: SheetState,
-    currentLanguage: Language?,
-    onLanguageSelected: (Language) -> Unit,
+    currentTheme: Theme?,
+    onThemeChange: (Theme) -> Unit,
     onDismissRequest: () -> Unit
 ) {
     ModalBottomSheet(
@@ -55,7 +55,7 @@ internal fun ChangeLanguageBottomSheet(
                     .padding(20.dp)
             ) {
                 Text(
-                    text = stringResource(R.string.app_language),
+                    text = stringResource(R.string.theme),
                     style = YallaTheme.font.title,
                     color = YallaTheme.color.onBackground
                 )
@@ -66,11 +66,11 @@ internal fun ChangeLanguageBottomSheet(
                     .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
                     .background(color = YallaTheme.color.background)
             ) {
-                languages.forEach { language ->
+                themes.forEach { theme ->
                     ItemTextSelectable(
-                        text = stringResource(language.stringResId),
-                        isSelected = currentLanguage == language,
-                        onSelect = { onLanguageSelected(language) }
+                        text = stringResource(theme.stringResId),
+                        isSelected = currentTheme == theme,
+                        onSelect = { onThemeChange(theme) }
                     )
                 }
             }

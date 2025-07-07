@@ -119,7 +119,7 @@ fun DriverWaitingSheet(
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
         sheetDragHandle = null,
-        sheetContainerColor = YallaTheme.color.gray2,
+        sheetContainerColor = YallaTheme.color.surface,
         content = {},
         sheetContent = {
             Box(
@@ -129,7 +129,7 @@ fun DriverWaitingSheet(
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                     modifier = Modifier
                         .background(
-                            color = YallaTheme.color.gray2,
+                            color = YallaTheme.color.surface,
                             shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
                         )
                         .padding(bottom = state.footerHeight + 10.dp)
@@ -152,7 +152,7 @@ fun DriverWaitingSheet(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(30.dp))
-                            .background(YallaTheme.color.white)
+                            .background(YallaTheme.color.background)
                     ) {
                         state.selectedDriver?.let {
                             DriverInfoItem(
@@ -199,7 +199,7 @@ fun DriverWaitingSheet(
                     }
                 }
                 .background(
-                    color = YallaTheme.color.white,
+                    color = YallaTheme.color.background,
                     shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
                 )
                 .navigationBarsPadding()

@@ -2,6 +2,7 @@ package uz.yalla.client.feature.order.presentation.main.view
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,12 +25,12 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.morfly.compose.bottomsheet.material3.BottomSheetState
 import org.koin.compose.koinInject
 import uz.yalla.client.core.common.state.SheetValue
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.PaymentType
+import uz.yalla.client.core.domain.model.type.ThemeType
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
 import uz.yalla.client.feature.order.presentation.components.buttons.ClearOptionsButton
@@ -51,7 +53,8 @@ fun MainSheetFooter(
     modifier: Modifier = Modifier
 ) {
     val prefs = koinInject<AppPreferences>()
-    val isDeviceRegistered by prefs.isDeviceRegistered.collectAsStateWithLifecycle(true)
+    val isDeviceRegistered by prefs.isDeviceRegistered.collectAsState(initial = true)
+    val themeType by prefs.themeType.collectAsState(initial = ThemeType.SYSTEM)
     val density = LocalDensity.current
 
     Row(
@@ -87,7 +90,7 @@ fun MainSheetFooter(
                 }
             }
             .background(
-                color = YallaTheme.color.white,
+                color = YallaTheme.color.background,
                 shape = if (sheetState.targetValue == SheetValue.Expanded) RoundedCornerShape(
                     topStart = 30.dp,
                     topEnd = 30.dp
@@ -98,23 +101,8 @@ fun MainSheetFooter(
     ) {
         PaymentOptionsButton(
             modifier = Modifier.fillMaxHeight(),
-            cardLastNumber = when (state.selectedPaymentType) {
-                is PaymentType.CARD -> state.selectedPaymentType.cardNumber.takeIf { it.length >= 4 }
-                    ?.takeLast(4)
-
-                else -> null
-            },
-            painter = painterResource(
-                when (state.selectedPaymentType) {
-                    is PaymentType.CARD -> when (state.selectedPaymentType.cardId.length) {
-                        16 -> if (state.isBonusEnabled) R.drawable.ic_humo_bonus else R.drawable.ic_humo
-                        32 -> if (state.isBonusEnabled) R.drawable.ic_uzcard_bonus else R.drawable.ic_uzcard
-                        else -> if (state.isBonusEnabled) R.drawable.ic_money_bonus else R.drawable.ic_money_color
-                    }
-
-                    else -> if (state.isBonusEnabled) R.drawable.ic_money_bonus else R.drawable.ic_money_color
-                }
-            ),
+            cardLastNumber = getCardLastNumber(state.selectedPaymentType),
+            painter = painterResource(getPaymentIcon(state, themeType)),
             onClick = { onIntent(FooterIntent.ClickPaymentButton) }
         )
 
@@ -139,7 +127,7 @@ fun MainSheetFooter(
         OptionsButton(
             modifier = Modifier.fillMaxHeight(),
             badgeText = state.getBadgeText(),
-            tint = if (isTariffValidWithOptions) YallaTheme.color.primary else YallaTheme.color.red,
+            tint = if (isTariffValidWithOptions) YallaTheme.color.dynamicPrimary else YallaTheme.color.red,
             painter = painterResource(
                 when {
                     isTariffValidWithOptions.not() -> R.drawable.ic_x
@@ -158,5 +146,54 @@ fun MainSheetFooter(
                 }
             }
         )
+    }
+}
+
+private fun getCardLastNumber(paymentType: PaymentType): String? {
+    return when (paymentType) {
+        is PaymentType.CARD -> paymentType.cardNumber
+            .takeIf { it.length >= 4 }
+            ?.takeLast(4)
+        else -> null
+    }
+}
+
+@Composable
+private fun getPaymentIcon(state: MainSheetState, themeType: ThemeType): Int {
+    val isDarkTheme = when (themeType) {
+        ThemeType.LIGHT -> false
+        ThemeType.DARK -> true
+        else -> isSystemInDarkTheme()
+    }
+
+    return getPaymentIconForTheme(state.selectedPaymentType, state.isBonusEnabled, isDarkTheme)
+}
+
+private fun getPaymentIconForTheme(
+    paymentType: PaymentType,
+    isBonusEnabled: Boolean,
+    isDarkTheme: Boolean
+): Int {
+    val cardIconMap = if (isDarkTheme) {
+        mapOf(
+            16 to (if (isBonusEnabled) R.drawable.ic_humo_bonus else R.drawable.ic_humo),
+            32 to (if (isBonusEnabled) R.drawable.ic_uzcard_bonus else R.drawable.ic_uzcard)
+        )
+    } else {
+        mapOf(
+            16 to (if (isBonusEnabled) R.drawable.ic_humo_bonus else R.drawable.ic_humo),
+            32 to (if (isBonusEnabled) R.drawable.ic_uzcard_bonus else R.drawable.ic_uzcard)
+        )
+    }
+
+    val defaultIcon = if (isDarkTheme) {
+        if (isBonusEnabled) R.drawable.ic_money_bonus else R.drawable.ic_money_color
+    } else {
+        if (isBonusEnabled) R.drawable.ic_money_bonus else R.drawable.ic_money_color
+    }
+
+    return when (paymentType) {
+        is PaymentType.CARD -> cardIconMap[paymentType.cardId.length] ?: defaultIcon
+        else -> defaultIcon
     }
 }

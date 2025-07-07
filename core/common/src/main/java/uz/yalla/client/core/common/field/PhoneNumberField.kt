@@ -36,7 +36,7 @@ fun PhoneNumberField(
     onUpdateNumber: (String) -> Unit
 ) {
     val focusedColor = YallaTheme.color.primary
-    val unfocusedColor = YallaTheme.color.gray2
+    val unfocusedColor = YallaTheme.color.surface
     var borderColor by remember { mutableStateOf(unfocusedColor) }
 
     BasicTextField(
@@ -57,13 +57,13 @@ fun PhoneNumberField(
             if (numericOnly.length <= 9) onUpdateNumber(numericOnly)
         },
         singleLine = true,
-        textStyle = YallaTheme.font.label.copy(color = YallaTheme.color.black),
+        textStyle = YallaTheme.font.label.copy(color = YallaTheme.color.onBackground),
         visualTransformation = PhoneNumberVisualTransformation("(xx) xxx-xx-xx", 'x'),
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Number,
             imeAction = ImeAction.Done
         ),
-        cursorBrush = SolidColor(YallaTheme.color.black),
+        cursorBrush = SolidColor(YallaTheme.color.onBackground),
         decorationBox = { innerTextField ->
             TextFieldDefaults.DecorationBox(
                 value = number,
@@ -73,7 +73,7 @@ fun PhoneNumberField(
                     Text(
                         text = stringResource(R.string.number_prefix),
                         style = YallaTheme.font.label,
-                        color = YallaTheme.color.black
+                        color = YallaTheme.color.onBackground
                     )
                 },
                 placeholder = {
@@ -89,13 +89,13 @@ fun PhoneNumberField(
                 visualTransformation = VisualTransformation.None,
                 interactionSource = remember { MutableInteractionSource() },
                 colors = TextFieldDefaults.colors(
-                    focusedTextColor = YallaTheme.color.black,
-                    unfocusedTextColor = YallaTheme.color.black,
-                    focusedContainerColor = YallaTheme.color.gray2,
-                    unfocusedContainerColor = YallaTheme.color.gray2,
+                    focusedTextColor = YallaTheme.color.onBackground,
+                    unfocusedTextColor = YallaTheme.color.onBackground,
+                    focusedContainerColor = YallaTheme.color.surface,
+                    unfocusedContainerColor = YallaTheme.color.surface,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
-                    cursorColor = YallaTheme.color.black
+                    cursorColor = YallaTheme.color.onBackground
                 )
             )
         }

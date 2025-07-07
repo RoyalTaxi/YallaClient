@@ -29,7 +29,7 @@ fun SettingButton(
         modifier = modifier,
         onClick = onClick,
         shape = RectangleShape,
-        colors = CardDefaults.cardColors(YallaTheme.color.white),
+        colors = CardDefaults.cardColors(YallaTheme.color.background),
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -46,7 +46,7 @@ fun SettingButton(
             ) {
                 Text(
                     text = title,
-                    color = YallaTheme.color.black,
+                    color = YallaTheme.color.onBackground,
                     style = YallaTheme.font.labelSemiBold
                 )
 

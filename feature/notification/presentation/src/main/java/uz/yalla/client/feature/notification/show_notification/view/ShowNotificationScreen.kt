@@ -26,7 +26,7 @@ internal fun ShowNotificationScreen(
     onIntent: (ShowNotificationIntent) -> Unit
 ){
     Scaffold(
-        containerColor = YallaTheme.color.white,
+        containerColor = YallaTheme.color.background,
         topBar = { ShowNotificationTopBar { onIntent(ShowNotificationIntent.NavigateBack) } },
         content = {paddingValues ->
             Column(
@@ -52,19 +52,20 @@ private fun ShowNotificationTopBar(
     onNavigateBack: () -> Unit
 ) {
     CenterAlignedTopAppBar(
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.background),
         navigationIcon = {
             IconButton(onClick = onNavigateBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                    contentDescription = null
+                    contentDescription = null,
+                    tint = YallaTheme.color.onBackground
                 )
             }
         },
         title = {
             Text(
                 text = stringResource(R.string.notifications),
-                color = YallaTheme.color.black,
+                color = YallaTheme.color.onBackground,
                 style = YallaTheme.font.labelLarge
             )
         }

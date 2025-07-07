@@ -43,8 +43,8 @@ fun DatePickerModalBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState,
-        containerColor = YallaTheme.color.white,
-        contentColor = YallaTheme.color.black,
+        containerColor = YallaTheme.color.background,
+        contentColor = YallaTheme.color.onBackground,
         dragHandle = null,
         modifier = modifier
     ) {
@@ -73,7 +73,7 @@ private fun DatePickerContent(
             .padding(bottom = 16.dp)
     ) {
         Card(
-            colors = CardDefaults.cardColors(YallaTheme.color.white),
+            colors = CardDefaults.cardColors(YallaTheme.color.background),
             shape = RoundedCornerShape(30.dp)
         ) {
             Column(
@@ -85,7 +85,7 @@ private fun DatePickerContent(
             ) {
                 Text(
                     text = stringResource(id = R.string.choose_date),
-                    color = YallaTheme.color.black,
+                    color = YallaTheme.color.onBackground,
                     style = YallaTheme.font.title
                 )
 
@@ -99,11 +99,11 @@ private fun DatePickerContent(
 
         Card(
             shape = RoundedCornerShape(30.dp),
-            colors = CardDefaults.cardColors(YallaTheme.color.white)
+            colors = CardDefaults.cardColors(YallaTheme.color.background)
         ) {
             WheelDatePicker(
                 rowCount = 5,
-                textColor = YallaTheme.color.black,
+                textColor = YallaTheme.color.onBackground,
                 textStyle = YallaTheme.font.labelSemiBold,
                 onSnappedDate = { snappedDate = it },
                 maxDate = LocalDate.now(),
@@ -113,12 +113,12 @@ private fun DatePickerContent(
                 selectorProperties = WheelPickerDefaults.selectorProperties(false),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(YallaTheme.color.white)
+                    .background(YallaTheme.color.background)
             )
         }
 
         Card(
-            colors = CardDefaults.cardColors(YallaTheme.color.white),
+            colors = CardDefaults.cardColors(YallaTheme.color.background),
             shape = RoundedCornerShape(30.dp)
         ) {
             PrimaryButton(

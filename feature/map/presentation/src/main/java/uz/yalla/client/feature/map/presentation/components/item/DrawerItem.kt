@@ -10,10 +10,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
@@ -24,13 +26,14 @@ fun DrawerItem(
     painter: Painter,
     modifier: Modifier = Modifier,
     description: String? = null,
+    tintColor: Color = YallaTheme.color.onBackground,
     trailingIcon: @Composable () -> Unit = {},
     onClick: () -> Unit
 ) {
     Card(
         modifier = modifier,
         onClick = onClick,
-        colors = CardDefaults.cardColors(YallaTheme.color.white)
+        colors = CardDefaults.cardColors(YallaTheme.color.background)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -39,10 +42,11 @@ fun DrawerItem(
                 horizontal = 20.dp
             )
         ) {
-            Image(
+            Icon(
                 painter = painter,
                 contentDescription = null,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(24.dp),
+                tint = tintColor
             )
 
             Spacer(modifier = Modifier.width(10.dp))
@@ -53,7 +57,7 @@ fun DrawerItem(
             ) {
                 Text(
                     text = title,
-                    color = YallaTheme.color.black,
+                    color = YallaTheme.color.onBackground,
                     style = YallaTheme.font.labelSemiBold
                 )
 

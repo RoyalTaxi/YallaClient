@@ -26,7 +26,7 @@ fun BalanceCard(
 ) {
     Card(
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = YallaTheme.color.gray2),
+        colors = CardDefaults.cardColors(containerColor = YallaTheme.color.surface),
         modifier = Modifier
             .fillMaxWidth()
     ) {
@@ -46,7 +46,7 @@ fun BalanceCard(
 
                 Text(
                     text = balance,
-                    color = YallaTheme.color.black,
+                    color = YallaTheme.color.onBackground,
                     style = YallaTheme.font.title
                 )
             }
@@ -58,7 +58,7 @@ fun BalanceCard(
             ) {
                 Text(
                     text = stringResource(R.string.top_up),
-                    color = YallaTheme.color.white,
+                    color = YallaTheme.color.background,
                     style = YallaTheme.font.label
                 )
             }

@@ -72,8 +72,8 @@ internal fun BalanceInputField(
             },
             singleLine = true,
             visualTransformation = TopUpBalanceVisualTransformation(context),
-            textStyle = YallaTheme.font.headline.copy(color = YallaTheme.color.black),
-            cursorBrush = SolidColor(YallaTheme.color.black),
+            textStyle = YallaTheme.font.headline.copy(color = YallaTheme.color.onBackground),
+            cursorBrush = SolidColor(YallaTheme.color.onBackground),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Number,
                 imeAction = ImeAction.Done
@@ -113,7 +113,7 @@ internal fun BalanceInputField(
 
         if (balance.isNotEmpty()) Text(
             text = stringResource(R.string.currency),
-            color = YallaTheme.color.black,
+            color = YallaTheme.color.onBackground,
             style = YallaTheme.font.headline,
         )
     }

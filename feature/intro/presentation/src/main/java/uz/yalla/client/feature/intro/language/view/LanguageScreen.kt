@@ -29,7 +29,7 @@ internal fun LanguageScreen(
 ) {
     key(uiState.selectedLanguage) {
         Scaffold(
-            containerColor = YallaTheme.color.white
+            containerColor = YallaTheme.color.background
         ) { paddingValues ->
             Column(
                 modifier = Modifier
@@ -64,7 +64,7 @@ internal fun LanguageScreen(
 private fun LanguageHeader() {
     Text(
         text = stringResource(id = R.string.choose_language),
-        color = YallaTheme.color.black,
+        color = YallaTheme.color.onBackground,
         style = YallaTheme.font.headline,
         modifier = Modifier.padding(horizontal = 20.dp)
     )
@@ -102,6 +102,8 @@ private fun LanguageFooter(
     PrimaryButton(
         text = stringResource(id = R.string.next),
         enabled = isButtonEnabled,
+        containerColor = YallaTheme.color.black,
+        contentColor = YallaTheme.color.onBlack,
         onClick = onNext,
         modifier = Modifier
             .fillMaxWidth()

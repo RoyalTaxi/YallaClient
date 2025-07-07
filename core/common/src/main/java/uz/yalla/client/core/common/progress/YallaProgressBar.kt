@@ -21,7 +21,7 @@ fun YallaProgressBar(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(32.dp))
-            .background(YallaTheme.color.gray2)
+            .background(YallaTheme.color.surface)
     ) {
         Box(
             modifier = Modifier

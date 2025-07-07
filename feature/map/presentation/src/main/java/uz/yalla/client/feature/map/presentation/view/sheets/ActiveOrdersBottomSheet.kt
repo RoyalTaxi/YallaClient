@@ -26,7 +26,7 @@ fun ActiveOrdersBottomSheet(
         sheetState = sheetState,
         onDismissRequest = onDismissRequest,
         dragHandle = null,
-        containerColor = YallaTheme.color.white,
+        containerColor = YallaTheme.color.background,
         shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
     ) {
         LazyColumn(

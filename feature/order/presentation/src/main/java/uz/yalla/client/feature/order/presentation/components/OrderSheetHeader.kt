@@ -28,7 +28,7 @@ fun OrderSheetHeader(
         modifier = modifier
             .fillMaxWidth()
             .background(
-                color = YallaTheme.color.white,
+                color = YallaTheme.color.background,
                 shape = RoundedCornerShape(30.dp)
             )
             .padding(20.dp)
@@ -36,7 +36,7 @@ fun OrderSheetHeader(
         Text(
             text = text,
             style = YallaTheme.font.title,
-            color = YallaTheme.color.black
+            color = YallaTheme.color.onBackground
         )
 
         selectedDriver?.let { driver ->

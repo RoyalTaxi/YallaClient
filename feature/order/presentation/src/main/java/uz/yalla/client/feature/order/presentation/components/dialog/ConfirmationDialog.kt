@@ -33,7 +33,7 @@ fun ConfirmationDialog(
     ) {
         Surface(
             shape = RoundedCornerShape(30.dp),
-            color = YallaTheme.color.white,
+            color = YallaTheme.color.background,
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(
@@ -44,7 +44,7 @@ fun ConfirmationDialog(
                 Text(
                     text = title,
                     style = YallaTheme.font.title,
-                    color = YallaTheme.color.black,
+                    color = YallaTheme.color.onBackground,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -68,8 +68,8 @@ fun ConfirmationDialog(
                     PrimaryButton(
                         text = dismissText,
                         onClick = onDismissRequest,
-                        containerColor = YallaTheme.color.gray2,
-                        contentColor = YallaTheme.color.black,
+                        containerColor = YallaTheme.color.surface,
+                        contentColor = YallaTheme.color.onBackground,
                         contentPadding = PaddingValues(vertical = 20.dp),
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -78,8 +78,8 @@ fun ConfirmationDialog(
                         PrimaryButton(
                             text = actionText,
                             onClick = onConfirm,
-                            containerColor = YallaTheme.color.black,
-                            contentColor = YallaTheme.color.white,
+                            containerColor = YallaTheme.color.onBackground,
+                            contentColor = YallaTheme.color.background,
                             contentPadding = PaddingValues(vertical = 20.dp),
                             modifier = Modifier.fillMaxWidth()
                         )

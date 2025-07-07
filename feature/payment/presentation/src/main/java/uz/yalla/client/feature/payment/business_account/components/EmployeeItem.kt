@@ -29,7 +29,7 @@ fun EmployeeItem(
 ) {
     Card(
         onClick = onClick,
-        colors = CardDefaults.cardColors(YallaTheme.color.white),
+        colors = CardDefaults.cardColors(YallaTheme.color.background),
         modifier = Modifier.fillMaxWidth(),
         shape = RectangleShape
     ) {
@@ -45,7 +45,7 @@ fun EmployeeItem(
             ) {
                 Text(
                     text = name,
-                    color = YallaTheme.color.black,
+                    color = YallaTheme.color.onBackground,
                     style = YallaTheme.font.labelSemiBold
                 )
 
@@ -63,7 +63,7 @@ fun EmployeeItem(
                 ) {
                     Text(
                         text = balance,
-                        color = YallaTheme.color.black,
+                        color = YallaTheme.color.onBackground,
                         style = YallaTheme.font.labelSemiBold
                     )
 
@@ -78,12 +78,12 @@ fun EmployeeItem(
                     checked = isSelected,
                     onCheckedChange = onChecked,
                     colors = SwitchDefaults.colors(
-                        checkedThumbColor = YallaTheme.color.white,
-                        uncheckedThumbColor = YallaTheme.color.white,
+                        checkedThumbColor = YallaTheme.color.background,
+                        uncheckedThumbColor = YallaTheme.color.background,
                         checkedTrackColor = YallaTheme.color.primary,
-                        uncheckedTrackColor = YallaTheme.color.gray2,
+                        uncheckedTrackColor = YallaTheme.color.surface,
                         checkedBorderColor = YallaTheme.color.primary,
-                        uncheckedBorderColor = YallaTheme.color.gray2,
+                        uncheckedBorderColor = YallaTheme.color.surface,
                     )
                 )
             }

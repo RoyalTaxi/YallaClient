@@ -27,7 +27,7 @@ fun ShowActiveOrdersButton(
     ) {
         Text(
             text = stringResource(R.string.x_order, orderCount),
-            color = YallaTheme.color.white,
+            color = YallaTheme.color.onPrimary,
             style = YallaTheme.font.labelSemiBold
         )
     }

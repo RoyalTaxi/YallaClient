@@ -28,11 +28,11 @@ internal fun BonusBalanceScreen(
     onIntent: (BonusBalanceIntent) -> Unit
 ) {
     Scaffold(
-        containerColor = YallaTheme.color.white,
+        containerColor = YallaTheme.color.background,
         topBar = { BonusBalanceTopBar { onIntent(BonusBalanceIntent.OnNavigateBack) } },
         modifier = Modifier
             .fillMaxSize()
-            .background(YallaTheme.color.white)
+            .background(YallaTheme.color.background)
             .navigationBarsPadding(),
         content = { paddingValues ->
             Column(
@@ -43,7 +43,7 @@ internal fun BonusBalanceScreen(
                 Text(
                     text = stringResource(R.string.bonus),
                     style = YallaTheme.font.title2,
-                    color = YallaTheme.color.black,
+                    color = YallaTheme.color.onBackground,
                     modifier = Modifier.padding(vertical = 17.dp)
                 )
 
@@ -57,7 +57,7 @@ internal fun BonusBalanceScreen(
                 Text(
                     text = stringResource(R.string.can_pay_with_bonus),
                     style = YallaTheme.font.title2,
-                    color = YallaTheme.color.black,
+                    color = YallaTheme.color.onBackground,
                     modifier = Modifier.padding(vertical = 17.dp)
                 )
 
@@ -66,8 +66,8 @@ internal fun BonusBalanceScreen(
                     iconId = R.drawable.ic_coin,
                     body = stringResource(R.string.second_bonus_body),
                     backgroundColor = YallaTheme.color.primary,
-                    textColor = YallaTheme.color.white,
-                    bodyTextColor = YallaTheme.color.white,
+                    textColor = YallaTheme.color.background,
+                    bodyTextColor = YallaTheme.color.background,
                     onClick = {}
                 )
             }
@@ -81,12 +81,12 @@ private fun BonusBalanceTopBar(
     onNavigateBack: () -> Unit
 ) {
     CenterAlignedTopAppBar(
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.background),
         title = {
             Text(
                 text = stringResource(R.string.bonus_balance),
                 style = YallaTheme.font.labelLarge,
-                color = YallaTheme.color.black,
+                color = YallaTheme.color.onBackground,
                 textAlign = TextAlign.Center
             )
         },
@@ -94,7 +94,8 @@ private fun BonusBalanceTopBar(
             IconButton(onClick = onNavigateBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                    contentDescription = null
+                    contentDescription = null,
+                    tint = YallaTheme.color.onBackground
                 )
             }
         }

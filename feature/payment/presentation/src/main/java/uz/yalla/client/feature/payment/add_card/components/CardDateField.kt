@@ -36,11 +36,11 @@ internal fun CardDateField(
         onValueChange = onDateChange,
         singleLine = true,
         textStyle = YallaTheme.font.label.copy(
-            color = YallaTheme.color.black,
+            color = YallaTheme.color.onBackground,
             textAlign = TextAlign.Center
         ),
         visualTransformation = PhoneVisualTransformation("XX/XX", 'X'),
-        cursorBrush = SolidColor(YallaTheme.color.black),
+        cursorBrush = SolidColor(YallaTheme.color.onBackground),
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Decimal,
             imeAction = ImeAction.Done
@@ -56,13 +56,13 @@ internal fun CardDateField(
                 visualTransformation = VisualTransformation.None,
                 interactionSource = remember { MutableInteractionSource() },
                 colors = TextFieldDefaults.colors(
-                    focusedTextColor = YallaTheme.color.black,
-                    unfocusedTextColor = YallaTheme.color.black,
-                    focusedContainerColor = YallaTheme.color.gray2,
-                    unfocusedContainerColor = YallaTheme.color.gray2,
+                    focusedTextColor = YallaTheme.color.onBackground,
+                    unfocusedTextColor = YallaTheme.color.onBackground,
+                    focusedContainerColor = YallaTheme.color.surface,
+                    unfocusedContainerColor = YallaTheme.color.surface,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
-                    cursorColor = YallaTheme.color.black
+                    cursorColor = YallaTheme.color.onBackground
                 ),
                 placeholder = {
                     Text(

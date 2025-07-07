@@ -34,7 +34,7 @@ fun ConfirmationBottomSheet(
 ) {
     ModalBottomSheet(
         shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
-        containerColor = YallaTheme.color.gray2,
+        containerColor = YallaTheme.color.surface,
         sheetState = sheetState,
         dragHandle = null,
         onDismissRequest = onDismissRequest
@@ -42,7 +42,7 @@ fun ConfirmationBottomSheet(
         Column(
             verticalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier
-                .background(YallaTheme.color.gray2)
+                .background(YallaTheme.color.surface)
                 .navigationBarsPadding()
         ) {
             Column(
@@ -51,7 +51,7 @@ fun ConfirmationBottomSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(
-                        color = YallaTheme.color.white,
+                        color = YallaTheme.color.background,
                         shape = RoundedCornerShape(30.dp)
                     )
                     .padding(20.dp)
@@ -59,7 +59,7 @@ fun ConfirmationBottomSheet(
                 Text(
                     text = title,
                     style = YallaTheme.font.title,
-                    color = YallaTheme.color.black
+                    color = YallaTheme.color.onBackground
                 )
 
                 description?.let {
@@ -77,7 +77,7 @@ fun ConfirmationBottomSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(
-                        color = YallaTheme.color.white,
+                        color = YallaTheme.color.background,
                         shape = RoundedCornerShape(30.dp)
                     )
                     .padding(20.dp)
@@ -86,8 +86,8 @@ fun ConfirmationBottomSheet(
                     text = actionText,
                     enabled = actionEnabled,
                     onClick = onConfirm,
-                    containerColor = YallaTheme.color.gray2,
-                    contentColor = YallaTheme.color.black,
+                    containerColor = YallaTheme.color.surface,
+                    contentColor = YallaTheme.color.onBackground,
                     contentPadding = PaddingValues(vertical = 20.dp),
                     modifier = Modifier.weight(1f)
                 )

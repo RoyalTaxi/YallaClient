@@ -29,7 +29,7 @@ fun ItemTextSelectable(
     Card(
         modifier = modifier,
         onClick = onSelect,
-        colors = CardDefaults.cardColors(YallaTheme.color.white)
+        colors = CardDefaults.cardColors(YallaTheme.color.background)
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -40,13 +40,13 @@ fun ItemTextSelectable(
         ) {
             Text(
                 text = text,
-                color = YallaTheme.color.black,
+                color = YallaTheme.color.onBackground,
                 style = YallaTheme.font.labelSemiBold
             )
 
             Box(
                 modifier = Modifier.background(
-                    color = if (isSelected) YallaTheme.color.primary else YallaTheme.color.grayBackground,
+                    color = if (isSelected) YallaTheme.color.primary else YallaTheme.color.surface,
                     shape = CircleShape
                 )
             ) {
@@ -54,7 +54,7 @@ fun ItemTextSelectable(
                     imageVector = Icons.Filled.Done,
                     contentDescription = null,
                     modifier = Modifier.padding(6.dp),
-                    tint = if (isSelected) YallaTheme.color.white else YallaTheme.color.grayBackground
+                    tint = if (isSelected) YallaTheme.color.background else YallaTheme.color.surface
                 )
             }
         }

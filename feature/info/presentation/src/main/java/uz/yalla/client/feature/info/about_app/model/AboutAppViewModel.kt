@@ -6,6 +6,8 @@ import kotlinx.coroutines.flow.update
 import uz.yalla.client.core.common.viewmodel.BaseViewModel
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.feature.info.R
+import uz.yalla.client.feature.setting.domain.model.SocialNetwork
+import uz.yalla.client.feature.setting.domain.model.SocialNetworkType
 import uz.yalla.client.feature.setting.domain.usecase.GetConfigUseCase
 
 internal class AboutAppViewModel(
@@ -19,34 +21,45 @@ internal class AboutAppViewModel(
     fun getConfig() = viewModelScope.launchWithLoading {
         getConfigUseCase()
             .onSuccess { result ->
+                val allSocialNetworks = listOf(
+                    SocialNetwork(
+                        iconResId = R.drawable.ic_telegram,
+                        titleResId = R.string.telegram,
+                        value = result.setting.supportTelegramNickname,
+                        type = SocialNetworkType.TELEGRAM
+                    ),
+                    SocialNetwork(
+                        iconResId = R.drawable.ic_instagram,
+                        titleResId = R.string.instagram,
+                        value = result.setting.supportInstagramNickname,
+                        type = SocialNetworkType.INSTAGRAM
+                    ),
+                    SocialNetwork(
+                        iconResId = R.drawable.ic_youtube,
+                        titleResId = R.string.youtube,
+                        value = result.setting.youtube,
+                        type = SocialNetworkType.YOUTUBE
+                    ),
+                    SocialNetwork(
+                        iconResId = R.drawable.ic_facebook,
+                        titleResId = R.string.facebook,
+                        value = result.setting.facebook,
+                        type = SocialNetworkType.FACEBOOK
+                    )
+                )
+
+                val filteredSocialNetworks = allSocialNetworks.filter {
+                    it.value.isNotBlank()
+                }
+
                 _uiState.update {
                     it.copy(
-                        socialNetworks = listOf(
-                            Triple(
-                                R.drawable.ic_telegram,
-                                result.setting.telegram,
-                                R.string.telegram
-                            ),
-                            Triple(
-                                R.drawable.ic_instagram,
-                                result.setting.instagram,
-                                R.string.instagram
-                            ),
-                            Triple(
-                                R.drawable.ic_youtube,
-                                result.setting.youtube,
-                                R.string.youtube
-                            ),
-                            Triple(
-                                R.drawable.ic_facebook,
-                                result.setting.facebook,
-                                R.string.facebook
-                            )
-                        ),
+                        socialNetworks = filteredSocialNetworks,
                         privacyPolicyRu = result.setting.privacyPolicyRu to R.string.user_agreement,
                         privacyPolicyUz = result.setting.privacyPolicyUz to R.string.user_agreement
                     )
                 }
+
                 prefs.setSupportNumber(result.setting.supportPhone)
             }
             .onFailure(::handleException)

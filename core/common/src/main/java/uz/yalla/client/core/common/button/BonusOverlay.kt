@@ -37,7 +37,7 @@ fun BonusOverlay(
             Text(
                 text = amount.toString(),
                 style = YallaTheme.font.labelSemiBold,
-                color = YallaTheme.color.white
+                color = YallaTheme.color.onPrimary
             )
 
             Image(

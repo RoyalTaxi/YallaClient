@@ -34,7 +34,7 @@ fun ArrangeDestinationItem(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .background(
-                color = YallaTheme.color.gray2,
+                color = YallaTheme.color.surface,
                 shape = RoundedCornerShape(16.dp)
             )
             .padding(horizontal = 16.dp, vertical = 4.dp)
@@ -55,7 +55,7 @@ fun ArrangeDestinationItem(
         Text(
             modifier = Modifier.weight(1f),
             text = destination.name.orEmpty(),
-            color = YallaTheme.color.black,
+            color = YallaTheme.color.onBackground,
             style = YallaTheme.font.labelSemiBold
         )
 

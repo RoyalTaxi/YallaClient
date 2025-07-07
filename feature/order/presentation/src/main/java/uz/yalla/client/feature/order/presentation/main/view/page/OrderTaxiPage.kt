@@ -111,7 +111,7 @@ fun OrderTaxiPage(
         verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = modifier
             .background(
-                color = YallaTheme.color.gray2,
+                color = YallaTheme.color.surface,
                 shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
             )
             .onSizeChanged { size ->
@@ -128,7 +128,7 @@ fun OrderTaxiPage(
             verticalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier
                 .background(
-                    color = YallaTheme.color.white
+                    color = YallaTheme.color.background
                 )
                 .padding(top = 20.dp)
         ) {
