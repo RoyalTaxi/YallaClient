@@ -132,7 +132,7 @@ class MapViewModel(
                 _uiState.update { currentState ->
                     currentState.copy(
                         markerState = when {
-                            selectedLocation == null || currentState.hasServiceProvided != true -> YallaMarkerState.LOADING
+                            selectedLocation == null || currentState.hasServiceProvided == false -> YallaMarkerState.LOADING
                             isNonInteractive -> YallaMarkerState.Searching
                             else -> YallaMarkerState.IDLE(
                                 title = selectedLocation.name,
