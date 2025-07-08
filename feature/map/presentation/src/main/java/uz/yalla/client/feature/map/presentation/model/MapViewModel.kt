@@ -1,6 +1,5 @@
 package uz.yalla.client.feature.map.presentation.model
 
-import androidx.compose.runtime.MutableState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -133,7 +132,7 @@ class MapViewModel(
                 _uiState.update { currentState ->
                     currentState.copy(
                         markerState = when {
-                            selectedLocation == null -> YallaMarkerState.LOADING
+                            selectedLocation == null || currentState.hasServiceProvided != true -> YallaMarkerState.LOADING
                             isNonInteractive -> YallaMarkerState.Searching
                             else -> YallaMarkerState.IDLE(
                                 title = selectedLocation.name,
@@ -390,7 +389,7 @@ class MapViewModel(
     fun collectMarkerMovement(
         collectable: Flow<Triple<Boolean, Boolean, MapPoint>>
     ) = viewModelScope.launch {
-        collectable.collect { (isMarkerMoving, isByUser, mapPoint) ->
+        collectable.collectLatest { (isMarkerMoving, isByUser, mapPoint) ->
             if (uiState.value.destinations.isEmpty()) {
                 when {
                     isMarkerMoving.not() && uiState.value.selectedOrder == null -> {
