@@ -31,13 +31,13 @@ fun MapButton(
         contentPadding = PaddingValues(16.dp),
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(
-            if (isPressing) YallaTheme.color.gray2
-            else YallaTheme.color.white
+            if (isPressing) YallaTheme.color.surface
+            else YallaTheme.color.background
         )
     ) {
         Icon(
             painter = painter,
-            tint = YallaTheme.color.black,
+            tint = YallaTheme.color.onBackground,
             contentDescription = null
         )
     }

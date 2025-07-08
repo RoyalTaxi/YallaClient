@@ -33,7 +33,7 @@ internal fun AddCardScreen(
     onIntent: (AddCardIntent) -> Unit
 ) {
     Scaffold(
-        containerColor = YallaTheme.color.white,
+        containerColor = YallaTheme.color.background,
         modifier = Modifier.imePadding(),
         topBar = { AddCardTopBar { onIntent(AddCardIntent.OnNavigateBack) } },
         content = { paddingValues ->
@@ -68,11 +68,11 @@ private fun AddCardTopBar(
     onNavigateBack: () -> Unit
 ) {
     CenterAlignedTopAppBar(
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.background),
         title = {
             Text(
                 text = stringResource(R.string.new_card),
-                color = YallaTheme.color.black,
+                color = YallaTheme.color.onBackground,
                 style = YallaTheme.font.labelLarge
             )
         },
@@ -80,7 +80,8 @@ private fun AddCardTopBar(
             IconButton(onClick = onNavigateBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                    contentDescription = null
+                    contentDescription = null,
+                    tint = YallaTheme.color.onBackground
                 )
             }
         }

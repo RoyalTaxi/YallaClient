@@ -61,10 +61,10 @@ fun AddCommentField(
                     )
                 },
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = YallaTheme.color.white,
-                    unfocusedContainerColor = YallaTheme.color.white,
-                    errorContainerColor = YallaTheme.color.white,
-                    disabledContainerColor = YallaTheme.color.white,
+                    focusedContainerColor = YallaTheme.color.background,
+                    unfocusedContainerColor = YallaTheme.color.background,
+                    errorContainerColor = YallaTheme.color.background,
+                    disabledContainerColor = YallaTheme.color.background,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
                     errorIndicatorColor = Color.Transparent,

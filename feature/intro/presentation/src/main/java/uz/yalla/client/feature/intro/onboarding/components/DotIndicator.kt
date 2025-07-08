@@ -75,8 +75,8 @@ internal fun DotIndicator(
                         modifier = Modifier
                             .padding(horizontal = 4.dp)
                             .background(
-                                if (pagerState.currentPage == iteration) YallaTheme.color.black
-                                else YallaTheme.color.gray2,
+                                if (pagerState.currentPage == iteration) YallaTheme.color.onBackground
+                                else YallaTheme.color.surface,
                                 CircleShape
                             )
                             .size(size)

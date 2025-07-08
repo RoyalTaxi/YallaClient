@@ -48,7 +48,7 @@ fun OrderCommentBottomSheet(
 
     ModalBottomSheet(
         shape = SheetTopCornerShape,
-        containerColor = YallaTheme.color.gray2,
+        containerColor = YallaTheme.color.surface,
         sheetState = sheetState,
         dragHandle = null,
         onDismissRequest = { onIntent(OrderCommentSheetIntent.OnDismissRequest(currentComment)) }
@@ -56,7 +56,7 @@ fun OrderCommentBottomSheet(
         Column(
             verticalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier
-                .background(YallaTheme.color.gray2)
+                .background(YallaTheme.color.surface)
                 .fillMaxWidth()
         ) {
             CommentContent(
@@ -85,7 +85,7 @@ private fun CommentContent(
     Column(
         modifier = Modifier
             .background(
-                color = YallaTheme.color.white,
+                color = YallaTheme.color.background,
                 shape = RoundedShape
             )
             .padding(20.dp)
@@ -115,13 +115,13 @@ private fun CommentHeader(
         Text(
             text = title,
             style = YallaTheme.font.title,
-            color = YallaTheme.color.black
+            color = YallaTheme.color.onBackground
         )
 
         TextButton(onClick = onClearClick) {
             Text(
                 text = stringResource(R.string.clean),
-                color = YallaTheme.color.black,
+                color = YallaTheme.color.onBackground,
                 style = YallaTheme.font.label,
                 textDecoration = TextDecoration.Underline
             )
@@ -175,15 +175,15 @@ private fun CommentFooter(
 ) {
     Box(
         modifier = Modifier.background(
-            color = YallaTheme.color.white,
+            color = YallaTheme.color.background,
             shape = SheetTopCornerShape
         )
     ) {
         PrimaryButton(
             text = stringResource(R.string.close),
             onClick = onClose,
-            containerColor = YallaTheme.color.gray2,
-            contentColor = YallaTheme.color.black,
+            containerColor = YallaTheme.color.surface,
+            contentColor = YallaTheme.color.onBackground,
             modifier = Modifier
                 .padding(20.dp)
                 .fillMaxWidth()

@@ -14,18 +14,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.rememberDrawerState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
@@ -38,16 +27,10 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.*
 import kotlinx.coroutines.android.awaitFrame
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.supervisorScope
-import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import uz.yalla.client.core.common.dialog.BaseDialog
@@ -131,6 +114,7 @@ fun MapRoute(
     val prefs = koinInject<AppPreferences>()
     var permissionsGranted by remember { mutableStateOf(true) }
     var isLocationEnabled by remember { mutableStateOf(true) }
+    var showLoadingByMap by remember { mutableStateOf(true) }
 
     var showPermissionDialog by remember { mutableStateOf(false) }
 
@@ -248,8 +232,8 @@ fun MapRoute(
 
             launch {
                 SheetCoordinator.currentSheetState.collectLatest { sheetState ->
-                    sheetState?.let { (_, height) ->
-                        optimizedHandleSheetHeightChange(height, mapInstance, vm, state)
+                    sheetState?.let { (route, height) ->
+                        optimizedHandleSheetHeightChange(route, height, mapInstance, vm, state)
                     }
                 }
             }
@@ -260,9 +244,7 @@ fun MapRoute(
             mapInstance.updateOrderEndsInMinutes(state.orderEndsInMinutes)
         }
 
-        // ✅ FIX 2: Debounce map operations to prevent excessive updates
         LaunchedEffect(state.selectedOrder) {
-            // Debounce rapid state changes
             delay(50)
 
             val order = state.selectedOrder
@@ -276,7 +258,6 @@ fun MapRoute(
             when (order?.status) {
                 OrderStatus.Appointed -> {
                     if (navController.shouldNavigateToSheet(CLIENT_WAITING_ROUTE, order.id)) {
-                        // Defer navigation to next frame to prevent blocking
                         scope.launch(Dispatchers.Main.immediate) {
                             navController.navigateToClientWaitingSheet(orderId = order.id)
                         }
@@ -386,7 +367,7 @@ fun MapRoute(
 
             mapInstance.updateRoute(selectedRoute)
 
-            if (selectedRoute.isEmpty()) {
+            if (selectedRoute.isEmpty() && state.hasServiceProvided == true) {
                 state.selectedLocation?.point?.let { mapInstance.animate(it) }
             } else if (state.selectedOrder?.status !in OrderStatus.nonInteractive) {
                 // Delay expensive fit bounds operation
@@ -623,7 +604,6 @@ fun MapRoute(
                             withContext(Dispatchers.Default) {
                                 vm.clearState()
                             }
-
                             scope.launch(Dispatchers.Main.immediate) {
                                 navController.navigateToMainSheet()
                             }
@@ -748,6 +728,7 @@ fun MapRoute(
                         }
 
                         is MapScreenIntent.MapOverlayIntent.OnMapReady -> {
+                            showLoadingByMap = false
                             val orderCoordinates =
                                 state.selectedOrder?.taxi?.routes?.firstOrNull()?.coords
                             when {
@@ -785,8 +766,10 @@ fun MapRoute(
         }
     )
 
-    if (state.loading || map == null) {
-        LoadingDialog()
+    if (state.loading || map == null || showLoadingByMap) {
+        LoadingDialog(
+            alpha = if (state.loading) .3f else 1f
+        )
     }
 
     if (showPermissionDialog) {
@@ -840,19 +823,35 @@ private fun requestPermission(
 }
 
 private suspend fun optimizedHandleSheetHeightChange(
+    route: String,
     height: Dp,
     map: MapStrategy,
     vm: MapViewModel,
     state: MapUIState
 ) {
-    vm.updateState(state.copy(sheetHeight = height))
-    awaitFrame()
+    // Always update overlay padding for all sheets (including no service sheet)
+    // This ensures UI elements like location button adjust properly for all sheets
+    val newState = if (route != NO_SERVICE_ROUTE) {
+        // For non-no-service routes, update both map padding and overlay padding
+        state.copy(sheetHeight = height, overlayPadding = height)
+    } else {
+        // For no service route, only update overlay padding to prevent infinite loop
+        // Map padding stays unchanged to avoid triggering polygon checking
+        state.copy(overlayPadding = height)
+    }
 
-    state.selectedOrder?.taxi?.routes?.firstOrNull()?.coords?.let { coordinate ->
-        map.moveWithoutZoom(to = MapPoint(coordinate.lat, coordinate.lng))
-    } ?: run {
-        state.selectedLocation?.point?.let { map.moveWithoutZoom(to = it) }
-            ?: map.moveToMyLocation()
+    vm.updateState(newState)
+
+    // Only perform map movements for non-no-service routes to prevent navigation loops
+    if (route != NO_SERVICE_ROUTE) {
+        awaitFrame()
+
+        state.selectedOrder?.taxi?.routes?.firstOrNull()?.coords?.let { coordinate ->
+            map.moveWithoutZoom(to = MapPoint(coordinate.lat, coordinate.lng))
+        } ?: run {
+            state.selectedLocation?.point?.let { map.moveWithoutZoom(to = it) }
+                ?: map.moveToMyLocation()
+        }
     }
 }
 

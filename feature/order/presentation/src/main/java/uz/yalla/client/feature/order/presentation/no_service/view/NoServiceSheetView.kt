@@ -62,7 +62,7 @@ fun NoServiceSheet(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(
-                    color = YallaTheme.color.gray2,
+                    color = YallaTheme.color.surface,
                     shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
                 )
                 .onSizeChanged {
@@ -78,7 +78,7 @@ fun NoServiceSheet(
                 verticalArrangement = Arrangement.spacedBy(4.dp),
                 modifier = Modifier
                     .background(
-                        color = YallaTheme.color.white,
+                        color = YallaTheme.color.background,
                         shape = RoundedCornerShape(30.dp)
                     )
                     .padding(20.dp)
@@ -86,14 +86,14 @@ fun NoServiceSheet(
                 Text(
                     text = stringResource(R.string.no_service_massage),
                     style = YallaTheme.font.title,
-                    color = YallaTheme.color.black
+                    color = YallaTheme.color.onBackground
                 )
             }
 
             Box(
                 modifier = Modifier
                     .background(
-                        color = YallaTheme.color.white,
+                        color = YallaTheme.color.background,
                         shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
                     )
                     .navigationBarsPadding()

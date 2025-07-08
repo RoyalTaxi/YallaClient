@@ -31,10 +31,12 @@ data class MapUIState(
     val drivers: List<Executor> = emptyList(),
 
     val sheetHeight: Dp = 0.dp,
+    val overlayPadding: Dp = 0.dp,
     val moveCameraButtonState: MoveCameraButtonState = MoveCameraButtonState.MyLocationView,
     val loading: Boolean = false,
     val isMarkerVisible: Boolean = true,
     val markerState: YallaMarkerState = YallaMarkerState.LOADING,
     val isActiveOrdersSheetVisibility: Boolean = false,
     val notificationsCount: Int = 0,
+    val bonusAmount: Int = 0
 )

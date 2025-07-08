@@ -32,7 +32,7 @@ internal fun ContactUsScreen(
     onIntent: (ContactUsIntent) -> Unit
 ) {
     Scaffold(
-        containerColor = YallaTheme.color.white,
+        containerColor = YallaTheme.color.background,
         modifier = Modifier,
         topBar = { TopAppBar(onNavigateBack = { onIntent(ContactUsIntent.OnNavigateBack) }) },
         content = { paddingValues ->
@@ -53,12 +53,13 @@ private fun TopAppBar(
     onNavigateBack: () -> Unit
 ) {
     CenterAlignedTopAppBar(
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.background),
         navigationIcon = {
             IconButton(onClick = onNavigateBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                    contentDescription = null
+                    contentDescription = null,
+                    tint = YallaTheme.color.onBackground
                 )
             }
         },
@@ -78,7 +79,7 @@ private fun SocialNetworksList(
 
         Text(
             text = stringResource(R.string.contuct_us),
-            color = YallaTheme.color.black,
+            color = YallaTheme.color.onBackground,
             style = YallaTheme.font.headline,
             modifier = Modifier.padding(horizontal = 20.dp)
         )

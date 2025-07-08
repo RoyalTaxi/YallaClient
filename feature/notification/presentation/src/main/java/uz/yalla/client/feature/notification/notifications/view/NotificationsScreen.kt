@@ -43,7 +43,7 @@ internal fun NotificationScreen(
 
     Scaffold(
         floatingActionButtonPosition = FabPosition.End,
-        containerColor = YallaTheme.color.white,
+        containerColor = YallaTheme.color.background,
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             CenterAlignedScrollableTopBar(
@@ -52,8 +52,8 @@ internal fun NotificationScreen(
                 expandedTitleTextStyle = YallaTheme.font.headline,
                 scrollBehavior = scrollBehavior,
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = YallaTheme.color.white,
-                    scrolledContainerColor = YallaTheme.color.white
+                    containerColor = YallaTheme.color.background,
+                    scrolledContainerColor = YallaTheme.color.background
                 ),
                 navigationIcon = {
                     IconButton(
@@ -61,7 +61,8 @@ internal fun NotificationScreen(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null
+                            contentDescription = null,
+                            tint = YallaTheme.color.onBackground
                         )
                     }
                 }
@@ -87,9 +88,11 @@ private fun NotificationContent(
 ) {
     when {
         notifications.itemCount == 0 -> {
-            Spacer(modifier = Modifier.height(70.dp))
+            Column(modifier = modifier) {
+                Spacer(modifier = Modifier.height(70.dp))
 
-            EmptyNotifications()
+                EmptyNotifications()
+            }
         }
 
         else -> {

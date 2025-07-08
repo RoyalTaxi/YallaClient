@@ -26,7 +26,7 @@ internal fun EmployeeScreen(
     onIntent: (EmployeeIntent) -> Unit
 ) {
     Scaffold(
-        containerColor = YallaTheme.color.white,
+        containerColor = YallaTheme.color.background,
         topBar = { EmployeeTopBar { onIntent(EmployeeIntent.OnNavigateBack) } },
         content = { paddingValues ->
             EmployeeContent(
@@ -43,11 +43,11 @@ private fun EmployeeTopBar(
     onNavigateBack: () -> Unit
 ) {
     CenterAlignedTopAppBar(
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.background),
         title = {
             Text(
                 text = stringResource(R.string.employees),
-                color = YallaTheme.color.black,
+                color = YallaTheme.color.onBackground,
                 style = YallaTheme.font.labelLarge
             )
         },
@@ -55,7 +55,8 @@ private fun EmployeeTopBar(
             IconButton(onClick = onNavigateBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                    contentDescription = null
+                    contentDescription = null,
+                    tint = YallaTheme.color.onBackground
                 )
             }
         }
@@ -94,7 +95,7 @@ private fun EmployeeContent(
 private fun EmployeeHistorySection() {
     Text(
         text = stringResource(R.string.today),
-        color = YallaTheme.color.black,
+        color = YallaTheme.color.onBackground,
         style = YallaTheme.font.title2,
         modifier = Modifier.padding(vertical = 20.dp)
     )

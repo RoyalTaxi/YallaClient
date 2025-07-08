@@ -3,6 +3,7 @@ package uz.yalla.client.core.domain.local
 import kotlinx.coroutines.flow.Flow
 import uz.yalla.client.core.domain.model.MapType
 import uz.yalla.client.core.domain.model.PaymentType
+import uz.yalla.client.core.domain.model.type.ThemeType
 
 interface AppPreferences {
     val locale: Flow<String>
@@ -76,6 +77,12 @@ interface AppPreferences {
 
     val skipOnboarding: Flow<Boolean>
     fun setSkipOnboarding(value: Boolean)
+
+    val isVerificationRequired: Flow<Boolean>
+    fun setIsVerificationRequired(value: Boolean)
+
+    val themeType: Flow<ThemeType>
+    fun setThemeType(value: ThemeType)
 
     fun performLogout()
 }

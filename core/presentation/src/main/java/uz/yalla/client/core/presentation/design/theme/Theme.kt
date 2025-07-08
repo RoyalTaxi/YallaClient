@@ -1,32 +1,37 @@
 package uz.yalla.client.core.presentation.design.theme
 
 import android.os.Build
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
-import uz.yalla.client.core.presentation.design.color.YallaBlack
-import uz.yalla.client.core.presentation.design.color.YallaGray
-import uz.yalla.client.core.presentation.design.color.YallaGray2
-import uz.yalla.client.core.presentation.design.color.YallaPrimary
+import org.koin.compose.koinInject
+import uz.yalla.client.core.domain.local.AppPreferences
+import uz.yalla.client.core.domain.model.type.ThemeType
+import uz.yalla.client.core.presentation.design.color.onBlackDay
+import uz.yalla.client.core.presentation.design.color.onBlackNight
+import uz.yalla.client.core.presentation.design.color.yallaDark
 import uz.yalla.client.core.presentation.design.color.yallaLight
 import uz.yalla.client.core.presentation.design.font.fontScheme
 
 
 private val colorPaletteL = lightColorScheme(
-    primary = YallaPrimary,
-    secondary = YallaBlack,
-    tertiary = YallaGray,
-    background = YallaGray2
+    primary = onBlackDay,
+    secondary = onBlackDay,
+    tertiary = onBlackDay,
+    background = onBlackDay
 )
 
 private val darkColorPaletteL = darkColorScheme(
-    primary = YallaPrimary,
-    secondary = YallaBlack,
-    tertiary = YallaGray,
-    background = YallaGray2
+    primary = onBlackNight,
+    secondary = onBlackNight,
+    tertiary = onBlackNight,
+    background = onBlackNight
 )
 
 
@@ -45,8 +50,17 @@ fun YallaTheme(
 
     }
 
+    val prefs = koinInject<AppPreferences>()
+    val themeType by prefs.themeType.collectAsState(initial = ThemeType.SYSTEM)
+
+    val yallaColorScheme = when (themeType) {
+        ThemeType.DARK -> yallaDark()
+        ThemeType.LIGHT -> yallaLight()
+        ThemeType.SYSTEM -> if (isSystemInDarkTheme()) yallaDark() else yallaLight()
+    }
+
     YallaCustomTheme(
-        yallaLight(),
+        yallaColorScheme,
         fontScheme
     ) {
         MaterialTheme(

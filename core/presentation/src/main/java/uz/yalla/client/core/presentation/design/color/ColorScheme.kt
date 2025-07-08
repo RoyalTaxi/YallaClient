@@ -8,57 +8,87 @@ import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.graphics.Color
 
 class ColorScheme(
-    black: Color,
-    white: Color,
-    gray: Color,
-    gray2: Color,
-    grayBackground: Color,
     primary: Color,
+    dynamicPrimary: Color,
+    inverseDynamicPrimary: Color,
+    onPrimary: Color,
+    background: Color,
+    onBackground: Color,
+    surface: Color,
+    onSurface: Color,
+    black: Color,
+    onBlack: Color,
+    gray: Color,
     red: Color,
 ) {
-    var black by mutableStateOf(black, structuralEqualityPolicy())
-    var white by mutableStateOf(white, structuralEqualityPolicy())
-    var gray by mutableStateOf(gray, structuralEqualityPolicy())
-    var gray2 by mutableStateOf(gray2, structuralEqualityPolicy())
-    var grayBackground by mutableStateOf(grayBackground, structuralEqualityPolicy())
     var primary by mutableStateOf(primary, structuralEqualityPolicy())
+    var dynamicPrimary by mutableStateOf(dynamicPrimary, structuralEqualityPolicy())
+    var inverseDynamicPrimary by mutableStateOf(inverseDynamicPrimary, structuralEqualityPolicy())
+    var onPrimary by mutableStateOf(onPrimary, structuralEqualityPolicy())
+    var background by mutableStateOf(background, structuralEqualityPolicy())
+    var onBackground by mutableStateOf(onBackground, structuralEqualityPolicy())
+    var surface by mutableStateOf(surface, structuralEqualityPolicy())
+    var onSurface by mutableStateOf(onSurface, structuralEqualityPolicy())
+    var black by mutableStateOf(black, structuralEqualityPolicy())
+    var onBlack by mutableStateOf(onBlack, structuralEqualityPolicy())
+    var gray by mutableStateOf(gray, structuralEqualityPolicy())
     var red by mutableStateOf(red, structuralEqualityPolicy())
 }
 
 fun yallaLight(
-    black: Color = YallaBlack,
-    white: Color = YallaWhite,
-    gray: Color = YallaGray,
-    gray2: Color = YallaGray2,
-    grayBackground: Color = YallaGrayBackground,
-    primary: Color = YallaPrimary,
-    red: Color = YallaRed
+    primary: Color = primaryDay,
+    dynamicPrimary: Color = dynamicPrimaryDay,
+    inverseDynamicPrimary: Color = inverseDynamicPrimaryDay,
+    onPrimary: Color = onPrimaryDay,
+    background: Color = backgroundDay,
+    onBackground: Color = onBackgroundDay,
+    surface: Color = surfaceDay,
+    onSurface: Color = onSurfaceDay,
+    black: Color = blackDay,
+    onBlack: Color = onBlackDay,
+    gray: Color = grayDay,
+    red: Color = redDay
 ) = ColorScheme(
-    black = black,
-    white = white,
-    gray = gray,
-    gray2 = gray2,
-    grayBackground = grayBackground,
     primary = primary,
+    dynamicPrimary = dynamicPrimary,
+    inverseDynamicPrimary = inverseDynamicPrimary,
+    onPrimary = onPrimary,
+    background = background,
+    onBackground = onBackground,
+    surface = surface,
+    onSurface = onSurface,
+    black = black,
+    onBlack = onBlack,
+    gray = gray,
     red = red
 )
 
 fun yallaDark(
-    black: Color = YallaWhite,
-    white: Color = YallaBlack,
-    gray: Color = YallaGray,
-    gray2: Color = YallaGray2,
-    grayBackground: Color = YallaGrayBackground,
-    primary: Color = YallaPrimary,
-    red: Color = YallaRed
+    primary: Color = primaryNight,
+    dynamicPrimary: Color = dynamicPrimaryNight,
+    inverseDynamicPrimary: Color = inverseDynamicPrimaryNight,
+    onPrimary: Color = onPrimaryNight,
+    background: Color = backgroundNight,
+    onBackground: Color = onBackgroundNight,
+    surface: Color = surfaceNight,
+    onSurface: Color = onSurfaceNight,
+    black: Color = blackNight,
+    onBlack: Color = onBlackNight,
+    gray: Color = grayNight,
+    red: Color = redNight
 ) = ColorScheme(
-    black = black,
-    white = white,
-    gray = gray,
-    gray2 = gray2,
-    grayBackground = grayBackground,
     primary = primary,
+    dynamicPrimary = dynamicPrimary,
+    inverseDynamicPrimary = inverseDynamicPrimary,
+    onPrimary = onPrimary,
+    background = background,
+    onBackground = onBackground,
+    surface = surface,
+    onSurface = onSurface,
+    black = black,
+    onBlack = onBlack,
+    gray = gray,
     red = red
 )
 
-val LocalCustomColorScheme = staticCompositionLocalOf { yallaLight() }
+val LocalCustomColorScheme = staticCompositionLocalOf { yallaDark() }

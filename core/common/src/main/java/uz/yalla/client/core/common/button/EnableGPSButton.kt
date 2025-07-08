@@ -31,7 +31,7 @@ fun EnableGPSButton(
     ) {
         Text(
             text = stringResource(R.string.enable_gps),
-            color = YallaTheme.color.white,
+            color = YallaTheme.color.background,
             style = YallaTheme.font.bodySmall
         )
 

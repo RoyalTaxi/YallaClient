@@ -155,7 +155,7 @@ fun SearchCarSheet(
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
         sheetDragHandle = null,
-        sheetContainerColor = YallaTheme.color.gray2,
+        sheetContainerColor = YallaTheme.color.surface,
         content = {},
         sheetContent = {
             Box(
@@ -165,7 +165,7 @@ fun SearchCarSheet(
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                     modifier = Modifier
                         .background(
-                            color = YallaTheme.color.gray2,
+                            color = YallaTheme.color.surface,
                             shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
                         )
                         .padding(bottom = state.footerHeight + 10.dp)
@@ -181,7 +181,7 @@ fun SearchCarSheet(
                                 }
                             }
                             .background(
-                                color = YallaTheme.color.white,
+                                color = YallaTheme.color.background,
                                 shape = RoundedCornerShape(30.dp)
                             )
                             .padding(20.dp)
@@ -189,7 +189,7 @@ fun SearchCarSheet(
                     ) {
                         Text(
                             text = stringResource(R.string.search_cars),
-                            color = YallaTheme.color.black,
+                            color = YallaTheme.color.onBackground,
                             style = YallaTheme.font.title
                         )
 
@@ -216,7 +216,7 @@ fun SearchCarSheet(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(30.dp))
-                            .background(YallaTheme.color.white)
+                            .background(YallaTheme.color.background)
                     ) {
                         OrderActionsItem(
                             text = stringResource(R.string.cancel_order),
@@ -256,7 +256,7 @@ fun SearchCarSheet(
                     }
                 }
                 .background(
-                    color = YallaTheme.color.white,
+                    color = YallaTheme.color.background,
                     shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
                 )
                 .padding(20.dp)

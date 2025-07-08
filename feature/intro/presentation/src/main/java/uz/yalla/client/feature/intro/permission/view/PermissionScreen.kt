@@ -15,7 +15,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -30,7 +29,7 @@ internal fun PermissionScreen(
     onIntent: (PermissionIntent) -> Unit
 ) {
     Scaffold(
-        containerColor = YallaTheme.color.white,
+        containerColor = YallaTheme.color.background,
         modifier = Modifier.fillMaxSize()
     ) { contentPadding ->
         Column(
@@ -71,7 +70,7 @@ private fun PermissionContent ()
 
     Text(
         text = stringResource(id = R.string.onboarding_4),
-        color = YallaTheme.color.black,
+        color = YallaTheme.color.onBackground,
         style = YallaTheme.font.headline,
         modifier = Modifier.padding(horizontal = 20.dp)
     )
@@ -93,6 +92,8 @@ private fun PermissionFooter(
     PrimaryButton(
         text = stringResource(id = R.string.next),
         onClick = onClickPermission,
+        containerColor = YallaTheme.color.black,
+        contentColor = YallaTheme.color.onBlack,
         modifier = Modifier
             .fillMaxWidth()
             .padding(20.dp)

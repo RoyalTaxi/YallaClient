@@ -27,13 +27,13 @@ fun ProvideDescriptionButton(
     description: String? = null,
     leadingIcon: (@Composable () -> Unit)? = null,
     trailingIcon: (@Composable () -> Unit)? = null,
-    textColor: Color = YallaTheme.color.black,
+    textColor: Color = YallaTheme.color.onBackground,
     onClick: () -> Unit
 ) {
     Card(
         onClick = onClick,
         shape = RectangleShape,
-        colors = CardDefaults.cardColors(YallaTheme.color.white),
+        colors = CardDefaults.cardColors(YallaTheme.color.background),
         modifier = modifier
             .fillMaxWidth()
             .height(IntrinsicSize.Min)

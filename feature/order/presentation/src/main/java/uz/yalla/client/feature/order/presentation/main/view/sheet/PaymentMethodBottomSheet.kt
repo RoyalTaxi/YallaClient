@@ -44,7 +44,7 @@ fun PaymentMethodBottomSheet(
 ) {
     ModalBottomSheet(
         shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
-        containerColor = YallaTheme.color.gray2,
+        containerColor = YallaTheme.color.surface,
         sheetState = sheetState,
         onDismissRequest = { onIntent(PaymentMethodSheetIntent.OnDismissRequest) },
         dragHandle = null
@@ -52,7 +52,7 @@ fun PaymentMethodBottomSheet(
         Column(
             verticalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier
-                .background(YallaTheme.color.gray2)
+                .background(YallaTheme.color.surface)
                 .navigationBarsPadding()
         ) {
             PaymentMethodHeader()
@@ -78,7 +78,7 @@ private fun PaymentMethodHeader() {
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                color = YallaTheme.color.white,
+                color = YallaTheme.color.background,
                 shape = RoundedCornerShape(30.dp)
             )
             .padding(20.dp)
@@ -86,7 +86,7 @@ private fun PaymentMethodHeader() {
         Text(
             text = stringResource(R.string.payment_method),
             style = YallaTheme.font.title,
-            color = YallaTheme.color.black
+            color = YallaTheme.color.onBackground
         )
 
         Text(
@@ -112,7 +112,7 @@ private fun PaymentMethodContent(
     LazyColumn(
         modifier = Modifier
             .clip(RoundedCornerShape(30.dp))
-            .background(YallaTheme.color.white)
+            .background(YallaTheme.color.background)
     ) {
         item {
             EnableBonusButton(
@@ -196,7 +196,7 @@ fun PaymentMethodFooter(
 ) {
     Box(
         modifier = Modifier.background(
-            color = YallaTheme.color.white,
+            color = YallaTheme.color.background,
             shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
         )
     ) {

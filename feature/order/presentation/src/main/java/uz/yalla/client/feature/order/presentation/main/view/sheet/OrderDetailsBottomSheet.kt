@@ -46,7 +46,7 @@ fun OrderDetailsBottomSheet(
 ) {
     ModalBottomSheet(
         shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
-        containerColor = YallaTheme.color.gray2,
+        containerColor = YallaTheme.color.surface,
         sheetState = sheetState,
         dragHandle = null,
         onDismissRequest = onDismissRequest
@@ -54,14 +54,14 @@ fun OrderDetailsBottomSheet(
         Column(
             verticalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier
-                .background(YallaTheme.color.gray2)
+                .background(YallaTheme.color.surface)
                 .fillMaxWidth()
         ) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(10.dp),
                 modifier = Modifier
                     .background(
-                        color = YallaTheme.color.white,
+                        color = YallaTheme.color.background,
                         shape = RoundedCornerShape(bottomEnd = 30.dp, bottomStart = 30.dp)
                     )
                     .padding(20.dp)
@@ -99,7 +99,7 @@ fun OrderDetailsBottomSheet(
             Column(
                 modifier = Modifier
                     .clip(RoundedCornerShape(30.dp))
-                    .background(YallaTheme.color.white)
+                    .background(YallaTheme.color.background)
                     .padding(vertical = 10.dp)
             ) {
                 OrderDetailItem(
@@ -161,7 +161,7 @@ fun OrderDetailsBottomSheet(
                 if (order.taxi.services.isNotEmpty()) Column(
                     modifier = Modifier
                         .clip(RoundedCornerShape(30.dp))
-                        .background(YallaTheme.color.white)
+                        .background(YallaTheme.color.background)
                 ) {
                     order.taxi.services.forEach { service ->
                         OptionsItem(
@@ -193,7 +193,7 @@ fun OrderDetailsBottomSheet(
             Box(
                 modifier = Modifier
                     .background(
-                        color = YallaTheme.color.white,
+                        color = YallaTheme.color.background,
                         shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
                     )
                     .navigationBarsPadding()
@@ -201,8 +201,8 @@ fun OrderDetailsBottomSheet(
                 PrimaryButton(
                     text = stringResource(R.string.close),
                     onClick = onDismissRequest,
-                    containerColor = YallaTheme.color.gray2,
-                    contentColor = YallaTheme.color.black,
+                    containerColor = YallaTheme.color.surface,
+                    contentColor = YallaTheme.color.onBackground,
                     modifier = Modifier
                         .padding(20.dp)
                         .fillMaxWidth()

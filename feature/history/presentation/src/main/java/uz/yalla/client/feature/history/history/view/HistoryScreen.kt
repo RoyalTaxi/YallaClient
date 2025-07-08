@@ -36,7 +36,7 @@ internal fun HistoryScreen(
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        containerColor = YallaTheme.color.white,
+        containerColor = YallaTheme.color.background,
         topBar = {
             CenterAlignedScrollableTopBar(
                 title = stringResource(R.string.orders_history),
@@ -44,8 +44,8 @@ internal fun HistoryScreen(
                 expandedTitleTextStyle = YallaTheme.font.headline,
                 scrollBehavior = scrollBehavior,
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = YallaTheme.color.white,
-                    scrolledContainerColor = YallaTheme.color.white
+                    containerColor = YallaTheme.color.background,
+                    scrolledContainerColor = YallaTheme.color.background
                 ),
                 navigationIcon = {
                     IconButton(
@@ -53,7 +53,8 @@ internal fun HistoryScreen(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null
+                            contentDescription = null,
+                            tint = YallaTheme.color.onBackground
                         )
                     }
                 }
@@ -77,7 +78,7 @@ internal fun HistoryScreen(
                                     today = stringResource(R.string.today),
                                     yesterday = stringResource(R.string.yesterday)
                                 ),
-                                color = YallaTheme.color.black,
+                                color = YallaTheme.color.onBackground,
                                 style = YallaTheme.font.title2,
                                 modifier = Modifier.padding(vertical = 10.dp)
                             )

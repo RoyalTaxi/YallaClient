@@ -77,13 +77,13 @@ private fun InfoMarker(
                 Text(
                     text = description,
                     style = YallaTheme.font.bodySmall,
-                    color = YallaTheme.color.white.copy(alpha = 0.5f)
+                    color = YallaTheme.color.onPrimary.copy(alpha = 0.5f)
                 )
 
                 Text(
                     text = title,
                     style = YallaTheme.font.body,
-                    color = YallaTheme.color.white
+                    color = YallaTheme.color.onPrimary
                 )
             }
         }
@@ -92,7 +92,7 @@ private fun InfoMarker(
             modifier = Modifier
                 .size(16.dp)
                 .clip(CircleShape)
-                .background(YallaTheme.color.white)
+                .background(YallaTheme.color.background)
                 .border(
                     shape = CircleShape,
                     width = 4.dp,

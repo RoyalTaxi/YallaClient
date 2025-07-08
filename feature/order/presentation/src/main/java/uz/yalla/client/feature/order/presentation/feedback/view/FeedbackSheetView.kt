@@ -97,7 +97,7 @@ fun FeedbackSheet(
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
         sheetDragHandle = null,
-        sheetContainerColor = YallaTheme.color.gray2,
+        sheetContainerColor = YallaTheme.color.surface,
         content = {},
         sheetContent = {
             Box(
@@ -107,7 +107,7 @@ fun FeedbackSheet(
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                     modifier = Modifier
                         .background(
-                            color = YallaTheme.color.gray2,
+                            color = YallaTheme.color.surface,
                             shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
                         )
                         .padding(bottom = state.footerHeight + 10.dp)
@@ -134,7 +134,7 @@ fun FeedbackSheet(
                         modifier = Modifier
                             .fillMaxWidth()
                             .background(
-                                color = YallaTheme.color.white,
+                                color = YallaTheme.color.background,
                                 shape = RoundedCornerShape(30.dp)
                             )
                             .padding(20.dp)
@@ -142,7 +142,7 @@ fun FeedbackSheet(
                         Text(
                             text = stringResource(R.string.rate_the_trip),
                             style = YallaTheme.font.title,
-                            color = YallaTheme.color.black
+                            color = YallaTheme.color.onBackground
                         )
 
                         Spacer(modifier = Modifier.height(10.dp))
@@ -174,7 +174,7 @@ fun FeedbackSheet(
                     }
                 }
                 .background(
-                    color = YallaTheme.color.white,
+                    color = YallaTheme.color.background,
                     shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
                 )
                 .navigationBarsPadding()
@@ -202,7 +202,7 @@ fun FeedbackOrderInfo(
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                color = YallaTheme.color.white, shape = RoundedCornerShape(30.dp)
+                color = YallaTheme.color.background, shape = RoundedCornerShape(30.dp)
             )
             .padding(20.dp)
     ) {
@@ -210,7 +210,7 @@ fun FeedbackOrderInfo(
         Text(
             text = stringResource(R.string.driver),
             style = YallaTheme.font.title,
-            color = YallaTheme.color.black
+            color = YallaTheme.color.onBackground
         )
 
         Text(
@@ -225,7 +225,7 @@ fun FeedbackOrderInfo(
             Text(
                 text = stringResource(R.string.fixed_cost, order.taxi.totalPrice),
                 style = YallaTheme.font.title,
-                color = YallaTheme.color.black
+                color = YallaTheme.color.onBackground
             )
             Row(
                 modifier = Modifier.fillMaxWidth()

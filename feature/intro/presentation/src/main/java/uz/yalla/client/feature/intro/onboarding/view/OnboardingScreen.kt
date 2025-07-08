@@ -35,7 +35,7 @@ internal fun OnboardingScreen(
     onIntent: (OnboardingIntent) -> Unit
 ) {
     Scaffold(
-        containerColor = YallaTheme.color.white,
+        containerColor = YallaTheme.color.background,
         modifier = Modifier.fillMaxSize(),
     ) { paddingValues ->
         Box(
@@ -88,7 +88,7 @@ private fun OnboardingContent(
 
             Text(
                 text = stringResource(id = screenContents[page].title),
-                color = YallaTheme.color.black,
+                color = YallaTheme.color.onBackground,
                 style = YallaTheme.font.headline,
                 modifier = Modifier.padding(horizontal = 20.dp)
             )

@@ -30,8 +30,8 @@ internal fun NotificationItem(
     Card(
         onClick = onClick,
         colors = CardDefaults.cardColors(
-            containerColor = YallaTheme.color.white,
-            disabledContainerColor = YallaTheme.color.white),
+            containerColor = YallaTheme.color.background,
+            disabledContainerColor = YallaTheme.color.background),
         enabled = !isExpanded,
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -63,7 +63,7 @@ internal fun NotificationItem(
             Text(
                 text = notification.title,
                 style = YallaTheme.font.title2,
-                color = if (isRead) YallaTheme.color.gray else YallaTheme.color.black
+                color = if (isRead) YallaTheme.color.gray else YallaTheme.color.onBackground
             )
 
             if (isExpanded) {
@@ -72,7 +72,7 @@ internal fun NotificationItem(
                 Text(
                     text = notification.content,
                     style = YallaTheme.font.body,
-                    color = YallaTheme.color.black
+                    color = YallaTheme.color.onBackground
                 )
             }
         }

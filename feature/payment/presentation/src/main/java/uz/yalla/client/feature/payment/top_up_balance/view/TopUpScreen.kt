@@ -34,7 +34,7 @@ internal fun TopUpScreen(
     val focusRequester = remember { FocusRequester() }
 
     Scaffold(
-        containerColor = YallaTheme.color.white,
+        containerColor = YallaTheme.color.background,
         modifier = Modifier.imePadding(),
         topBar = { TopUpAppBar { onIntent(TopUpIntent.OnNavigateBack) } },
         content = { paddingValues ->
@@ -54,11 +54,11 @@ private fun TopUpAppBar(
     onNavigateBack: () -> Unit
 ) {
     CenterAlignedTopAppBar(
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.background),
         title = {
             Text(
                 text = stringResource(R.string.top_up_balanse),
-                color = YallaTheme.color.black,
+                color = YallaTheme.color.onBackground,
                 style = YallaTheme.font.labelLarge
             )
         },
@@ -66,7 +66,8 @@ private fun TopUpAppBar(
             IconButton(onClick = onNavigateBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                    contentDescription = null
+                    contentDescription = null,
+                    tint = YallaTheme.color.onBackground
                 )
             }
         }

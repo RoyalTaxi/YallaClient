@@ -38,7 +38,7 @@ internal fun AddCompanyPage(
 
         Text(
             text = stringResource(R.string.add_company),
-            color = YallaTheme.color.black,
+            color = YallaTheme.color.onBackground,
             style = YallaTheme.font.headline,
         )
 

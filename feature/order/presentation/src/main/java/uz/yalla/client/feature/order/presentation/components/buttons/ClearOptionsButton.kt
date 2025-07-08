@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.common.button.PrimaryButton
+import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
 
 @Composable
@@ -15,6 +16,8 @@ fun RowScope.ClearOptionsButton() {
     PrimaryButton(
         text = stringResource(R.string.options_not_valid),
         enabled = false,
+        containerColor = YallaTheme.color.black,
+        contentColor = YallaTheme.color.onBlack,
         onClick = {},
         modifier = Modifier
             .weight(1f)

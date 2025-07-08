@@ -29,7 +29,7 @@ fun ContactUsCard(
 ) {
     Card(
         shape = RectangleShape,
-        colors = CardDefaults.cardColors(YallaTheme.color.white),
+        colors = CardDefaults.cardColors(YallaTheme.color.background),
         modifier = modifier.fillMaxWidth(),
         onClick = onClick
     ) {
@@ -51,7 +51,7 @@ fun ContactUsCard(
             Text(
                 text = stringResource(socialNetwork.titleResId),
                 style = YallaTheme.font.labelLarge,
-                color = YallaTheme.color.black,
+                color = YallaTheme.color.onBackground,
                 textAlign = TextAlign.Center
             )
         }

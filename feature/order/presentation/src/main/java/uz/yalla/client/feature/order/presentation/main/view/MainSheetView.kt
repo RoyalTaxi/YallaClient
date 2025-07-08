@@ -202,7 +202,7 @@ fun MainSheet(
             SheetValue.PartiallyExpanded -> RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
             SheetValue.Expanded -> RectangleShape
         },
-        sheetContainerColor = YallaTheme.color.gray2,
+        sheetContainerColor = YallaTheme.color.surface,
         sheetContent = {
             SheetContent(
                 state = state,

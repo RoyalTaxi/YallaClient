@@ -5,5 +5,5 @@ import uz.yalla.client.feature.setting.components.Language
 internal sealed interface SettingsIntent {
     data object OnNavigateBack : SettingsIntent
     data object OnClickLanguage : SettingsIntent
-    data class OnUpdateLanguage(val language: Language) : SettingsIntent
+    data object OnClickTheme : SettingsIntent
 }

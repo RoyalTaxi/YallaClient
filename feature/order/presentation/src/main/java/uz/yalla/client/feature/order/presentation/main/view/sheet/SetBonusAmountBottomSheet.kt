@@ -62,7 +62,7 @@ fun SetBonusAmountBottomSheet(
 
     ModalBottomSheet(
         dragHandle = null,
-        containerColor = YallaTheme.color.gray2,
+        containerColor = YallaTheme.color.surface,
         shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
         onDismissRequest = { onDismissRequest(amount) }
     ) {
@@ -101,7 +101,7 @@ private fun SetBonusBackground(
     content: @Composable (Modifier) -> Unit
 ) {
     Card(
-        colors = CardDefaults.cardColors(YallaTheme.color.white),
+        colors = CardDefaults.cardColors(YallaTheme.color.background),
         shape = RoundedCornerShape(30.dp)
     ) {
         content(
@@ -125,7 +125,7 @@ private fun SetBonusAmountHeader(
         ) {
             Text(
                 text = stringResource(R.string.bonuses, balance.toString()),
-                color = YallaTheme.color.black,
+                color = YallaTheme.color.onBackground,
                 style = YallaTheme.font.title
             )
 
@@ -178,7 +178,7 @@ private fun SetBonusAmountBody(
                 ) {
                     Text(
                         text = stringResource(R.string.fixed_cost, currentBonusAmount.toString()),
-                        color = YallaTheme.color.white,
+                        color = YallaTheme.color.background,
                         style = YallaTheme.font.labelLarge
                     )
                 }
@@ -207,9 +207,9 @@ private fun ChangeBonusButton(
         contentPadding = PaddingValues(18.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = YallaTheme.color.black,
-            disabledContainerColor = YallaTheme.color.gray2,
-            contentColor = YallaTheme.color.white,
-            disabledContentColor = YallaTheme.color.black
+            disabledContainerColor = YallaTheme.color.surface,
+            contentColor = YallaTheme.color.onBlack,
+            disabledContentColor = YallaTheme.color.onSurface
         )
     ) {
         Icon(
@@ -234,7 +234,7 @@ private fun SetBonusAmountFooter(
         ) {
             Text(
                 text = stringResource(R.string.use),
-                color = YallaTheme.color.white,
+                color = YallaTheme.color.onBlack,
                 style = YallaTheme.font.labelLarge
             )
         }

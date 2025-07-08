@@ -5,4 +5,8 @@
 
     <string name="app_language">Ilova tili</string>
     <string name="setting">Sozlamalar</string>
+    <string name="theme">Rejim</string>
+    <string name="light_mode">Yorug\‘ </string>
+    <string name="dark_mode">Tungi </string>
+    <string name="system_mode">Tizimli </string>
 </resources>

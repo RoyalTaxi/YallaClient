@@ -19,6 +19,7 @@ fun RowScope.CreateOrderButton(
         text = stringResource(R.string.lets_go),
         onClick = onClick,
         containerColor = YallaTheme.color.black,
+        contentColor = YallaTheme.color.onBlack,
         modifier = Modifier
             .weight(1f)
             .fillMaxHeight()

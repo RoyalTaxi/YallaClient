@@ -37,7 +37,7 @@ fun OptionsButton(
         shape = RoundedCornerShape(16.dp),
         onClick = onClick,
         contentPadding = PaddingValues(0.dp),
-        colors = ButtonDefaults.buttonColors(YallaTheme.color.gray2)
+        colors = ButtonDefaults.buttonColors(YallaTheme.color.surface)
     ) {
         Box {
             Icon(
@@ -66,7 +66,7 @@ fun OptionsButton(
                         Text(
                             text = badgeText,
                             style = YallaTheme.font.body.copy(fontSize = 8.sp),
-                            color = YallaTheme.color.white,
+                            color = YallaTheme.color.background,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.align(Alignment.Center)
                         )

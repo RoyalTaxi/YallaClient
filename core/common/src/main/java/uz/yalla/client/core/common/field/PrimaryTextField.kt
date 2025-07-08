@@ -50,8 +50,8 @@ fun PrimaryTextField(
         enabled = trailingIcon != null,
         onClick = onClick,
         colors = CardDefaults.cardColors(
-            containerColor = YallaTheme.color.gray2,
-            disabledContainerColor = YallaTheme.color.gray2,
+            containerColor = YallaTheme.color.surface,
+            disabledContainerColor = YallaTheme.color.surface,
         )
     ) {
         Row(
@@ -75,8 +75,8 @@ fun PrimaryTextField(
                 BasicTextField(
                     value = text,
                     onValueChange = onChangeText,
-                    cursorBrush = SolidColor(YallaTheme.color.black),
-                    textStyle = YallaTheme.font.labelSemiBold.copy(color = YallaTheme.color.black),
+                    cursorBrush = SolidColor(YallaTheme.color.onBackground),
+                    textStyle = YallaTheme.font.labelSemiBold.copy(color = YallaTheme.color.onBackground),
                     enabled = trailingIcon == null,
                     singleLine = true,
                     modifier = Modifier
@@ -119,7 +119,7 @@ fun PrimaryTextField(
                 Icon(
                     painter = trailingIcon,
                     contentDescription = null,
-                    tint = YallaTheme.color.black
+                    tint = YallaTheme.color.onBackground
                 )
             }
         }

@@ -28,7 +28,7 @@ fun DefaultUserProfileCard(
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(30.dp),
-        colors = CardDefaults.cardColors(YallaTheme.color.white),
+        colors = CardDefaults.cardColors(YallaTheme.color.background),
         onClick = onClick
     ) {
         Row(
@@ -44,7 +44,7 @@ fun DefaultUserProfileCard(
             Text(
                 text = stringResource(R.string.login),
                 style = YallaTheme.font.labelLarge,
-                color = YallaTheme.color.black
+                color = YallaTheme.color.onBackground
             )
         }
     }

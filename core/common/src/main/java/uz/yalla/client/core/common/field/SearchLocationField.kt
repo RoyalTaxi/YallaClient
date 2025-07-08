@@ -98,7 +98,7 @@ fun SearchLocationField(
                 else Modifier
             ),
         shape = RoundedCornerShape(size = 16.dp),
-        colors = CardDefaults.cardColors(YallaTheme.color.gray2)
+        colors = CardDefaults.cardColors(YallaTheme.color.surface)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -142,7 +142,7 @@ fun SearchLocationField(
                         }
                     },
                 singleLine = true,
-                textStyle = YallaTheme.font.labelLarge.copy(color = YallaTheme.color.black),
+                textStyle = YallaTheme.font.labelLarge.copy(color = YallaTheme.color.onBackground),
                 decorationBox = { innerTextField ->
                     TextFieldDefaults.DecorationBox(
                         value = textFieldValue.text,
@@ -162,10 +162,10 @@ fun SearchLocationField(
                             )
                         },
                         colors = TextFieldDefaults.colors(
-                            focusedContainerColor = YallaTheme.color.gray2,
-                            unfocusedContainerColor = YallaTheme.color.gray2,
-                            errorContainerColor = YallaTheme.color.gray2,
-                            disabledContainerColor = YallaTheme.color.gray2,
+                            focusedContainerColor = YallaTheme.color.surface,
+                            unfocusedContainerColor = YallaTheme.color.surface,
+                            errorContainerColor = YallaTheme.color.surface,
+                            disabledContainerColor = YallaTheme.color.surface,
                             focusedIndicatorColor = Color.Transparent,
                             unfocusedIndicatorColor = Color.Transparent,
                             errorIndicatorColor = Color.Transparent,

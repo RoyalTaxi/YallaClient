@@ -1,6 +1,5 @@
 package uz.yalla.client.feature.registration.presentation.view
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -60,7 +59,7 @@ private fun RegistrationContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(YallaTheme.color.white)
+            .background(YallaTheme.color.background)
             .padding(20.dp)
             .systemBarsPadding()
             .verticalScroll(rememberScrollState())
@@ -99,7 +98,7 @@ private fun RegistrationContent(
 private fun RegistrationHeader() {
     Text(
         text = stringResource(id = R.string.lets_meet),
-        color = YallaTheme.color.black,
+        color = YallaTheme.color.onBackground,
         style = YallaTheme.font.headline
     )
 
@@ -184,6 +183,8 @@ private fun RegistrationButton(
     PrimaryButton(
         modifier = Modifier.fillMaxWidth(),
         text = stringResource(id = R.string.next),
+        contentColor = YallaTheme.color.onBlack,
+        containerColor = YallaTheme.color.black,
         enabled = isEnabled,
         onClick = onClick
     )

@@ -3,4 +3,8 @@
 
     <string name="app_language">Язык приложения</string>
     <string name="setting">Настройки</string>
+    <string name="theme">Тема</string>
+    <string name="light_mode">Светлый </string>
+    <string name="dark_mode">Темный </string>
+    <string name="system_mode">Системный </string>
 </resources>

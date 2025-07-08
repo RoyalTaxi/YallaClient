@@ -35,7 +35,7 @@ internal fun AddBankDetailsPage(
     ) {
         Text(
             text = stringResource(R.string.bank_details),
-            color = YallaTheme.color.black,
+            color = YallaTheme.color.onBackground,
             style = YallaTheme.font.headline,
         )
 

@@ -44,7 +44,7 @@ internal fun CorporateAccountScreen(
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
-        containerColor = YallaTheme.color.white,
+        containerColor = YallaTheme.color.background,
         modifier = Modifier.imePadding(),
         topBar = { CorporateTopBar( onNavigateBack ) },
         content = { paddingValues ->
@@ -75,12 +75,13 @@ private fun CorporateTopBar(
     onNavigateBack: () -> Unit
 ) {
     TopAppBar(
-        colors = TopAppBarDefaults.topAppBarColors(YallaTheme.color.white),
+        colors = TopAppBarDefaults.topAppBarColors(YallaTheme.color.background),
         navigationIcon = {
             IconButton(onClick = onNavigateBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                    contentDescription = null
+                    contentDescription = null,
+                    tint = YallaTheme.color.onBackground
                 )
             }
         },

@@ -32,7 +32,7 @@ internal fun AddEmployeeScreen(
     uiState: AddEmployeeUIState
 ) {
     Scaffold(
-        containerColor = YallaTheme.color.white,
+        containerColor = YallaTheme.color.background,
         modifier = Modifier.imePadding(),
         topBar = { AddEmployeeTopBar { onIntent(AddEmployeeIntent.OnNavigateBack) }},
         content = { paddingValues ->
@@ -65,11 +65,11 @@ private fun AddEmployeeTopBar(
     onNavigateBack: () -> Unit
 ) {
     CenterAlignedTopAppBar(
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.background),
         title = {
             Text(
                 text = stringResource(R.string.add_employee),
-                color = YallaTheme.color.black,
+                color = YallaTheme.color.onBackground,
                 style = YallaTheme.font.labelLarge
             )
         },
@@ -77,7 +77,8 @@ private fun AddEmployeeTopBar(
             IconButton(onClick = onNavigateBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                    contentDescription = null
+                    contentDescription = null,
+                    tint = YallaTheme.color.onBackground
                 )
             }
         }

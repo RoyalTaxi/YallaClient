@@ -25,6 +25,7 @@ import uz.yalla.client.feature.map.presentation.R
 import uz.yalla.client.feature.map.presentation.components.button.ShowActiveOrdersButton
 import uz.yalla.client.feature.map.presentation.model.MapUIState
 import uz.yalla.client.feature.map.presentation.view.MapScreenIntent.MapOverlayIntent
+import kotlin.math.abs
 
 @Composable
 fun BoxScope.MapOverlay(
@@ -51,6 +52,7 @@ fun BoxScope.MapOverlay(
             modifier = Modifier
                 .align(Alignment.Center)
                 .statusBarsPadding()
+                .padding(bottom = abs(state.sheetHeight.value - state.overlayPadding.value).dp)
         )
 
         if (state.markerState !is YallaMarkerState.Searching) {

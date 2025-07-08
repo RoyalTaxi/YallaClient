@@ -33,7 +33,7 @@ fun OrderDetailItem(
         Column {
             Text(
                 text = title,
-                color = YallaTheme.color.black,
+                color = YallaTheme.color.onBackground,
                 style = YallaTheme.font.labelSemiBold
             )
 
@@ -58,7 +58,7 @@ fun OrderDetailItem(
         description?.let {
             Text(
                 text = it,
-                color = YallaTheme.color.black,
+                color = YallaTheme.color.onBackground,
                 style = YallaTheme.font.label
             )
         }

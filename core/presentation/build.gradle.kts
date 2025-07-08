@@ -9,6 +9,7 @@ android {
 
 dependencies {
     implementation(platform(libs.koin.bom))
+    implementation(projects.core.domain)
 
     api(libs.androidx.core.ktx)
     api(libs.androidx.appcompat)

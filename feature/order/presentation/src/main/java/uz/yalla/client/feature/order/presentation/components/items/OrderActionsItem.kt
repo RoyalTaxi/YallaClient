@@ -27,13 +27,13 @@ fun OrderActionsItem(
     imageVector: ImageVector,
     modifier: Modifier = Modifier,
     tintColor: Color = YallaTheme.color.gray,
-    contentColor: Color = YallaTheme.color.black,
+    contentColor: Color = YallaTheme.color.onBackground,
     onClick: () -> Unit
 ) {
     Card(
         onClick = onClick,
         shape = RoundedCornerShape(0.dp),
-        colors = CardDefaults.cardColors(YallaTheme.color.white),
+        colors = CardDefaults.cardColors(YallaTheme.color.background),
         modifier = modifier.fillMaxWidth()
     ) {
         Row(

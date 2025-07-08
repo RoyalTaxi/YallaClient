@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -22,10 +23,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import uz.yalla.client.core.common.R
 import uz.yalla.client.core.common.convertor.dpToPx
 import uz.yalla.client.core.common.marker.rememberGoogleMarkerWithInfo
@@ -33,17 +36,39 @@ import uz.yalla.client.core.common.utils.findClosestPointOnRoute
 import uz.yalla.client.core.common.utils.getCurrentLocation
 import uz.yalla.client.core.common.utils.hasLocationPermission
 import uz.yalla.client.core.common.utils.vectorToBitmapDescriptor
+import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.Executor
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.OrderStatus
+import uz.yalla.client.core.domain.model.type.ThemeType
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import kotlin.math.*
 import kotlin.properties.Delegates
 
+private fun loadMapStyleFromRaw(context: Context): String {
+    return try {
+        val inputStream = context.resources.openRawResource(R.raw.uber_style)
+        val reader = BufferedReader(InputStreamReader(inputStream))
+        val stringBuilder = StringBuilder()
+        var line: String?
+        while (reader.readLine().also { line = it } != null) {
+            stringBuilder.append(line)
+        }
+        reader.close()
+        stringBuilder.toString()
+    } catch (e: Exception) {
+        e.printStackTrace()
+        ""
+    }
+}
+
 class ConcreteGoogleMap : MapStrategy, KoinComponent {
-    override val mapPoint: MutableState<MapPoint> = mutableStateOf(MapPoint(0.0, 0.0))
     override val isMarkerMoving = MutableStateFlow(Triple(false, false, MapPoint(0.0, 0.0)))
+    override val mapPoint: MutableState<MapPoint> = mutableStateOf(MapPoint(0.0, 0.0))
+
     private var driver: MutableState<Executor?> = mutableStateOf(null)
     private val drivers: SnapshotStateList<Executor> = mutableStateListOf()
     private val route: SnapshotStateList<MapPoint> = mutableStateListOf()
@@ -56,6 +81,8 @@ class ConcreteGoogleMap : MapStrategy, KoinComponent {
     private lateinit var coroutineScope: CoroutineScope
     private lateinit var cameraPositionState: CameraPositionState
     private var mapPadding by Delegates.notNull<Int>()
+    private val prefs by inject<AppPreferences>()
+    private var themeType by mutableStateOf<ThemeType?>(null)
 
     @OptIn(FlowPreview::class)
     @Composable
@@ -70,6 +97,16 @@ class ConcreteGoogleMap : MapStrategy, KoinComponent {
         mapPadding = dpToPx(context, 110)
         coroutineScope = rememberCoroutineScope()
         cameraPositionState = rememberCameraPositionState()
+        val isSystemInDarkTheme = isSystemInDarkTheme()
+
+        LaunchedEffect(Unit) {
+            prefs.themeType.collectLatest {
+                themeType = when (it) {
+                    ThemeType.SYSTEM -> if (isSystemInDarkTheme) ThemeType.DARK else ThemeType.LIGHT
+                    else -> it
+                }
+            }
+        }
 
         LaunchedEffect(cameraPositionState) {
             awaitFrame()
@@ -102,42 +139,45 @@ class ConcreteGoogleMap : MapStrategy, KoinComponent {
                 }
         }
 
-        GoogleMap(
-            mergeDescendants = true,
-            modifier = modifier,
-            cameraPositionState = cameraPositionState,
-            contentPadding = contentPadding,
-            properties = MapProperties(
-                mapType = MapType.NORMAL,
-                isMyLocationEnabled = context.hasLocationPermission()
-            ),
-            uiSettings = MapUiSettings(
-                scrollGesturesEnabled = enabled,
-                zoomGesturesEnabled = enabled,
-                compassEnabled = false,
-                mapToolbarEnabled = false,
-                zoomControlsEnabled = false,
-                myLocationButtonEnabled = false,
-                tiltGesturesEnabled = false,
-                scrollGesturesEnabledDuringRotateOrZoom = false
-            ),
-            onMapLoaded = {
-                startingPoint?.let(::move)
-                onMapReady()
-            }
-        ) {
-            Markers(
-                route = route,
-                locations = locations,
-                orderStatus = orderStatus.value,
-                carArrivesInMinutes = carArrivesInMinutes.value.takeIf { orderStatus.value == null },
-                orderEndsInMinutes = orderEndsInMinutes.value.takeIf { orderStatus.value == null }
-            )
+        key(themeType) {
+            GoogleMap(
+                mergeDescendants = true,
+                modifier = modifier,
+                cameraPositionState = cameraPositionState,
+                contentPadding = contentPadding,
+                properties = MapProperties(
+                    mapStyleOptions = if (themeType == ThemeType.DARK) MapStyleOptions(loadMapStyleFromRaw(context)) else null,
+                    mapType = MapType.NORMAL,
+                    isMyLocationEnabled = context.hasLocationPermission()
+                ),
+                uiSettings = MapUiSettings(
+                    scrollGesturesEnabled = enabled,
+                    zoomGesturesEnabled = enabled,
+                    compassEnabled = false,
+                    mapToolbarEnabled = false,
+                    zoomControlsEnabled = false,
+                    myLocationButtonEnabled = false,
+                    tiltGesturesEnabled = false,
+                    scrollGesturesEnabledDuringRotateOrZoom = false
+                ),
+                onMapLoaded = {
+                    startingPoint?.let(::move)
+                    onMapReady()
+                }
+            ) {
+                Markers(
+                    route = route,
+                    locations = locations,
+                    orderStatus = orderStatus.value,
+                    carArrivesInMinutes = carArrivesInMinutes.value.takeIf { orderStatus.value == null },
+                    orderEndsInMinutes = orderEndsInMinutes.value.takeIf { orderStatus.value == null }
+                )
 
-            if (driversVisibility) {
-                Driver(driver = driver)
+                if (driversVisibility) {
+                    Driver(driver = driver)
 
-                DriversWithAnimation(drivers = drivers)
+                    DriversWithAnimation(drivers = drivers)
+                }
             }
         }
     }
@@ -496,10 +536,10 @@ private fun calculateDistance(lat1: Double, lng1: Double, lat2: Double, lng2: Do
     val earthRadiusKm = 6371.0
     val dLat = Math.toRadians(lat2 - lat1)
     val dLng = Math.toRadians(lng2 - lng1)
-    val a =
-        sin(dLat / 2).pow(2) + cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) * sin(dLng / 2).pow(
-            2
-        )
+    val a = sin(dLat / 2).pow(2) +
+            cos(Math.toRadians(lat1)) *
+            cos(Math.toRadians(lat2)) *
+            sin(dLng / 2).pow(2)
     val c = 2 * atan2(sqrt(a), sqrt(1 - a))
     return earthRadiusKm * c
 }

@@ -81,7 +81,7 @@ internal fun EditProfileScreen(
     val datePickerSheetState = rememberModalBottomSheetState()
 
     Scaffold(
-        containerColor = YallaTheme.color.white,
+        containerColor = YallaTheme.color.background,
         modifier = Modifier
             .fillMaxSize()
             .imePadding(),
@@ -102,7 +102,7 @@ internal fun EditProfileScreen(
                     Snackbar(
                         snackbarData = snackbarData,
                         containerColor = YallaTheme.color.red,
-                        contentColor = YallaTheme.color.white
+                        contentColor = YallaTheme.color.background
                     )
                 }
             )
@@ -137,13 +137,13 @@ private fun EditProfileTopBar(
     onDelete: () -> Unit
 ) {
     CenterAlignedTopAppBar(
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.background),
         navigationIcon = {
             IconButton(onClick = onNavigateBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Default.ArrowBack,
                     contentDescription = null,
-                    tint = YallaTheme.color.black
+                    tint = YallaTheme.color.onBackground
                 )
             }
         },
@@ -159,7 +159,7 @@ private fun EditProfileTopBar(
         title = {
             Text(
                 text = stringResource(R.string.edit_profile),
-                color = YallaTheme.color.black,
+                color = YallaTheme.color.onBackground,
                 style = YallaTheme.font.labelLarge
             )
         }
@@ -265,17 +265,18 @@ private fun ProfileImage(
                 .shadow(
                     elevation = 4.dp,
                     shape = CircleShape,
-                    spotColor = YallaTheme.color.black.copy(alpha = 0.5f)
+                    spotColor = YallaTheme.color.onBackground.copy(alpha = 0.5f)
                 )
-                .background(color = YallaTheme.color.white, shape = CircleShape)
-                .border(1.dp, YallaTheme.color.white, CircleShape)
+                .background(color = YallaTheme.color.background, shape = CircleShape)
+                .border(1.dp, YallaTheme.color.background, CircleShape)
                 .clickable(onClick = onUpdateProfile),
             contentAlignment = Alignment.Center
         ) {
-            Image(
+            Icon(
                 painter = painterResource(R.drawable.ic_edit),
                 contentDescription = null,
-                modifier = Modifier.padding(9.dp)
+                modifier = Modifier.padding(9.dp),
+                tint = YallaTheme.color.onBackground
             )
         }
     }
@@ -295,7 +296,7 @@ private fun ProfileHeaderInfo(
             Text(
                 text = fullName,
                 style = YallaTheme.font.title,
-                color = YallaTheme.color.black,
+                color = YallaTheme.color.onBackground,
                 textAlign = TextAlign.Center
             )
         }
@@ -386,7 +387,7 @@ private fun SaveButton(
             .padding(horizontal = 20.dp),
         contentPadding = PaddingValues(vertical = 16.dp),
         onClick = onClick,
-        containerColor = if (hasChanges) YallaTheme.color.black else YallaTheme.color.gray2,
-        contentColor = if (hasChanges) YallaTheme.color.white else YallaTheme.color.black,
+        containerColor = if (hasChanges) YallaTheme.color.onBackground else YallaTheme.color.surface,
+        contentColor = if (hasChanges) YallaTheme.color.background else YallaTheme.color.onBackground,
     )
 }

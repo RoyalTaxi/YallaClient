@@ -45,7 +45,7 @@ internal fun CardListScreen(
             CardListContent(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(YallaTheme.color.white)
+                    .background(YallaTheme.color.background)
                     .padding(paddingValues),
                 uiState = uiState,
                 onSelectItem = onSelectItem,
@@ -60,12 +60,13 @@ internal fun CardListScreen(
 private fun CardListTopBar(onNavigateBack: () -> Unit) {
     TopAppBar(
         title = {},
-        colors = TopAppBarDefaults.topAppBarColors(YallaTheme.color.white),
+        colors = TopAppBarDefaults.topAppBarColors(YallaTheme.color.background),
         navigationIcon = {
             IconButton(onClick = onNavigateBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                    contentDescription = null
+                    contentDescription = null,
+                    tint = YallaTheme.color.onBackground
                 )
             }
         }
@@ -137,7 +138,7 @@ private fun CardListHeader() {
     Column(modifier = Modifier.padding(horizontal = 20.dp)) {
         Text(
             text = stringResource(id = R.string.payment_method),
-            color = YallaTheme.color.black,
+            color = YallaTheme.color.onBackground,
             style = YallaTheme.font.headline
         )
 

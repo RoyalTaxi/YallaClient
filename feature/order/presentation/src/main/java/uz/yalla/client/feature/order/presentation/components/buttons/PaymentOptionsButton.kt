@@ -33,14 +33,14 @@ fun PaymentOptionsButton(
         shape = RoundedCornerShape(16.dp),
         onClick = onClick,
         contentPadding = PaddingValues(0.dp),
-        colors = ButtonDefaults.buttonColors(YallaTheme.color.gray2)
+        colors = ButtonDefaults.buttonColors(YallaTheme.color.surface)
     ) {
         Box {
             Icon(
                 painter = painter,
                 contentDescription = null,
                 tint = Color.Unspecified,
-                modifier = Modifier.size(36.dp)
+                modifier = Modifier.size(24.dp)
             )
 
             cardLastNumber?.let {
@@ -52,7 +52,7 @@ fun PaymentOptionsButton(
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(10.dp))
-                            .background(YallaTheme.color.black)
+                            .background(YallaTheme.color.onBackground)
                             .padding(2.dp)
                             .align(Alignment.TopEnd)
                     ) {
@@ -62,7 +62,7 @@ fun PaymentOptionsButton(
                                 fontSize = 8.sp,
                                 fontWeight = FontWeight.W700,
                             ),
-                            color = YallaTheme.color.white,
+                            color = YallaTheme.color.background,
                         )
                     }
                 }

@@ -29,7 +29,7 @@ internal fun NextButton(
         Icon(
             painter = painterResource(id = R.drawable.ic_next),
             contentDescription = null,
-            tint = YallaTheme.color.white,
+            tint = YallaTheme.color.onBlack,
             modifier = Modifier.size(24.dp)
         )
     }

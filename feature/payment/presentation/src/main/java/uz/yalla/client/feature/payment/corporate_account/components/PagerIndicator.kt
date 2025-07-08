@@ -76,7 +76,7 @@ internal fun PagerIndicator(
                             .padding(horizontal = 4.dp)
                             .background(
                                 if (pagerState.currentPage == iteration) YallaTheme.color.primary
-                                else YallaTheme.color.gray2,
+                                else YallaTheme.color.surface,
                                 CircleShape
                             )
                             .size(indicatorWidth, indicatorHeight)

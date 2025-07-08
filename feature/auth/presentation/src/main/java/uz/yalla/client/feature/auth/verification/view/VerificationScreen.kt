@@ -43,7 +43,7 @@ internal fun VerificationScreen(
     onIntent: (VerificationIntent) -> Unit
 ) {
     Scaffold(
-        containerColor = YallaTheme.color.white,
+        containerColor = YallaTheme.color.background,
         modifier = Modifier.imePadding(),
         topBar = {
             LoginAppBar { onIntent(VerificationIntent.NavigateBack) }
@@ -87,13 +87,14 @@ private fun LoginAppBar(
     onNavigateBack: () -> Unit
 ) {
     TopAppBar(
-        colors = TopAppBarDefaults.topAppBarColors(YallaTheme.color.white),
+        colors = TopAppBarDefaults.topAppBarColors(YallaTheme.color.background),
         title = {},
         navigationIcon = {
             IconButton(onClick = onNavigateBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                    contentDescription = null
+                    contentDescription = null,
+                    tint = YallaTheme.color.onBackground
                 )
             }
         }
@@ -108,7 +109,7 @@ private fun LoginContent(
 ) {
     Text(
         text = stringResource(id = R.string.enter_otp),
-        color = YallaTheme.color.black,
+        color = YallaTheme.color.onBackground,
         style = YallaTheme.font.headline
     )
 
@@ -156,7 +157,7 @@ private fun LoginContent(
                 Modifier.clickable(
                     onClick = reSendCode,
                     interactionSource = remember { MutableInteractionSource() },
-                    indication = ripple(color = YallaTheme.color.white)
+                    indication = ripple(color = YallaTheme.color.background)
                 )
             } else Modifier
         )
@@ -171,24 +172,9 @@ private fun LoginFooter(
     PrimaryButton(
         modifier = Modifier.fillMaxWidth(),
         text = stringResource(id = R.string.next),
+        containerColor = YallaTheme.color.black,
+        contentColor = YallaTheme.color.onBlack,
         enabled = primaryButtonState,
         onClick = onVerifyCode
-    )
-}
-
-@Composable
-private fun SnackBar(
-    hostState: SnackbarHostState
-) {
-    SnackbarHost(
-        hostState = hostState,
-        modifier = Modifier.imePadding(),
-        snackbar = { snackbarData: SnackbarData ->
-            Snackbar(
-                snackbarData = snackbarData,
-                containerColor = YallaTheme.color.red,
-                contentColor = YallaTheme.color.white
-            )
-        }
     )
 }

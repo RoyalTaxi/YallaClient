@@ -46,13 +46,13 @@ fun CenterAlignedScrollableTopBar(
                 if (collapsedFraction < 0.7f) {
                     Text(
                         text = title,
-                        color = YallaTheme.color.black,
+                        color = YallaTheme.color.onBackground,
                         style = titleTextStyle
                     )
                 } else {
                     Text(
                         text = title,
-                        color = YallaTheme.color.black,
+                        color = YallaTheme.color.onBackground,
                         style = titleTextStyle,
                         textAlign = TextAlign.Center,
                         modifier = Modifier

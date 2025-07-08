@@ -11,5 +11,7 @@ enum class SocialNetworkType {
     TELEGRAM,
     INSTAGRAM,
     PHONE,
-    EMAIL
+    EMAIL,
+    YOUTUBE,
+    FACEBOOK
 }

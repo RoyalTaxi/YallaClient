@@ -25,7 +25,6 @@ import uz.yalla.client.feature.history.R
 import uz.yalla.client.feature.history.history_details.components.OrderDetailsBottomSheet
 import uz.yalla.client.feature.history.history_details.model.HistoryDetailsUIState
 import uz.yalla.client.core.common.map.MapStrategy
-import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 
 @Composable
@@ -36,7 +35,7 @@ internal fun HistoryDetailsScreen(
     onIntent: (HistoryDetailsIntent) -> Unit
 ) {
     Scaffold(
-        containerColor = YallaTheme.color.white,
+        containerColor = YallaTheme.color.background,
         topBar = { HistoryDetailsTopBar { onIntent(HistoryDetailsIntent.NavigateBack) } },
         content = { paddingValues ->
             Column(
@@ -73,19 +72,20 @@ private fun HistoryDetailsTopBar(
     onNavigateBack: () -> Unit
 ) {
     CenterAlignedTopAppBar(
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.white),
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(YallaTheme.color.background),
         navigationIcon = {
             IconButton(onClick = onNavigateBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                    contentDescription = null
+                    contentDescription = null,
+                    tint = YallaTheme.color.onBackground
                 )
             }
         },
         title = {
             Text(
                 text = stringResource(R.string.order_details),
-                color = YallaTheme.color.black,
+                color = YallaTheme.color.onBackground,
                 style = YallaTheme.font.labelLarge
             )
         }

@@ -31,7 +31,7 @@ fun OrderDetailBonusItem(
         Column {
             Text(
                 text = title,
-                color = YallaTheme.color.black,
+                color = YallaTheme.color.onBackground,
                 style = YallaTheme.font.labelSemiBold
             )
 

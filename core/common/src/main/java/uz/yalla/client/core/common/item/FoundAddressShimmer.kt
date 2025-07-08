@@ -30,7 +30,7 @@ fun FoundAddressShimmer() {
             modifier = Modifier
                 .size(24.dp)
                 .clip(RoundedCornerShape(8.dp))
-                .background(YallaTheme.color.gray2)
+                .background(YallaTheme.color.surface)
                 .shimmerEffect()
         )
 
@@ -42,7 +42,7 @@ fun FoundAddressShimmer() {
                 modifier = Modifier
                     .size(100.dp, 20.dp)
                     .clip(RoundedCornerShape(8.dp))
-                    .background(YallaTheme.color.gray2)
+                    .background(YallaTheme.color.surface)
                     .shimmerEffect()
             )
 
@@ -50,7 +50,7 @@ fun FoundAddressShimmer() {
                 modifier = Modifier
                     .size(160.dp, 16.dp)
                     .clip(RoundedCornerShape(8.dp))
-                    .background(YallaTheme.color.gray2)
+                    .background(YallaTheme.color.surface)
                     .shimmerEffect()
             )
         }
