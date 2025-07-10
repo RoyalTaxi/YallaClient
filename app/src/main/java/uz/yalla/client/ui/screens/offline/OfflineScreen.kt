@@ -1,7 +1,9 @@
 package uz.yalla.client.ui.screens.offline
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.Intent.ACTION_DIAL
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -32,6 +34,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.koinInject
 import uz.yalla.client.R
+import uz.yalla.client.core.common.button.CallButton
 import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
@@ -98,16 +101,16 @@ fun OfflineScreen(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        PrimaryButton(
-            text = stringResource(R.string.call),
-            containerColor = YallaTheme.color.primary,
+        CallButton(
             modifier = Modifier.fillMaxWidth(),
             onClick = {
-                val intent = Intent(ACTION_DIAL).apply {
-                    data = "tel:$supportNumber".toUri()
-                }
-                if (intent.resolveActivity(context.packageManager) != null) {
+                val intent =
+                    Intent(ACTION_DIAL).apply { data = "tel:$supportNumber".toUri() }
+                try {
                     context.startActivity(intent)
+                } catch (e: ActivityNotFoundException) {
+                    Toast.makeText(context, "No dialer app found", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
         )

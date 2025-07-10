@@ -183,8 +183,6 @@ private fun RegistrationButton(
     PrimaryButton(
         modifier = Modifier.fillMaxWidth(),
         text = stringResource(id = R.string.next),
-        contentColor = YallaTheme.color.onBlack,
-        containerColor = YallaTheme.color.black,
         enabled = isEnabled,
         onClick = onClick
     )

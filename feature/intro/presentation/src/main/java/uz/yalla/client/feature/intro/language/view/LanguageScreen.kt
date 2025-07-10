@@ -102,8 +102,6 @@ private fun LanguageFooter(
     PrimaryButton(
         text = stringResource(id = R.string.next),
         enabled = isButtonEnabled,
-        containerColor = YallaTheme.color.black,
-        contentColor = YallaTheme.color.onBlack,
         onClick = onNext,
         modifier = Modifier
             .fillMaxWidth()

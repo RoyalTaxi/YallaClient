@@ -83,9 +83,9 @@ class MainActivity : AppCompatActivity() {
         val client = SmsRetriever.getClient(this)
         client.startSmsUserConsent(null)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            checkNotificationPermission()
-        }
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+//            checkNotificationPermission()
+//        }
 
         setContent {
             val isConnected by viewModel.isConnected.collectAsStateWithLifecycle()
@@ -104,17 +104,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun checkNotificationPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            }
-        }
-    }
+//    private fun checkNotificationPermission() {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+//            if (ContextCompat.checkSelfPermission(
+//                    this,
+//                    Manifest.permission.POST_NOTIFICATIONS
+//                ) != PackageManager.PERMISSION_GRANTED
+//            ) {
+//                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+//            }
+//        }
+//    }
 
     private fun checkForImmediateUpdate() {
         val appUpdateInfoTask = appUpdateManager.appUpdateInfo

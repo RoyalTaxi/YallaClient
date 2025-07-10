@@ -199,7 +199,7 @@ fun YallaMarker(
             if (state !is YallaMarkerState.Searching) AddressName(
                 state = state,
                 modifier = Modifier.constrainAs(locationName) {
-                    bottom.linkTo(circle.top, margin = 20.dp)
+                    bottom.linkTo(indicator.top, margin = 96.dp)
                     linkTo(start = parent.start, end = parent.end)
                 }
             )

@@ -44,7 +44,8 @@ fun FoundAddressItem(
                         PlaceType.OTHER -> R.drawable.ic_other
                     }
                 ),
-                contentDescription = null
+                contentDescription = null,
+                tint = YallaTheme.color.gray
             )
 
             Column(
