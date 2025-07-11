@@ -74,6 +74,23 @@ class MainSheetViewModel(
         }
     }
 
+    fun initializeLocation() {
+        viewModelScope.launch {
+            // Only initialize if no location is currently set
+            if (uiState.value.selectedLocation == null) {
+                val entryLocation = prefs.entryLocation.first()
+                if (entryLocation.first != 0.0 && entryLocation.second != 0.0) {
+                    val location = SelectedLocation(
+                        name = null,
+                        addressId = null,
+                        point = MapPoint(entryLocation.first, entryLocation.second)
+                    )
+                    setSelectedLocation(location)
+                }
+            }
+        }
+    }
+
     fun onIntent(intent: MainSheetIntent) {
         viewModelScope.launch {
             when (intent) {
@@ -253,7 +270,8 @@ class MainSheetViewModel(
                 tariffs = model,
                 selectedTariff = selected,
                 options = selected?.services ?: emptyList(),
-                selectedOptions = if (it.selectedTariff?.id != selected?.id) emptyList() else it.selectedOptions
+                selectedOptions = if (it.selectedTariff?.id != selected?.id) emptyList() else it.selectedOptions,
+                selectedService = if (model.working.isWorking) "main" else "no service"
             )
         }
 
@@ -283,7 +301,8 @@ class MainSheetViewModel(
                 tariffs = null,
                 selectedTariff = null,
                 options = emptyList(),
-                selectedOptions = emptyList()
+                selectedOptions = emptyList(),
+                selectedService = "no service"
             )
         }
     }

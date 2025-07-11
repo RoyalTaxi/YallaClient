@@ -121,6 +121,7 @@ fun MainSheet(
         launch {
             viewModel.getCardList()
             viewModel.setPaymentType(paymentType)
+            viewModel.initializeLocation()
         }
 
         launch {
