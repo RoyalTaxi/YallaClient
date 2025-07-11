@@ -78,6 +78,7 @@ class MainViewModel(
             prefs.setBecomeDrive(result.setting.executorLink)
             prefs.setInviteFriends(result.setting.inviteLinkForFriend)
             prefs.setCardEnabled(result.setting.isCardEnabled)
+            prefs.setSupportNumber(result.setting.supportPhone)
 
             if (result.setting.isCardEnabled)
                 prefs.setPaymentType(PaymentType.CASH)

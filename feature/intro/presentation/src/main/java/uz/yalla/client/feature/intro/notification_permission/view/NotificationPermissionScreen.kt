@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.intro.permission.view
+package uz.yalla.client.feature.intro.notification_permission.view
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
@@ -24,9 +24,9 @@ import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.intro.R
 
 @Composable
-internal fun PermissionScreen(
+internal fun NotificationPermissionScreen(
     scrollState: ScrollState,
-    onIntent: (PermissionIntent) -> Unit
+    onIntent: (NotificationPermissionIntent) -> Unit
 ) {
     Scaffold(
         containerColor = YallaTheme.color.background,
@@ -40,19 +40,19 @@ internal fun PermissionScreen(
         ) {
             Spacer(modifier = Modifier.height(43.dp))
 
-            PermissionContent()
+            NotificationPermissionContent()
 
             Spacer(modifier = Modifier.weight(1f))
 
             Spacer(modifier = Modifier.height(56.dp))
 
-            PermissionFooter { onIntent(PermissionIntent.GrantPermission) }
+            NotificationPermissionFooter { onIntent(NotificationPermissionIntent.GrantPermission) }
         }
     }
 }
 
 @Composable
-private fun PermissionContent ()
+private fun NotificationPermissionContent ()
 {
     Box(
         contentAlignment = Alignment.Center,
@@ -61,7 +61,7 @@ private fun PermissionContent ()
             .squareSize()
     ) {
         Image(
-            painter = painterResource(R.drawable.ic_onboarding_4),
+            painter = painterResource(R.drawable.ic_notification_permission),
             contentDescription = null,
         )
     }
@@ -69,7 +69,7 @@ private fun PermissionContent ()
     Spacer(modifier = Modifier.height(54.dp))
 
     Text(
-        text = stringResource(id = R.string.onboarding_4),
+        text = stringResource(id = R.string.enable_notification),
         color = YallaTheme.color.onBackground,
         style = YallaTheme.font.headline,
         modifier = Modifier.padding(horizontal = 20.dp)
@@ -78,7 +78,7 @@ private fun PermissionContent ()
     Spacer(modifier = Modifier.height(32.dp))
 
     Text(
-        text = stringResource(id = R.string.onboarding_4_desc),
+        text = stringResource(id = R.string.enable_notification_body),
         color = YallaTheme.color.gray,
         style = YallaTheme.font.body,
         modifier = Modifier.padding(horizontal = 20.dp)
@@ -86,7 +86,7 @@ private fun PermissionContent ()
 }
 
 @Composable
-private fun PermissionFooter(
+private fun NotificationPermissionFooter(
     onClickPermission: () -> Unit
 ) {
     PrimaryButton(

@@ -387,7 +387,7 @@ private fun SaveButton(
             .padding(horizontal = 20.dp),
         contentPadding = PaddingValues(vertical = 16.dp),
         onClick = onClick,
-        containerColor = if (hasChanges) YallaTheme.color.onBackground else YallaTheme.color.surface,
-        contentColor = if (hasChanges) YallaTheme.color.background else YallaTheme.color.onBackground,
+        containerColor = if (hasChanges) YallaTheme.color.primary else YallaTheme.color.surface,
+        contentColor = if (hasChanges) YallaTheme.color.onPrimary else YallaTheme.color.onSurface,
     )
 }

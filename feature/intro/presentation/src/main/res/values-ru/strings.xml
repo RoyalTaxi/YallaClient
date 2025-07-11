@@ -11,4 +11,6 @@
     <string name="next">Далее</string>
     <string name="choose_language">Выберите язык интерфейса</string>
     <string name="choose_language_desc">Выберите удобный язык для работы с приложением.</string>
+    <string name="enable_notification">Включить Уведомление</string>
+    <string name="enable_notification_body">Чтобы получать напоминания, статус поездки и важные сообщения от водителя.</string>
 </resources>

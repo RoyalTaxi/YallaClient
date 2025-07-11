@@ -243,8 +243,6 @@ fun ClientWaitingSheet(
             OrderDetailsBottomSheet(
                 order = it,
                 sheetState = orderDetailsSheetState,
-                onAddNewOrder = { viewModel.onIntent(ClientWaitingSheetIntent.AddNewOrder) },
-                onCancelOrder = { viewModel.setCancelBottomSheetVisibility(true) },
                 onDismissRequest = { viewModel.setDetailsBottomSheetVisibility(false) }
             )
         }

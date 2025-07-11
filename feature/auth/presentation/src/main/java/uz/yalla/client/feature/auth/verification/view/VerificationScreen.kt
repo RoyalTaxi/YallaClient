@@ -172,8 +172,6 @@ private fun LoginFooter(
     PrimaryButton(
         modifier = Modifier.fillMaxWidth(),
         text = stringResource(id = R.string.next),
-        containerColor = YallaTheme.color.black,
-        contentColor = YallaTheme.color.onBlack,
         enabled = primaryButtonState,
         onClick = onVerifyCode
     )

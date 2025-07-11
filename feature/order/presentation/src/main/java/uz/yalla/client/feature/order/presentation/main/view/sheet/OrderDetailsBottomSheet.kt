@@ -4,9 +4,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -40,22 +45,21 @@ import uz.yalla.client.feature.order.presentation.components.items.OrderActionsI
 fun OrderDetailsBottomSheet(
     order: ShowOrderModel,
     sheetState: SheetState,
-    onCancelOrder: () -> Unit,
-    onAddNewOrder: () -> Unit,
     onDismissRequest: () -> Unit
 ) {
     ModalBottomSheet(
         shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
-        containerColor = YallaTheme.color.surface,
+        containerColor = YallaTheme.color.background,
         sheetState = sheetState,
         dragHandle = null,
-        onDismissRequest = onDismissRequest
+        onDismissRequest = onDismissRequest,
+        modifier = Modifier.windowInsetsPadding(WindowInsets(top = 100.dp))
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier
                 .background(YallaTheme.color.surface)
-                .fillMaxWidth()
+                .fillMaxSize()
         ) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -101,6 +105,7 @@ fun OrderDetailsBottomSheet(
                     .clip(RoundedCornerShape(30.dp))
                     .background(YallaTheme.color.background)
                     .padding(vertical = 10.dp)
+                    .weight(1f)
             ) {
                 OrderDetailItem(
                     title = stringResource(R.string.tariff),
@@ -173,21 +178,7 @@ fun OrderDetailsBottomSheet(
                     }
                 }
 
-                OrderActionsItem(
-                    text = stringResource(R.string.add_order),
-                    imageVector = Icons.Default.Add,
-                    onClick = onAddNewOrder
-                )
-
-                if (order.status != OrderStatus.InFetters) {
-                    OrderActionsItem(
-                        text = stringResource(R.string.cancel_order),
-                        imageVector = Icons.Default.Close,
-                        tintColor = YallaTheme.color.red,
-                        contentColor = YallaTheme.color.red,
-                        onClick = onCancelOrder
-                    )
-                }
+                Spacer(modifier = Modifier.weight(1f))
             }
 
             Box(

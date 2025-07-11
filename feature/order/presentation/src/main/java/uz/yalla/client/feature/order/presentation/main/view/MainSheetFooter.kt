@@ -127,7 +127,7 @@ fun MainSheetFooter(
         OptionsButton(
             modifier = Modifier.fillMaxHeight(),
             badgeText = state.getBadgeText(),
-            tint = if (isTariffValidWithOptions) YallaTheme.color.dynamicPrimary else YallaTheme.color.red,
+            tint = if (isTariffValidWithOptions) YallaTheme.color.primary else YallaTheme.color.red,
             painter = painterResource(
                 when {
                     isTariffValidWithOptions.not() -> R.drawable.ic_x

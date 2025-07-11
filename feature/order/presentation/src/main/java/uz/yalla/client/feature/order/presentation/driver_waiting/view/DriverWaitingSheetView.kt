@@ -253,8 +253,6 @@ fun DriverWaitingSheet(
             OrderDetailsBottomSheet(
                 order = it,
                 sheetState = orderDetailsSheetState,
-                onAddNewOrder = { viewModel.onIntent(DriverWaitingSheetIntent.AddNewOrder) },
-                onCancelOrder = { viewModel.setCancelBottomSheetVisibility(true) },
                 onDismissRequest = { viewModel.setDetailsBottomSheetVisibility(false) }
             )
         }
