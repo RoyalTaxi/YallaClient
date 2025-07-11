@@ -37,3 +37,6 @@ val grayNight = Color(0xFF9A9A9A)
 
 val redDay = Color(0xFFF32152)
 val redNight = Color(0xFFF32152)
+
+val onRedDay = Color(0xFFFFFFFF)
+val onRedNight = Color(0xFFFFFFFF)

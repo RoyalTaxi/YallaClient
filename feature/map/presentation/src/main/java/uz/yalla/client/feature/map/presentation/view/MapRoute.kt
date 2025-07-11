@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.MediaPlayer
 import android.net.Uri
 import android.provider.Settings
 import androidx.activity.compose.BackHandler
@@ -23,7 +24,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -37,6 +37,7 @@ import uz.yalla.client.core.common.dialog.BaseDialog
 import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.core.common.map.MapStrategy
 import uz.yalla.client.core.common.marker.YallaMarkerState
+import uz.yalla.client.core.common.system.NotificationUtils
 import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.MapPoint
@@ -92,6 +93,7 @@ private val LocalDrawerState = compositionLocalOf { DrawerState(DrawerValue.Clos
 @OptIn(FlowPreview::class)
 @Composable
 fun MapRoute(
+    networkState: Boolean,
     onRegister: () -> Unit,
     onProfileClick: () -> Unit,
     onOrderHistoryClick: () -> Unit,
@@ -206,15 +208,14 @@ fun MapRoute(
     }
 
     // ✅ FIX 1: Move heavy operations to background dispatcher
+    // ✅ FIX: Allow background polling for order status updates
     LaunchedEffect(Unit) {
-        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            while (isActive) {
-                // Move to IO dispatcher to prevent main thread blocking
-                withContext(Dispatchers.IO) {
-                    vm.getActiveOrders()
-                }
-                delay(5.seconds)
+        while (isActive) {
+            // Move to IO dispatcher to prevent main thread blocking
+            withContext(Dispatchers.IO) {
+                vm.getActiveOrders()
             }
+            delay(5.seconds)
         }
     }
 
@@ -270,6 +271,15 @@ fun MapRoute(
 
                 OrderStatus.AtAddress -> {
                     if (navController.shouldNavigateToSheet(DRIVER_WAITING_ROUTE, order.id)) {
+                        // Play driver arrived sound
+                        playDriverArrivedSound(context)
+
+                        // Show system notification with sound (works even when app is in background)
+                        NotificationUtils.showDriverArrivalNotification(
+                            context,
+                            uz.yalla.client.feature.order.presentation.R.raw.driver_arrived_sound
+                        )
+
                         scope.launch(Dispatchers.Main.immediate) {
                             navController.navigateToDriverWaitingSheet(orderId = order.id)
                         }
@@ -665,6 +675,7 @@ fun MapRoute(
                 MapScreen(
                     map = mapInstance,
                     state = state,
+                    networkState = networkState,
                     moveCameraButtonState = state.moveCameraButtonState,
                     hamburgerButtonState = hamburgerButtonState,
                     hasLocationPermission = permissionsGranted,
@@ -892,4 +903,19 @@ private fun checkLocation(
         finePermission != PackageManager.PERMISSION_GRANTED ||
                 coarsePermission != PackageManager.PERMISSION_GRANTED
     )
+}
+
+private fun playDriverArrivedSound(context: Context) {
+    try {
+        val mediaPlayer =
+            MediaPlayer.create(context, uz.yalla.client.feature.order.presentation.R.raw.driver_arrived_sound)
+        mediaPlayer?.apply {
+            setOnCompletionListener { mp ->
+                mp.release()
+            }
+            start()
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
 }

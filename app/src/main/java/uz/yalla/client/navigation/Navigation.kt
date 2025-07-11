@@ -1,13 +1,12 @@
 package uz.yalla.client.navigation
 
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navOptions
 import uz.yalla.client.feature.auth.AUTH_ROUTE
 import uz.yalla.client.feature.auth.authModule
 import uz.yalla.client.feature.auth.navigateToAuthModule
@@ -50,6 +49,12 @@ fun Navigation(
     skipOnboarding: Boolean
 ) {
     val navController = rememberNavController()
+    var route by remember { mutableStateOf("") }
+    var showOfflineByMap by remember { mutableStateOf(false) }
+
+    LaunchedEffect(navController.currentDestination?.route) {
+        route = navController.currentDestination?.route ?: ""
+    }
 
     NavHost(
         modifier = Modifier.fillMaxSize(),
@@ -59,10 +64,10 @@ fun Navigation(
             skipOnboarding -> AUTH_ROUTE
             else -> INTRO_ROUTE
         },
-        enterTransition = { slideInHorizontally(initialOffsetX = { it }) },
-        popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) },
-        exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) },
-        popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) }
+        enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start, tween(700)) },
+        popEnterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End, tween(700)) },
+        exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start, tween(700)) },
+        popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End, tween(700)) }
     ) {
         introModule(
             navController = navController,
@@ -84,6 +89,7 @@ fun Navigation(
         )
 
         mapScreen(
+            networkState = isConnected,
             onRegisterClick = navController::navigateToAuthModule,
             onProfileClick = navController::navigateToEditProfileScreen,
             onOrderHistoryClick = navController::navigateToHistoryModule,
@@ -134,7 +140,7 @@ fun Navigation(
         notificationModule(navController = navController)
     }
 
-    if (!isConnected) {
+    if ((!isConnected && route != MAP_ROUTE) || (showOfflineByMap && route == MAP_ROUTE)) {
         OfflineScreen()
     }
 }

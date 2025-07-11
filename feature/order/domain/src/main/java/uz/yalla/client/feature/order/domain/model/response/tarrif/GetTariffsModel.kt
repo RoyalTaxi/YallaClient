@@ -4,7 +4,8 @@ import uz.yalla.client.core.domain.model.ServiceModel
 
 data class GetTariffsModel(
     val map: Map,
-    val tariff: List<Tariff>
+    val tariff: List<Tariff>,
+    val working: Working
 ) {
     data class Map(
         val distance: Double,
@@ -42,4 +43,9 @@ data class GetTariffsModel(
             val value: Int
         )
     }
+
+    data class Working(
+        val addressId: Int,
+        val isWorking: Boolean
+    )
 }

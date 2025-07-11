@@ -4,19 +4,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.common.sheet.search_address.SearchByNameSheetValue
 import uz.yalla.client.core.common.sheet.select_from_map.SelectFromMapViewValue
-import uz.yalla.client.core.domain.model.Destination
-import uz.yalla.client.core.domain.model.Executor
-import uz.yalla.client.core.domain.model.PaymentType
-import uz.yalla.client.core.domain.model.SelectedLocation
-import uz.yalla.client.core.domain.model.ServiceModel
-import uz.yalla.client.feature.map.domain.model.response.PolygonRemoteItem
+import uz.yalla.client.core.domain.model.*
 import uz.yalla.client.feature.order.domain.model.request.OrderTaxiDto
 import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 import uz.yalla.client.feature.order.domain.model.response.tarrif.GetTariffsModel
 import uz.yalla.client.feature.payment.domain.model.CardListItemModel
 
 data class MainSheetState(
-    val polygon: List<PolygonRemoteItem> = emptyList(),
     val loading: Boolean = false,
 
     val sheetHeight: Dp = 0.dp,
