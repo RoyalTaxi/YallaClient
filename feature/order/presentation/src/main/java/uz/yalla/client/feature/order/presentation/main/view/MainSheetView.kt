@@ -9,12 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
@@ -57,11 +52,7 @@ import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.Orde
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.PaymentMethodSheetIntent
 import uz.yalla.client.feature.order.presentation.main.view.page.OrderTaxiPage
 import uz.yalla.client.feature.order.presentation.main.view.page.TariffInfoPage
-import uz.yalla.client.feature.order.presentation.main.view.sheet.ArrangeDestinationsBottomSheet
-import uz.yalla.client.feature.order.presentation.main.view.sheet.BonusInfoBottomSheet
-import uz.yalla.client.feature.order.presentation.main.view.sheet.OrderCommentBottomSheet
-import uz.yalla.client.feature.order.presentation.main.view.sheet.PaymentMethodBottomSheet
-import uz.yalla.client.feature.order.presentation.main.view.sheet.SetBonusAmountBottomSheet
+import uz.yalla.client.feature.order.presentation.main.view.sheet.*
 import kotlin.time.Duration.Companion.seconds
 
 
@@ -128,7 +119,6 @@ fun MainSheet(
 
     LaunchedEffect(Unit) {
         launch {
-            viewModel.getPolygon()
             viewModel.getCardList()
             viewModel.setPaymentType(paymentType)
         }

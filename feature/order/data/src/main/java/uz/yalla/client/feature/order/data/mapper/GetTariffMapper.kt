@@ -13,7 +13,8 @@ object GetTariffMapper {
     val mapper: Mapper<GetTariffsResponse?, GetTariffsModel> = { remote ->
         GetTariffsModel(
             map = remote?.map.let(mapMapper),
-            tariff = remote?.tariff?.map(tariffMapper).orEmpty()
+            tariff = remote?.tariff?.map(tariffMapper).orEmpty(),
+            working = remote?.working.let(workingRemoteModelMapper)
         )
     }
 
@@ -80,4 +81,11 @@ object GetTariffMapper {
                 name = remote?.name.orEmpty()
             )
         }
+
+    private val workingRemoteModelMapper: Mapper<GetTariffsResponse.Working?, GetTariffsModel.Working> = { remote ->
+        GetTariffsModel.Working(
+            addressId = remote?.address_id.or0(),
+            isWorking = remote?.is_working.orFalse()
+        )
+    }
 }

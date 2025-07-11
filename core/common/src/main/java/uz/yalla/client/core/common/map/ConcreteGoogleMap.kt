@@ -448,6 +448,7 @@ private fun Markers(
             description = stringResource(R.string.coming),
             infoColor = YallaTheme.color.primary,
             pointColor = YallaTheme.color.gray,
+            pointBackgroundColor = YallaTheme.color.background
         )
     }
 
@@ -469,7 +470,8 @@ private fun Markers(
             },
             description = stringResource(R.string.on_the_way),
             infoColor = YallaTheme.color.black,
-            pointColor = YallaTheme.color.primary
+            pointColor = YallaTheme.color.primary,
+            pointBackgroundColor = YallaTheme.color.background
         )
     }
 

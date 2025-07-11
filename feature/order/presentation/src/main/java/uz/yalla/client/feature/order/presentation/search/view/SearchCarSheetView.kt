@@ -277,8 +277,6 @@ fun SearchCarSheet(
             OrderDetailsBottomSheet(
                 order = it,
                 sheetState = orderDetailsSheetState,
-                onAddNewOrder = { viewModel.onIntent(SearchCarSheetIntent.AddNewOrder) },
-                onCancelOrder = { viewModel.setCancelBottomSheetVisibility(true) },
                 onDismissRequest = { viewModel.setDetailsBottomSheetVisibility(false) }
             )
         }

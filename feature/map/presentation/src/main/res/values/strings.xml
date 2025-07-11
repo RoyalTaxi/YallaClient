@@ -27,4 +27,6 @@
     <string name="location_required">Joylashuv xizmatlari talab qilinadi</string>
     <string name="location_required_body">Iltimos, ushbu ilovadan toʻgʻri foydalanish uchun joylashuv xizmatlarini yoqing</string>
     <string name="enable_loacation">Joylashuv xizmatlarini yoqing</string>
+    <string name="no_connection">Internet bilan aloqa yo\'q</string>
+    <string name="check_your_connection">Iltimos ulanishni qayta tekshiring</string>
 </resources>

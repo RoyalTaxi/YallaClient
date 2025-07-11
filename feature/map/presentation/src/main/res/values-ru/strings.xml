@@ -29,4 +29,6 @@
     <string name="location_required">Требуются услуги по местоположению</string>
     <string name="location_required_body">Пожалуйста, включите службы определения местоположения для корректного использования этого приложения</string>
     <string name="enable_loacation">Включите службы геолокации.</string>
+    <string name="no_connection">Интернет недоступен</string>
+    <string name="check_your_connection">Проверьте подключение к сети</string>
 </resources>

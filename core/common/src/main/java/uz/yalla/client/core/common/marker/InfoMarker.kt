@@ -28,13 +28,15 @@ fun rememberGoogleMarkerWithInfo(
     title: String?,
     description: String?,
     infoColor: Color,
-    pointColor: Color
+    pointColor: Color,
+    pointBackgroundColor: Color
 ) = rememberGoogleMarker(key) {
     InfoMarker(
         title = title,
         description = description,
         infoColor = infoColor,
-        pointColor = pointColor
+        pointColor = pointColor,
+        pointBackgroundColor = pointBackgroundColor
     )
 }
 
@@ -44,13 +46,15 @@ fun rememberLibreMarkerWithInfo(
     title: String?,
     description: String?,
     infoColor: Color,
-    pointColor: Color
+    pointColor: Color,
+    pointBackgroundColor: Color
 ) = rememberLibreMarker(key) {
     InfoMarker(
         title = title,
         description = description,
         infoColor = infoColor,
-        pointColor = pointColor
+        pointColor = pointColor,
+        pointBackgroundColor = pointBackgroundColor
     )
 }
 
@@ -59,7 +63,8 @@ private fun InfoMarker(
     title: String?,
     description: String?,
     infoColor: Color,
-    pointColor: Color
+    pointColor: Color,
+    pointBackgroundColor: Color
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -92,7 +97,7 @@ private fun InfoMarker(
             modifier = Modifier
                 .size(16.dp)
                 .clip(CircleShape)
-                .background(YallaTheme.color.background)
+                .background(pointBackgroundColor)
                 .border(
                     shape = CircleShape,
                     width = 4.dp,

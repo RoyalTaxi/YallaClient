@@ -1,8 +1,13 @@
 package uz.yalla.client.core.common.button
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -11,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -37,10 +43,17 @@ fun GenderButton(
                 .padding(vertical = 16.dp)
                 .padding(start = 16.dp)
         ) {
-            Icon(
-                painter = painterResource(id = if (isSelected) R.drawable.ic_selected_radio else R.drawable.ic_unselected_radio),
-                contentDescription = null,
-                tint = Color.Unspecified
+
+            Box(
+                modifier = Modifier
+                    .size(24.dp)
+                    .clip(CircleShape)
+                    .background(YallaTheme.color.background)
+                    .border(
+                        width = 6.dp,
+                        color = if (isSelected) YallaTheme.color.onBackground else YallaTheme.color.surface,
+                        shape = CircleShape
+                    )
             )
 
             Text(

@@ -3,33 +3,15 @@ package uz.yalla.client.feature.order.presentation.main.model
 import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChangedBy
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import uz.yalla.client.core.common.sheet.search_address.SearchByNameSheetValue
 import uz.yalla.client.core.common.sheet.select_from_map.SelectFromMapViewValue
 import uz.yalla.client.core.data.mapper.orFalse
 import uz.yalla.client.core.domain.local.AppPreferences
-import uz.yalla.client.core.domain.model.Destination
-import uz.yalla.client.core.domain.model.MapPoint
-import uz.yalla.client.core.domain.model.PaymentType
-import uz.yalla.client.core.domain.model.SelectedLocation
-import uz.yalla.client.core.domain.model.ServiceModel
-import uz.yalla.client.feature.map.domain.model.response.PolygonRemoteItem
-import uz.yalla.client.feature.map.domain.usecase.GetPolygonUseCase
+import uz.yalla.client.core.domain.model.*
 import uz.yalla.client.feature.order.domain.model.response.tarrif.GetTariffsModel
 import uz.yalla.client.feature.order.domain.usecase.order.GetShowOrderUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.OrderTaxiUseCase
@@ -40,15 +22,10 @@ import uz.yalla.client.feature.order.presentation.main.MAIN_SHEET_ROUTE
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetAction
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetChannel
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent
-import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.FooterIntent
-import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.OrderCommentSheetIntent
-import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.OrderTaxiSheetIntent
-import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.PaymentMethodSheetIntent
-import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.TariffInfoSheetIntent
+import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.*
 import uz.yalla.client.feature.payment.domain.usecase.GetCardListUseCase
 
 class MainSheetViewModel(
-    private val getPolygonUseCase: GetPolygonUseCase,
     private val getTariffsUseCase: GetTariffsUseCase,
     private val orderTaxiUseCase: OrderTaxiUseCase,
     private val getCardListUseCase: GetCardListUseCase,
@@ -62,8 +39,6 @@ class MainSheetViewModel(
 
     private val _sheetVisibilityListener = Channel<Unit>(Channel.BUFFERED)
     val sheetVisibilityListener = _sheetVisibilityListener.receiveAsFlow()
-
-    private val _isPolygonLoading = MutableStateFlow(false)
 
     val buttonAndOptionsState = uiState
         .map(::mapToButtonAndOptionsState)
@@ -239,44 +214,15 @@ class MainSheetViewModel(
 
             val updated = selectedLocation.copy(point = point)
             _uiState.update { it.copy(selectedLocation = updated) }
-            point?.let { processLocation(updated) }
+            point?.let { processLocation() }
         }
     }
 
-    private suspend fun processLocation(location: SelectedLocation) {
-        if (uiState.value.polygon.isEmpty()) getPolygon()
-        val (inside, addressId) = isPointInsidePolygon(location.point ?: return)
-        _uiState.update { it.copy(selectedLocationId = addressId) }
+    private suspend fun processLocation() {
+        val defaultAddressId = 1
+        _uiState.update { it.copy(selectedLocationId = defaultAddressId) }
 
-        if (inside && addressId != null) {
-            suspendGetTariffs(addressId)
-            MainSheetChannel.sendIntent(OrderTaxiSheetIntent.SetServiceState(true))
-        } else {
-            setSelectedTariff(null)
-            handleTariffsFailure()
-            MainSheetChannel.sendIntent(OrderTaxiSheetIntent.SetServiceState(false))
-        }
-    }
-
-    private suspend fun isPointInsidePolygon(point: MapPoint): Pair<Boolean, Int?> =
-        coroutineScope {
-            val results = uiState.value.polygon.map { async { isPointInPolygon(point, it) } }
-            results.awaitAll().firstOrNull { it.first } ?: Pair(false, null)
-        }
-
-    private fun isPointInPolygon(point: MapPoint, polygon: PolygonRemoteItem): Pair<Boolean, Int?> {
-        val vertices = polygon.polygons.map { it.lat to it.lng }
-        var inside = false
-
-        for (i in vertices.indices) {
-            val (lat1, lng1) = vertices[i]
-            val (lat2, lng2) = vertices[(i - 1 + vertices.size) % vertices.size]
-            if ((lng1 > point.lng) != (lng2 > point.lng) &&
-                point.lat < (lat2 - lat1) * (point.lng - lng1) / (lng2 - lng1) + lat1
-            ) inside = !inside
-        }
-
-        return inside to if (inside) polygon.addressId else null
+        suspendGetTariffs(defaultAddressId)
     }
 
     private suspend fun suspendGetTariffs(addressId: Int): Result<GetTariffsModel> =
@@ -300,14 +246,25 @@ class MainSheetViewModel(
             result
         }
 
-    private fun handleTariffsSuccess(model: GetTariffsModel) = _uiState.update {
-        val selected = determineSelectedTariff(it.selectedTariff, model.tariff)
-        it.copy(
-            tariffs = model,
-            selectedTariff = selected,
-            options = selected?.services ?: emptyList(),
-            selectedOptions = if (it.selectedTariff?.id != selected?.id) emptyList() else it.selectedOptions
-        )
+    private fun handleTariffsSuccess(model: GetTariffsModel) {
+        _uiState.update {
+            val selected = determineSelectedTariff(it.selectedTariff, model.tariff)
+            it.copy(
+                tariffs = model,
+                selectedTariff = selected,
+                options = selected?.services ?: emptyList(),
+                selectedOptions = if (it.selectedTariff?.id != selected?.id) emptyList() else it.selectedOptions
+            )
+        }
+
+        // Use the working.isWorking field to determine service availability
+        if (model.working.isWorking) {
+            MainSheetChannel.sendIntent(OrderTaxiSheetIntent.SetServiceState(true))
+        } else {
+            setSelectedTariff(null)
+            handleTariffsFailure()
+            MainSheetChannel.sendIntent(OrderTaxiSheetIntent.SetServiceState(false))
+        }
     }
 
     private fun determineSelectedTariff(
@@ -384,17 +341,6 @@ class MainSheetViewModel(
 
     private fun MapPoint.toPair() = lat to lng
 
-    fun getPolygon() = viewModelScope.launch {
-        if (_isPolygonLoading.value) return@launch
-        _isPolygonLoading.value = true
-        try {
-            getPolygonUseCase().onSuccess {
-                _uiState.update { state -> state.copy(polygon = it) }
-            }
-        } finally {
-            _isPolygonLoading.value = false
-        }
-    }
 
     fun getCardList() = viewModelScope.launch {
         getCardListUseCase().onSuccess { res -> _uiState.update { it.copy(cardList = res) } }

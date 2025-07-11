@@ -1,10 +1,6 @@
 package uz.yalla.client.core.presentation.design.color
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.runtime.structuralEqualityPolicy
+import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 
 class ColorScheme(
@@ -20,6 +16,7 @@ class ColorScheme(
     onBlack: Color,
     gray: Color,
     red: Color,
+    onRed: Color
 ) {
     var primary by mutableStateOf(primary, structuralEqualityPolicy())
     var dynamicPrimary by mutableStateOf(dynamicPrimary, structuralEqualityPolicy())
@@ -33,6 +30,8 @@ class ColorScheme(
     var onBlack by mutableStateOf(onBlack, structuralEqualityPolicy())
     var gray by mutableStateOf(gray, structuralEqualityPolicy())
     var red by mutableStateOf(red, structuralEqualityPolicy())
+    var onRed by mutableStateOf(onRed, structuralEqualityPolicy())
+
 }
 
 fun yallaLight(
@@ -47,7 +46,8 @@ fun yallaLight(
     black: Color = blackDay,
     onBlack: Color = onBlackDay,
     gray: Color = grayDay,
-    red: Color = redDay
+    red: Color = redDay,
+    onRed: Color = onRedDay,
 ) = ColorScheme(
     primary = primary,
     dynamicPrimary = dynamicPrimary,
@@ -60,7 +60,8 @@ fun yallaLight(
     black = black,
     onBlack = onBlack,
     gray = gray,
-    red = red
+    red = red,
+    onRed = onRed
 )
 
 fun yallaDark(
@@ -75,7 +76,8 @@ fun yallaDark(
     black: Color = blackNight,
     onBlack: Color = onBlackNight,
     gray: Color = grayNight,
-    red: Color = redNight
+    red: Color = redNight,
+    onRed: Color = onRedNight
 ) = ColorScheme(
     primary = primary,
     dynamicPrimary = dynamicPrimary,
@@ -88,7 +90,8 @@ fun yallaDark(
     black = black,
     onBlack = onBlack,
     gray = gray,
-    red = red
+    red = red,
+    onRed = onRed
 )
 
 val LocalCustomColorScheme = staticCompositionLocalOf { yallaDark() }

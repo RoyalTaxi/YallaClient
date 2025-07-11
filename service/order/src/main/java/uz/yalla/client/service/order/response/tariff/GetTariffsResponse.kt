@@ -6,7 +6,8 @@ import uz.yalla.client.core.service.model.ServiceRemoteModel
 @Serializable
 data class GetTariffsResponse(
     val map: Map?,
-    val tariff: List<Tariff?>?
+    val tariff: List<Tariff?>?,
+    val working: Working?
 ) {
     @Serializable
     data class Map(
@@ -49,4 +50,10 @@ data class GetTariffsResponse(
             val value: Int?
         )
     }
+
+    @Serializable
+    data class Working(
+        val address_id: Int?,
+        val is_working: Boolean?
+    )
 }

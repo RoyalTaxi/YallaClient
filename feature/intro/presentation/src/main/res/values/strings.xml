@@ -13,5 +13,8 @@
     <string name="next">Keyingi</string>
     <string name="choose_language">Ilova interfeysi tilini tanlang</string>
     <string name="choose_language_desc">Iltimos, ilovada foydalanish uchun qulay tilni tanlang.</string>
+    <string name="enable_notification">Bildirishnomani yoqish</string>
+    <string name="enable_notification_body">Haydovchidan eslatmalar, sayohat holati va muhim xabarlarni olish uchun.</string>
+
 
 </resources>
