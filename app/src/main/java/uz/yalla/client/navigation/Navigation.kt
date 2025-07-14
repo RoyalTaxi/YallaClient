@@ -3,10 +3,16 @@ package uz.yalla.client.navigation
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.feature.auth.AUTH_ROUTE
 import uz.yalla.client.feature.auth.authModule
 import uz.yalla.client.feature.auth.navigateToAuthModule
@@ -50,6 +56,7 @@ fun Navigation(
 ) {
     val navController = rememberNavController()
     var route by remember { mutableStateOf("") }
+    var isMapReady by remember { mutableStateOf(false) }
     var showOfflineByMap by remember { mutableStateOf(false) }
 
     LaunchedEffect(navController.currentDestination?.route) {
@@ -64,10 +71,30 @@ fun Navigation(
             skipOnboarding -> AUTH_ROUTE
             else -> INTRO_ROUTE
         },
-        enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start, tween(700)) },
-        popEnterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End, tween(700)) },
-        exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start, tween(700)) },
-        popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End, tween(700)) }
+        enterTransition = {
+            slideIntoContainer(
+                AnimatedContentTransitionScope.SlideDirection.Start,
+                tween(700)
+            )
+        },
+        popEnterTransition = {
+            slideIntoContainer(
+                AnimatedContentTransitionScope.SlideDirection.End,
+                tween(700)
+            )
+        },
+        exitTransition = {
+            slideOutOfContainer(
+                AnimatedContentTransitionScope.SlideDirection.Start,
+                tween(700)
+            )
+        },
+        popExitTransition = {
+            slideOutOfContainer(
+                AnimatedContentTransitionScope.SlideDirection.End,
+                tween(700)
+            )
+        }
     ) {
         introModule(
             navController = navController,
@@ -103,7 +130,10 @@ fun Navigation(
             onBecomeDriverClick = navController::navigateToWebScreen,
             onInviteFriendClick = navController::navigateToWebScreen,
             onNotificationsClick = navController::navigateToNotificationModule,
-            onClickBonuses = navController::navigateToBonusModule
+            onClickBonuses = navController::navigateToBonusModule,
+            onMapReady = {
+                isMapReady = true
+            }
         )
 
         bonusModule(navController = navController)
@@ -142,5 +172,9 @@ fun Navigation(
 
     if ((!isConnected && route != MAP_ROUTE) || (showOfflineByMap && route == MAP_ROUTE)) {
         OfflineScreen()
+    }
+
+    if (isMapReady.not() && route == MAP_ROUTE) {
+        LoadingDialog()
     }
 }

@@ -19,7 +19,6 @@ import uz.yalla.client.core.data.BuildConfig
 import uz.yalla.client.core.domain.local.AppPreferences
 
 private val localeCache = MutableStateFlow("")
-private val tokenTypeCache = MutableStateFlow("")
 private val accessTokenCache = MutableStateFlow("")
 
 private val cacheScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
@@ -30,15 +29,11 @@ fun provideNetworkClient(
 ): HttpClient {
     cacheScope.launch {
         localeCache.value = preferences.locale.last()
-        tokenTypeCache.value = preferences.tokenType.last()
         accessTokenCache.value = preferences.accessToken.last()
     }
 
     cacheScope.launch {
         preferences.locale.collectLatest { localeCache.value = it }
-    }
-    cacheScope.launch {
-        preferences.tokenType.collectLatest { tokenTypeCache.value = it }
     }
     cacheScope.launch {
         preferences.accessToken.collectLatest { accessTokenCache.value = it }
@@ -62,7 +57,7 @@ fun provideNetworkClient(
             header("secret-key", "227da29a-b4b0-4682-a74f-492466836b6e")
             header(
                 "Authorization",
-                tokenTypeCache.value + accessTokenCache.value
+                "Bearer " + accessTokenCache.value
             )
         }
 

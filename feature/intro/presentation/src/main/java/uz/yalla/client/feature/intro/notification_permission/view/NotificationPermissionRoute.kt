@@ -1,12 +1,8 @@
 package uz.yalla.client.feature.intro.notification_permission.view
 
 import android.Manifest
-import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
-import android.provider.Settings
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.rememberScrollState
@@ -36,8 +32,7 @@ internal fun NotificationPermissionRoute(
                     context,
                     Manifest.permission.POST_NOTIFICATIONS
                 ) == PackageManager.PERMISSION_GRANTED
-            }
-            else {
+            } else {
                 true
             }
         )
@@ -45,15 +40,7 @@ internal fun NotificationPermissionRoute(
 
     val notificationPermissionRequest = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        isNotificationPermissionGranted = granted
-        if (!granted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                data = Uri.fromParts("package", context.packageName, null)
-            }
-            context.startActivity(intent)
-        }
-    }
+    ) { granted -> isNotificationPermissionGranted = granted }
 
     LaunchedEffect(isNotificationPermissionGranted) {
         launch(Dispatchers.Main) {
@@ -83,6 +70,10 @@ internal fun NotificationPermissionRoute(
                             onPermissionGranted()
                         }
                     }
+                }
+
+                NotificationPermissionIntent.Skip -> {
+                    onPermissionGranted()
                 }
             }
         }

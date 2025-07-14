@@ -15,6 +15,7 @@
     <string name="choose_language_desc">Iltimos, ilovada foydalanish uchun qulay tilni tanlang.</string>
     <string name="enable_notification">Bildirishnomani yoqish</string>
     <string name="enable_notification_body">Haydovchidan eslatmalar, sayohat holati va muhim xabarlarni olish uchun.</string>
-
-
+    <string name="skip">O\'tkazib yuborish</string>
+    <string name="error">Xatolik</string>
+    <string name="ok">Tushunarli</string>
 </resources>

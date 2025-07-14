@@ -1,8 +1,12 @@
 package uz.yalla.client.core.data.local
 
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.*
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.Preferences.Key
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -65,11 +69,6 @@ internal class AppPreferencesImpl(
     override val locale = get(Prefs.LOCALE, "uz")
     override fun setLocale(value: String) {
         scope.launch { set(Prefs.LOCALE, value) }
-    }
-
-    override val tokenType = get(Prefs.TOKEN_TYPE, "")
-    override fun setTokenType(value: String) {
-        scope.launch { set(Prefs.TOKEN_TYPE, value) }
     }
 
     override val accessToken = get(Prefs.ACCESS_TOKEN, "")

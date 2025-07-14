@@ -1,5 +1,7 @@
 package uz.yalla.client.feature.map.presentation.navigation
 
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
@@ -24,10 +26,15 @@ fun NavGraphBuilder.mapScreen(
     onAddNewCard: () -> Unit,
     onNotificationsClick: () -> Unit,
     onBecomeDriverClick: (String, String) -> Unit,
-    onInviteFriendClick: (String, String) -> Unit
+    onInviteFriendClick: (String, String) -> Unit,
+    onMapReady: () -> Unit,
 ) {
     composable(
-        route = MAP_ROUTE
+        route = MAP_ROUTE,
+        enterTransition = { fadeIn() },
+        popEnterTransition = { fadeIn() },
+        exitTransition = { fadeOut() },
+        popExitTransition = { fadeOut() }
     ) {
         MapRoute(
             networkState = networkState,
@@ -44,7 +51,8 @@ fun NavGraphBuilder.mapScreen(
             onNotificationsClick = onNotificationsClick,
             onInviteFriendClick = onInviteFriendClick,
             onClickBonuses = onClickBonuses,
-            onRegister = onRegisterClick
+            onRegister = onRegisterClick,
+            onMapReady = onMapReady
         )
     }
 }

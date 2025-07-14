@@ -31,4 +31,6 @@
     <string name="enable_loacation">Включите службы геолокации.</string>
     <string name="no_connection">Интернет недоступен</string>
     <string name="check_your_connection">Проверьте подключение к сети</string>
+    <string name="ok">Понятно</string>
+    <string name="error">Ошибка</string>
 </resources>

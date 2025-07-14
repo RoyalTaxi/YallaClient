@@ -5,23 +5,19 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
@@ -38,7 +34,6 @@ import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 import uz.yalla.client.feature.order.presentation.R
 import uz.yalla.client.feature.order.presentation.components.buttons.ProvideDescriptionButton
 import uz.yalla.client.feature.order.presentation.components.items.OptionsItem
-import uz.yalla.client.feature.order.presentation.components.items.OrderActionsItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,13 +48,13 @@ fun OrderDetailsBottomSheet(
         sheetState = sheetState,
         dragHandle = null,
         onDismissRequest = onDismissRequest,
-        modifier = Modifier.windowInsetsPadding(WindowInsets(top = 100.dp))
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .background(YallaTheme.color.surface)
-                .fillMaxSize()
+                .fillMaxHeight(.8f)
         ) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(10.dp),

@@ -8,17 +8,45 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.*
-import com.google.maps.android.compose.*
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.Dash
+import com.google.android.gms.maps.model.Gap
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.gms.maps.model.MapStyleOptions
+import com.google.maps.android.compose.CameraMoveStartedReason
+import com.google.maps.android.compose.CameraPositionState
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapType
+import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerComposable
+import com.google.maps.android.compose.Polyline
+import com.google.maps.android.compose.rememberCameraPositionState
+import com.google.maps.android.compose.rememberMarkerState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.android.awaitFrame
@@ -45,12 +73,16 @@ import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 import java.io.BufferedReader
 import java.io.InputStreamReader
-import kotlin.math.*
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.pow
+import kotlin.math.sin
+import kotlin.math.sqrt
 import kotlin.properties.Delegates
 
 private fun loadMapStyleFromRaw(context: Context): String {
     return try {
-        val inputStream = context.resources.openRawResource(R.raw.uber_style)
+        val inputStream = context.resources.openRawResource(R.raw.google_dark_map)
         val reader = BufferedReader(InputStreamReader(inputStream))
         val stringBuilder = StringBuilder()
         var line: String?
@@ -119,7 +151,7 @@ class ConcreteGoogleMap : MapStrategy, KoinComponent {
         }
 
         val driversVisibility by remember(cameraPositionState.position.zoom) {
-            mutableStateOf(cameraPositionState.position.zoom >= 14)
+            mutableStateOf(cameraPositionState.position.zoom >= 8)
         }
 
         LaunchedEffect(cameraPositionState) {
@@ -146,7 +178,9 @@ class ConcreteGoogleMap : MapStrategy, KoinComponent {
                 cameraPositionState = cameraPositionState,
                 contentPadding = contentPadding,
                 properties = MapProperties(
-                    mapStyleOptions = if (themeType == ThemeType.DARK) MapStyleOptions(loadMapStyleFromRaw(context)) else null,
+                    mapStyleOptions = if (themeType == ThemeType.DARK) MapStyleOptions(
+                        loadMapStyleFromRaw(context)
+                    ) else null,
                     mapType = MapType.NORMAL,
                     isMyLocationEnabled = context.hasLocationPermission()
                 ),
@@ -329,7 +363,9 @@ private fun Driver(
         MarkerComposable(
             flat = true,
             rotation = it.heading.toFloat(),
-            state = rememberMarkerState(position = LatLng(it.lat, it.lng))
+            state = rememberMarkerState(position = LatLng(it.lat, it.lng)),
+            anchor = Offset(0.5f, 0.5f),
+            zIndex = 1f
         ) {
             Icon(
                 painter = painterResource(R.drawable.img_car_marker),
@@ -411,7 +447,9 @@ private fun DriversWithAnimation(
             MarkerComposable(
                 state = markerState,
                 rotation = animatedHeading.value,
-                flat = true
+                flat = true,
+                anchor = Offset(0.5f, 0.5f),
+                zIndex = 1f
             ) {
                 Icon(
                     painter = painterResource(R.drawable.img_car_marker),
@@ -507,7 +545,8 @@ private fun Markers(
         key(start.hashCode()) {
             Marker(
                 state = rememberMarkerState(position = LatLng(start.lat, start.lng)),
-                icon = originIcon
+                icon = originIcon,
+                zIndex = 2f
             )
         }
     }
@@ -517,7 +556,8 @@ private fun Markers(
             key(mid.hashCode(), index) {
                 Marker(
                     state = rememberMarkerState(position = LatLng(mid.lat, mid.lng)),
-                    icon = middleIcon
+                    icon = middleIcon,
+                    zIndex = 2f
                 )
             }
         }
@@ -528,7 +568,8 @@ private fun Markers(
         key(end.hashCode()) {
             Marker(
                 state = rememberMarkerState(position = LatLng(end.lat, end.lng)),
-                icon = endIcon
+                icon = endIcon,
+                zIndex = 2f // INFO MARKERS SHOULD BE ON TOP
             )
         }
     }

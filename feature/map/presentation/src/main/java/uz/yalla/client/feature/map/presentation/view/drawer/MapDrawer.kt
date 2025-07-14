@@ -18,6 +18,7 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -42,7 +43,8 @@ fun MapDrawer(
     notificationsCount: Int = 0,
     bonusAmount: Int = 0,
     onIntent: (MapDrawerIntent) -> Unit,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
+    isMapReady: Boolean = false
 ) {
     val context = LocalContext.current
     val prefs = koinInject<AppPreferences>()
@@ -54,6 +56,8 @@ fun MapDrawer(
     ModalNavigationDrawer(
         drawerState = drawerState,
         gesturesEnabled = drawerState.isOpen,
+
+        modifier = Modifier.alpha(if (isMapReady) 1f else 0f),
         drawerContent = {
             ModalDrawerSheet(
                 drawerShape = RoundedCornerShape(topEnd = 30.dp, bottomEnd = 30.dp),
