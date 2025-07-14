@@ -82,7 +82,7 @@ import kotlin.properties.Delegates
 
 private fun loadMapStyleFromRaw(context: Context): String {
     return try {
-        val inputStream = context.resources.openRawResource(R.raw.uber_style)
+        val inputStream = context.resources.openRawResource(R.raw.google_dark_map)
         val reader = BufferedReader(InputStreamReader(inputStream))
         val stringBuilder = StringBuilder()
         var line: String?
@@ -178,7 +178,9 @@ class ConcreteGoogleMap : MapStrategy, KoinComponent {
                 cameraPositionState = cameraPositionState,
                 contentPadding = contentPadding,
                 properties = MapProperties(
-                    mapStyleOptions = if (themeType == ThemeType.DARK) MapStyleOptions(loadMapStyleFromRaw(context)) else null,
+                    mapStyleOptions = if (themeType == ThemeType.DARK) MapStyleOptions(
+                        loadMapStyleFromRaw(context)
+                    ) else null,
                     mapType = MapType.NORMAL,
                     isMyLocationEnabled = context.hasLocationPermission()
                 ),
