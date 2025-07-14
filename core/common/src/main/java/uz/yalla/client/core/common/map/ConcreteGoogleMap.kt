@@ -151,7 +151,7 @@ class ConcreteGoogleMap : MapStrategy, KoinComponent {
         }
 
         val driversVisibility by remember(cameraPositionState.position.zoom) {
-            mutableStateOf(cameraPositionState.position.zoom >= 14)
+            mutableStateOf(cameraPositionState.position.zoom >= 8)
         }
 
         LaunchedEffect(cameraPositionState) {
@@ -362,7 +362,8 @@ private fun Driver(
             flat = true,
             rotation = it.heading.toFloat(),
             state = rememberMarkerState(position = LatLng(it.lat, it.lng)),
-            anchor = Offset(0.5f, 0.5f)
+            anchor = Offset(0.5f, 0.5f),
+            zIndex = 1f
         ) {
             Icon(
                 painter = painterResource(R.drawable.img_car_marker),
@@ -445,7 +446,8 @@ private fun DriversWithAnimation(
                 state = markerState,
                 rotation = animatedHeading.value,
                 flat = true,
-                anchor = Offset(0.5f, 0.5f)
+                anchor = Offset(0.5f, 0.5f),
+                zIndex = 1f
             ) {
                 Icon(
                     painter = painterResource(R.drawable.img_car_marker),
@@ -541,7 +543,8 @@ private fun Markers(
         key(start.hashCode()) {
             Marker(
                 state = rememberMarkerState(position = LatLng(start.lat, start.lng)),
-                icon = originIcon
+                icon = originIcon,
+                zIndex = 2f
             )
         }
     }
@@ -551,7 +554,8 @@ private fun Markers(
             key(mid.hashCode(), index) {
                 Marker(
                     state = rememberMarkerState(position = LatLng(mid.lat, mid.lng)),
-                    icon = middleIcon
+                    icon = middleIcon,
+                    zIndex = 2f
                 )
             }
         }
@@ -562,7 +566,8 @@ private fun Markers(
         key(end.hashCode()) {
             Marker(
                 state = rememberMarkerState(position = LatLng(end.lat, end.lng)),
-                icon = endIcon
+                icon = endIcon,
+                zIndex = 2f // INFO MARKERS SHOULD BE ON TOP
             )
         }
     }
