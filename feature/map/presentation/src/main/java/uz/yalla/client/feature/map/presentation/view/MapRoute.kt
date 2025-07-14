@@ -15,10 +15,23 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.rememberDrawerState
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.zIndex
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -27,10 +40,16 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.android.awaitFrame
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import uz.yalla.client.core.common.dialog.BaseDialog
@@ -108,7 +127,8 @@ fun MapRoute(
     onClickBonuses: () -> Unit,
     onBecomeDriverClick: (String, String) -> Unit,
     onInviteFriendClick: (String, String) -> Unit,
-    vm: MapViewModel = koinViewModel()
+    onMapReady: () -> Unit,
+    vm: MapViewModel = koinViewModel(),
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -119,6 +139,9 @@ fun MapRoute(
     var showLoadingByMap by remember { mutableStateOf(true) }
 
     var showPermissionDialog by remember { mutableStateOf(false) }
+    val showErrorDialog by vm.showErrorDialog.collectAsStateWithLifecycle()
+    val currentErrorMessageId by vm.currentErrorMessageId.collectAsStateWithLifecycle()
+
 
     val locationPermissionRequest = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -649,11 +672,15 @@ fun MapRoute(
         }
     }
 
+    // Track if map is ready to prevent drawer animation during initial load
+    var isMapReady by remember { mutableStateOf(false) }
+
     MapDrawer(
         user = state.user,
         drawerState = drawerState,
         bonusAmount = state.user?.client?.balance.or0(),
         notificationsCount = state.notificationsCount,
+        isMapReady = isMapReady,
         onIntent = { intent ->
             when (intent) {
                 is MapDrawerIntent.Profile -> onProfileClick()
@@ -739,7 +766,10 @@ fun MapRoute(
                         }
 
                         is MapScreenIntent.MapOverlayIntent.OnMapReady -> {
+                            onMapReady()
                             showLoadingByMap = false
+                            // Set map ready state to enable drawer animations
+                            isMapReady = true
                             val orderCoordinates =
                                 state.selectedOrder?.taxi?.routes?.firstOrNull()?.coords
                             when {
@@ -779,7 +809,8 @@ fun MapRoute(
 
     if (state.loading || map == null || showLoadingByMap) {
         LoadingDialog(
-            alpha = if (state.loading) .3f else 1f
+            alpha = if (state.loading) .3f else 1f,
+            modifier = Modifier.zIndex(100f)
         )
     }
 
@@ -794,6 +825,16 @@ fun MapRoute(
             onDismiss = {
                 showPermissionDialog = false
             }
+        )
+    }
+
+    if (showErrorDialog) {
+        BaseDialog(
+            title = stringResource(R.string.error),
+            description = currentErrorMessageId?.let { stringResource(it) },
+            actionText = stringResource(R.string.ok),
+            onAction = { vm.dismissErrorDialog() },
+            onDismiss = { vm.dismissErrorDialog() }
         )
     }
 }
@@ -908,7 +949,10 @@ private fun checkLocation(
 private fun playDriverArrivedSound(context: Context) {
     try {
         val mediaPlayer =
-            MediaPlayer.create(context, uz.yalla.client.feature.order.presentation.R.raw.driver_arrived_sound)
+            MediaPlayer.create(
+                context,
+                uz.yalla.client.feature.order.presentation.R.raw.driver_arrived_sound
+            )
         mediaPlayer?.apply {
             setOnCompletionListener { mp ->
                 mp.release()

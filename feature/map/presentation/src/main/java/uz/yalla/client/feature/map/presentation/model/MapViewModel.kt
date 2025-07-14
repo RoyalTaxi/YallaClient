@@ -1,7 +1,5 @@
 package uz.yalla.client.feature.map.presentation.model
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -28,6 +26,7 @@ import uz.yalla.client.core.common.state.HamburgerButtonState
 import uz.yalla.client.core.common.state.MoveCameraButtonState.FirstLocation
 import uz.yalla.client.core.common.state.MoveCameraButtonState.MyLocationView
 import uz.yalla.client.core.common.state.MoveCameraButtonState.MyRouteView
+import uz.yalla.client.core.common.viewmodel.BaseViewModel
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.MapPoint
@@ -44,6 +43,7 @@ import uz.yalla.client.feature.order.domain.usecase.order.GetSettingUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.GetShowOrderUseCase
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetChannel
 import uz.yalla.client.feature.profile.domain.usecase.GetMeUseCase
+import uz.yalla.client.feature.setting.domain.usecase.GetConfigUseCase
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.ceil
 import kotlin.time.Duration.Companion.seconds
@@ -56,8 +56,9 @@ class MapViewModel(
     private val getActiveOrdersUseCase: GetActiveOrdersUseCase,
     private val prefs: AppPreferences,
     private val getNotificationsCountUseCase: GetNotificationsCountUseCase,
-    private val getSettingUseCase: GetSettingUseCase
-) : ViewModel() {
+    private val getSettingUseCase: GetSettingUseCase,
+    private val getConfigUseCase: GetConfigUseCase
+) : BaseViewModel() {
 
     private val _uiState = MutableStateFlow(MapUIState())
     val uiState = _uiState.asStateFlow()
@@ -165,6 +166,12 @@ class MapViewModel(
                     }
                 }
         }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            getConfigUseCase().onSuccess {
+                prefs.setSupportNumber(it.setting.supportPhone)
+            }
+        }
     }
 
     val hamburgerButtonState = uiState
@@ -200,7 +207,7 @@ class MapViewModel(
         getMeUseCase().onSuccess { user ->
             _uiState.update { it.copy(user = user) }
             prefs.setBalance(user.client.balance)
-        }
+        }.onFailure(::handleException)
     }
 
     fun getNotificationsCount() = viewModelScope.launch {

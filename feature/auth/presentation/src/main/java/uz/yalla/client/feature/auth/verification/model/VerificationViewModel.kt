@@ -106,7 +106,6 @@ class VerificationViewModel(
     private fun saveAuthResult(result: VerifyAuthCodeModel) {
         result.client?.let { client ->
             prefs.setAccessToken(result.accessToken)
-            prefs.setTokenType(result.tokenType)
             prefs.setDeviceRegistered(true)
             prefs.setNumber(client.phone)
             prefs.setGender(client.gender)

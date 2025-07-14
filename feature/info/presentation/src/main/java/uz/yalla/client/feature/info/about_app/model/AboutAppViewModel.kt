@@ -31,7 +31,7 @@ internal class AboutAppViewModel(
                     SocialNetwork(
                         iconResId = R.drawable.ic_instagram,
                         titleResId = R.string.instagram,
-                        value = result.setting.supportInstagramNickname,
+                        value = result.setting.instagram,
                         type = SocialNetworkType.INSTAGRAM
                     ),
                     SocialNetwork(

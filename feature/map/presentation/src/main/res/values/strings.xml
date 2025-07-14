@@ -29,4 +29,6 @@
     <string name="enable_loacation">Joylashuv xizmatlarini yoqing</string>
     <string name="no_connection">Internet bilan aloqa yo\'q</string>
     <string name="check_your_connection">Iltimos ulanishni qayta tekshiring</string>
+    <string name="error">Xatolik</string>
+    <string name="ok">Tushunarli</string>
 </resources>

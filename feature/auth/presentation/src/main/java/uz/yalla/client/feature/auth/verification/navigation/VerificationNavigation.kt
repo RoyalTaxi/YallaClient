@@ -1,5 +1,6 @@
 package uz.yalla.client.feature.auth.verification.navigation
 
+import androidx.compose.animation.fadeOut
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
@@ -25,7 +26,9 @@ fun NavGraphBuilder.verificationScreen(
         arguments = listOf(
             navArgument(NUMBER) { type = NavType.StringType },
             navArgument(EXPIRES_IN) { type = NavType.IntType }
-        )
+        ),
+        exitTransition = { fadeOut() },
+        popExitTransition = { fadeOut() }
     ) { backStackEntry ->
         VerificationRoute(
             number = backStackEntry.arguments?.getString(NUMBER) ?: "",

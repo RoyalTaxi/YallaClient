@@ -1,11 +1,7 @@
 package uz.yalla.client.activity
 
-import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -17,7 +13,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.gms.auth.api.phone.SmsRetriever
@@ -27,7 +22,7 @@ import com.google.android.play.core.appupdate.AppUpdateOptions
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import uz.yalla.client.BuildConfig
+import uz.yalla.client.core.data.BuildConfig
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.navigation.Navigation
 
@@ -37,18 +32,6 @@ class MainActivity : AppCompatActivity() {
     private val appUpdateManager: AppUpdateManager by lazy { AppUpdateManagerFactory.create(this) }
 
     private val viewModel: MainViewModel by viewModel()
-
-    private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (!isGranted) {
-            Toast.makeText(
-                this,
-                "Bildirishnomalar o'chiq. Kerakli habarlani o'tkizib yuborishingiz mumkin",
-                Toast.LENGTH_LONG
-            ).show()
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
@@ -83,10 +66,6 @@ class MainActivity : AppCompatActivity() {
         val client = SmsRetriever.getClient(this)
         client.startSmsUserConsent(null)
 
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-//            checkNotificationPermission()
-//        }
-
         setContent {
             val isConnected by viewModel.isConnected.collectAsStateWithLifecycle()
             val isDeviceRegistered by viewModel.isDeviceRegistered.collectAsStateWithLifecycle()
@@ -103,18 +82,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
-//    private fun checkNotificationPermission() {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-//            if (ContextCompat.checkSelfPermission(
-//                    this,
-//                    Manifest.permission.POST_NOTIFICATIONS
-//                ) != PackageManager.PERMISSION_GRANTED
-//            ) {
-//                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-//            }
-//        }
-//    }
 
     private fun checkForImmediateUpdate() {
         val appUpdateInfoTask = appUpdateManager.appUpdateInfo
@@ -149,10 +116,10 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
-//    override fun onResume() {
-//        super.onResume()
-//        if (!BuildConfig.DEBUG) {
-//            checkForImmediateUpdate()
-//        }
-//    }
+    override fun onResume() {
+        super.onResume()
+        if (!BuildConfig.DEBUG) {
+            checkForImmediateUpdate()
+        }
+    }
 }

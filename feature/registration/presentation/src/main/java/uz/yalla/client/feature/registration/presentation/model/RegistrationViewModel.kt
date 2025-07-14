@@ -54,7 +54,6 @@ internal class RegistrationViewModel(
                 secretKey
             ).onSuccess { result ->
                 prefs.setAccessToken(result.accessToken)
-                prefs.setTokenType(result.tokenType)
                 prefs.setDeviceRegistered(true)
                 prefs.setNumber(number)
                 prefs.setFirstName(firstName)
