@@ -514,7 +514,11 @@ private fun Markers(
     }
 
     if (route.isNotEmpty()) {
-        Polyline(points = route.map { LatLng(it.lat, it.lng) })
+        val isDarkTheme = isSystemInDarkTheme()
+        Polyline(
+            points = route.map { LatLng(it.lat, it.lng) },
+            color = if (isDarkTheme) Color.White else Color.Black
+        )
     }
 
     if (route.isNotEmpty() && orderStatus !in OrderStatus.cancellable) {
