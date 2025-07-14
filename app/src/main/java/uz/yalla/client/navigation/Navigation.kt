@@ -48,6 +48,8 @@ import uz.yalla.client.feature.web.navigateToWebScreen
 import uz.yalla.client.feature.web.webScreen
 import uz.yalla.client.ui.screens.offline.OfflineScreen
 
+const val NAVIGATION_DURATION = 300
+
 @Composable
 fun Navigation(
     isConnected: Boolean,
@@ -74,25 +76,25 @@ fun Navigation(
         enterTransition = {
             slideIntoContainer(
                 AnimatedContentTransitionScope.SlideDirection.Start,
-                tween(700)
+                tween(NAVIGATION_DURATION)
             )
         },
         popEnterTransition = {
             slideIntoContainer(
                 AnimatedContentTransitionScope.SlideDirection.End,
-                tween(700)
+                tween(NAVIGATION_DURATION)
             )
         },
         exitTransition = {
             slideOutOfContainer(
                 AnimatedContentTransitionScope.SlideDirection.Start,
-                tween(700)
+                tween(NAVIGATION_DURATION)
             )
         },
         popExitTransition = {
             slideOutOfContainer(
                 AnimatedContentTransitionScope.SlideDirection.End,
-                tween(700)
+                tween(NAVIGATION_DURATION)
             )
         }
     ) {
