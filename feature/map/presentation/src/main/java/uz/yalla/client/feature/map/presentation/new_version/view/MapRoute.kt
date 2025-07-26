@@ -29,6 +29,7 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 import uz.yalla.client.core.common.dialog.BaseDialog
 import uz.yalla.client.core.common.maps.MapsIntent
 import uz.yalla.client.core.common.maps.MapsViewModel
+import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.feature.map.presentation.R
 import uz.yalla.client.feature.map.presentation.new_version.intent.MapDrawerIntent
 import uz.yalla.client.feature.map.presentation.new_version.intent.MapEffect
@@ -39,11 +40,33 @@ import uz.yalla.client.feature.map.presentation.new_version.model.setLocationEna
 import uz.yalla.client.feature.map.presentation.new_version.model.setLocationGranted
 import uz.yalla.client.feature.map.presentation.new_version.model.setPermissionDialog
 import uz.yalla.client.feature.map.presentation.new_version.navigation.FromMap
+import uz.yalla.client.feature.map.presentation.new_version.navigation.shouldNavigateToSheet
 import uz.yalla.client.feature.map.presentation.new_version.utils.LocationServiceReceiver
 import uz.yalla.client.feature.map.presentation.new_version.utils.checkLocation
 import uz.yalla.client.feature.map.presentation.new_version.utils.requestPermission
 import uz.yalla.client.feature.map.presentation.new_version.utils.showEnableLocationSettings
+import uz.yalla.client.feature.order.presentation.client_waiting.CLIENT_WAITING_ROUTE
+import uz.yalla.client.feature.order.presentation.client_waiting.navigateToClientWaitingSheet
+import uz.yalla.client.feature.order.presentation.client_waiting.view.ClientWaitingSheetChannel
+import uz.yalla.client.feature.order.presentation.driver_waiting.DRIVER_WAITING_ROUTE
+import uz.yalla.client.feature.order.presentation.driver_waiting.navigateToDriverWaitingSheet
+import uz.yalla.client.feature.order.presentation.driver_waiting.view.DriverWaitingSheetChannel
+import uz.yalla.client.feature.order.presentation.feedback.FEEDBACK_ROUTE
+import uz.yalla.client.feature.order.presentation.feedback.navigateToFeedbackSheet
+import uz.yalla.client.feature.order.presentation.feedback.view.FeedbackSheetChannel
+import uz.yalla.client.feature.order.presentation.main.MAIN_SHEET_ROUTE
+import uz.yalla.client.feature.order.presentation.main.navigateToMainSheet
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetChannel
+import uz.yalla.client.feature.order.presentation.no_service.NO_SERVICE_ROUTE
+import uz.yalla.client.feature.order.presentation.on_the_ride.ON_THE_RIDE_ROUTE
+import uz.yalla.client.feature.order.presentation.on_the_ride.navigateToOnTheRideSheet
+import uz.yalla.client.feature.order.presentation.on_the_ride.view.OnTheRideSheetChannel
+import uz.yalla.client.feature.order.presentation.order_canceled.ORDER_CANCELED_ROUTE
+import uz.yalla.client.feature.order.presentation.order_canceled.navigateToCanceledOrder
+import uz.yalla.client.feature.order.presentation.order_canceled.view.OrderCanceledSheetChannel
+import uz.yalla.client.feature.order.presentation.search.SEARCH_CAR_ROUTE
+import uz.yalla.client.feature.order.presentation.search.navigateToSearchForCarBottomSheet
+import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheetChannel
 
 @Composable
 fun MRoute(
@@ -79,6 +102,14 @@ fun MRoute(
         }
     }
 
+    viewModel.collectSideEffect { effect ->
+        when (effect) {
+            MapEffect.EnableLocation -> showEnableLocationSettings(context)
+            MapEffect.GrantLocation -> requestPermission(context, locationPermissionRequest)
+            is MapEffect.NavigateToCancelled -> onNavigate(FromMap.ToCancel(effect.orderId))
+        }
+    }
+
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) checkLocation(
@@ -99,13 +130,6 @@ fun MRoute(
         }
     }
 
-    viewModel.collectSideEffect { effect ->
-        when (effect) {
-            MapEffect.EnableLocation -> showEnableLocationSettings(context)
-            MapEffect.GrantLocation -> requestPermission(context, locationPermissionRequest)
-        }
-    }
-
     LaunchedEffect(topPaddingDp) {
         mapsViewModel.onIntent(MapsIntent.SetTopPadding(topPaddingDp))
     }
@@ -118,12 +142,6 @@ fun MRoute(
         onDispose {
             viewModel.onDisappear()
             mapsViewModel.onDisappear()
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        scope.launch {
-            MainSheetChannel.intentFlow.collectLatest(viewModel::onIntent)
         }
     }
 
@@ -160,6 +178,88 @@ fun MRoute(
             }
         }
     )
+
+    LaunchedEffect(state.order) {
+        when (state.order?.status) {
+            OrderStatus.Appointed -> {
+                state.order?.id?.let { orderId ->
+                    if (navController.shouldNavigateToSheet(CLIENT_WAITING_ROUTE, orderId)) {
+                        navController.navigateToClientWaitingSheet(orderId = orderId)
+                        ClientWaitingSheetChannel.intentFlow.collect(viewModel::onIntent)
+                    }
+                }
+            }
+
+            OrderStatus.AtAddress -> {
+                state.order?.id?.let { orderId ->
+                    if (navController.shouldNavigateToSheet(DRIVER_WAITING_ROUTE, orderId)) {
+                        navController.navigateToDriverWaitingSheet(orderId = orderId)
+                        DriverWaitingSheetChannel.intentFlow.collect(viewModel::onIntent)
+                    }
+                }
+            }
+
+            OrderStatus.InFetters -> {
+                state.order?.id?.let { orderId ->
+                    if (navController.shouldNavigateToSheet(ON_THE_RIDE_ROUTE, orderId)) {
+                        navController.navigateToOnTheRideSheet(orderId = orderId)
+                        OnTheRideSheetChannel.intentFlow.collect(viewModel::onIntent)
+                    }
+                }
+            }
+
+            OrderStatus.Canceled -> {
+                state.order?.id?.let { orderId ->
+                    if (navController.shouldNavigateToSheet(ORDER_CANCELED_ROUTE, orderId)) {
+                        navController.navigateToCanceledOrder()
+                        OrderCanceledSheetChannel.intentFlow.collect(viewModel::onIntent)
+                    }
+                }
+            }
+
+            OrderStatus.Completed -> {
+                state.order?.id?.let { orderId ->
+                    if (navController.shouldNavigateToSheet(FEEDBACK_ROUTE, orderId)) {
+                        navController.navigateToFeedbackSheet(orderId = orderId)
+                        FeedbackSheetChannel.intentFlow.collect(viewModel::onIntent)
+                    }
+                }
+            }
+
+            null -> {
+                val currentDestination = navController.currentDestination?.route ?: ""
+                val isInOrderFlow = listOf(
+                    CLIENT_WAITING_ROUTE, DRIVER_WAITING_ROUTE, ON_THE_RIDE_ROUTE,
+                    FEEDBACK_ROUTE, SEARCH_CAR_ROUTE, ORDER_CANCELED_ROUTE
+                ).any { currentDestination.contains(it) }
+
+                if (!currentDestination.contains(MAIN_SHEET_ROUTE) &&
+                    !currentDestination.contains(NO_SERVICE_ROUTE) &&
+                    !isInOrderFlow
+                ) {
+                    navController.navigateToMainSheet()
+                }
+            }
+
+            else -> {
+                state.order?.id?.let { orderId ->
+                    state.markerLocation?.point?.let { point ->
+                        state.tariffId?.let { tariffId ->
+                            if (navController.shouldNavigateToSheet(SEARCH_CAR_ROUTE, orderId)) {
+                                navController.navigateToSearchForCarBottomSheet(
+                                    orderId = orderId,
+                                    point = point,
+                                    tariffId = tariffId
+                                )
+                                SearchCarSheetChannel.intentFlow.collect(viewModel::onIntent)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 
     if (state.permissionDialogVisible) {
         BaseDialog(

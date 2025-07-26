@@ -1,5 +1,16 @@
 package uz.yalla.client.feature.map.presentation.new_version.model
 
+
+fun MViewModel.clearState() = intent {
+    reduce {
+        state.copy(
+            order = null,
+            orderId = null,
+            route = emptyList(),
+        )
+    }
+}
+
 fun MViewModel.removeLastDestination() = intent {
     if (state.destinations.isNotEmpty())
         reduce { state.copy(destinations = state.destinations.dropLast(1)) }

@@ -4,6 +4,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import uz.yalla.client.feature.order.presentation.client_waiting.clientWaitingBottomSheet
@@ -15,6 +16,8 @@ import uz.yalla.client.feature.order.presentation.no_service.noServiceSheet
 import uz.yalla.client.feature.order.presentation.on_the_ride.onTheRideBottomSheet
 import uz.yalla.client.feature.order.presentation.order_canceled.orderCanceledBottomSheet
 import uz.yalla.client.feature.order.presentation.search.searchForCarBottomSheet
+
+const val ORDER_ID = "order_id"
 
 @Composable
 fun BottomSheetNavHost(
@@ -39,4 +42,21 @@ fun BottomSheetNavHost(
         feedbackBottomSheet()
         noServiceSheet()
     }
+}
+
+fun NavController.shouldNavigateToSheet(
+    routePattern: String,
+    orderId: Int
+): Boolean {
+    val currentDestination = this.currentDestination
+    val thisRoute = currentDestination?.route ?: ""
+
+    if (!thisRoute.contains(routePattern)) {
+        return true
+    }
+
+    val currentBackStackEntry = this.currentBackStackEntry
+    val currentOrderId = currentBackStackEntry?.arguments?.getInt(ORDER_ID, -1) ?: -1
+
+    return currentOrderId != orderId
 }

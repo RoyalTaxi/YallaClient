@@ -1,7 +1,12 @@
 package uz.yalla.client.core.common.maps
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.PackageManager
+import androidx.annotation.RequiresPermission
 import androidx.compose.ui.unit.Dp
+import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptor
@@ -497,6 +502,7 @@ class MapsViewModel(
         }
     }
 
+    @SuppressLint("MissingPermission")
     private fun configureMapSettings(googleMap: GoogleMap) {
         googleMap.uiSettings.apply {
             isCompassEnabled = false
@@ -505,6 +511,20 @@ class MapsViewModel(
             isMyLocationButtonEnabled = false
             isTiltGesturesEnabled = false
             isScrollGesturesEnabledDuringRotateOrZoom = false
+        }
+
+        val fineLocationPermission = ContextCompat.checkSelfPermission(
+            appContext,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        val coarseLocationPermission = ContextCompat.checkSelfPermission(
+            appContext,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (fineLocationPermission || coarseLocationPermission) {
+            googleMap.isMyLocationEnabled = true
         }
 
         if (isNightMode(appContext)) {
@@ -545,23 +565,9 @@ class MapsViewModel(
             latDiff * latDiff + lngDiff * lngDiff
         }
     }
-
-    private fun fitRouteWithAnimation(route: List<MapPoint>, paddingPx: Int) {
-        if (route.size < 2) return
-
-        map?.let { googleMap ->
-            val latLngPoints = route.map { LatLng(it.lat, it.lng) }
-            val bounds = LatLngBounds.builder().apply {
-                latLngPoints.forEach { include(it) }
-            }.build()
-
-            val update = CameraUpdateFactory.newLatLngBounds(bounds, paddingPx)
-            googleMap.animateCamera(update)
-        }
-    }
-
 }
 
+@RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
 fun GoogleMap.setUp() {
     uiSettings.isCompassEnabled = false
     uiSettings.isMyLocationButtonEnabled = false
@@ -578,6 +584,7 @@ fun GoogleMap.setUp() {
     isIndoorEnabled = false
     isTrafficEnabled = false
     isBuildingsEnabled = false
+    isMyLocationEnabled = true
 }
 
 fun GoogleMap.moveTo(
