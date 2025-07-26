@@ -23,6 +23,14 @@ dependencies {
     implementation(libs.maps.compose)
     implementation(libs.play.services.location)
 
+    api(libs.orbit.core)
+    api(libs.orbit.viewmodel)
+    api(libs.orbit.compose)
+    testApi(libs.orbit.test)
+
+    api(libs.maps.compose)
+    api(libs.play.services.location)
+
     implementation(libs.maplibre.compose)
     implementation(libs.lottie.compose)
 

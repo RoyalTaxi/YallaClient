@@ -3,7 +3,7 @@ package uz.yalla.client.feature.order.presentation.main.view
 import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.Executor
 import uz.yalla.client.core.domain.model.PaymentType
-import uz.yalla.client.core.domain.model.SelectedLocation
+import uz.yalla.client.core.domain.model.Location
 import uz.yalla.client.core.domain.model.ServiceModel
 import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 import uz.yalla.client.feature.order.domain.model.response.tarrif.GetTariffsModel
@@ -14,7 +14,7 @@ sealed interface MainSheetIntent {
         data object DestinationClick : OrderTaxiSheetIntent
         data object AddNewDestinationClick : OrderTaxiSheetIntent
         data class OrderCreated(val order: ShowOrderModel) : OrderTaxiSheetIntent
-        data class SetSelectedLocation(val selectedLocation: SelectedLocation) :
+        data class SetSelectedLocation(val location: Location) :
             OrderTaxiSheetIntent
 
         data class SetDestinations(val destinations: List<Destination>) : OrderTaxiSheetIntent

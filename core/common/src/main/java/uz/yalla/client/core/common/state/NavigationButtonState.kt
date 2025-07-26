@@ -1,5 +1,5 @@
 package uz.yalla.client.core.common.state
 
-enum class HamburgerButtonState {
+enum class NavigationButtonState {
     OpenDrawer, NavigateBack
 }

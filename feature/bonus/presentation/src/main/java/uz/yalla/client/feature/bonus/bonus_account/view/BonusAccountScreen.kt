@@ -32,7 +32,7 @@ import uz.yalla.client.feature.bonus.presentation.R
 
 @Composable
 internal fun BonusAccountScreen(
-    balance: Int,
+    balance: Long,
     onIntent: (BonusAccountIntent) -> Unit
 ) {
     Scaffold(

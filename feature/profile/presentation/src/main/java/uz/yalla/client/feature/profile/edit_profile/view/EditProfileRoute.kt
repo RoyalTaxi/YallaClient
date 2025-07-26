@@ -3,19 +3,8 @@ package uz.yalla.client.feature.profile.edit_profile.view
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.rememberBottomSheetScaffoldState
-import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.material3.rememberStandardBottomSheetState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
@@ -23,33 +12,28 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import uz.yalla.client.core.common.dialog.BaseDialog
-import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.core.common.sheet.ConfirmationBottomSheet
 import uz.yalla.client.core.common.system.isFileSizeTooLarge
 import uz.yalla.client.core.common.system.isImageDimensionTooLarge
 import uz.yalla.client.feature.profile.R
+import uz.yalla.client.feature.profile.edit_profile.model.EditProfileSideEffect
 import uz.yalla.client.feature.profile.edit_profile.model.EditProfileViewModel
-import uz.yalla.client.feature.profile.edit_profile.model.NavigationEvent
+import uz.yalla.client.feature.profile.edit_profile.model.onIntent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun EditProfileRoute(
+fun EditProfileRoute(
     onNavigateToStart: () -> Unit,
     onNavigateBack: () -> Unit,
     viewModel: EditProfileViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
-    val loading by viewModel.loading.collectAsStateWithLifecycle()
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.container.stateFlow.collectAsStateWithLifecycle()
     val focusManager = LocalFocusManager.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val sheetState = rememberModalBottomSheetState(true)
     var sheetVisibility by remember { mutableStateOf(false) }
-
-    val showErrorDialog by viewModel.showErrorDialog.collectAsStateWithLifecycle()
-    val currentErrorMessageId by viewModel.currentErrorMessageId.collectAsStateWithLifecycle()
 
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberStandardBottomSheetState(
@@ -64,7 +48,7 @@ internal fun EditProfileRoute(
                 if (
                     context.isFileSizeTooLarge(uri, 4194304).not() ||
                     context.isImageDimensionTooLarge(uri, 1080, 1080).not()
-                ) viewModel.setNewImage(uri, context)
+                ) viewModel.onIntent(EditProfileIntent.SetNewImage(uri, context))
                 else snackbarHostState.showSnackbar(
                     message = context.getString(R.string.error_size),
                     withDismissAction = true,
@@ -76,14 +60,36 @@ internal fun EditProfileRoute(
 
     LaunchedEffect(Unit) {
         launch(Dispatchers.IO) {
-            viewModel.getMe()
+            viewModel.onIntent(EditProfileIntent.LoadProfile)
         }
 
         launch(Dispatchers.Main) {
-            viewModel.navigationChannel.collect { event ->
-                when (event) {
-                    is NavigationEvent.NavigateBack -> onNavigateBack()
-                    is NavigationEvent.NavigateToStart -> onNavigateToStart()
+            viewModel.container.sideEffectFlow.collect { sideEffect ->
+                when (sideEffect) {
+                    is EditProfileSideEffect.NavigateBack -> onNavigateBack()
+                    is EditProfileSideEffect.NavigateToStart -> onNavigateToStart()
+                    is EditProfileSideEffect.ShowImagePicker -> {
+                        imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                    }
+
+                    is EditProfileSideEffect.ShowDeleteConfirmation -> {
+                        sheetVisibility = true
+                        scope.launch { sheetState.show() }
+                    }
+
+                    is EditProfileSideEffect.ClearFocus -> {
+                        focusManager.clearFocus(force = true)
+                    }
+
+                    is EditProfileSideEffect.ShowErrorMessage -> {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = sideEffect.message,
+                                withDismissAction = true,
+                                duration = SnackbarDuration.Short
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -102,38 +108,7 @@ internal fun EditProfileRoute(
     EditProfileScreen(
         uiState = uiState,
         snackbarHostState = snackbarHostState,
-        onIntent = { intent ->
-            when (intent) {
-                is EditProfileIntent.OnNavigateBack -> onNavigateBack()
-                is EditProfileIntent.OnDelete -> {
-                    sheetVisibility = true
-                    scope.launch { sheetState.show() }
-                }
-
-                is EditProfileIntent.OnChangeGender -> viewModel.changeGender(intent.gender)
-                is EditProfileIntent.OnChangeName -> viewModel.changeName(intent.name)
-                is EditProfileIntent.OnChangeSurname -> viewModel.changeSurname(intent.surname)
-                is EditProfileIntent.OnChangeBirthday -> viewModel.changeBirthday(intent.birthday)
-
-                is EditProfileIntent.OnUpdateImage -> {
-                    imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                }
-
-                is EditProfileIntent.OnSave -> {
-                    focusManager.clearFocus(force = true)
-                    if (uiState.newImage != null) viewModel.updateAvatar()
-                    else viewModel.postMe()
-                }
-
-                is EditProfileIntent.OpenDateBottomSheet -> {
-                    viewModel.setDatePickerVisible(true)
-                }
-
-                is EditProfileIntent.CloseDateBottomSheet -> {
-                    viewModel.setDatePickerVisible(false)
-                }
-            }
-        }
+        onIntent = viewModel::onIntent
     )
 
     if (sheetVisibility) ConfirmationBottomSheet(
@@ -147,21 +122,7 @@ internal fun EditProfileRoute(
             scope.launch { sheetState.hide() }
         },
         onConfirm = {
-            viewModel.logout()
+            viewModel.onIntent(EditProfileIntent.ConfirmDeleteProfile)
         }
     )
-
-    if (showErrorDialog) {
-        BaseDialog(
-            title = stringResource(R.string.error),
-            description = currentErrorMessageId?.let { stringResource(it) },
-            actionText = stringResource(R.string.ok),
-            onAction = { viewModel.dismissErrorDialog() },
-            onDismiss = { viewModel.dismissErrorDialog() }
-        )
-    }
-
-    if (loading) {
-        LoadingDialog()
-    }
 }

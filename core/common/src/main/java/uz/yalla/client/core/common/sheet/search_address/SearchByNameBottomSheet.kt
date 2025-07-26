@@ -1,5 +1,6 @@
 package uz.yalla.client.core.common.sheet.search_address
 
+import uz.yalla.client.core.domain.model.Location
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -39,13 +40,12 @@ import uz.yalla.client.core.common.item.FoundAddressShimmer
 import uz.yalla.client.core.common.utils.getCurrentLocation
 import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.domain.model.Destination
-import uz.yalla.client.core.domain.model.SelectedLocation
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchByNameBottomSheet(
-    initialAddress: SelectedLocation? = null,
+    initialAddress: Location? = null,
     initialDestination: Destination? = null,
     sheetState: SheetState,
     onAddressSelected: (String, Double, Double, Int) -> Unit,

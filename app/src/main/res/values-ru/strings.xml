@@ -5,4 +5,10 @@
     <string name="no_internet_connection">Нет подключение к интернету</string>
     <string name="no_internet_connection_body">Проверьте интернет-соединение или позвоните чтобы вызвать такси</string>
 
+    <!-- Update functionality strings -->
+    <string name="update_check_failed_title">Проверка обновлений не удалась</string>
+    <string name="update_error_message">Ошибка: %s</string>
+    <string name="unknown_error">Неизвестная ошибка</string>
+    <string name="close">Закрыть</string>
+
 </resources>

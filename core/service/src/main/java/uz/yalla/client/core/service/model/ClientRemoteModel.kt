@@ -9,6 +9,6 @@ data class ClientRemoteModel(
     val sur_name: String?,
     val image: String?,
     val birthday: String?,
-    val balance: Int?,
+    val balance: Long?,
     val gender: String?
 )

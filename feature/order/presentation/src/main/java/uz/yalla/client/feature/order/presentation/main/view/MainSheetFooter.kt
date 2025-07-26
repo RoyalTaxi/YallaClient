@@ -29,6 +29,7 @@ import io.morfly.compose.bottomsheet.material3.BottomSheetState
 import org.koin.compose.koinInject
 import uz.yalla.client.core.common.state.SheetValue
 import uz.yalla.client.core.domain.local.AppPreferences
+import uz.yalla.client.core.domain.local.StaticPreferences
 import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.core.domain.model.type.ThemeType
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
@@ -50,11 +51,12 @@ fun MainSheetFooter(
     state: MainSheetState,
     onHeightChanged: (Dp) -> Unit,
     onIntent: (FooterIntent) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    appPreferences: AppPreferences = koinInject(),
+    staticPreferences: StaticPreferences = koinInject()
+
 ) {
-    val prefs = koinInject<AppPreferences>()
-    val isDeviceRegistered by prefs.isDeviceRegistered.collectAsState(initial = true)
-    val themeType by prefs.themeType.collectAsState(initial = ThemeType.SYSTEM)
+    val themeType by appPreferences.themeType.collectAsState(initial = ThemeType.SYSTEM)
     val density = LocalDensity.current
 
     Row(
@@ -106,7 +108,7 @@ fun MainSheetFooter(
             onClick = { onIntent(FooterIntent.ClickPaymentButton) }
         )
 
-        if (!isDeviceRegistered) {
+        if (!staticPreferences.isDeviceRegistered) {
             LoginButton(
                 onClick = { onIntent(FooterIntent.Register) }
             )

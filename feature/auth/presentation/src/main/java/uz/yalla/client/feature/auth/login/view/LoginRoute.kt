@@ -1,5 +1,7 @@
 package uz.yalla.client.feature.auth.login.view
 
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -14,6 +16,7 @@ import org.koin.compose.koinInject
 import uz.yalla.client.core.common.dialog.BaseDialog
 import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.core.domain.local.AppPreferences
+import uz.yalla.client.core.domain.local.StaticPreferences
 import uz.yalla.client.feature.auth.R
 import uz.yalla.client.feature.auth.login.model.LoginViewModel
 import uz.yalla.client.feature.auth.verification.signature.SignatureHelper
@@ -22,9 +25,11 @@ import uz.yalla.client.feature.auth.verification.signature.SignatureHelper
 internal fun LoginRoute(
     onBack: () -> Unit,
     onNext: (String, Int) -> Unit,
-    prefs: AppPreferences = koinInject(),
+    appPreferences: AppPreferences = koinInject(),
+    staticPreferences: StaticPreferences = koinInject(),
     viewModel: LoginViewModel = koinViewModel()
 ) {
+    val activity = LocalActivity.current
     val focusManager = LocalFocusManager.current
     val loading by viewModel.loading.collectAsStateWithLifecycle()
     val phoneNumber by viewModel.phoneNumber.collectAsStateWithLifecycle()
@@ -33,6 +38,8 @@ internal fun LoginRoute(
 
     val showErrorDialog by viewModel.showErrorDialog.collectAsStateWithLifecycle()
     val currentErrorMessageId by viewModel.currentErrorMessageId.collectAsStateWithLifecycle()
+
+    BackHandler { activity?.moveTaskToBack(true) }
 
     LaunchedEffect(Unit) {
         launch(Dispatchers.Main) {
@@ -43,7 +50,7 @@ internal fun LoginRoute(
     }
 
     LaunchedEffect(Unit) {
-        prefs.setSkipOnboarding(true)
+        staticPreferences.skipOnboarding = true
     }
 
     LoginScreen(

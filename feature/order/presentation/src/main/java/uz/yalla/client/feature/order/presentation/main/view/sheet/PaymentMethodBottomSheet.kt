@@ -119,7 +119,7 @@ private fun PaymentMethodContent(
                 balance = balance,
                 isBonusEnabled = isBonusEnabled,
                 isBonusPaymentEnabled = balance > minBonus,
-                innerModifier = Modifier.padding(horizontal = 20.dp),
+                modifier = Modifier.padding(horizontal = 20.dp),
                 onSwitchChecked = { isChecked ->
                     onIntent(
                         if (isChecked) PaymentMethodSheetIntent.EnableBonus

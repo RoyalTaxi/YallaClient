@@ -18,19 +18,7 @@ internal fun NavGraphBuilder.onboardingScreen(
     onNext: () -> Unit,
     onJumpNext: () -> Unit
 ) {
-    composable(
-        route = ONBOARDING_ROUTE,
-        enterTransition = {
-            if (initialState.destination.route == null) {
-                slideInHorizontally(initialOffsetX = { it }) + fadeIn()
-            } else {
-                slideInHorizontally(initialOffsetX = { it }) + fadeIn()
-            }
-        },
-        popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) + fadeIn() },
-        exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) + fadeOut() },
-        popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() }
-    ) {
+    composable(route = ONBOARDING_ROUTE) {
         OnboardingRoute(onNext = onNext, onJumpNext = onJumpNext)
     }
 }

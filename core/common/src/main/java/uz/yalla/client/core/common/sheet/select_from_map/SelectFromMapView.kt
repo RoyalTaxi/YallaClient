@@ -51,17 +51,17 @@ import uz.yalla.client.core.common.map.ConcreteLibreMap
 import uz.yalla.client.core.common.map.MapStrategy
 import uz.yalla.client.core.common.marker.YallaMarker
 import uz.yalla.client.core.common.marker.YallaMarkerState
+import uz.yalla.client.core.domain.model.Location
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.MapType
-import uz.yalla.client.core.domain.model.SelectedLocation
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 
 @Composable
 fun SelectFromMapView(
     startingPoint: MapPoint?,
     viewValue: SelectFromMapViewValue,
-    onSelectLocation: (SelectedLocation) -> Unit,
+    onSelectLocation: (Location) -> Unit,
     onDismissRequest: () -> Unit,
     viewModel: SelectFromMapViewModel = koinViewModel()
 ) {
@@ -74,15 +74,15 @@ fun SelectFromMapView(
     val map = rememberMapImplementation()
 
     val isLocationSelectionComplete by remember(
-        uiState.selectedLocation,
+        uiState.location,
         isMarkerMoving,
         viewValue
     ) {
         derivedStateOf {
             !isMarkerMoving && (
                     viewValue == SelectFromMapViewValue.FOR_DEST ||
-                            (uiState.selectedLocation?.addressId != null &&
-                                    uiState.selectedLocation?.name != null)
+                            (uiState.location?.addressId != null &&
+                                    uiState.location?.name != null)
                     )
         }
     }
@@ -143,18 +143,18 @@ fun SelectFromMapView(
                 map = mapInstance,
                 mapBottomPadding = mapBottomPadding,
                 isMarkerMoving = isMarkerMoving,
-                selectedLocationName = uiState.selectedLocation?.name,
+                selectedLocationName = uiState.location?.name,
                 onBackClick = onDismissRequest,
                 boxPadding = boxPadding
             )
         }
 
         BottomPanel(
-            selectedLocationName = uiState.selectedLocation?.name,
+            selectedLocationName = uiState.location?.name,
             isButtonEnabled = isLocationSelectionComplete,
             onSizeChanged = { height -> mapBottomPadding = with(density) { height.toDp() } },
             onConfirmClick = {
-                uiState.selectedLocation?.let {
+                uiState.location?.let {
                     if (it.addressId != null) onSelectLocation(it)
                     onDismissRequest()
                 }

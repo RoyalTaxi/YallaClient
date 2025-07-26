@@ -12,8 +12,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import uz.yalla.client.core.domain.model.Location
 import uz.yalla.client.core.domain.model.MapPoint
-import uz.yalla.client.core.domain.model.SelectedLocation
 import uz.yalla.client.feature.map.domain.model.response.PolygonRemoteItem
 import uz.yalla.client.feature.map.domain.usecase.GetAddressNameUseCase
 import uz.yalla.client.feature.map.domain.usecase.GetPolygonUseCase
@@ -60,7 +60,7 @@ class SelectFromMapViewModel(
 
     fun getAddressName(point: MapPoint) = viewModelScope.launch {
         getAddressNameUseCase(point.lat, point.lng).onSuccess { data ->
-            val location = SelectedLocation(
+            val location = Location(
                 name = data.displayName,
                 point = point,
                 addressId = data.id
@@ -69,7 +69,7 @@ class SelectFromMapViewModel(
         }
     }
 
-    private suspend fun processSelectedLocation(selectedLocation: SelectedLocation) {
+    private suspend fun processSelectedLocation(selectedLocation: Location) {
         val point = selectedLocation.point ?: return
 
         val (isInsidePolygon, polygonAddressId) = withContext(Dispatchers.Default) {
@@ -82,7 +82,7 @@ class SelectFromMapViewModel(
             selectedLocation
         }
 
-        _uiState.update { it.copy(selectedLocation = updatedLocation) }
+        _uiState.update { it.copy(location = updatedLocation) }
     }
 
     private fun isPointInsidePolygon(point: MapPoint): Pair<Boolean, Int?> {
@@ -98,8 +98,12 @@ class SelectFromMapViewModel(
         polygonItem: PolygonRemoteItem
     ): Pair<Boolean, Int?> {
         // Get cached vertices or compute them if not available
-        val vertices = polygonVerticesCache[polygonItem.addressId] ?:
-        polygonItem.polygons.map { Pair(it.lat, it.lng) }.also {
+        val vertices = polygonVerticesCache[polygonItem.addressId] ?: polygonItem.polygons.map {
+            Pair(
+                it.lat,
+                it.lng
+            )
+        }.also {
             polygonVerticesCache[polygonItem.addressId] = it
         }
 
@@ -143,6 +147,6 @@ class SelectFromMapViewModel(
     }
 
     fun changeStateToNotFound() {
-        _uiState.update { it.copy(selectedLocation = null) }
+        _uiState.update { it.copy(location = null) }
     }
 }

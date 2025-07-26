@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.map.presentation.view.drawer
+package uz.yalla.client.feature.map.presentation.new_version.intent
 
 sealed interface MapDrawerIntent {
     data object OrdersHistory : MapDrawerIntent

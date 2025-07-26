@@ -1,5 +1,5 @@
 package uz.yalla.client.core.common.state
 
-enum class MoveCameraButtonState {
+enum class CameraButtonState {
     MyLocationView, MyRouteView, FirstLocation
 }

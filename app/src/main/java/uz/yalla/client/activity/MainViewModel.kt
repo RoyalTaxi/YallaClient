@@ -14,7 +14,9 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import uz.yalla.client.connectivity.ConnectivityObserver
 import uz.yalla.client.core.common.utils.getCurrentLocation
+import uz.yalla.client.core.common.viewmodel.LifeCycleAware
 import uz.yalla.client.core.domain.local.AppPreferences
+import uz.yalla.client.core.domain.local.StaticPreferences
 import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.feature.setting.domain.usecase.GetConfigUseCase
 import uz.yalla.client.feature.setting.domain.usecase.RefreshFCMTokenUseCase
@@ -26,8 +28,9 @@ class MainViewModel(
     connectivityObserver: ConnectivityObserver,
     private val getConfigUseCase: GetConfigUseCase,
     private val refreshFCMTokenUseCase: RefreshFCMTokenUseCase,
-    private val prefs: AppPreferences
-) : BaseViewModel() {
+    private val appPreferences: AppPreferences,
+    private val staticPreferences: StaticPreferences
+) : BaseViewModel(), LifeCycleAware {
 
     companion object {
         private const val MAX_LOCATION_ATTEMPTS = 3
@@ -44,28 +47,11 @@ class MainViewModel(
     private val _isReady = MutableStateFlow<ReadyState>(ReadyState.Loading)
     val isReady = _isReady.asStateFlow()
 
-    val isDeviceRegistered = prefs.isDeviceRegistered
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = null
-        )
-
-    val skipOnboarding = prefs.skipOnboarding
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = null
-        )
-
     init {
         viewModelScope.launch {
-            isDeviceRegistered.collectLatest { isRegistered ->
-                when (isRegistered) {
-                    true -> getLocationAndSave(appContext)
-                    false -> _isReady.emit(ReadyState.Ready)
-                    else -> Unit
-                }
+            when (staticPreferences.isDeviceRegistered) {
+                true -> getLocationAndSave(appContext)
+                false -> _isReady.emit(ReadyState.Ready)
             }
         }
 
@@ -74,14 +60,14 @@ class MainViewModel(
 
     private fun getConfig() = viewModelScope.launch {
         getConfigUseCase().onSuccess { result ->
-            prefs.setReferralLink(result.setting.inviteLinkForFriend)
-            prefs.setBecomeDrive(result.setting.executorLink)
-            prefs.setInviteFriends(result.setting.inviteLinkForFriend)
-            prefs.setCardEnabled(result.setting.isCardEnabled)
-            prefs.setSupportNumber(result.setting.supportPhone)
+            appPreferences.setReferralLink(result.setting.inviteLinkForFriend)
+            appPreferences.setBecomeDrive(result.setting.executorLink)
+            appPreferences.setInviteFriends(result.setting.inviteLinkForFriend)
+            appPreferences.setCardEnabled(result.setting.isCardEnabled)
+            appPreferences.setSupportNumber(result.setting.supportPhone)
 
             if (result.setting.isCardEnabled)
-                prefs.setPaymentType(PaymentType.CASH)
+                appPreferences.setPaymentType(PaymentType.CASH)
         }
     }
 
@@ -92,7 +78,7 @@ class MainViewModel(
             }
 
             if (coordinates != null) {
-                prefs.setEntryLocation(lat = coordinates.first, lng = coordinates.second)
+                appPreferences.setEntryLocation(lat = coordinates.first, lng = coordinates.second)
                 withContext(Dispatchers.Main) {
                     _isReady.emit(ReadyState.Ready)
                 }
@@ -118,7 +104,11 @@ class MainViewModel(
             )
         }
 
-    fun refreshFCMToken() {
+    override fun onAppear() {
         viewModelScope.launch { refreshFCMTokenUseCase() }
+    }
+
+    override fun onDisappear() {
+
     }
 }

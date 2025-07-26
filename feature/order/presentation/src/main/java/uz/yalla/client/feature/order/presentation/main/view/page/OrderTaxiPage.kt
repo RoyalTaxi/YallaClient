@@ -135,8 +135,8 @@ fun OrderTaxiPage(
             SelectCurrentLocationButton(
                 modifier = Modifier.padding(horizontal = 20.dp),
                 onClick = { onIntent(OrderTaxiSheetIntent.CurrentLocationClick) },
-                text = if (state.loading.not() && state.selectedLocation?.name != null) {
-                    state.selectedLocation.name.orEmpty()
+                text = if (state.loading.not() && state.location?.name != null) {
+                    state.location.name.orEmpty()
                 } else {
                     stringResource(R.string.loading)
                 },

@@ -33,8 +33,7 @@ internal class HistoryDetailsViewModel(
                     it.cords.lng
                 )
             }.orEmpty(),
-            optionIds = emptyList(),
-            addressId = 221
+            optionIds = emptyList()
         ).onSuccess { result ->
             _uiState.update { it.copy(routes = result.map.routing) }
         }.onFailure(::handleException)

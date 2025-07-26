@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.map.presentation.view.sheets
+package uz.yalla.client.feature.map.presentation.new_version.sheets
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues

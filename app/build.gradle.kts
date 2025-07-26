@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.compose.compiler)
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
+    alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
 }
 
 android {
@@ -59,6 +60,10 @@ android {
         freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
     }
 
+    buildFeatures {
+        viewBinding = true
+    }
+
     applicationVariants.configureEach {
         outputs.configureEach {
             (this as? ApkVariantOutputImpl)?.outputFileName = "${rootProject.name} $versionName.apk"
@@ -107,6 +112,7 @@ dependencies {
     implementation(libs.androidx.runtime.tracing)
     implementation(libs.androidx.profileinstaller)
     implementation(libs.play.services.auth.api.phone)
+    implementation(libs.androidx.appcompat)
     debugImplementation(libs.compose.ui.tooling)
 
     // Navigation
@@ -159,6 +165,9 @@ dependencies {
 
     // Google pay
     implementation(libs.play.services.wallet)
+
+    // Google Maps
+    implementation(libs.play.services.maps)
 
     // Lottie compose
     implementation(libs.lottie.compose)

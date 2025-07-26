@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences.Key
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -50,9 +51,9 @@ internal class AppPreferencesImpl(
         val INVITE_FRIENDS = stringPreferencesKey("inviteFriends")
 
         val ENTRY_LOCATION = stringPreferencesKey("entryLocation")
-        val MAX_BONUS = intPreferencesKey("maxBonus")
-        val MIN_BONUS = intPreferencesKey("minBonus")
-        val BALANCE = intPreferencesKey("balance")
+        val MAX_BONUS = longPreferencesKey("maxBonus")
+        val MIN_BONUS = longPreferencesKey("minBonus")
+        val BALANCE = longPreferencesKey("balance")
         val IS_BONUS_ENABLED = booleanPreferencesKey("isBonusEnabled")
         val IS_CARD_ENABLED = booleanPreferencesKey("isCardEnabled")
         val SKIP_ONBOARDING = booleanPreferencesKey("skipOnboarding")
@@ -84,11 +85,6 @@ internal class AppPreferencesImpl(
     override val firebaseToken = get(Prefs.FIREBASE_TOKEN, "")
     override fun setFirebaseToken(value: String) {
         scope.launch { set(Prefs.FIREBASE_TOKEN, value) }
-    }
-
-    override val isDeviceRegistered = get(Prefs.DEVICE_REGISTERED, false)
-    override fun setDeviceRegistered(value: Boolean) {
-        scope.launch { set(Prefs.DEVICE_REGISTERED, value) }
     }
 
     override val firstName = get(Prefs.FIRST_NAME, "User")
@@ -185,18 +181,18 @@ internal class AppPreferencesImpl(
         }
     }
 
-    override val maxBonus: Flow<Int> = get(Prefs.MAX_BONUS, 0)
-    override fun setMaxBonus(value: Int) {
+    override val maxBonus: Flow<Long> = get(Prefs.MAX_BONUS, 0)
+    override fun setMaxBonus(value: Long) {
         scope.launch { set(Prefs.MAX_BONUS, value) }
     }
 
-    override val minBonus: Flow<Int> = get(Prefs.MIN_BONUS, 0)
-    override fun setMinBonus(value: Int) {
+    override val minBonus: Flow<Long> = get(Prefs.MIN_BONUS, 0)
+    override fun setMinBonus(value: Long) {
         scope.launch { set(Prefs.MIN_BONUS, value) }
     }
 
-    override val balance: Flow<Int> = get(Prefs.BALANCE, 0)
-    override fun setBalance(value: Int) {
+    override val balance: Flow<Long> = get(Prefs.BALANCE, 0)
+    override fun setBalance(value: Long) {
         scope.launch { set(Prefs.BALANCE, value) }
     }
 
@@ -208,11 +204,6 @@ internal class AppPreferencesImpl(
     override val isCardEnabled: Flow<Boolean> = get(Prefs.IS_CARD_ENABLED, false)
     override fun setCardEnabled(value: Boolean) {
         scope.launch { set(Prefs.IS_CARD_ENABLED, value) }
-    }
-
-    override val skipOnboarding: Flow<Boolean> = get(Prefs.SKIP_ONBOARDING, false)
-    override fun setSkipOnboarding(value: Boolean) {
-        scope.launch { set(Prefs.SKIP_ONBOARDING, value) }
     }
 
     override val isVerificationRequired: Flow<Boolean> = get(Prefs.IS_VERIFICATION_REQUIRED, false)

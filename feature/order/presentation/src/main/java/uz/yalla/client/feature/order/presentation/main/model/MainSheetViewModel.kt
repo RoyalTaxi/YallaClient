@@ -50,7 +50,7 @@ class MainSheetViewModel(
 
     fun updateTimeout() {
         uiState.value.run {
-            selectedLocation?.point?.takeIf { selectedTariff != null }?.let {
+            location?.point?.takeIf { selectedTariff != null }?.let {
                 getTimeout(it)
             }
         }
@@ -77,10 +77,10 @@ class MainSheetViewModel(
     fun initializeLocation() {
         viewModelScope.launch {
             // Only initialize if no location is currently set
-            if (uiState.value.selectedLocation == null) {
+            if (uiState.value.location == null) {
                 val entryLocation = prefs.entryLocation.first()
                 if (entryLocation.first != 0.0 && entryLocation.second != 0.0) {
-                    val location = SelectedLocation(
+                    val location = Location(
                         name = null,
                         addressId = null,
                         point = MapPoint(entryLocation.first, entryLocation.second)
@@ -176,7 +176,11 @@ class MainSheetViewModel(
     }
 
     private fun refreshTariffsIfPossible() {
-        uiState.value.selectedLocationId?.let { getTariffs(it) }
+        uiState.value.selectedLocationId?.let {
+            viewModelScope.launch {
+                suspendGetTariffs()
+            }
+        }
     }
 
     fun observeTimeoutAndDrivers() {
@@ -204,7 +208,11 @@ class MainSheetViewModel(
         if (intent.wasSelected) _sheetVisibilityListener.trySend(Unit).isSuccess
         else {
             setSelectedTariff(intent.tariff)
-            uiState.value.selectedLocationId?.let(::getTariffs)
+            uiState.value.selectedLocationId?.let {
+                viewModelScope.launch {
+                    suspendGetTariffs()
+                }
+            }
         }
     }
 
@@ -222,41 +230,34 @@ class MainSheetViewModel(
         refreshTariffsIfPossible()
     }
 
-    private fun setSelectedLocation(selectedLocation: SelectedLocation) {
+    private fun setSelectedLocation(location: Location) {
         viewModelScope.launch {
             val fallback = prefs.entryLocation.first()
-            val point = selectedLocation.point
+            val point = location.point
                 ?: fallback.takeIf { it.first != 0.0 && it.second != 0.0 }
                     ?.let { MapPoint(it.first, it.second) }
 
-            val updated = selectedLocation.copy(point = point)
-            _uiState.update { it.copy(selectedLocation = updated) }
-            point?.let { processLocation() }
+            val updated = location.copy(point = point)
+            _uiState.update { it.copy(location = updated) }
+            point?.let { suspendGetTariffs() }
         }
     }
 
-    private suspend fun processLocation() {
-        val defaultAddressId = 1
-        _uiState.update { it.copy(selectedLocationId = defaultAddressId) }
-
-        suspendGetTariffs(defaultAddressId)
-    }
-
-    private suspend fun suspendGetTariffs(addressId: Int): Result<GetTariffsModel> =
+    private suspend fun suspendGetTariffs(): Result<GetTariffsModel> =
         supervisorScope {
-            val from = uiState.value.selectedLocation?.point?.toPair()
+            val from = uiState.value.location?.point?.toPair()
                 ?: return@supervisorScope Result.failure(Exception("No point"))
             val to = uiState.value.destinations.mapNotNull { it.point?.toPair() }
             val optionIds = uiState.value.selectedOptions.map { it.id }
 
             val result = getTariffsUseCase(
-                addressId = addressId,
                 optionIds = optionIds,
                 coords = listOf(from) + to
             )
             result.fold(
                 onSuccess = ::handleTariffsSuccess,
                 onFailure = {
+                    println("Error: ${it.message}")
                     handleTariffsFailure()
                 }
             )
@@ -268,14 +269,13 @@ class MainSheetViewModel(
             val selected = determineSelectedTariff(it.selectedTariff, model.tariff)
             it.copy(
                 tariffs = model,
+                selectedLocationId = model.working.addressId,
                 selectedTariff = selected,
                 options = selected?.services ?: emptyList(),
                 selectedOptions = if (it.selectedTariff?.id != selected?.id) emptyList() else it.selectedOptions,
-                selectedService = if (model.working.isWorking) "main" else "no service"
             )
         }
 
-        // Use the working.isWorking field to determine service availability
         if (model.working.isWorking) {
             MainSheetChannel.sendIntent(OrderTaxiSheetIntent.SetServiceState(true))
         } else {
@@ -305,10 +305,6 @@ class MainSheetViewModel(
                 selectedService = "no service"
             )
         }
-    }
-
-    private fun getTariffs(addressId: Int) = viewModelScope.launch {
-        suspendGetTariffs(addressId)
     }
 
     private fun getTimeout(point: MapPoint) = viewModelScope.launch {
@@ -399,7 +395,7 @@ class MainSheetViewModel(
         )
     }
 
-    fun setBonusAmount(amount: Int) {
+    fun setBonusAmount(amount: Long) {
         setBonusAmountSheetVisibility(false)
         _uiState.update {
             it.copy(

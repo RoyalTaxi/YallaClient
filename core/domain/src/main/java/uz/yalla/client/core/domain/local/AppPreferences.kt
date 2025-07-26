@@ -18,9 +18,6 @@ interface AppPreferences {
     val firebaseToken: Flow<String>
     fun setFirebaseToken(value: String)
 
-    val isDeviceRegistered: Flow<Boolean>
-    fun setDeviceRegistered(value: Boolean)
-
     val firstName: Flow<String>
     fun setFirstName(value: String)
 
@@ -57,23 +54,20 @@ interface AppPreferences {
     val entryLocation: Flow<Pair<Double, Double>>
     fun setEntryLocation(lat: Double, lng: Double)
 
-    val maxBonus: Flow<Int>
-    fun setMaxBonus(value: Int)
+    val maxBonus: Flow<Long>
+    fun setMaxBonus(value: Long)
 
-    val minBonus: Flow<Int>
-    fun setMinBonus(value: Int)
+    val minBonus: Flow<Long>
+    fun setMinBonus(value: Long)
 
-    val balance: Flow<Int>
-    fun setBalance(value: Int)
+    val balance: Flow<Long>
+    fun setBalance(value: Long)
 
     val isBonusEnabled: Flow<Boolean>
     fun setBonusEnabled(value: Boolean)
 
     val isCardEnabled: Flow<Boolean>
     fun setCardEnabled(value: Boolean)
-
-    val skipOnboarding: Flow<Boolean>
-    fun setSkipOnboarding(value: Boolean)
 
     val isVerificationRequired: Flow<Boolean>
     fun setIsVerificationRequired(value: Boolean)

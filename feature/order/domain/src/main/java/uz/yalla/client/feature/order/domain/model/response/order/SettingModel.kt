@@ -4,8 +4,8 @@ data class SettingModel(
     val findRadius: Float,
     val orderCancelTime: Int,
     val reasons: List<CancelReason>,
-    val minBonus: Int,
-    val maxBonus: Int,
+    val minBonus: Long,
+    val maxBonus: Long,
     val isBonusEnabled: Boolean,
 ) {
     data class CancelReason(

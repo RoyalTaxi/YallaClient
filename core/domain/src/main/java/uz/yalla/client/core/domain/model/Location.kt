@@ -1,6 +1,6 @@
 package uz.yalla.client.core.domain.model
 
-data class SelectedLocation(
+data class Location(
     val name: String?,
     val point: MapPoint?,
     val addressId: Int?

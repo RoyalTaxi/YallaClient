@@ -17,6 +17,7 @@ import uz.yalla.client.di.Navigation
 class App : Application() {
     override fun onCreate() {
         super.onCreate()
+        val appPreferences: AppPreferences by lazy { KoinJavaComponent.getKoin().get() }
 
         AndroidThreeTen.init(this)
         MapsInitializer.initialize(this)
@@ -32,8 +33,7 @@ class App : Application() {
             )
         }
 
-        val prefs: AppPreferences by lazy { KoinJavaComponent.getKoin().get() }
-        prefs.setHasProcessedOrderOnEntry(false)
-        prefs.setMapType(MapType.Google)
+        appPreferences.setHasProcessedOrderOnEntry(false)
+        appPreferences.setMapType(MapType.Google)
     }
 }

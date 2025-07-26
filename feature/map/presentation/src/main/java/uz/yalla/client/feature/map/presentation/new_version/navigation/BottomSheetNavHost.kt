@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.map.presentation.navigation
+package uz.yalla.client.feature.map.presentation.new_version.navigation
 
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally

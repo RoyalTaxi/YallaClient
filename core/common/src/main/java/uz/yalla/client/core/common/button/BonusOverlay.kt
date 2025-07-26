@@ -18,7 +18,7 @@ import uz.yalla.client.core.presentation.design.theme.YallaTheme
 
 @Composable
 fun BonusOverlay(
-    amount: Int,
+    amount: Long,
     onClick: () -> Unit
 ) {
     Card(

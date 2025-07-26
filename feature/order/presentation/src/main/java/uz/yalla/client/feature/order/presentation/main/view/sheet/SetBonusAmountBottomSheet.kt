@@ -22,8 +22,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -32,7 +34,6 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.koinInject
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
@@ -44,20 +45,15 @@ private const val CHANGE_AMOUNT = 1000
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SetBonusAmountBottomSheet(
-    amount: Int,
-    onDismissRequest: (amount: Int) -> Unit
+    amount: Long,
+    onDismissRequest: (amount: Long) -> Unit
 ) {
     val prefs = koinInject<AppPreferences>()
-    val balance by prefs.balance.collectAsStateWithLifecycle(0)
-    val minBonus by prefs.minBonus.collectAsStateWithLifecycle(0)
-    val maxBonus by prefs.maxBonus.collectAsStateWithLifecycle(0)
+    val balance by prefs.balance.collectAsState(0)
+    val minBonus by prefs.minBonus.collectAsState(0)
+    val maxBonus by prefs.maxBonus.collectAsState(0)
     var currentBonusAmount by remember(minBonus, maxBonus) {
-        mutableIntStateOf(
-            amount.coerceIn(
-                minBonus,
-                maxBonus
-            )
-        )
+        mutableLongStateOf(amount.coerceIn(minBonus, maxBonus))
     }
 
     ModalBottomSheet(
@@ -114,9 +110,9 @@ private fun SetBonusBackground(
 
 @Composable
 private fun SetBonusAmountHeader(
-    balance: Int,
-    minBonus: Int,
-    maxBonus: Int
+    balance: Long,
+    minBonus: Long,
+    maxBonus: Long
 ) {
     SetBonusBackground { modifier ->
         Column(
@@ -125,7 +121,7 @@ private fun SetBonusAmountHeader(
         ) {
             Text(
                 text = stringResource(R.string.bonuses, balance.toString()),
-                color = YallaTheme.color.onBackground,
+                color = YallaTheme.color.black,
                 style = YallaTheme.font.title
             )
 
@@ -144,9 +140,9 @@ private fun SetBonusAmountHeader(
 
 @Composable
 private fun SetBonusAmountBody(
-    currentBonusAmount: Int,
-    minBonus: Int,
-    maxBonus: Int,
+    currentBonusAmount: Long,
+    minBonus: Long,
+    maxBonus: Long,
     onIncrement: () -> Unit,
     onDecrement: () -> Unit
 ) {
@@ -208,8 +204,8 @@ private fun ChangeBonusButton(
         colors = ButtonDefaults.buttonColors(
             containerColor = YallaTheme.color.black,
             disabledContainerColor = YallaTheme.color.surface,
-            contentColor = YallaTheme.color.onBlack,
-            disabledContentColor = YallaTheme.color.onSurface
+            contentColor = YallaTheme.color.onSurface,
+            disabledContentColor = YallaTheme.color.black
         )
     ) {
         Icon(
@@ -234,7 +230,7 @@ private fun SetBonusAmountFooter(
         ) {
             Text(
                 text = stringResource(R.string.use),
-                color = YallaTheme.color.onBlack,
+                color = YallaTheme.color.background,
                 style = YallaTheme.font.labelLarge
             )
         }

@@ -14,6 +14,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import uz.yalla.client.core.common.viewmodel.BaseViewModel
 import uz.yalla.client.core.domain.local.AppPreferences
+import uz.yalla.client.core.domain.local.StaticPreferences
 import uz.yalla.client.feature.auth.domain.model.auth.VerifyAuthCodeModel
 import uz.yalla.client.feature.auth.domain.usecase.auth.SendCodeUseCase
 import uz.yalla.client.feature.auth.domain.usecase.auth.VerifyCodeUseCase
@@ -21,7 +22,8 @@ import uz.yalla.client.feature.setting.domain.usecase.RefreshFCMTokenUseCase
 import kotlin.time.Duration.Companion.seconds
 
 class VerificationViewModel(
-    private val prefs: AppPreferences,
+    private val appPreferences: AppPreferences,
+    private val staticPreferences: StaticPreferences,
     private val verifyCodeUseCase: VerifyCodeUseCase,
     private val sendCodeUseCase: SendCodeUseCase,
     private val refreshFCMTokenUseCase: RefreshFCMTokenUseCase
@@ -37,7 +39,7 @@ class VerificationViewModel(
 
     init {
         viewModelScope.launch {
-            prefs.accessToken.collectLatest { accessToken.value = it }
+            appPreferences.accessToken.collectLatest { accessToken.value = it }
         }
 
         viewModelScope.launch {
@@ -105,13 +107,13 @@ class VerificationViewModel(
 
     private fun saveAuthResult(result: VerifyAuthCodeModel) {
         result.client?.let { client ->
-            prefs.setAccessToken(result.accessToken)
-            prefs.setDeviceRegistered(true)
-            prefs.setNumber(client.phone)
-            prefs.setGender(client.gender)
-            prefs.setDateOfBirth(client.birthday)
-            prefs.setFirstName(client.givenNames)
-            prefs.setLastName(client.surname)
+            staticPreferences.isDeviceRegistered = true
+            appPreferences.setAccessToken(result.accessToken)
+            appPreferences.setNumber(client.phone)
+            appPreferences.setGender(client.gender)
+            appPreferences.setDateOfBirth(client.birthday)
+            appPreferences.setFirstName(client.givenNames)
+            appPreferences.setLastName(client.surname)
         }
     }
 }

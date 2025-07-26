@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import uz.yalla.client.core.domain.model.Destination
-import uz.yalla.client.core.domain.model.SelectedLocation
+import uz.yalla.client.core.domain.model.Location
 
 object MainSheetChannel {
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
@@ -61,7 +61,7 @@ object MainSheetChannel {
         }
     }
 
-    fun setLocation(location: SelectedLocation) {
+    fun setLocation(location: Location) {
         if (hasActiveLifecycles()) {
             scope.launch {
                 _actionFlow.emit(MainSheetAction.SetLocation(location))

@@ -8,8 +8,7 @@ import uz.yalla.client.feature.order.domain.model.response.tarrif.GetTimeOutMode
 interface TariffRepository {
     suspend fun getTariffs(
         optionIds: List<Int>,
-        cords: List<Pair<Double, Double>>,
-        addressId: Int,
+        cords: List<Pair<Double, Double>>
     ): Either<GetTariffsModel, DataError.Network>
 
     suspend fun getTimeOut(

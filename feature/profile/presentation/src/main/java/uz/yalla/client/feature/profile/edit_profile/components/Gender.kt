@@ -1,6 +1,6 @@
 package uz.yalla.client.feature.profile.edit_profile.components
 
-internal sealed class Gender(val type: String) {
+sealed class Gender(val type: String) {
     data object Male : Gender("MALE")
     data object Female : Gender("FEMALE")
     data object NotSelected : Gender("NOT_SELECTED")

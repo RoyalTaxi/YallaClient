@@ -40,7 +40,7 @@ import uz.yalla.client.core.common.utils.getCurrentLocation
 import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.MapPoint
-import uz.yalla.client.core.domain.model.SelectedLocation
+import uz.yalla.client.core.domain.model.Location
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,7 +50,7 @@ fun AddDestinationBottomSheet(
     sheetState: SheetState,
     onDismissRequest: () -> Unit,
     nearbyAddress: Destination? = null,
-    onAddressSelected: (SelectedLocation) -> Unit,
+    onAddressSelected: (Location) -> Unit,
     viewModel: SingleAddressViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
@@ -138,7 +138,7 @@ fun AddDestinationBottomSheet(
                             foundAddress = foundAddress,
                             onClick = {
                                 onAddressSelected(
-                                    SelectedLocation(
+                                    Location(
                                         name = it.name,
                                         point = MapPoint(it.lat, it.lng),
                                         addressId = it.addressId.or0()
@@ -156,7 +156,7 @@ fun AddDestinationBottomSheet(
                             foundAddress = recommendedAddress,
                             onClick = {
                                 onAddressSelected(
-                                    SelectedLocation(
+                                    Location(
                                         name = it.name,
                                         point = MapPoint(it.lat, it.lng),
                                         addressId = it.addressId.or0()
