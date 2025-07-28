@@ -6,6 +6,7 @@ fun MViewModel.clearState() = intent {
         state.copy(
             order = null,
             orderId = null,
+            destinations = emptyList(),
             route = emptyList(),
         )
     }

@@ -11,6 +11,7 @@ import uz.yalla.client.core.common.marker.YallaMarkerState
 import uz.yalla.client.core.common.state.CameraButtonState.FirstLocation
 import uz.yalla.client.core.common.state.CameraButtonState.MyLocationView
 import uz.yalla.client.core.common.state.CameraButtonState.MyRouteView
+import uz.yalla.client.core.common.state.NavigationButtonState
 import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetChannel
 import kotlin.time.Duration.Companion.seconds
@@ -25,6 +26,7 @@ fun MViewModel.startObserve() {
     observerScope.launch { observeSheetCoordinator() }
     observerScope.launch { observeRoute() }
     observerScope.launch { observeInfoMarkers() }
+    observerScope.launch { observeNavigationButton() }
 }
 
 fun MViewModel.observeInfoMarkers() = viewModelScope.launch {
@@ -37,10 +39,14 @@ fun MViewModel.observeInfoMarkers() = viewModelScope.launch {
 }
 
 fun MViewModel.observeActiveOrder() = viewModelScope.launch {
-    while (isActive) {
-        getActiveOrder()
-        delay(10.seconds)
-    }
+    container.stateFlow
+        .distinctUntilChangedBy { it.orderId }
+        .collectLatest {
+            while (isActive) {
+                getActiveOrder()
+                delay(10.seconds)
+            }
+        }
 }
 
 fun MViewModel.observeActiveOrders() = viewModelScope.launch {
@@ -53,33 +59,35 @@ fun MViewModel.observeActiveOrders() = viewModelScope.launch {
 fun MViewModel.observeCameraState() = viewModelScope.launch {
     mapsViewModel.cameraState.collectLatest { markerState ->
         intent {
-            if (markerState.isMoving) reduce {
-                state.copy(
-                    markerLocation = null,
-                    markerState = YallaMarkerState.LOADING
-                )
-            } else {
-                reduce {
+            if (state.orderId == null) {
+                if (markerState.isMoving) reduce {
                     state.copy(
-                        markerLocation = state.markerLocation?.copy(point = markerState.position)
+                        markerLocation = null,
+                        markerState = YallaMarkerState.LOADING
                     )
+                } else {
+                    reduce {
+                        state.copy(
+                            markerLocation = state.markerLocation?.copy(point = markerState.position)
+                        )
+                    }
+
+                    getAddress(markerState.position)
                 }
 
-                getAddress(markerState.position)
-            }
+                if (!markerState.isMoving) {
+                    when {
+                        state.cameraButtonState == MyRouteView && markerState.isByUser -> {
+                            reduce { state.copy(cameraButtonState = MyRouteView) }
+                        }
 
-            if (!markerState.isMoving) {
-                when {
-                    state.cameraButtonState == MyRouteView && markerState.isByUser -> {
-                        reduce { state.copy(cameraButtonState = MyRouteView) }
-                    }
+                        state.cameraButtonState == MyRouteView && !markerState.isByUser -> {
+                            reduce { state.copy(cameraButtonState = FirstLocation) }
+                        }
 
-                    state.cameraButtonState == MyRouteView && !markerState.isByUser -> {
-                        reduce { state.copy(cameraButtonState = FirstLocation) }
-                    }
-
-                    state.cameraButtonState == FirstLocation -> {
-                        reduce { state.copy(cameraButtonState = MyRouteView) }
+                        state.cameraButtonState == FirstLocation -> {
+                            reduce { state.copy(cameraButtonState = MyRouteView) }
+                        }
                     }
                 }
             }
@@ -142,6 +150,26 @@ fun MViewModel.observeSheetCoordinator() = viewModelScope.launch {
             mapsViewModel.onIntent(MapsIntent.SetBottomPadding(height))
         }
     }
+}
+
+fun MViewModel.observeNavigationButton() = viewModelScope.launch {
+    container.stateFlow
+        .distinctUntilChangedBy {
+            it.route to it.order
+        }
+        .collect {
+            intent {
+                reduce {
+                    state.copy(
+                        navigationButtonState = when {
+                            state.route.isNotEmpty() -> NavigationButtonState.NavigateBack
+                            state.order != null -> NavigationButtonState.NavigateBack
+                            else -> NavigationButtonState.OpenDrawer
+                        }
+                    )
+                }
+            }
+        }
 }
 
 fun MViewModel.stopObserve() = viewModelScope.launch {

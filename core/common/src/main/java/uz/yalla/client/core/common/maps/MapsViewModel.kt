@@ -138,6 +138,21 @@ class MapsViewModel(
                     }
                 }
         }
+
+        jobs += viewModelScope.launch {
+            container.stateFlow
+                .distinctUntilChangedBy { it.orderStatus }
+                .collectLatest { state ->
+                    map?.uiSettings?.isScrollGesturesEnabled =
+                        state.orderStatus !in OrderStatus.nonInteractive
+                    map?.uiSettings?.isZoomGesturesEnabled =
+                        state.orderStatus !in OrderStatus.nonInteractive
+                    map?.uiSettings?.isTiltGesturesEnabled =
+                        state.orderStatus !in OrderStatus.nonInteractive
+                    map?.uiSettings?.isRotateGesturesEnabled =
+                        state.orderStatus !in OrderStatus.nonInteractive
+                }
+        }
     }
 
     override fun onAppear() {
@@ -346,7 +361,7 @@ class MapsViewModel(
             hasRoute = state.route.isNotEmpty()
         )
 
-        drawDashedConnections(state.locations, state.route, state.orderStatus)
+        drawDashedConnections(state.locations, state.route)
     }
 
     private fun clearAllMapElements() {
@@ -447,7 +462,7 @@ class MapsViewModel(
         originInfoIcon = null
         destinationInfoIcon = null
 
-        if (carArrivesInMinutes != null) {
+        if (carArrivesInMinutes != null && container.stateFlow.value.orderStatus == null) {
             originInfoIcon = createInfoMarkerBitmapDescriptor(
                 context = appContext,
                 title = "$carArrivesInMinutes min",
@@ -459,7 +474,7 @@ class MapsViewModel(
             )
         }
 
-        if (orderEndsInMinutes != null) {
+        if (orderEndsInMinutes != null && container.stateFlow.value.orderStatus == null) {
             destinationInfoIcon = createInfoMarkerBitmapDescriptor(
                 context = appContext,
                 title = "$orderEndsInMinutes min",
@@ -474,11 +489,8 @@ class MapsViewModel(
 
     private fun drawDashedConnections(
         locations: List<MapPoint>,
-        route: List<MapPoint>,
-        orderStatus: OrderStatus?
+        route: List<MapPoint>
     ) {
-        if (orderStatus in OrderStatus.cancellable) return
-
         map?.let { googleMap ->
             locations.forEachIndexed { index, location ->
                 val target: MapPoint? = when (index) {

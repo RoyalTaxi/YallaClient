@@ -145,6 +145,10 @@ fun MRoute(
         }
     }
 
+    LaunchedEffect(Unit) {
+        MainSheetChannel.intentFlow.collect(viewModel::onIntent)
+    }
+
     MScreen(
         state = state,
         networkState = networkState,
@@ -234,8 +238,7 @@ fun MRoute(
                 ).any { currentDestination.contains(it) }
 
                 if (!currentDestination.contains(MAIN_SHEET_ROUTE) &&
-                    !currentDestination.contains(NO_SERVICE_ROUTE) &&
-                    !isInOrderFlow
+                    !currentDestination.contains(NO_SERVICE_ROUTE)
                 ) {
                     navController.navigateToMainSheet()
                 }
@@ -243,7 +246,7 @@ fun MRoute(
 
             else -> {
                 state.order?.id?.let { orderId ->
-                    state.markerLocation?.point?.let { point ->
+                    state.location?.point?.let { point ->
                         state.tariffId?.let { tariffId ->
                             if (navController.shouldNavigateToSheet(SEARCH_CAR_ROUTE, orderId)) {
                                 navController.navigateToSearchForCarBottomSheet(

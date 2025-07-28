@@ -92,7 +92,6 @@ fun BoxScope.MapOverlay(
                     if (state.navigationButtonState == NavigationButtonState.OpenDrawer) R.drawable.ic_hamburger
                     else R.drawable.ic_arrow_back
                 ),
-                modifier = Modifier,
                 onClick = {
                     if (state.navigationButtonState == NavigationButtonState.OpenDrawer) onIntent(
                         MapOverlayIntent.OpenDrawer

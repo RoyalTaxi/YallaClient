@@ -205,7 +205,7 @@ class MainSheetViewModel(
     }
 
     private fun handleSelectTariff(intent: OrderTaxiSheetIntent.SelectTariff) {
-        if (intent.wasSelected) _sheetVisibilityListener.trySend(Unit).isSuccess
+        if (intent.wasSelected) _sheetVisibilityListener.trySend(Unit)
         else {
             setSelectedTariff(intent.tariff)
             uiState.value.selectedLocationId?.let {

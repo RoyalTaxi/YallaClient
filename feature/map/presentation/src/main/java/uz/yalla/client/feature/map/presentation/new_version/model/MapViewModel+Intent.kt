@@ -50,9 +50,8 @@ fun MViewModel.onIntent(intent: MapIntent) = intent {
         }
 
         MapIntent.MapOverlayIntent.NavigateBack -> {
-            // Handle navigation back
-            // This would typically involve navigating back in the app's navigation stack
-            // or closing a specific screen or dialog
+            if (state.order == null) removeLastDestination()
+            else clearState()
         }
 
         MapIntent.MapOverlayIntent.OnClickBonus -> {
@@ -64,9 +63,7 @@ fun MViewModel.onIntent(intent: MapIntent) = intent {
         }
 
         MapIntent.OnDismissActiveOrders -> reduce {
-            state.copy(
-                ordersSheetVisible = false
-            )
+            state.copy(ordersSheetVisible = false)
         }
 
         is MapIntent.SetShowingOrder -> reduce {
@@ -143,7 +140,11 @@ fun MViewModel.onIntent(intent: SearchCarSheetIntent) = intent {
     when (intent) {
         SearchCarSheetIntent.AddNewOrder -> clearState()
         SearchCarSheetIntent.ZoomOut -> mapsViewModel.onIntent(MapsIntent.ZoomOut)
-        is SearchCarSheetIntent.OnCancelled -> TODO()
+        is SearchCarSheetIntent.OnCancelled -> {
+            val orderId = intent.orderId ?: return@intent
+            postSideEffect(MapEffect.NavigateToCancelled(orderId))
+        }
+
         else -> {
             /* no-op */
         }
@@ -162,6 +163,7 @@ fun MViewModel.onIntent(intent: ClientWaitingSheetIntent) = intent {
         is ClientWaitingSheetIntent.UpdateRoute -> {
 
         }
+
         else -> {
             /* no-op */
         }

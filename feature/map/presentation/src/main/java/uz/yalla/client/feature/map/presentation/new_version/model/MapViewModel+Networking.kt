@@ -2,6 +2,7 @@ package uz.yalla.client.feature.map.presentation.new_version.model
 
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
+import uz.yalla.client.core.common.maps.MapsIntent
 import uz.yalla.client.core.common.marker.YallaMarkerState
 import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.Location
@@ -9,26 +10,23 @@ import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.feature.map.domain.model.request.GetRoutingDtoItem
 import kotlin.math.ceil
 
-fun MViewModel.getMe() = intent {
-    viewModelScope.launch {
-        getMeUseCase().onSuccess {
-            reduce { state.copy(client = it.client, balance = it.client.balance) }
-            prefs.setBalance(it.client.balance)
-        }.onFailure(::handleException)
+fun MViewModel.getMe() = viewModelScope.launch {
+    getMeUseCase().onSuccess {
+        intent { reduce { state.copy(client = it.client, balance = it.client.balance) } }
+        prefs.setBalance(it.client.balance)
+    }.onFailure(::handleException)
+}
+
+
+fun MViewModel.getNotificationsCount() = viewModelScope.launch {
+    getNotificationsCountUseCase().onSuccess {
+        intent { reduce { state.copy(notificationCount = it) } }
     }
 }
 
-fun MViewModel.getNotificationsCount() = intent {
-    viewModelScope.launch {
-        getNotificationsCountUseCase().onSuccess {
-            reduce { state.copy(notificationCount = it) }
-        }
-    }
-}
-
-fun MViewModel.getAddress(point: MapPoint) = intent {
-    viewModelScope.launch {
-        getAddressNameUseCase(point.lat, point.lng).onSuccess {
+fun MViewModel.getAddress(point: MapPoint) = viewModelScope.launch {
+    getAddressNameUseCase(point.lat, point.lng).onSuccess {
+        intent {
             reduce {
                 state.copy(
                     markerLocation = state.markerLocation?.copy(name = it.displayName),
@@ -126,14 +124,19 @@ fun MViewModel.getRouting() = intent {
     }
 }
 
-fun MViewModel.getActiveOrder() = intent {
-    val orderId = state.orderId ?: return@intent
-    viewModelScope.launch {
-        getShowOrderUseCase(orderId).onSuccess { order ->
+fun MViewModel.getActiveOrder() = viewModelScope.launch {
+    val orderId = container.stateFlow.value.order?.id ?: run {
+        mapsViewModel.onIntent(MapsIntent.UpdateOrderStatus(null))
+        return@launch
+    }
+    getShowOrderUseCase(orderId).onSuccess { order ->
+        mapsViewModel.onIntent(MapsIntent.UpdateOrderStatus(order.status))
+        intent {
             reduce {
                 state.copy(
                     order = order,
                     tariffId = order.taxi.tariffId,
+                    markerState = YallaMarkerState.Searching,
                     location = Location(
                         name = order.taxi.routes.firstOrNull()?.fullAddress,
                         addressId = null,

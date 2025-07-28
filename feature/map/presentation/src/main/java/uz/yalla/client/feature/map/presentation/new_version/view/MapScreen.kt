@@ -28,6 +28,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.map.presentation.components.card.NoInternetCard
 import uz.yalla.client.feature.map.presentation.new_version.intent.MapDrawerIntent
@@ -83,14 +84,6 @@ fun MScreen(
                     .onSizeChanged {
                         onIntent(MapIntent.MapOverlayIntent.MoveToMyLocation(context))
                     }
-            )
-        }
-
-        if (state.isMapEnabled.not()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .pointerInput(Unit) {}
             )
         }
 
