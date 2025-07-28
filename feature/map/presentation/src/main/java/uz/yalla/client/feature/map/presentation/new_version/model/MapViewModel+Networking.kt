@@ -27,16 +27,10 @@ fun MViewModel.getNotificationsCount() = viewModelScope.launch {
 fun MViewModel.getAddress(point: MapPoint) = viewModelScope.launch {
     getAddressNameUseCase(point.lat, point.lng).onSuccess {
         intent {
-            reduce {
-                state.copy(
-                    markerLocation = state.markerLocation?.copy(name = it.displayName),
-                    markerState = YallaMarkerState.IDLE(it.displayName, null)
-                )
-            }
-
             if (state.destinations.isEmpty() && state.order == null) {
                 reduce {
                     state.copy(
+                        markerState = YallaMarkerState.IDLE(it.displayName, null),
                         location = Location(
                             name = it.displayName,
                             addressId = null,

@@ -82,7 +82,7 @@ fun MScreen(
                 modifier = Modifier
                     .padding(bottom = state.overlayPadding)
                     .onSizeChanged {
-                        onIntent(MapIntent.MapOverlayIntent.MoveToMyLocation(context))
+                        onIntent(MapIntent.MapOverlayIntent.RefocusLastState(context))
                     }
             )
         }

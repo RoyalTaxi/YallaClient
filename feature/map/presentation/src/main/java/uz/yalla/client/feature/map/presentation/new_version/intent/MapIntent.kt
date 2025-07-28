@@ -15,7 +15,7 @@ sealed interface MapIntent {
         data object AskForPermission : MapOverlayIntent
         data object AskForEnable : MapOverlayIntent
         data object OnClickBonus : MapOverlayIntent
-
+        data class RefocusLastState(val context: Context) : MapOverlayIntent
     }
 
     data object OnDismissActiveOrders : MapIntent

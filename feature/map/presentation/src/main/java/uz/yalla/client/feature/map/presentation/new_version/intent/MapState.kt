@@ -20,7 +20,6 @@ data class MapState(
     val sheetHeight: Dp = Dp.Unspecified,
 
     val serviceAvailable: Boolean = true,
-    val markerLocation: Location? = null,
     val location: Location? = null,
     val destinations: List<Destination> = emptyList(),
     val route: List<MapPoint> = emptyList(),

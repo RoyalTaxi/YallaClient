@@ -18,7 +18,7 @@ import kotlin.time.Duration.Companion.seconds
 
 fun MViewModel.startObserve() {
     observerScope.launch { observeActiveOrders() }
-    observerScope.launch { observeCameraState() }
+    observerScope.launch { onCameraStateChanged() }
     observerScope.launch { observeLocation() }
     observerScope.launch { observeDestination() }
     observerScope.launch { observeLocations() }
@@ -56,26 +56,13 @@ fun MViewModel.observeActiveOrders() = viewModelScope.launch {
     }
 }
 
-fun MViewModel.observeCameraState() = viewModelScope.launch {
+fun MViewModel.onCameraStateChanged() = viewModelScope.launch {
     mapsViewModel.cameraState.collectLatest { markerState ->
-        intent {
-            if (state.orderId == null) {
-                if (markerState.isMoving) reduce {
-                    state.copy(
-                        markerLocation = null,
-                        markerState = YallaMarkerState.LOADING
-                    )
+        if (container.stateFlow.value.order == null && container.stateFlow.value.destinations.isEmpty()) {
+            intent {
+                if (markerState.isMoving) {
+                    reduce { state.copy(markerState = YallaMarkerState.LOADING) }
                 } else {
-                    reduce {
-                        state.copy(
-                            markerLocation = state.markerLocation?.copy(point = markerState.position)
-                        )
-                    }
-
-                    getAddress(markerState.position)
-                }
-
-                if (!markerState.isMoving) {
                     when {
                         state.cameraButtonState == MyRouteView && markerState.isByUser -> {
                             reduce { state.copy(cameraButtonState = MyRouteView) }
@@ -89,6 +76,7 @@ fun MViewModel.observeCameraState() = viewModelScope.launch {
                             reduce { state.copy(cameraButtonState = MyRouteView) }
                         }
                     }
+                    getAddress(markerState.position)
                 }
             }
         }

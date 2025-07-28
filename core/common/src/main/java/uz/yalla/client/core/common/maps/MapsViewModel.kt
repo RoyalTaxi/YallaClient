@@ -403,11 +403,9 @@ class MapsViewModel(
             )
 
             val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, paddingPx)
-            if (animate) {
-                googleMap.animateCamera(cameraUpdate)
-            } else {
-                googleMap.moveCamera(cameraUpdate)
-            }
+            if (container.stateFlow.value.orderStatus !in OrderStatus.nonInteractive)
+                if (animate) googleMap.animateCamera(cameraUpdate)
+                else googleMap.moveCamera(cameraUpdate)
         }
     }
 
@@ -469,8 +467,8 @@ class MapsViewModel(
                 description = appContext.getString(R.string.coming),
                 infoColor = appContext.resources.getColor(R.color.primary, appContext.theme),
                 pointColor = appContext.resources.getColor(R.color.gray, appContext.theme),
-                titleColor = appContext.resources.getColor(R.color.black, appContext.theme),
-                descriptionColor = appContext.resources.getColor(R.color.black_50, appContext.theme)
+                titleColor = appContext.resources.getColor(R.color.white, appContext.theme),
+                descriptionColor = appContext.resources.getColor(R.color.white_50, appContext.theme)
             )
         }
 

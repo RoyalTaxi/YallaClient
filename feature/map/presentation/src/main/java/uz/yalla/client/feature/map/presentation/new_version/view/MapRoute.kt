@@ -22,7 +22,6 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.orbitmvi.orbit.compose.collectSideEffect
@@ -33,6 +32,7 @@ import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.feature.map.presentation.R
 import uz.yalla.client.feature.map.presentation.new_version.intent.MapDrawerIntent
 import uz.yalla.client.feature.map.presentation.new_version.intent.MapEffect
+import uz.yalla.client.feature.map.presentation.new_version.intent.MapIntent
 import uz.yalla.client.feature.map.presentation.new_version.model.MViewModel
 import uz.yalla.client.feature.map.presentation.new_version.model.onIntent
 import uz.yalla.client.feature.map.presentation.new_version.model.removeLastDestination
@@ -106,6 +106,8 @@ fun MRoute(
         when (effect) {
             MapEffect.EnableLocation -> showEnableLocationSettings(context)
             MapEffect.GrantLocation -> requestPermission(context, locationPermissionRequest)
+            MapEffect.NavigateToAddCard -> onNavigate(FromMap.ToAddNewCard)
+            MapEffect.NavigateToRegister -> onNavigate(FromMap.ToRegister)
             is MapEffect.NavigateToCancelled -> onNavigate(FromMap.ToCancel(effect.orderId))
         }
     }
@@ -189,7 +191,7 @@ fun MRoute(
                 state.order?.id?.let { orderId ->
                     if (navController.shouldNavigateToSheet(CLIENT_WAITING_ROUTE, orderId)) {
                         navController.navigateToClientWaitingSheet(orderId = orderId)
-                        ClientWaitingSheetChannel.intentFlow.collect(viewModel::onIntent)
+                        scope.launch { ClientWaitingSheetChannel.intentFlow.collect(viewModel::onIntent) }
                     }
                 }
             }
@@ -198,7 +200,7 @@ fun MRoute(
                 state.order?.id?.let { orderId ->
                     if (navController.shouldNavigateToSheet(DRIVER_WAITING_ROUTE, orderId)) {
                         navController.navigateToDriverWaitingSheet(orderId = orderId)
-                        DriverWaitingSheetChannel.intentFlow.collect(viewModel::onIntent)
+                        scope.launch { DriverWaitingSheetChannel.intentFlow.collect(viewModel::onIntent) }
                     }
                 }
             }
@@ -207,7 +209,7 @@ fun MRoute(
                 state.order?.id?.let { orderId ->
                     if (navController.shouldNavigateToSheet(ON_THE_RIDE_ROUTE, orderId)) {
                         navController.navigateToOnTheRideSheet(orderId = orderId)
-                        OnTheRideSheetChannel.intentFlow.collect(viewModel::onIntent)
+                        scope.launch { OnTheRideSheetChannel.intentFlow.collect(viewModel::onIntent) }
                     }
                 }
             }
@@ -216,7 +218,7 @@ fun MRoute(
                 state.order?.id?.let { orderId ->
                     if (navController.shouldNavigateToSheet(ORDER_CANCELED_ROUTE, orderId)) {
                         navController.navigateToCanceledOrder()
-                        OrderCanceledSheetChannel.intentFlow.collect(viewModel::onIntent)
+                        scope.launch { OrderCanceledSheetChannel.intentFlow.collect(viewModel::onIntent) }
                     }
                 }
             }
@@ -225,7 +227,7 @@ fun MRoute(
                 state.order?.id?.let { orderId ->
                     if (navController.shouldNavigateToSheet(FEEDBACK_ROUTE, orderId)) {
                         navController.navigateToFeedbackSheet(orderId = orderId)
-                        FeedbackSheetChannel.intentFlow.collect(viewModel::onIntent)
+                        scope.launch { FeedbackSheetChannel.intentFlow.collect(viewModel::onIntent) }
                     }
                 }
             }
@@ -254,7 +256,8 @@ fun MRoute(
                                     point = point,
                                     tariffId = tariffId
                                 )
-                                SearchCarSheetChannel.intentFlow.collect(viewModel::onIntent)
+                                viewModel.onIntent(MapIntent.MapOverlayIntent.MoveToFirstLocation)
+                                scope.launch { SearchCarSheetChannel.intentFlow.collect(viewModel::onIntent) }
                             }
                         }
                     }
