@@ -10,10 +10,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.*
+import uz.yalla.client.feature.order.presentation.R
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.Lifecycle
@@ -31,6 +33,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
+import uz.yalla.client.core.common.dialog.BaseDialog
 import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.core.common.sheet.AddDestinationBottomSheet
 import uz.yalla.client.core.common.sheet.search_address.SearchByNameBottomSheet
@@ -62,7 +65,10 @@ fun MainSheet(
     viewModel: MainSheetViewModel = koinViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val loading by viewModel.loading.collectAsStateWithLifecycle()
     val buttonAndOptionsState by viewModel.buttonAndOptionsState.collectAsStateWithLifecycle()
+    val showErrorDialog by viewModel.showErrorDialog.collectAsStateWithLifecycle()
+    val currentErrorMessageId by viewModel.currentErrorMessageId.collectAsStateWithLifecycle()
     val lifecycleOwner = LocalLifecycleOwner.current
     val scope = rememberCoroutineScope()
     val prefs = koinInject<AppPreferences>()
@@ -197,6 +203,7 @@ fun MainSheet(
         sheetContent = {
             SheetContent(
                 state = state,
+                loading = loading,
                 fraction = fraction,
                 isTariffValidWithOptions = buttonAndOptionsState.isTariffValidWithOptions,
                 onIntent = viewModel::onIntent
@@ -394,8 +401,18 @@ fun MainSheet(
         )
     }
 
-    if (state.loading) {
+    if (loading) {
         LoadingDialog(modifier = Modifier.zIndex(3f))
+    }
+
+    if (showErrorDialog) {
+        BaseDialog(
+            title = stringResource(R.string.error),
+            description = currentErrorMessageId?.let { stringResource(it) },
+            actionText = stringResource(R.string.ok),
+            onAction = { viewModel.dismissErrorDialog() },
+            onDismiss = { viewModel.dismissErrorDialog() }
+        )
     }
 }
 
@@ -403,6 +420,7 @@ fun MainSheet(
 private fun SheetContent(
     state: MainSheetState,
     fraction: Float,
+    loading: Boolean,
     isTariffValidWithOptions: Boolean,
     viewModel: MainSheetViewModel = koinViewModel(),
     onIntent: (MainSheetIntent) -> Unit
@@ -411,13 +429,14 @@ private fun SheetContent(
         OrderTaxiPage(
             state = state,
             onIntent = onIntent,
+            loading = loading,
             onHeightChanged = viewModel::setSheetHeight,
             modifier = Modifier
                 .graphicsLayer { alpha = 1f - fraction }
                 .zIndex(if (fraction < 0.5f) 1f else 0f)
         )
 
-        if (state.selectedTariff != null && !state.loading) {
+        if (state.selectedTariff != null && loading) {
             TariffInfoPage(
                 state = state,
                 isVisible = fraction >= .5,

@@ -10,14 +10,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import uz.yalla.client.R
 import uz.yalla.client.BuildConfig
-import uz.yalla.client.databinding.ActivityMainBinding
+import uz.yalla.client.R
 import uz.yalla.client.core.common.maps.MapsFragment
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
+import uz.yalla.client.databinding.ActivityMainBinding
 import uz.yalla.client.navigation.Navigation
 import uz.yalla.client.update.AppUpdateHandler
 
@@ -36,7 +35,6 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.onAppear()
 
-        installSplash()
         registerUpdateFlowLauncher()
 
         enableEdgeToEdge(
@@ -66,14 +64,6 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         checkForUpdate()
-    }
-
-    private fun installSplash() {
-        val splashScreen = installSplashScreen()
-
-        splashScreen.setKeepOnScreenCondition {
-            viewModel.isReady.value is ReadyState.Loading
-        }
     }
 
     private fun checkForUpdate() {

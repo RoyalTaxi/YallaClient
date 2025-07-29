@@ -1,5 +1,6 @@
 package uz.yalla.client.core.common.item
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,6 +41,7 @@ fun CarNumberItem(
                 color = YallaTheme.color.black,
                 width = 1.dp
             )
+            .background(YallaTheme.color.onBlack)
     ) {
         Box(
             modifier = Modifier

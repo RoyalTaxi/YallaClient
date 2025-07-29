@@ -1,10 +1,13 @@
 package uz.yalla.client.feature.web
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.view.ViewGroup
+import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
+import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.layout.fillMaxSize
@@ -94,6 +97,7 @@ private fun WebContent(
     )
 }
 
+@SuppressLint("SetJavaScriptEnabled")
 private fun createWebView(context: Context, onNavigateBack: () -> Unit): WebView {
     return WebView(context).apply {
         layoutParams = ViewGroup.LayoutParams(
@@ -101,7 +105,11 @@ private fun createWebView(context: Context, onNavigateBack: () -> Unit): WebView
             ViewGroup.LayoutParams.MATCH_PARENT
         )
         setBackgroundColor(Color.WHITE)
+        settings.javaScriptEnabled = true
+        settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
         webViewClient = createWebViewClient(context, onNavigateBack)
+        webChromeClient = WebChromeClient()
+        settings.domStorageEnabled = true
     }
 }
 

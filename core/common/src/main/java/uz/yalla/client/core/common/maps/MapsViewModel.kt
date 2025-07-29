@@ -2,7 +2,10 @@ package uz.yalla.client.core.common.maps
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import androidx.annotation.RequiresPermission
 import androidx.compose.ui.unit.Dp
@@ -22,6 +25,7 @@ import com.google.android.gms.maps.model.Polyline
 import com.google.android.gms.maps.model.PolylineOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -39,9 +43,11 @@ import uz.yalla.client.core.common.utils.vectorToBitmapDescriptor
 import uz.yalla.client.core.common.utils.vectorToBitmapDescriptorWithSize
 import uz.yalla.client.core.common.viewmodel.BaseViewModel
 import uz.yalla.client.core.common.viewmodel.LifeCycleAware
+import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.Executor
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.OrderStatus
+import uz.yalla.client.core.domain.model.type.ThemeType
 
 data class MapsState(
     val isMapReady: Boolean = false,
@@ -88,7 +94,8 @@ sealed interface MapsIntent {
 }
 
 class MapsViewModel(
-    private val appContext: Context
+    private val appContext: Context,
+    private val appPreferences: AppPreferences
 ) : BaseViewModel(), LifeCycleAware, ContainerHost<MapsState, Nothing> {
 
     override val container: Container<MapsState, Nothing> = container(MapsState())
@@ -112,11 +119,54 @@ class MapsViewModel(
     private var destinationInfoIcon: BitmapDescriptor? = null
     private var driverIcon: BitmapDescriptor? = null
 
+    // Theme state
+    private var isDarkTheme = false
+    private var currentThemeType: ThemeType? = null
+
+    // Configuration change receiver
+    private val configurationChangeReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (intent.action == Intent.ACTION_CONFIGURATION_CHANGED) {
+                if (currentThemeType == ThemeType.SYSTEM) {
+                    viewModelScope.launch {
+                        delay(200)
+                        val newIsDarkTheme = isNightMode(context)
+
+                        isDarkTheme = newIsDarkTheme
+                        updateMapStyle(isDarkTheme)
+
+                        viewModelScope.launch(Dispatchers.Main.immediate) {
+                            clearIconCache()
+                            initializeIcons()
+                            redrawAllMapElements(container.stateFlow.value)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun updateMapStyle(isDark: Boolean) {
+        map?.let { googleMap ->
+            if (isDark) {
+                googleMap.setMapStyle(
+                    MapStyleOptions.loadRawResourceStyle(
+                        appContext,
+                        R.raw.google_dark_map
+                    )
+                )
+            } else {
+                googleMap.setMapStyle(null)
+            }
+        }
+    }
+
     fun hasSavedCameraPosition(): Boolean = container.stateFlow.value.savedCameraPosition != null
     fun getSavedCameraPosition(): MapPoint? = container.stateFlow.value.savedCameraPosition
 
     init {
         initializeObservers()
+        initializeThemeObserver()
     }
 
     private fun initializeObservers() {
@@ -142,7 +192,7 @@ class MapsViewModel(
         // Observe route changes
         jobs += viewModelScope.launch {
             container.stateFlow
-                .distinctUntilChangedBy { 
+                .distinctUntilChangedBy {
                     listOf(
                         it.route,
                         it.orderStatus
@@ -158,7 +208,7 @@ class MapsViewModel(
         // Observe location changes
         jobs += viewModelScope.launch {
             container.stateFlow
-                .distinctUntilChangedBy { 
+                .distinctUntilChangedBy {
                     listOf(
                         it.locations,
                         it.carArrivesInMinutes,
@@ -215,6 +265,12 @@ class MapsViewModel(
         // Initialize icons once at startup
         initializeIcons()
 
+        // Register for configuration changes
+        appContext.registerReceiver(
+            configurationChangeReceiver,
+            IntentFilter(Intent.ACTION_CONFIGURATION_CHANGED)
+        )
+
         container.stateFlow.value.savedCameraPosition?.let { position ->
             map?.moveTo(position, MapConstants.DEFAULT_ZOOM)
         } ?: run {
@@ -238,6 +294,13 @@ class MapsViewModel(
         jobs.forEach { it.cancel() }
         jobs.clear()
         clearAllMapElements()
+
+        // Unregister configuration change receiver
+        try {
+            appContext.unregisterReceiver(configurationChangeReceiver)
+        } catch (e: Exception) {
+            // Receiver might not be registered
+        }
 
         // Don't clear icon cache on disappear to avoid recreating them
         // when the view reappears
@@ -590,8 +653,8 @@ class MapsViewModel(
                             .zIndex(1f)
                             .icon(driverIcon ?: BitmapDescriptorFactory.defaultMarker())
 
-                        googleMap.addMarker(markerOptions)?.let { 
-                            driversMarkers.add(it) 
+                        googleMap.addMarker(markerOptions)?.let {
+                            driversMarkers.add(it)
                         }
                     }
                 }
@@ -653,8 +716,8 @@ class MapsViewModel(
                 .zIndex(1f)
                 .icon(driverIcon ?: BitmapDescriptorFactory.defaultMarker())
 
-            googleMap.addMarker(markerOptions)?.let { 
-                driverMarkers.add(it) 
+            googleMap.addMarker(markerOptions)?.let {
+                driverMarkers.add(it)
             }
         }
     }
@@ -673,8 +736,8 @@ class MapsViewModel(
                     .zIndex(1f)
                     .icon(driverIcon ?: BitmapDescriptorFactory.defaultMarker())
 
-                googleMap.addMarker(markerOptions)?.let { 
-                    driversMarkers.add(it) 
+                googleMap.addMarker(markerOptions)?.let {
+                    driversMarkers.add(it)
                 }
             }
         }
@@ -693,8 +756,7 @@ class MapsViewModel(
             }
             val bounds = boundsBuilder.build()
 
-            // Theme-sensitive polyline color
-            val polylineColor = if (isNightMode(appContext)) {
+            val polylineColor = if (isDarkTheme) {
                 MapConstants.POLYLINE_COLOR_NIGHT
             } else {
                 MapConstants.POLYLINE_COLOR_DAY
@@ -825,7 +887,7 @@ class MapsViewModel(
             val driverPoint = MapPoint(driver.lat, driver.lng)
 
             if (driverPoint != firstLocation) {
-                val polylineColor = if (isNightMode(appContext)) {
+                val polylineColor = if (isDarkTheme) {
                     MapConstants.POLYLINE_COLOR_NIGHT
                 } else {
                     MapConstants.POLYLINE_COLOR_DAY
@@ -838,7 +900,7 @@ class MapsViewModel(
                         .color(polylineColor)
                         .width(MapConstants.POLYLINE_WIDTH)
                 )
-                dashedPolylines.add(solidPolyline) // Still add to the same list for cleanup
+                dashedPolylines.add(solidPolyline)
             }
         }
     }
@@ -868,13 +930,15 @@ class MapsViewModel(
             googleMap.isMyLocationEnabled = true
         }
 
-        if (isNightMode(appContext)) {
+        if (isDarkTheme) {
             googleMap.setMapStyle(
                 MapStyleOptions.loadRawResourceStyle(
                     appContext,
                     R.raw.google_dark_map
                 )
             )
+        } else {
+            googleMap.setMapStyle(null)
         }
     }
 
@@ -896,6 +960,42 @@ class MapsViewModel(
             isMoving = true,
             isByUser = isByUser
         )
+    }
+
+    private fun initializeThemeObserver() {
+        viewModelScope.launch {
+            appPreferences.themeType.collect { themeType ->
+                currentThemeType = themeType
+
+                // Always get the current system theme when in SYSTEM mode
+                val newIsDarkTheme = when (themeType) {
+                    ThemeType.DARK -> true
+                    ThemeType.LIGHT -> false
+                    ThemeType.SYSTEM -> isNightMode(appContext)
+                }
+
+                // Always update isDarkTheme when theme type changes
+                isDarkTheme = newIsDarkTheme
+                updateMapStyle(isDarkTheme)
+
+                if (map != null) {
+                    viewModelScope.launch(Dispatchers.Main.immediate) {
+                        clearIconCache()
+                        initializeIcons()
+                        redrawAllMapElements(container.stateFlow.value)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun clearIconCache() {
+        originIcon = null
+        middleIcon = null
+        destinationIcon = null
+        originInfoIcon = null
+        destinationInfoIcon = null
+        driverIcon = null
     }
 
     private fun findClosestPointOnRoute(location: MapPoint, route: List<MapPoint>): MapPoint? {

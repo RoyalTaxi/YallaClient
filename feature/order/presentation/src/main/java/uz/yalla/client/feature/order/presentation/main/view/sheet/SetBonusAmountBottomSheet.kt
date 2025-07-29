@@ -121,7 +121,7 @@ private fun SetBonusAmountHeader(
         ) {
             Text(
                 text = stringResource(R.string.bonuses, balance.toString()),
-                color = YallaTheme.color.black,
+                color = YallaTheme.color.onBackground,
                 style = YallaTheme.font.title
             )
 
@@ -230,7 +230,7 @@ private fun SetBonusAmountFooter(
         ) {
             Text(
                 text = stringResource(R.string.use),
-                color = YallaTheme.color.background,
+                color = YallaTheme.color.onBlack,
                 style = YallaTheme.font.labelLarge
             )
         }
