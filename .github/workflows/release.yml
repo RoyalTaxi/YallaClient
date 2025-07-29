@@ -19,7 +19,7 @@ jobs:
           cache: 'gradle'
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v2
 
       - name: Create local.properties
         run: echo "sdk.dir=$ANDROID_HOME" > local.properties
@@ -46,7 +46,7 @@ jobs:
           cache: 'gradle'
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v2
 
       - name: Create local.properties
         run: echo "sdk.dir=$ANDROID_HOME" > local.properties
@@ -82,4 +82,22 @@ jobs:
           ls -la app/build/outputs/bundle/release/
 
       - name: Sign Release
-        uses: r0adkll
+        uses: r0adkll/sign-android-release@v1
+        with:
+          releaseDirectory: app/build/outputs/bundle/release
+          signingKeyBase64: ${{ secrets.ANDROID_KEYSTORE }}
+          keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
+          alias: ${{ secrets.YALLA_ALIAS }}
+          keyPassword: ${{ secrets.YALLA_PASSWORD }}
+
+      - name: Setup Authorization with Google Play Store
+        run: echo '${{ secrets.GOOGLE_PLAY_AUTH }}' > service_account.json
+
+      - name: Deploy bundle to Google Play
+        uses: r0adkll/upload-google-play@v1.1.3
+        with:
+          serviceAccountJson: service_account.json
+          packageName: uz.yalla.client
+          releaseFiles: app/build/outputs/bundle/release/*.aab
+          track: internal
+          status: 'completed'
