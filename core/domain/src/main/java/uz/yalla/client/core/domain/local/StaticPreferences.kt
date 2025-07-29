@@ -4,4 +4,5 @@ interface StaticPreferences {
     var accessToken: String
     var skipOnboarding: Boolean
     var isDeviceRegistered: Boolean
+    var hasProcessedOrderOnEntry: Boolean
 }

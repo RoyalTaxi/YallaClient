@@ -24,4 +24,8 @@ class StaticPreferencesImpl(val context: Context) : StaticPreferences {
         get() = preferences.getBoolean(::isDeviceRegistered.name, false)
         set(value) = preferences.edit { putBoolean(::isDeviceRegistered.name, value) }
 
+    override var hasProcessedOrderOnEntry: Boolean
+        get() = preferences.getBoolean(::hasProcessedOrderOnEntry.name, false)
+        set(value) = preferences.edit { putBoolean(::hasProcessedOrderOnEntry.name, value) }
+
 }

@@ -45,8 +45,33 @@ fun MViewModel.getAddress(point: MapPoint) = viewModelScope.launch {
 
 fun MViewModel.getActiveOrders() {
     viewModelScope.launch {
-        getActiveOrdersUseCase().onSuccess {
-            intent { reduce { state.copy(orders = it.list) } }
+        val alreadyMarkedAsProcessed = staticPrefs.hasProcessedOrderOnEntry
+
+        getActiveOrdersUseCase().onSuccess { activeOrders ->
+            val shouldInject = activeOrders.list.size == 1 &&
+                    !alreadyMarkedAsProcessed &&
+                    !hasInjectedOnceInThisSession
+
+            if (shouldInject) {
+                val order = activeOrders.list.first()
+                intent { 
+                    reduce { 
+                        state.copy(
+                            order = order,
+                            orderId = order.id
+                        ) 
+                    }
+                }
+                staticPrefs.hasProcessedOrderOnEntry = true
+                hasInjectedOnceInThisSession = true
+                getActiveOrder()
+            } else if (activeOrders.list.size > 1 && !alreadyMarkedAsProcessed) {
+                intent { reduce { state.copy(ordersSheetVisible = true) } }
+                staticPrefs.hasProcessedOrderOnEntry = true
+                hasInjectedOnceInThisSession = true
+            }
+
+            intent { reduce { state.copy(orders = activeOrders.list) } }
         }
     }
 }

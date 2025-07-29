@@ -10,6 +10,7 @@ import uz.yalla.client.core.common.maps.MapsViewModel
 import uz.yalla.client.core.common.viewmodel.BaseViewModel
 import uz.yalla.client.core.common.viewmodel.LifeCycleAware
 import uz.yalla.client.core.domain.local.AppPreferences
+import uz.yalla.client.core.domain.local.StaticPreferences
 import uz.yalla.client.feature.domain.usecase.GetNotificationsCountUseCase
 import uz.yalla.client.feature.map.domain.usecase.GetAddressNameUseCase
 import uz.yalla.client.feature.map.domain.usecase.GetRoutingUseCase
@@ -23,6 +24,7 @@ import uz.yalla.client.feature.profile.domain.usecase.GetMeUseCase
 
 class MViewModel(
     internal val prefs: AppPreferences,
+    internal val staticPrefs: StaticPreferences,
     internal val mapsViewModel: MapsViewModel,
     internal val getMeUseCase: GetMeUseCase,
     internal val getAddressNameUseCase: GetAddressNameUseCase,
@@ -37,6 +39,8 @@ class MViewModel(
     override val container: Container<MapState, MapEffect> = container(MapState())
     internal var cancelable = arrayOf<Job>()
     internal val observerScope = CoroutineScope(viewModelScope.coroutineContext + supervisorJob)
+
+    internal var hasInjectedOnceInThisSession = false
 
     init {
         startObserve()

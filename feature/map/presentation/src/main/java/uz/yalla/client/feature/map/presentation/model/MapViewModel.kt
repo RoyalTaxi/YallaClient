@@ -27,6 +27,7 @@ import uz.yalla.client.core.common.state.CameraButtonState.MyLocationView
 import uz.yalla.client.core.common.state.CameraButtonState.MyRouteView
 import uz.yalla.client.core.common.viewmodel.BaseViewModel
 import uz.yalla.client.core.domain.local.AppPreferences
+import uz.yalla.client.core.domain.local.StaticPreferences
 import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.MapType
@@ -53,6 +54,7 @@ class MapViewModel(
     private val getRoutingUseCase: GetRoutingUseCase,
     private val getActiveOrdersUseCase: GetActiveOrdersUseCase,
     private val prefs: AppPreferences,
+    private val staticPrefs: StaticPreferences,
     private val getNotificationsCountUseCase: GetNotificationsCountUseCase,
     private val getSettingUseCase: GetSettingUseCase
 ) : BaseViewModel() {
@@ -252,7 +254,7 @@ class MapViewModel(
 
     fun getActiveOrders() {
         viewModelScope.launch {
-            val alreadyMarkedAsProcessed = prefs.hasProcessedOrderOnEntry.first()
+            val alreadyMarkedAsProcessed = staticPrefs.hasProcessedOrderOnEntry
 
             getActiveOrdersUseCase().onSuccess { activeOrders ->
                 val shouldInject = activeOrders.list.size == 1 &&
@@ -261,11 +263,11 @@ class MapViewModel(
 
                 if (shouldInject) {
                     setSelectedOrder(activeOrders.list.first())
-                    prefs.setHasProcessedOrderOnEntry(true)
+                    staticPrefs.hasProcessedOrderOnEntry = true
                     hasInjectedOnceInThisSession = true
                 } else if (activeOrders.list.size > 1 && !alreadyMarkedAsProcessed) {
                     _uiState.update { it.copy(isActiveOrdersSheetVisibility = true) }
-                    prefs.setHasProcessedOrderOnEntry(true)
+                    staticPrefs.hasProcessedOrderOnEntry = true
                     hasInjectedOnceInThisSession = true
                 }
 
