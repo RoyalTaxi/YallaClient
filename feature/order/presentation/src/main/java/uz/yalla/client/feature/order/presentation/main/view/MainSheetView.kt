@@ -436,7 +436,7 @@ private fun SheetContent(
                 .zIndex(if (fraction < 0.5f) 1f else 0f)
         )
 
-        if (state.selectedTariff != null && loading) {
+        if (state.selectedTariff != null && loading.not()) {
             TariffInfoPage(
                 state = state,
                 isVisible = fraction >= .5,

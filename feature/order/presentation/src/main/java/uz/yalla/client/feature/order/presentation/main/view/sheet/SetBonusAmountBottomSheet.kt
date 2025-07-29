@@ -204,8 +204,8 @@ private fun ChangeBonusButton(
         colors = ButtonDefaults.buttonColors(
             containerColor = YallaTheme.color.black,
             disabledContainerColor = YallaTheme.color.surface,
-            contentColor = YallaTheme.color.onSurface,
-            disabledContentColor = YallaTheme.color.black
+            contentColor = YallaTheme.color.onBlack,
+            disabledContentColor = YallaTheme.color.onSurface
         )
     ) {
         Icon(

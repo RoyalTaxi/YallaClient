@@ -38,7 +38,7 @@ internal fun CardViewCard(
     }
 
     Card(
-        colors = CardDefaults.cardColors(YallaTheme.color.background),
+        colors = CardDefaults.cardColors(YallaTheme.color.surface),
         shape = RoundedCornerShape(26.dp),
         elevation = CardDefaults.cardElevation(8.dp)
     ) {

@@ -54,8 +54,8 @@ internal fun CardNumberField(
                 colors = TextFieldDefaults.colors(
                     focusedTextColor = YallaTheme.color.onSurface,
                     unfocusedTextColor = YallaTheme.color.onSurface,
-                    focusedContainerColor = YallaTheme.color.surface,
-                    unfocusedContainerColor = YallaTheme.color.surface,
+                    focusedContainerColor = YallaTheme.color.background,
+                    unfocusedContainerColor = YallaTheme.color.background,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
                     cursorColor = YallaTheme.color.onBackground

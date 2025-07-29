@@ -521,13 +521,6 @@ class MapsViewModel(
         if (state.orderStatus != OrderStatus.Appointed && state.locations.isNotEmpty()) {
             drawDashedConnections(state.locations, state.route)
         }
-
-        // Draw driver to first location connection if in APPOINTED state
-        state.driver?.let { driver ->
-            if (state.locations.isNotEmpty() && state.orderStatus == OrderStatus.Appointed) {
-                drawDriverToFirstLocationConnection(driver, state.locations.first())
-            }
-        }
     }
 
     private fun updateMarkersOnMap(state: MapsState) {
@@ -557,9 +550,9 @@ class MapsViewModel(
     private fun updateDriverOnMap(state: MapsState) {
         initializeIcons() // Ensure driver icon is initialized
 
-        // Don't show driver when order status is not null, except for APPOINTED status
-        if ((state.orderStatus != null && state.orderStatus != OrderStatus.Appointed) || state.driver == null) {
-            // Order status is not null (except APPOINTED) or no driver in state, remove any existing markers
+        // Only hide driver if there's no driver in state
+        if (state.driver == null) {
+            // No driver in state, remove any existing markers
             driverMarkers.forEach { it.remove() }
             driverMarkers.clear()
 
@@ -879,31 +872,6 @@ class MapsViewModel(
         }
     }
 
-    private fun drawDriverToFirstLocationConnection(
-        driver: Executor,
-        firstLocation: MapPoint
-    ) {
-        map?.let { googleMap ->
-            val driverPoint = MapPoint(driver.lat, driver.lng)
-
-            if (driverPoint != firstLocation) {
-                val polylineColor = if (isDarkTheme) {
-                    MapConstants.POLYLINE_COLOR_NIGHT
-                } else {
-                    MapConstants.POLYLINE_COLOR_DAY
-                }
-
-                val solidPolyline = googleMap.addPolyline(
-                    PolylineOptions()
-                        .add(LatLng(driver.lat, driver.lng))
-                        .add(LatLng(firstLocation.lat, firstLocation.lng))
-                        .color(polylineColor)
-                        .width(MapConstants.POLYLINE_WIDTH)
-                )
-                dashedPolylines.add(solidPolyline)
-            }
-        }
-    }
 
     @SuppressLint("MissingPermission")
     private fun configureMapSettings(googleMap: GoogleMap) {
