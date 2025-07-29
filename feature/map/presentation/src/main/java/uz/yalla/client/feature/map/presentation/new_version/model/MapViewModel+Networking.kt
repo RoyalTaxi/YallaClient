@@ -8,6 +8,7 @@ import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.Location
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.feature.map.domain.model.request.GetRoutingDtoItem
+import uz.yalla.client.feature.order.presentation.main.view.MainSheetChannel
 import kotlin.math.ceil
 
 fun MViewModel.getMe() = viewModelScope.launch {
@@ -28,6 +29,12 @@ fun MViewModel.getAddress(point: MapPoint) = viewModelScope.launch {
     getAddressNameUseCase(point.lat, point.lng).onSuccess {
         intent {
             if (state.destinations.isEmpty() && state.order == null) {
+                val location = Location(
+                    name = it.displayName,
+                    addressId = null,
+                    point = MapPoint(point.lat, point.lng)
+                )
+                MainSheetChannel.setLocation(location = location)
                 reduce {
                     state.copy(
                         markerState = YallaMarkerState.IDLE(it.displayName, null),
@@ -54,12 +61,12 @@ fun MViewModel.getActiveOrders() {
 
             if (shouldInject) {
                 val order = activeOrders.list.first()
-                intent { 
-                    reduce { 
+                intent {
+                    reduce {
                         state.copy(
                             order = order,
                             orderId = order.id
-                        ) 
+                        )
                     }
                 }
                 staticPrefs.hasProcessedOrderOnEntry = true
