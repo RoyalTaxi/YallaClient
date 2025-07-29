@@ -12,6 +12,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navOptions
 import org.koin.compose.koinInject
 import uz.yalla.client.core.domain.local.StaticPreferences
 import uz.yalla.client.feature.auth.AUTH_ROUTE
@@ -156,7 +157,9 @@ fun Navigation(isConnected: Boolean) {
 
         editProfileScreen(
             onNavigateBack = navController::safePopBackStack,
-            onNavigateToStart = navController::navigateToIntroModel
+            onNavigateToStart = {
+                navController.navigateToAuthModule(navOptions { popUpTo(0) })
+            }
         )
 
         settingsScreen(onNavigateBack = navController::safePopBackStack)

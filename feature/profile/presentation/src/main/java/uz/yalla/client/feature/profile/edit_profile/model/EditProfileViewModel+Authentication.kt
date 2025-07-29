@@ -6,7 +6,8 @@ import kotlinx.coroutines.launch
 fun EditProfileViewModel.logout() = intent {
     viewModelScope.launch {
         logoutUseCase().onSuccess {
-            prefs.performLogout()
+            appPreferences.performLogout()
+            staticPreferences.performLogout()
             postSideEffect(EditProfileSideEffect.NavigateToStart)
         }.onFailure(::handleException)
     }

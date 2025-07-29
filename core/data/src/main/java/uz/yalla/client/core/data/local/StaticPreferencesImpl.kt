@@ -28,4 +28,9 @@ class StaticPreferencesImpl(val context: Context) : StaticPreferences {
         get() = preferences.getBoolean(::hasProcessedOrderOnEntry.name, false)
         set(value) = preferences.edit { putBoolean(::hasProcessedOrderOnEntry.name, value) }
 
+    override fun performLogout() {
+        preferences.edit { clear() }
+        skipOnboarding = true
+    }
+
 }
