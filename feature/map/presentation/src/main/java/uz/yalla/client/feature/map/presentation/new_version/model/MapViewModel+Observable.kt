@@ -67,20 +67,21 @@ fun MViewModel.observeMarkerState() = viewModelScope.launch {
                 if (markerState.isMoving) {
                     reduce { state.copy(markerState = YallaMarkerState.LOADING) }
                 } else {
-                    when {
-                        state.cameraButtonState == MyRouteView && markerState.isByUser -> {
-                            reduce { state.copy(cameraButtonState = MyRouteView) }
-                        }
-
-                        state.cameraButtonState == MyRouteView && !markerState.isByUser -> {
-                            reduce { state.copy(cameraButtonState = FirstLocation) }
-                        }
-
-                        state.cameraButtonState == FirstLocation -> {
-                            reduce { state.copy(cameraButtonState = MyRouteView) }
-                        }
-                    }
                     getAddress(markerState.position)
+                }
+            }
+
+            when {
+                state.cameraButtonState == MyRouteView && markerState.isByUser -> {
+                    reduce { state.copy(cameraButtonState = MyRouteView) }
+                }
+
+                state.cameraButtonState == MyRouteView && !markerState.isByUser -> {
+                    reduce { state.copy(cameraButtonState = FirstLocation) }
+                }
+
+                state.cameraButtonState == FirstLocation -> {
+                    reduce { state.copy(cameraButtonState = MyRouteView) }
                 }
             }
         }

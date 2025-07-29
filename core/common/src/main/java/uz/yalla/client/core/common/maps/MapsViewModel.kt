@@ -139,11 +139,58 @@ class MapsViewModel(
                 }
         }
 
+        // Observe route changes
         jobs += viewModelScope.launch {
             container.stateFlow
+                .distinctUntilChangedBy { 
+                    listOf(
+                        it.route,
+                        it.orderStatus
+                    )
+                }
                 .collectLatest { state ->
                     withContext(Dispatchers.Main.immediate) {
-                        redrawAllMapElements(state)
+                        updateRouteOnMap(state)
+                    }
+                }
+        }
+
+        // Observe location changes
+        jobs += viewModelScope.launch {
+            container.stateFlow
+                .distinctUntilChangedBy { 
+                    listOf(
+                        it.locations,
+                        it.carArrivesInMinutes,
+                        it.orderEndsInMinutes,
+                        it.orderStatus
+                    )
+                }
+                .collectLatest { state ->
+                    withContext(Dispatchers.Main.immediate) {
+                        updateMarkersOnMap(state)
+                    }
+                }
+        }
+
+        // Observe driver changes
+        jobs += viewModelScope.launch {
+            container.stateFlow
+                .distinctUntilChangedBy { it.driver }
+                .collectLatest { state ->
+                    withContext(Dispatchers.Main.immediate) {
+                        updateDriverOnMap(state)
+                    }
+                }
+        }
+
+        // Observe drivers list changes
+        jobs += viewModelScope.launch {
+            container.stateFlow
+                .distinctUntilChangedBy { it.drivers }
+                .collectLatest { state ->
+                    withContext(Dispatchers.Main.immediate) {
+                        updateDriversOnMap(state)
                     }
                 }
         }
@@ -165,6 +212,9 @@ class MapsViewModel(
     }
 
     override fun onAppear() {
+        // Initialize icons once at startup
+        initializeIcons()
+
         container.stateFlow.value.savedCameraPosition?.let { position ->
             map?.moveTo(position, MapConstants.DEFAULT_ZOOM)
         } ?: run {
@@ -188,6 +238,9 @@ class MapsViewModel(
         jobs.forEach { it.cancel() }
         jobs.clear()
         clearAllMapElements()
+
+        // Don't clear icon cache on disappear to avoid recreating them
+        // when the view reappears
     }
 
     fun onIntent(intent: MapsIntent) = intent {
@@ -197,6 +250,9 @@ class MapsViewModel(
                     map = intent.googleMap
                     configureMapSettings(intent.googleMap)
 
+                    // Initialize icons early to avoid delays later
+                    initializeIcons()
+
                     intent.googleMap.setOnCameraIdleListener { onCameraIdle() }
                     intent.googleMap.setOnCameraMoveStartedListener { reason ->
                         onCameraMoveStarted(reason)
@@ -204,7 +260,13 @@ class MapsViewModel(
 
                     intent { reduce { state.copy(isMapReady = true) } }
                     applyMapPadding(state)
-                    redrawAllMapElements(state)
+
+                    // Initial draw of map elements
+                    // Each subsequent update will be handled by the specific update methods
+                    updateRouteOnMap(state)
+                    updateMarkersOnMap(state)
+                    updateDriverOnMap(state)
+                    updateDriversOnMap(state)
                 }
             }
 
@@ -363,37 +425,202 @@ class MapsViewModel(
         )
     }
 
-    private fun redrawAllMapElements(state: MapsState) {
-        clearAllMapElements()
+    // Initialize icons only once
+    private fun initializeIcons() {
+        if (originIcon == null) {
+            originIcon = vectorToBitmapDescriptor(appContext, R.drawable.ic_origin_marker)
+        }
+        if (middleIcon == null) {
+            middleIcon = vectorToBitmapDescriptor(appContext, R.drawable.ic_middle_marker)
+        }
+        if (destinationIcon == null) {
+            destinationIcon = vectorToBitmapDescriptor(appContext, R.drawable.ic_destination_marker)
+        }
+        if (driverIcon == null) {
+            driverIcon = vectorToBitmapDescriptorWithSize(appContext, R.drawable.img_car_marker, 48)
+        }
+    }
+
+    private fun updateRouteOnMap(state: MapsState) {
+        // Clear existing route
+        polyline?.remove()
+        polyline = null
+
+        dashedPolylines.forEach { it.remove() }
+        dashedPolylines.clear()
 
         // Only draw regular route when order status is NOT APPOINTED
         if (state.route.isNotEmpty() && state.orderStatus != OrderStatus.Appointed) {
             drawRoute(state.route, state.mapPaddingPx, animate = true)
         }
 
-        drawAllMarkers(
-            locations = state.locations,
-            carArrivesInMinutes = state.carArrivesInMinutes,
-            orderEndsInMinutes = state.orderEndsInMinutes,
-            orderStatus = state.orderStatus,
-            hasRoute = state.route.isNotEmpty() && state.orderStatus != OrderStatus.Appointed
-        )
-
         // Only draw dashed connections when order status is NOT APPOINTED
-        if (state.orderStatus != OrderStatus.Appointed) {
+        if (state.orderStatus != OrderStatus.Appointed && state.locations.isNotEmpty()) {
             drawDashedConnections(state.locations, state.route)
         }
 
-        state.driver?.let { 
-            drawDriver(it)
+        // Draw driver to first location connection if in APPOINTED state
+        state.driver?.let { driver ->
             if (state.locations.isNotEmpty() && state.orderStatus == OrderStatus.Appointed) {
-                drawDriverToFirstLocationConnection(it, state.locations.first())
+                drawDriverToFirstLocationConnection(driver, state.locations.first())
+            }
+        }
+    }
+
+    private fun updateMarkersOnMap(state: MapsState) {
+        // Clear existing location markers
+        markers.forEach { it.remove() }
+        markers.clear()
+
+        // Create info marker icons if needed
+        createMarkerIcons(state.carArrivesInMinutes, state.orderEndsInMinutes)
+
+        // Draw all location markers
+        if (state.locations.isNotEmpty()) {
+            drawAllMarkers(
+                locations = state.locations,
+                carArrivesInMinutes = state.carArrivesInMinutes,
+                orderEndsInMinutes = state.orderEndsInMinutes,
+                orderStatus = state.orderStatus,
+                hasRoute = state.route.isNotEmpty() && state.orderStatus != OrderStatus.Appointed
+            )
+        }
+    }
+
+    // Keep track of the last driver position to avoid unnecessary updates
+    private var lastDriverPosition: Pair<Double, Double>? = null
+    private var lastDriverHeading: Float? = null
+
+    private fun updateDriverOnMap(state: MapsState) {
+        initializeIcons() // Ensure driver icon is initialized
+
+        // Don't show driver when order status is not null, except for APPOINTED status
+        if ((state.orderStatus != null && state.orderStatus != OrderStatus.Appointed) || state.driver == null) {
+            // Order status is not null (except APPOINTED) or no driver in state, remove any existing markers
+            driverMarkers.forEach { it.remove() }
+            driverMarkers.clear()
+
+            // Reset last known position and heading
+            lastDriverPosition = null
+            lastDriverHeading = null
+            return
+        }
+
+        val driver = state.driver
+        val currentPosition = Pair(driver.lat, driver.lng)
+        val currentHeading = driver.heading.toFloat()
+
+        // Only update if position or heading has changed
+        if (lastDriverPosition != currentPosition || lastDriverHeading != currentHeading) {
+            // Update existing marker if available, otherwise create new one
+            if (driverMarkers.isNotEmpty()) {
+                driverMarkers.first().apply {
+                    // Update position and rotation smoothly
+                    position = LatLng(driver.lat, driver.lng)
+                    rotation = currentHeading
+                }
+            } else {
+                // No existing marker, create a new one
+                drawDriver(driver)
+            }
+
+            // Update last known position and heading
+            lastDriverPosition = currentPosition
+            lastDriverHeading = currentHeading
+        }
+    }
+
+    // Keep track of the last drivers positions and headings using index as key
+    private val lastDriversPositions = mutableMapOf<Int, Pair<Double, Double>>()
+    private val lastDriversHeadings = mutableMapOf<Int, Float>()
+
+    private fun updateDriversOnMap(state: MapsState) {
+        initializeIcons() // Ensure driver icon is initialized
+
+        // Don't show drivers when order status is not null
+        if (state.drivers.isEmpty() || state.orderStatus != null) {
+            // No drivers in state or order status is not null, remove any existing markers
+            driversMarkers.forEach { it.remove() }
+            driversMarkers.clear()
+            lastDriversPositions.clear()
+            lastDriversHeadings.clear()
+            return
+        }
+
+        // Update existing markers or create new ones as needed
+        val currentDrivers = state.drivers
+        val currentMarkers = driversMarkers.toList()
+
+        // Remove excess markers if we have more markers than drivers
+        if (currentMarkers.size > currentDrivers.size) {
+            for (i in currentDrivers.size until currentMarkers.size) {
+                currentMarkers[i].remove()
+                // Also remove from tracking maps
+                lastDriversPositions.remove(i)
+                lastDriversHeadings.remove(i)
+            }
+            driversMarkers.clear()
+            driversMarkers.addAll(currentMarkers.take(currentDrivers.size))
+        }
+
+        // Update or create markers for each driver
+        currentDrivers.forEachIndexed { index, driver ->
+            val currentPosition = Pair(driver.lat, driver.lng)
+            val currentHeading = driver.heading.toFloat()
+
+            // Check if position or heading has changed
+            val positionChanged = lastDriversPositions[index] != currentPosition
+            val headingChanged = lastDriversHeadings[index] != currentHeading
+
+            if (positionChanged || headingChanged || index >= currentMarkers.size) {
+                if (index < currentMarkers.size) {
+                    // Update existing marker only if position or heading changed
+                    currentMarkers[index].apply {
+                        position = LatLng(driver.lat, driver.lng)
+                        rotation = currentHeading
+                    }
+                } else {
+                    // Create new marker
+                    map?.let { googleMap ->
+                        val markerOptions = MarkerOptions()
+                            .position(LatLng(driver.lat, driver.lng))
+                            .flat(true)
+                            .rotation(currentHeading)
+                            .anchor(0.5f, 0.5f)
+                            .zIndex(1f)
+                            .icon(driverIcon ?: BitmapDescriptorFactory.defaultMarker())
+
+                        googleMap.addMarker(markerOptions)?.let { 
+                            driversMarkers.add(it) 
+                        }
+                    }
+                }
+
+                // Update last known position and heading
+                lastDriversPositions[index] = currentPosition
+                lastDriversHeadings[index] = currentHeading
             }
         }
 
-        if (state.drivers.isNotEmpty()) {
-            drawDrivers(state.drivers)
+        // Clean up any stored positions for indices that are no longer used
+        val currentIndices = currentDrivers.indices.toSet()
+        val storedIndices = lastDriversPositions.keys.toSet()
+
+        storedIndices.minus(currentIndices).forEach { oldIndex ->
+            lastDriversPositions.remove(oldIndex)
+            lastDriversHeadings.remove(oldIndex)
         }
+    }
+
+    private fun redrawAllMapElements(state: MapsState) {
+        clearAllMapElements()
+
+        initializeIcons()
+
+        updateRouteOnMap(state)
+        updateMarkersOnMap(state)
+        updateDriverOnMap(state)
+        updateDriversOnMap(state)
     }
 
     private fun clearAllMapElements() {
@@ -413,10 +640,9 @@ class MapsViewModel(
         dashedPolylines.clear()
     }
 
+    // Create a new driver marker (only called when no existing marker is available)
     private fun drawDriver(driver: Executor) {
-        if (driverIcon == null) {
-            driverIcon = vectorToBitmapDescriptorWithSize(appContext, R.drawable.img_car_marker, 48)
-        }
+        // Icon should already be initialized in initializeIcons()
 
         map?.let { googleMap ->
             val markerOptions = MarkerOptions()
@@ -433,10 +659,9 @@ class MapsViewModel(
         }
     }
 
+    // Create new driver markers (only called for drivers that don't have markers yet)
     private fun drawDrivers(drivers: List<Executor>) {
-        if (driverIcon == null) {
-            driverIcon = vectorToBitmapDescriptorWithSize(appContext, R.drawable.img_car_marker, 48)
-        }
+        // Icon should already be initialized in initializeIcons()
 
         map?.let { googleMap ->
             drivers.forEach { driver ->
