@@ -19,7 +19,7 @@ data class MapState(
     val overlayPadding: Dp = Dp.Unspecified,
     val sheetHeight: Dp = Dp.Unspecified,
 
-    val serviceAvailable: Boolean = true,
+    val serviceAvailable: Boolean? = null,
     val location: Location? = null,
     val destinations: List<Destination> = emptyList(),
     val route: List<MapPoint> = emptyList(),

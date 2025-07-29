@@ -22,6 +22,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.orbitmvi.orbit.compose.collectSideEffect
@@ -59,7 +60,6 @@ import uz.yalla.client.feature.order.presentation.main.navigateToMainSheet
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetChannel
 import uz.yalla.client.feature.order.presentation.no_service.NO_SERVICE_ROUTE
 import uz.yalla.client.feature.order.presentation.no_service.navigateToNoServiceSheet
-import uz.yalla.client.feature.order.presentation.no_service.view.NoServiceSheetChannel
 import uz.yalla.client.feature.order.presentation.on_the_ride.ON_THE_RIDE_ROUTE
 import uz.yalla.client.feature.order.presentation.on_the_ride.navigateToOnTheRideSheet
 import uz.yalla.client.feature.order.presentation.on_the_ride.view.OnTheRideSheetChannel
@@ -188,10 +188,25 @@ fun MRoute(
     )
 
     LaunchedEffect(state.serviceAvailable) {
-        if (state.serviceAvailable.not()) {
-            if (navController.shouldNavigateToSheet(NO_SERVICE_ROUTE, null)) {
-                navController.navigateToNoServiceSheet()
-                scope.launch { NoServiceSheetChannel.intentFlow.collect(viewModel::onIntent) }
+        if (state.serviceAvailable == true) {
+            val currentDestination = navController.currentDestination?.route ?: ""
+            if (!currentDestination.contains(MAIN_SHEET_ROUTE)) {
+                val orderRelatedRoutes = listOf(
+                    CLIENT_WAITING_ROUTE, DRIVER_WAITING_ROUTE, ON_THE_RIDE_ROUTE,
+                    FEEDBACK_ROUTE, SEARCH_CAR_ROUTE, ORDER_CANCELED_ROUTE
+                )
+                val isInOrderFlow = orderRelatedRoutes.any { currentDestination.contains(it) }
+
+                if (!isInOrderFlow) {
+                    navController.navigateToMainSheet()
+                }
+            }
+        } else if (state.serviceAvailable == false) {
+            val currentDestination = navController.currentDestination?.route ?: ""
+            if (!currentDestination.contains(NO_SERVICE_ROUTE)) {
+                scope.launch(Dispatchers.Main.immediate) {
+                    navController.navigateToNoServiceSheet()
+                }
             }
         }
     }

@@ -14,6 +14,7 @@ import uz.yalla.client.core.common.state.CameraButtonState.MyRouteView
 import uz.yalla.client.core.common.state.NavigationButtonState
 import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetChannel
+import uz.yalla.client.feature.order.presentation.no_service.NO_SERVICE_ROUTE
 import kotlin.time.Duration.Companion.seconds
 
 fun MViewModel.startObserve() {
@@ -133,7 +134,9 @@ fun MViewModel.observeRoute() = viewModelScope.launch {
 
 fun MViewModel.observeSheetCoordinator() = viewModelScope.launch {
     SheetCoordinator.currentSheetState.collectLatest { sheetState ->
-        sheetState?.height?.let { height ->
+        if (sheetState?.route == NO_SERVICE_ROUTE) sheetState.height.let { height ->
+            intent { reduce { state.copy(overlayPadding = height) } }
+        } else sheetState?.height?.let { height ->
             intent { reduce { state.copy(overlayPadding = height, sheetHeight = height) } }
             mapsViewModel.onIntent(MapsIntent.SetBottomPadding(height))
         }
