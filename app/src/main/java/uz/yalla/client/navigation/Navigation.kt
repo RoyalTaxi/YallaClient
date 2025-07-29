@@ -12,7 +12,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
-import uz.yalla.client.core.common.dialog.LoadingDialog
+import androidx.navigation.navOptions
+import org.koin.compose.koinInject
+import uz.yalla.client.core.domain.local.StaticPreferences
 import uz.yalla.client.feature.auth.AUTH_ROUTE
 import uz.yalla.client.feature.auth.authModule
 import uz.yalla.client.feature.auth.navigateToAuthModule
@@ -27,9 +29,10 @@ import uz.yalla.client.feature.info.about_app.navigation.navigateToAboutAppScree
 import uz.yalla.client.feature.intro.INTRO_ROUTE
 import uz.yalla.client.feature.intro.introModule
 import uz.yalla.client.feature.intro.navigateToIntroModel
-import uz.yalla.client.feature.map.presentation.navigation.MAP_ROUTE
-import uz.yalla.client.feature.map.presentation.navigation.mapScreen
-import uz.yalla.client.feature.map.presentation.navigation.navigateToMapScreen
+import uz.yalla.client.feature.map.presentation.new_version.navigation.FromMap
+import uz.yalla.client.feature.map.presentation.new_version.navigation.MAP_ROUTE
+import uz.yalla.client.feature.map.presentation.new_version.navigation.mapScreen
+import uz.yalla.client.feature.map.presentation.new_version.navigation.navigateToMapScreen
 import uz.yalla.client.feature.notification.navigateToNotificationModule
 import uz.yalla.client.feature.notification.notificationModule
 import uz.yalla.client.feature.order.presentation.cancel_reason.cancelReasonScreen
@@ -46,19 +49,13 @@ import uz.yalla.client.feature.setting.navigation.navigateToSettings
 import uz.yalla.client.feature.setting.navigation.settingsScreen
 import uz.yalla.client.feature.web.navigateToWebScreen
 import uz.yalla.client.feature.web.webScreen
-import uz.yalla.client.ui.screens.offline.OfflineScreen
-
-const val NAVIGATION_DURATION = 300
+import uz.yalla.client.ui.screens.OfflineScreen
 
 @Composable
-fun Navigation(
-    isConnected: Boolean,
-    isDeviceRegistered: Boolean,
-    skipOnboarding: Boolean
-) {
+fun Navigation(isConnected: Boolean) {
+    val staticPreferences = koinInject<StaticPreferences>()
     val navController = rememberNavController()
     var route by remember { mutableStateOf("") }
-    var isMapReady by remember { mutableStateOf(false) }
     var showOfflineByMap by remember { mutableStateOf(false) }
 
     LaunchedEffect(navController.currentDestination?.route) {
@@ -69,39 +66,39 @@ fun Navigation(
         modifier = Modifier.fillMaxSize(),
         navController = navController,
         startDestination = when {
-            isDeviceRegistered -> MAP_ROUTE
-            skipOnboarding -> AUTH_ROUTE
+            staticPreferences.isDeviceRegistered -> MAP_ROUTE
+            staticPreferences.skipOnboarding -> AUTH_ROUTE
             else -> INTRO_ROUTE
         },
         enterTransition = {
             slideIntoContainer(
                 AnimatedContentTransitionScope.SlideDirection.Start,
-                tween(NAVIGATION_DURATION)
+                tween(700)
             )
         },
         popEnterTransition = {
             slideIntoContainer(
                 AnimatedContentTransitionScope.SlideDirection.End,
-                tween(NAVIGATION_DURATION)
+                tween(700)
             )
         },
         exitTransition = {
             slideOutOfContainer(
                 AnimatedContentTransitionScope.SlideDirection.Start,
-                tween(NAVIGATION_DURATION)
+                tween(700)
             )
         },
         popExitTransition = {
             slideOutOfContainer(
                 AnimatedContentTransitionScope.SlideDirection.End,
-                tween(NAVIGATION_DURATION)
+                tween(700)
             )
         }
     ) {
         introModule(
             navController = navController,
             onPermissionGranted = {
-                if (isDeviceRegistered) navController.navigateToMapScreen()
+                if (staticPreferences.isDeviceRegistered) navController.navigateToMapScreen()
                 else navController.navigateToAuthModule()
             }
         )
@@ -119,22 +116,30 @@ fun Navigation(
 
         mapScreen(
             networkState = isConnected,
-            onRegisterClick = navController::navigateToAuthModule,
-            onProfileClick = navController::navigateToEditProfileScreen,
-            onOrderHistoryClick = navController::navigateToHistoryModule,
-            onPaymentTypeClick = navController::navigateToPaymentModule,
-            onAddressesClick = navController::navigateToAddressModule,
-            onSettingsClick = navController::navigateToSettings,
-            onCancel = navController::navigateToCancelReasonScreen,
-            onAddNewCard = navController::navigateToPaymentModule,
-            onAboutAppClick = navController::navigateToAboutAppScreen,
-            onContactUsClick = navController::navigateToContactUsScreen,
-            onBecomeDriverClick = navController::navigateToWebScreen,
-            onInviteFriendClick = navController::navigateToWebScreen,
-            onNotificationsClick = navController::navigateToNotificationModule,
-            onClickBonuses = navController::navigateToBonusModule,
-            onMapReady = {
-                isMapReady = true
+            navigate = { fromMap ->
+                when (fromMap) {
+                    FromMap.ToAboutApp -> navController.navigateToAboutAppScreen()
+                    FromMap.ToAddNewCard -> navController.navigateToPaymentModule()
+                    FromMap.ToAddresses -> navController.navigateToAddressModule()
+                    FromMap.ToBonuses -> navController.navigateToBonusModule()
+                    FromMap.ToContactUs -> navController.navigateToContactUsScreen()
+                    FromMap.ToNotifications -> navController.navigateToNotificationModule()
+                    FromMap.ToOrderHistory -> navController.navigateToHistoryModule()
+                    FromMap.ToPaymentType -> navController.navigateToPaymentModule()
+                    FromMap.ToProfile -> navController.navigateToEditProfileScreen()
+                    FromMap.ToRegister -> navController.navigateToAuthModule()
+                    FromMap.ToSettings -> navController.navigateToSettings()
+                    is FromMap.ToCancel -> navController.navigateToCancelReasonScreen(fromMap.orderId)
+                    is FromMap.ToInviteFriend -> navController.navigateToWebScreen(
+                        fromMap.title,
+                        fromMap.url
+                    )
+
+                    is FromMap.ToBecomeDriver -> navController.navigateToWebScreen(
+                        fromMap.title,
+                        fromMap.url
+                    )
+                }
             }
         )
 
@@ -152,7 +157,9 @@ fun Navigation(
 
         editProfileScreen(
             onNavigateBack = navController::safePopBackStack,
-            onNavigateToStart = navController::navigateToIntroModel
+            onNavigateToStart = {
+                navController.navigateToAuthModule(navOptions { popUpTo(0) })
+            }
         )
 
         settingsScreen(onNavigateBack = navController::safePopBackStack)
@@ -174,9 +181,5 @@ fun Navigation(
 
     if ((!isConnected && route != MAP_ROUTE) || (showOfflineByMap && route == MAP_ROUTE)) {
         OfflineScreen()
-    }
-
-    if (isMapReady.not() && route == MAP_ROUTE) {
-        LoadingDialog()
     }
 }

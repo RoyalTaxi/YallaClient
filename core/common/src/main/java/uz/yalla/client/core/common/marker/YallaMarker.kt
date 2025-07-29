@@ -39,6 +39,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
@@ -341,7 +342,7 @@ private fun AddressName(
     Surface(
         color = YallaTheme.color.black,
         shape = RoundedCornerShape(25.dp),
-        modifier = modifier.padding(horizontal = 60.dp)
+        modifier = modifier.padding(horizontal = 40.dp)
     ) {
         AnimatedContent(
             contentAlignment = Alignment.Center,
@@ -361,11 +362,18 @@ private fun AddressName(
             Text(
                 text = targetText,
                 color = YallaTheme.color.onBlack,
-                style = YallaTheme.font.labelSemiBold,
+                style = YallaTheme.font.labelSemiBold.copy(fontSize = 14.sp),
                 textAlign = TextAlign.Center,
-                maxLines = 1,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp)
+                modifier = Modifier
+                    .then(
+                        if (targetText.length > 35) Modifier.padding(
+                            horizontal = 8.dp, vertical = 2.dp
+                        ) else Modifier.padding(
+                            horizontal = 12.dp, vertical = 4.dp
+                        )
+                    )
             )
         }
     }

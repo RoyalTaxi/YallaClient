@@ -87,8 +87,8 @@ internal fun EditProfileScreen(
             .imePadding(),
         topBar = {
             EditProfileTopBar(
-                onNavigateBack = { onIntent(EditProfileIntent.OnNavigateBack) },
-                onDelete = { onIntent(EditProfileIntent.OnDelete) }
+                onNavigateBack = { onIntent(EditProfileIntent.NavigateBack) },
+                onDelete = { onIntent(EditProfileIntent.DeleteProfile) }
             )
         },
         snackbarHost = {
@@ -123,7 +123,7 @@ internal fun EditProfileScreen(
             DatePickerModalBottomSheet(
                 sheetState = datePickerSheetState,
                 startDate = uiState.birthday ?: LocalDate.now(),
-                onSelectDate = { onIntent(EditProfileIntent.OnChangeBirthday(it)) },
+                onSelectDate = { onIntent(EditProfileIntent.ChangeBirthday(it)) },
                 onDismissRequest = { onIntent(EditProfileIntent.CloseDateBottomSheet) }
             )
         }
@@ -179,7 +179,7 @@ private fun ProfileContent(
         ProfileImage(
             imageUrl = uiState.imageUrl,
             newImage = uiState.newImage,
-            onUpdateProfile = { onIntent(EditProfileIntent.OnUpdateImage) }
+            onUpdateProfile = { onIntent(EditProfileIntent.UpdateImage) }
         )
 
         Spacer(modifier = Modifier.height(4.dp))
@@ -200,9 +200,9 @@ private fun ProfileContent(
         SaveButton(
             onClick = {
                 if (uiState.hasChanges) {
-                    onIntent(EditProfileIntent.OnSave)
+                    onIntent(EditProfileIntent.SaveProfile)
                 } else {
-                    onIntent(EditProfileIntent.OnNavigateBack)
+                    onIntent(EditProfileIntent.NavigateBack)
                 }
             },
             hasChanges = uiState.hasChanges
@@ -265,7 +265,7 @@ private fun ProfileImage(
                 .shadow(
                     elevation = 4.dp,
                     shape = CircleShape,
-                    spotColor = YallaTheme.color.onBackground.copy(alpha = 0.5f)
+                    spotColor = YallaTheme.color.black.copy(alpha = 0.5f)
                 )
                 .background(color = YallaTheme.color.background, shape = CircleShape)
                 .border(1.dp, YallaTheme.color.background, CircleShape)
@@ -322,14 +322,14 @@ private fun ProfileForm(
     ) {
         PrimaryTextField(
             text = uiState.name,
-            onChangeText = { onIntent(EditProfileIntent.OnChangeName(it)) },
+            onChangeText = { onIntent(EditProfileIntent.ChangeName(it)) },
             placeHolderText = stringResource(id = R.string.name),
             modifier = Modifier.fillMaxWidth()
         )
 
         PrimaryTextField(
             text = uiState.surname,
-            onChangeText = { onIntent(EditProfileIntent.OnChangeSurname(it)) },
+            onChangeText = { onIntent(EditProfileIntent.ChangeSurname(it)) },
             placeHolderText = stringResource(id = R.string.surname),
             modifier = Modifier.fillMaxWidth()
         )
@@ -364,13 +364,13 @@ private fun GenderSelection(
             modifier = Modifier.weight(1f),
             text = stringResource(id = R.string.gender_m),
             isSelected = gender == Gender.Male,
-            onSelect = { onIntent(EditProfileIntent.OnChangeGender(Gender.Male)) }
+            onSelect = { onIntent(EditProfileIntent.ChangeGender(Gender.Male)) }
         )
         GenderButton(
             modifier = Modifier.weight(1f),
             text = stringResource(id = R.string.gender_f),
             isSelected = gender == Gender.Female,
-            onSelect = { onIntent(EditProfileIntent.OnChangeGender(Gender.Female)) }
+            onSelect = { onIntent(EditProfileIntent.ChangeGender(Gender.Female)) }
         )
     }
 }
@@ -387,7 +387,7 @@ private fun SaveButton(
             .padding(horizontal = 20.dp),
         contentPadding = PaddingValues(vertical = 16.dp),
         onClick = onClick,
-        containerColor = if (hasChanges) YallaTheme.color.primary else YallaTheme.color.surface,
-        contentColor = if (hasChanges) YallaTheme.color.onPrimary else YallaTheme.color.onSurface,
+        containerColor = if (hasChanges) YallaTheme.color.black else YallaTheme.color.surface,
+        contentColor = if (hasChanges) YallaTheme.color.onBlack else YallaTheme.color.onSurface,
     )
 }

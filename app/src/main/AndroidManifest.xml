@@ -4,16 +4,17 @@
 
     <uses-feature
         android:name="android.hardware.telephony"
-        android:required="false" />
+        android:required="false"/>
 
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
     <application
+        android:hardwareAccelerated="true"
         android:name=".app.App"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
@@ -24,33 +25,35 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyC_dHd88uaz8yUlmxKbvXo7n-a7mPhgaWI"/>
+
         <profileable
             android:shell="true"
-            tools:targetApi="29" />
+            tools:targetApi="29"/>
 
         <activity
-            android:name=".activity.MainActivity"
+            android:name="uz.yalla.client.activity.MainActivity"
             android:configChanges="locale|layoutDirection|screenSize|smallestScreenSize|screenLayout"
             android:exported="true"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/SplashTheme">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
         <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyD0uKSmSaabl3CJRrBeQ_wpJ0uowlhqylE" />
-        <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
-            android:resource="@drawable/ic_notification" />
+            android:resource="@drawable/ic_notification"/>
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
-            android:resource="@color/yalla_primary" />
+            android:resource="@color/yalla_primary"/>
 
         <service
             android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
@@ -58,7 +61,7 @@
             android:exported="false">
             <meta-data
                 android:name="autoStoreLocales"
-                android:value="true" />
+                android:value="true"/>
         </service>
     </application>
 

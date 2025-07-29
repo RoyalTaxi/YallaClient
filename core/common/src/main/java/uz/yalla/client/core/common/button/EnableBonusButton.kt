@@ -24,10 +24,10 @@ import uz.yalla.client.core.presentation.design.theme.YallaTheme
 
 @Composable
 fun EnableBonusButton(
-    balance: Int,
+    balance: Long,
     isBonusEnabled: Boolean,
+    modifier: Modifier = Modifier,
     isBonusPaymentEnabled: Boolean,
-    innerModifier: Modifier = Modifier,
     onSwitchChecked: (Boolean) -> Unit,
     onClick: () -> Unit
 ) {
@@ -42,7 +42,7 @@ fun EnableBonusButton(
         Row(
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalAlignment = Alignment.CenterVertically,
-            modifier = innerModifier
+            modifier = modifier
                 .fillMaxWidth()
                 .padding(vertical = 12.dp)
         ) {

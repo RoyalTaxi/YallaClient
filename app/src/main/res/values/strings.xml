@@ -9,4 +9,10 @@
     <string name="call">Qo\'ng\'iroq qilish</string>
     <string name="ok">Tushunarli</string>
     <string name="error">Xatolik</string>
+
+    <!-- Update functionality strings -->
+    <string name="update_check_failed_title">Yangilanishlarni tekshirish muvaffaqiyatsiz tugadi</string>
+    <string name="update_error_message">Xato: %s</string>
+    <string name="unknown_error">Noma\'lum xato</string>
+    <string name="close">Yopish</string>
 </resources>

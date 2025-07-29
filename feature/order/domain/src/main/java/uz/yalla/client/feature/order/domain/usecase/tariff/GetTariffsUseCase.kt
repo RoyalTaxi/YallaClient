@@ -13,14 +13,12 @@ class GetTariffsUseCase(
 ) {
     suspend operator fun invoke(
         optionIds: List<Int> = emptyList(),
-        coords: List<Pair<Double, Double>>,
-        addressId: Int
+        coords: List<Pair<Double, Double>>
     ): Result<GetTariffsModel> {
         return withContext(dispatcher) {
             when (val result = repository.getTariffs(
                 optionIds = optionIds,
-                cords = coords,
-                addressId = addressId
+                cords = coords
             )) {
                 is Either.Error -> Result.failure(result.error)
                 is Either.Success -> Result.success(result.data)

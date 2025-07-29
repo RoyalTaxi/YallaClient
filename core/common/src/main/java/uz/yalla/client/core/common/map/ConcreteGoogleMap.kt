@@ -278,17 +278,21 @@ class ConcreteGoogleMap : MapStrategy, KoinComponent {
     }
 
     override fun animateToFitBounds(routing: List<MapPoint>) {
-        if (::cameraPositionState.isInitialized && routing.isNotEmpty()) coroutineScope.launch {
-            val boundsBuilder = LatLngBounds.Builder()
-            routing.forEach { boundsBuilder.include(LatLng(it.lat, it.lng)) }
-            val bounds = boundsBuilder.build()
-            cameraPositionState.animate(
-                durationMs = 1000,
-                update = CameraUpdateFactory.newLatLngBounds(
-                    bounds,
-                    mapPadding
+        if (::cameraPositionState.isInitialized && routing.isNotEmpty()) {
+            updateRoute(routing)
+
+            coroutineScope.launch {
+                val boundsBuilder = LatLngBounds.Builder()
+                routing.forEach { boundsBuilder.include(LatLng(it.lat, it.lng)) }
+                val bounds = boundsBuilder.build()
+                cameraPositionState.animate(
+                    durationMs = 1000,
+                    update = CameraUpdateFactory.newLatLngBounds(
+                        bounds,
+                        mapPadding
+                    )
                 )
-            )
+            }
         }
     }
 

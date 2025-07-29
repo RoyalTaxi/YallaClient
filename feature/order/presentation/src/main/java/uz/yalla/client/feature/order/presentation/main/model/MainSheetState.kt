@@ -23,7 +23,7 @@ data class MainSheetState(
     val drivers: List<Executor> = emptyList(),
 
     val selectedLocationId: Int? = null,
-    val selectedLocation: SelectedLocation? = null,
+    val location: Location? = null,
     val destinations: List<Destination> = emptyList(),
 
     val selectedOptions: List<ServiceModel> = emptyList(),
@@ -32,7 +32,7 @@ data class MainSheetState(
     val comment: String = "",
     val cardList: List<CardListItemModel> = emptyList(),
     val isBonusEnabled: Boolean = false,
-    val bonusAmount: Int = 0,
+    val bonusAmount: Long = 0,
 
     val selectedPaymentType: PaymentType = PaymentType.CASH,
     val phoneNumber: String = "",
@@ -61,7 +61,7 @@ data class MainSheetState(
 
     fun mapToOrderTaxiDto(): OrderTaxiDto? {
         val addressId = selectedLocationId ?: return null
-        val from = selectedLocation ?: return null
+        val from = location ?: return null
         val fromLat = from.point?.lat ?: return null
         val fromLng = from.point?.lng ?: return null
 

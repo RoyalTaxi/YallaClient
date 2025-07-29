@@ -7,8 +7,8 @@ data class SettingResponse(
     val find_radius: Float?,
     val order_cancel_time: Int?,
     val reasons: List<CancelReason>?,
-    val min_bonus: Int?,
-    val max_bonus: Int?,
+    val min_bonus: Long?,
+    val max_bonus: Long?,
     val use_the_bonus: Boolean?,
 ) {
     @Serializable

@@ -16,15 +16,13 @@ class TariffRepositoryImpl(
 ) : TariffRepository {
     override suspend fun getTariffs(
         optionIds: List<Int>,
-        cords: List<Pair<Double, Double>>,
-        addressId: Int
+        cords: List<Pair<Double, Double>>
     ): Either<GetTariffsModel, DataError.Network> {
 
         return when (val result = service.getTariffs(
             GetTariffsRequest(
                 option_ids = optionIds,
-                coords = cords.map { GetTariffsRequest.Coordination(it.first, it.second) },
-                address_id = addressId
+                coords = cords.map { GetTariffsRequest.Coordination(it.first, it.second) }
             )
         )) {
             is Either.Error -> Either.Error(result.error)

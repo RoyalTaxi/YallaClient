@@ -31,13 +31,13 @@ fun CarNumberItem(
         modifier = modifier
             .border(
                 shape = RoundedCornerShape(4.dp),
-                color = YallaTheme.color.surface,
+                color = YallaTheme.color.onBlack,
                 width = 1.dp
             )
             .padding(1.dp)
             .border(
                 shape = RoundedCornerShape(3.dp),
-                color = YallaTheme.color.onBackground,
+                color = YallaTheme.color.black,
                 width = 1.dp
             )
     ) {
@@ -45,14 +45,14 @@ fun CarNumberItem(
             modifier = Modifier
                 .border(
                     shape = RoundedCornerShape(3.dp),
-                    color = YallaTheme.color.onBackground,
+                    color = YallaTheme.color.black,
                     width = 1.dp
                 )
                 .padding(2.dp)
         ) {
             Text(
                 text = code,
-                color = YallaTheme.color.onBackground,
+                color = YallaTheme.color.black,
                 style = YallaTheme.font.customNumber
             )
         }
@@ -62,7 +62,7 @@ fun CarNumberItem(
             modifier = Modifier
                 .border(
                     shape = RoundedCornerShape(3.dp),
-                    color = YallaTheme.color.onBackground,
+                    color = YallaTheme.color.black,
                     width = 1.dp
                 )
                 .padding(start = 4.dp, end = 2.dp, top = 2.dp, bottom = 2.dp)
@@ -70,7 +70,7 @@ fun CarNumberItem(
             for (part in number) {
                 Text(
                     text = part,
-                    color = YallaTheme.color.onBackground,
+                    color = YallaTheme.color.black,
                     style = YallaTheme.font.customNumber
                 )
 

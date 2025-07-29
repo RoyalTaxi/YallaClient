@@ -1,54 +1,43 @@
 package uz.yalla.client.activity
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.SystemBarStyle
-import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.google.android.gms.auth.api.phone.SmsRetriever
-import com.google.android.play.core.appupdate.AppUpdateManager
-import com.google.android.play.core.appupdate.AppUpdateManagerFactory
-import com.google.android.play.core.appupdate.AppUpdateOptions
-import com.google.android.play.core.install.model.AppUpdateType
-import com.google.android.play.core.install.model.UpdateAvailability
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import uz.yalla.client.core.data.BuildConfig
+import uz.yalla.client.R
+import uz.yalla.client.BuildConfig
+import uz.yalla.client.databinding.ActivityMainBinding
+import uz.yalla.client.core.common.maps.MapsFragment
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.navigation.Navigation
+import uz.yalla.client.update.AppUpdateHandler
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityMainBinding
 
     private lateinit var updateFlowLauncher: ActivityResultLauncher<IntentSenderRequest>
-    private val appUpdateManager: AppUpdateManager by lazy { AppUpdateManagerFactory.create(this) }
+    private val appUpdateHandler: AppUpdateHandler by lazy { AppUpdateHandler(this) }
 
     private val viewModel: MainViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        splashScreen.setKeepOnScreenCondition {
-            viewModel.isReady.value is ReadyState.Loading
-        }
+        viewModel.onAppear()
 
-        updateFlowLauncher = registerForActivityResult(
-            ActivityResultContracts.StartIntentSenderForResult()
-        ) { activityResult ->
-            if (activityResult.resultCode != RESULT_OK) {
-                finish()
-                startActivity(Intent(this, MainActivity::class.java))
-            }
-        }
+        installSplash()
+        registerUpdateFlowLauncher()
 
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.light(
@@ -61,65 +50,44 @@ class MainActivity : AppCompatActivity() {
             )
         )
 
-        viewModel.refreshFCMToken()
+        supportFragmentManager.beginTransaction()
+            .add(R.id.fragmentContainerHost, MapsFragment())
+            .commit()
 
-        val client = SmsRetriever.getClient(this)
-        client.startSmsUserConsent(null)
 
-        setContent {
+        binding.mainView.setContent {
             val isConnected by viewModel.isConnected.collectAsStateWithLifecycle()
-            val isDeviceRegistered by viewModel.isDeviceRegistered.collectAsStateWithLifecycle()
-            val skipOnboarding by viewModel.skipOnboarding.collectAsStateWithLifecycle()
-
-            if (isDeviceRegistered != null && skipOnboarding != null) {
-                YallaTheme {
-                    Navigation(
-                        isConnected = isConnected,
-                        isDeviceRegistered = isDeviceRegistered!!,
-                        skipOnboarding = skipOnboarding!!
-                    )
-                }
+            YallaTheme {
+                Navigation(isConnected = isConnected)
             }
         }
-    }
-
-    private fun checkForImmediateUpdate() {
-        val appUpdateInfoTask = appUpdateManager.appUpdateInfo
-
-        appUpdateInfoTask.addOnSuccessListener { appUpdateInfo ->
-            val updateAvailable =
-                appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE &&
-                        appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)
-
-            if (updateAvailable) {
-                appUpdateManager.startUpdateFlowForResult(
-                    appUpdateInfo,
-                    updateFlowLauncher,
-                    AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE)
-                        .setAllowAssetPackDeletion(true)
-                        .build()
-                )
-            }
-        }
-
-        appUpdateInfoTask.addOnFailureListener { exception ->
-            showErrorDialog(exception.message ?: "Неизвестная ошибка")
-        }
-    }
-
-    private fun showErrorDialog(message: String) {
-        AlertDialog.Builder(this)
-            .setTitle("Проверка обновлений не удалась")
-            .setMessage("Ошибка: $message")
-            .setCancelable(false)
-            .setNegativeButton("Закрыть") { _, _ -> finish() }
-            .show()
     }
 
     override fun onResume() {
         super.onResume()
-        if (!BuildConfig.DEBUG) {
-            checkForImmediateUpdate()
+        checkForUpdate()
+    }
+
+    private fun installSplash() {
+        val splashScreen = installSplashScreen()
+
+        splashScreen.setKeepOnScreenCondition {
+            viewModel.isReady.value is ReadyState.Loading
         }
+    }
+
+    private fun checkForUpdate() {
+        if (!BuildConfig.DEBUG) {
+            appUpdateHandler.checkForImmediateUpdate(updateFlowLauncher)
+        }
+    }
+
+    private fun registerUpdateFlowLauncher() {
+        updateFlowLauncher =
+            registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
+                if (result.resultCode != RESULT_OK) {
+                    checkForUpdate()
+                }
+            }
     }
 }

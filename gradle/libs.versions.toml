@@ -28,10 +28,12 @@ lottieCompose = "6.6.1"
 mapsCompose = "6.1.0"
 mockk = "1.10.5"
 mockwebserver = "4.9.1"
+orbit = "10.0.0"
 pagingCommon = "3.3.0-alpha02-0.5.1"
 pagingComposeCommon = "3.3.0-alpha02-0.4.0"
 playServicesAuth = "21.3.0"
 playServicesLocation = "21.3.0"
+playServicesMaps = "19.0.0"
 playServicesWallet = "19.4.0"
 profileinstaller = "1.4.1"
 runner = "1.6.2"
@@ -58,6 +60,7 @@ mapLibre = "0.7.0"
 espressoCore = "3.6.1"
 uiautomator = "2.2.0"
 benchmarkMacroJunit4 = "1.2.0-beta01"
+googleAndroidLibrariesMapsplatformSecretsGradlePlugin = "2.0.1"
 
 [libraries]
 
@@ -111,10 +114,15 @@ lottie-compose = { module = "com.airbnb.android:lottie-compose", version.ref = "
 maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "mapsCompose" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 mockwebserver = { module = "com.squareup.okhttp3:mockwebserver", version.ref = "mockwebserver" }
+orbit-compose = { module = "org.orbit-mvi:orbit-compose", version.ref = "orbit" }
+orbit-core = { module = "org.orbit-mvi:orbit-core", version.ref = "orbit" }
+orbit-test = { module = "org.orbit-mvi:orbit-test", version.ref = "orbit" }
+orbit-viewmodel = { module = "org.orbit-mvi:orbit-viewmodel", version.ref = "orbit" }
 paging-common = { module = "app.cash.paging:paging-common", version.ref = "pagingCommon" }
 paging-compose-common = { module = "app.cash.paging:paging-compose-common", version.ref = "pagingComposeCommon" }
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
+play-services-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMaps" }
 play-services-wallet = { module = "com.google.android.gms:play-services-wallet", version.ref = "playServicesWallet" }
 sdk-map = { module = "ru.dgis.sdk:sdk-full", version.ref = "sdkMap" }
 snapper = { module = "dev.chrisbanes.snapper:snapper", version.ref = "snapper" }
@@ -155,3 +163,4 @@ jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrai
 firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlytics" }
 google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
 android-test = { id = "com.android.test", version.ref = "agp" }
+google-android-libraries-mapsplatform-secrets-gradle-plugin = { id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version.ref = "googleAndroidLibrariesMapsplatformSecretsGradlePlugin" }

@@ -7,7 +7,9 @@ import okio.Path.Companion.toPath
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 import uz.yalla.client.core.data.local.AppPreferencesImpl
+import uz.yalla.client.core.data.local.StaticPreferencesImpl
 import uz.yalla.client.core.domain.local.AppPreferences
+import uz.yalla.client.core.domain.local.StaticPreferences
 import java.io.File
 
 
@@ -27,5 +29,7 @@ object Local {
         single<AppPreferences> {
             AppPreferencesImpl(get())
         }
+
+        single<StaticPreferences> { StaticPreferencesImpl(androidContext()) }
     }
 }

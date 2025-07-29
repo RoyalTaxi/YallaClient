@@ -1,4 +1,4 @@
-package uz.yalla.client.feature.map.presentation
+package uz.yalla.client.feature.map.presentation.new_version.utils
 
 import android.content.Context
 import android.content.Intent

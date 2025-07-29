@@ -38,6 +38,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
@@ -143,6 +144,7 @@ fun SearchLocationField(
                     },
                 singleLine = true,
                 textStyle = YallaTheme.font.labelLarge.copy(color = YallaTheme.color.onBackground),
+                cursorBrush = SolidColor(YallaTheme.color.onSurface),
                 decorationBox = { innerTextField ->
                     TextFieldDefaults.DecorationBox(
                         value = textFieldValue.text,

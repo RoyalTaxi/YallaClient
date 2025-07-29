@@ -10,11 +10,13 @@ import org.threeten.bp.LocalDate
 import uz.yalla.client.core.common.formation.formatWithDotsDMY
 import uz.yalla.client.core.common.viewmodel.BaseViewModel
 import uz.yalla.client.core.domain.local.AppPreferences
+import uz.yalla.client.core.domain.local.StaticPreferences
 import uz.yalla.client.feature.auth.domain.usecase.register.RegisterUseCase
 
 internal class RegistrationViewModel(
     private val registerUseCase: RegisterUseCase,
-    private val prefs: AppPreferences
+    private val appPreferences: AppPreferences,
+    private val staticPreferences: StaticPreferences
 ) : BaseViewModel() {
 
     private val _uiState = MutableStateFlow(RegistrationUIState())
@@ -53,13 +55,13 @@ internal class RegistrationViewModel(
                 dateOfBirth.formatWithDotsDMY(),
                 secretKey
             ).onSuccess { result ->
-                prefs.setAccessToken(result.accessToken)
-                prefs.setDeviceRegistered(true)
-                prefs.setNumber(number)
-                prefs.setFirstName(firstName)
-                prefs.setLastName(lastName)
-                prefs.setGender(gender.name)
-                prefs.setDateOfBirth(dateOfBirth.formatWithDotsDMY())
+                staticPreferences.isDeviceRegistered = true
+                appPreferences.setAccessToken(result.accessToken)
+                appPreferences.setNumber(number)
+                appPreferences.setFirstName(firstName)
+                appPreferences.setLastName(lastName)
+                appPreferences.setGender(gender.name)
+                appPreferences.setDateOfBirth(dateOfBirth.formatWithDotsDMY())
                 _navigationChannel.send(Unit)
             }.onFailure(::handleException)
         }

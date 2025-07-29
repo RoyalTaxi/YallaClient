@@ -16,7 +16,7 @@ data class OrderTaxiRequest(
     val fixed_price: Boolean,
     val addresses: List<Address>,
     val use_the_bonus: Boolean,
-    val bonus_amount: Int
+    val bonus_amount: Long
 ) {
     @Serializable
     data class Address(

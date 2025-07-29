@@ -3,7 +3,7 @@ package uz.yalla.client.feature.profile.edit_profile.model
 import org.threeten.bp.LocalDate
 import uz.yalla.client.feature.profile.edit_profile.components.Gender
 
-internal data class EditProfileUIState(
+data class EditProfileUIState(
     val name: String = "",
     val surname: String = "",
     val phone: String = "",

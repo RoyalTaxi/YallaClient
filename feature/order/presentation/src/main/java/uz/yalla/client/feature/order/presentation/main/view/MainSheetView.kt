@@ -42,7 +42,7 @@ import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.PaymentType
-import uz.yalla.client.core.domain.model.SelectedLocation
+import uz.yalla.client.core.domain.model.Location
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
 import uz.yalla.client.feature.order.presentation.main.MAIN_SHEET_ROUTE
@@ -104,10 +104,10 @@ fun MainSheet(
         MainSheetChannel.register(lifecycleOwner)
     }
 
-    LaunchedEffect(state.selectedTariff?.id, state.selectedLocation?.point) {
+    LaunchedEffect(state.selectedTariff?.id, state.location?.point) {
         lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
             launch(Dispatchers.IO) {
-                state.selectedLocation?.point.let {
+                state.location?.point.let {
                     while (isActive) {
                         viewModel.updateTimeout()
                         delay(10.seconds)
@@ -250,14 +250,14 @@ fun MainSheet(
     if (state.isSearchByNameSheetVisible != SearchByNameSheetValue.INVISIBLE) {
         SearchByNameBottomSheet(
             sheetState = searchByNameSheetState,
-            initialAddress = state.selectedLocation,
+            initialAddress = state.location,
             initialDestination = state.destinations.lastOrNull(),
             isForDestination = state.isSearchByNameSheetVisible == SearchByNameSheetValue.FOR_DEST,
             onAddressSelected = { name, lat, lng, addressId ->
                 if (addressId != 0) scope.launch(Dispatchers.IO) {
                     MainSheetChannel.sendIntent(
                         OrderTaxiSheetIntent.SetSelectedLocation(
-                            selectedLocation = SelectedLocation(
+                            location = Location(
                                 name = name,
                                 point = MapPoint(lat, lng),
                                 addressId = addressId
@@ -309,7 +309,7 @@ fun MainSheet(
         SelectFromMapView(
             viewValue = state.selectFromMapViewVisibility,
             startingPoint = when {
-                state.destinations.isEmpty() -> state.selectedLocation?.point
+                state.destinations.isEmpty() -> state.location?.point
                 else -> state.destinations.lastOrNull()?.point
             },
             onSelectLocation = { location ->

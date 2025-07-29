@@ -1,4 +1,4 @@
-package uz.yalla.client.ui.screens.offline
+package uz.yalla.client.ui.screens
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
@@ -35,7 +35,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.koinInject
 import uz.yalla.client.R
 import uz.yalla.client.core.common.button.CallButton
-import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 

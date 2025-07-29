@@ -13,7 +13,7 @@ data class OrderTaxiDto(
     val fixedPrice: Boolean,
     val addresses: List<Address>,
     val isBonusEnabled: Boolean,
-    val bonusAmount: Int
+    val bonusAmount: Long
 ) {
     data class Address(
         val addressId: Int? = null,
