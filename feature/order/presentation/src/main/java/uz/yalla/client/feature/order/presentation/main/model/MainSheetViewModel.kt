@@ -1,14 +1,13 @@
 package uz.yalla.client.feature.order.presentation.main.model
 
 import androidx.compose.ui.unit.Dp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import uz.yalla.client.core.common.sheet.search_address.SearchByNameSheetValue
 import uz.yalla.client.core.common.sheet.select_from_map.SelectFromMapViewValue
+import uz.yalla.client.core.common.viewmodel.BaseViewModel
 import uz.yalla.client.core.data.mapper.orFalse
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.*
@@ -32,7 +31,7 @@ class MainSheetViewModel(
     private val getTimeOutUseCase: GetTimeOutUseCase,
     private val getShowOrderUseCase: GetShowOrderUseCase,
     private val prefs: AppPreferences
-) : ViewModel() {
+) : BaseViewModel() {
 
     private val _uiState = MutableStateFlow(MainSheetState())
     val uiState = _uiState.asStateFlow()
@@ -323,15 +322,12 @@ class MainSheetViewModel(
     private fun getShowOrder(id: Int) = viewModelScope.launch {
         getShowOrderUseCase(id).onSuccess {
             MainSheetChannel.sendIntent(OrderTaxiSheetIntent.OrderCreated(it))
-            _uiState.update { s -> s.copy(order = it, loading = false) }
-        }.onFailure {
-            _uiState.update { s -> s.copy(loading = false) }
+            _uiState.update { s -> s.copy(order = it) }
         }
     }
 
     private fun orderTaxi() {
-        _uiState.update { it.copy(loading = true) }
-        viewModelScope.launch {
+        viewModelScope.launchWithLoading {
             uiState.value.mapToOrderTaxiDto()?.let {
                 orderTaxiUseCase(it)
                     .onSuccess { o ->
@@ -343,7 +339,7 @@ class MainSheetViewModel(
                             )
                         }
                     }
-                    .onFailure { _uiState.update { s -> s.copy(loading = false) } }
+                    .onFailure(::handleException)
             }
         }
     }

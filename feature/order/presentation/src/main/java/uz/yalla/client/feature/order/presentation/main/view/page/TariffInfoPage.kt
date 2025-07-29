@@ -80,7 +80,6 @@ fun TariffInfoPage(
     }
 
     state.selectedTariff?.let { tariff ->
-
         Box {
             LazyColumn(
                 state = columnState,

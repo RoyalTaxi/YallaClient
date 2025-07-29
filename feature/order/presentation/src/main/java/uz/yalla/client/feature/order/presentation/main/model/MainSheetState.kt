@@ -11,8 +11,6 @@ import uz.yalla.client.feature.order.domain.model.response.tarrif.GetTariffsMode
 import uz.yalla.client.feature.payment.domain.model.CardListItemModel
 
 data class MainSheetState(
-    val loading: Boolean = false,
-
     val sheetHeight: Dp = 0.dp,
     val footerHeight: Dp = 0.dp,
 

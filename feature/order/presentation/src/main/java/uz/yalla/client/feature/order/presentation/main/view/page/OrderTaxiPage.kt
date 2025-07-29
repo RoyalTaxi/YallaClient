@@ -45,6 +45,7 @@ import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.Orde
 fun OrderTaxiPage(
     state: MainSheetState,
     modifier: Modifier = Modifier,
+    loading: Boolean,
     onHeightChanged: (Dp) -> Unit,
     onIntent: (OrderTaxiSheetIntent) -> Unit
 ) {
@@ -135,7 +136,7 @@ fun OrderTaxiPage(
             SelectCurrentLocationButton(
                 modifier = Modifier.padding(horizontal = 20.dp),
                 onClick = { onIntent(OrderTaxiSheetIntent.CurrentLocationClick) },
-                text = if (state.loading.not() && state.location?.name != null) {
+                text = if (loading.not() && state.location?.name != null) {
                     state.location.name.orEmpty()
                 } else {
                     stringResource(R.string.loading)

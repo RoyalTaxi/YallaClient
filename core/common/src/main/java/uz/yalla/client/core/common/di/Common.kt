@@ -1,6 +1,7 @@
 package uz.yalla.client.core.common.di
 
 import org.koin.android.ext.koin.androidContext
+import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import uz.yalla.client.core.common.maps.MapsViewModel
@@ -13,6 +14,7 @@ object Common {
         viewModelOf(::SingleAddressViewModel)
         viewModelOf(::DualAddressViewModel)
         viewModelOf(::SelectFromMapViewModel)
-        single { MapsViewModel(androidContext()) }
+//        single { MapsViewModel(androidContext()) }
+        singleOf(::MapsViewModel)
     }
 }

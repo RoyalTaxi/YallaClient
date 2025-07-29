@@ -34,9 +34,9 @@ internal fun CardNumberField(
         modifier = modifier,
         onValueChange = onNumberChange,
         singleLine = true,
-        textStyle = YallaTheme.font.label.copy(color = YallaTheme.color.onBackground),
+        textStyle = YallaTheme.font.label.copy(color = YallaTheme.color.onSurface),
         visualTransformation = PhoneVisualTransformation("xxxx xxxx xxxx xxxx", 'x'),
-        cursorBrush = SolidColor(YallaTheme.color.onBackground),
+        cursorBrush = SolidColor(YallaTheme.color.onSurface),
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Decimal,
             imeAction = ImeAction.Done
@@ -52,10 +52,10 @@ internal fun CardNumberField(
                 visualTransformation = VisualTransformation.None,
                 interactionSource = remember { MutableInteractionSource() },
                 colors = TextFieldDefaults.colors(
-                    focusedTextColor = YallaTheme.color.onBackground,
-                    unfocusedTextColor = YallaTheme.color.onBackground,
-                    focusedContainerColor = YallaTheme.color.surface,
-                    unfocusedContainerColor = YallaTheme.color.surface,
+                    focusedTextColor = YallaTheme.color.onSurface,
+                    unfocusedTextColor = YallaTheme.color.onSurface,
+                    focusedContainerColor = YallaTheme.color.background,
+                    unfocusedContainerColor = YallaTheme.color.background,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
                     cursorColor = YallaTheme.color.onBackground

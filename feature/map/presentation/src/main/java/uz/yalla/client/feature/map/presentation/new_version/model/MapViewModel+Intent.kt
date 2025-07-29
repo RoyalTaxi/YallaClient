@@ -76,8 +76,16 @@ fun MViewModel.onIntent(intent: MapIntent) = intent {
 
         is MapIntent.MapOverlayIntent.RefocusLastState -> {
             if (state.serviceAvailable == false) return@intent
-            state.location?.point?.let { point ->
-                mapsViewModel.onIntent(MapsIntent.MoveTo(point))
+            state.order?.taxi?.routes?.firstOrNull()?.let { point ->
+                mapsViewModel.onIntent(
+                    MapsIntent.MoveTo(
+                        MapPoint(point.coords.lat, point.coords.lng)
+                    )
+                )
+            } ?: run {
+                state.location?.point?.let { point ->
+                    mapsViewModel.onIntent(MapsIntent.MoveTo(point))
+                }
             }
         }
     }
@@ -143,7 +151,7 @@ fun MViewModel.onIntent(intent: MainSheetIntent) = intent {
             reduce {
                 state.copy(
                     carArrivalInMinutes = intent.timeout,
-                    drivers = intent.drivers
+                    drivers = if (state.order == null) intent.drivers else emptyList()
                 )
             }
         }

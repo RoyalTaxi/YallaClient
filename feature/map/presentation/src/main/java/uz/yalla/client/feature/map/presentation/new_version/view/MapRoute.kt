@@ -149,10 +149,6 @@ fun MRoute(
         }
     }
 
-    LaunchedEffect(Unit) {
-        MainSheetChannel.intentFlow.collect(viewModel::onIntent)
-    }
-
     MScreen(
         state = state,
         networkState = networkState,
