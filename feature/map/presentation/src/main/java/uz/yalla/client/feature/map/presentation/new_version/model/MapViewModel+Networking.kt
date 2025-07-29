@@ -119,7 +119,8 @@ fun MViewModel.getRouting() = intent {
 }
 
 fun MViewModel.getActiveOrder() = viewModelScope.launch {
-    val orderId = container.stateFlow.value.order?.id ?: run {
+    val orderId = container.stateFlow.value.orderId
+    if (orderId == null) {
         mapsViewModel.onIntent(MapsIntent.UpdateOrderStatus(null))
         return@launch
     }

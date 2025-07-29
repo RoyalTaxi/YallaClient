@@ -2,6 +2,9 @@ package uz.yalla.client.feature.map.presentation.new_version.model
 
 import uz.yalla.client.core.common.maps.MapsIntent
 import uz.yalla.client.core.common.marker.YallaMarkerState
+import uz.yalla.client.core.domain.model.Destination
+import uz.yalla.client.core.domain.model.Location
+import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.feature.map.presentation.new_version.intent.MapEffect
 import uz.yalla.client.feature.map.presentation.new_version.intent.MapIntent
 import uz.yalla.client.feature.order.presentation.client_waiting.view.ClientWaitingSheetIntent
@@ -9,6 +12,7 @@ import uz.yalla.client.feature.order.presentation.driver_waiting.view.DriverWait
 import uz.yalla.client.feature.order.presentation.feedback.view.FeedbackSheetIntent
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetChannel
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent
+import uz.yalla.client.feature.order.presentation.no_service.view.NoServiceSheetIntent
 import uz.yalla.client.feature.order.presentation.on_the_ride.view.OnTheRideSheetIntent
 import uz.yalla.client.feature.order.presentation.order_canceled.view.OrderCanceledSheetIntent
 import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheetIntent
@@ -32,11 +36,7 @@ fun MViewModel.onIntent(intent: MapIntent) = intent {
         }
 
         MapIntent.MapOverlayIntent.ClickShowOrders -> {
-            reduce {
-                state.copy(
-                    ordersSheetVisible = true
-                )
-            }
+            reduce { state.copy(ordersSheetVisible = true) }
         }
 
         MapIntent.MapOverlayIntent.MoveToFirstLocation -> {
@@ -83,8 +83,17 @@ fun MViewModel.onIntent(intent: MapIntent) = intent {
                 state.route.isNotEmpty() -> {
                     mapsViewModel.onIntent(MapsIntent.AnimateFitBounds)
                 }
+
                 else -> mapsViewModel.onIntent(MapsIntent.AnimateToMyLocation(intent.context))
             }
+        }
+    }
+}
+
+fun MViewModel.onIntent(intent: NoServiceSheetIntent) = intent {
+    when (intent) {
+        is NoServiceSheetIntent.SetSelectedLocation -> {
+            reduce { state.copy(location = intent.location) }
         }
     }
 }
@@ -92,25 +101,11 @@ fun MViewModel.onIntent(intent: MapIntent) = intent {
 fun MViewModel.onIntent(intent: MainSheetIntent) = intent {
     when (intent) {
         is MainSheetIntent.OrderTaxiSheetIntent.SetSelectedLocation -> {
-            if (state.orderId == null && state.route.isEmpty())
-                intent.location.point?.let { point ->
-                    mapsViewModel.onIntent(MapsIntent.AnimateTo(point))
-                }
-            else reduce {
-                state.copy(location = intent.location)
-            }
+            reduce { state.copy(location = intent.location) }
         }
 
         is MainSheetIntent.OrderTaxiSheetIntent.SetDestinations -> {
             reduce { state.copy(destinations = intent.destinations) }
-
-            if (intent.destinations.isEmpty()) {
-                state.location?.point?.let { point ->
-                    mapsViewModel.onIntent(MapsIntent.AnimateTo(point))
-                }
-            } else {
-                getRouting()
-            }
         }
 
         is MainSheetIntent.OrderTaxiSheetIntent.AddDestination -> {
@@ -123,7 +118,20 @@ fun MViewModel.onIntent(intent: MainSheetIntent) = intent {
                     order = intent.order,
                     orderId = intent.order.id,
                     tariffId = intent.order.taxi.tariffId,
-                    markerState = YallaMarkerState.Searching
+                    markerState = YallaMarkerState.Searching,
+                    location = Location(
+                        name = intent.order.taxi.routes.firstOrNull()?.fullAddress,
+                        addressId = null,
+                        point = intent.order.taxi.routes.firstOrNull()?.coords?.let { c ->
+                            MapPoint(c.lat, c.lng)
+                        }
+                    ),
+                    destinations = intent.order.taxi.routes.drop(1).map { d ->
+                        Destination(
+                            name = d.fullAddress,
+                            point = MapPoint(d.coords.lat, d.coords.lng)
+                        )
+                    }
                 )
             }
         }

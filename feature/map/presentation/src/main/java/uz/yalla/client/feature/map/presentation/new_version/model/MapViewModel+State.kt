@@ -1,14 +1,25 @@
 package uz.yalla.client.feature.map.presentation.new_version.model
 
+import uz.yalla.client.core.common.maps.MapsIntent
+import uz.yalla.client.core.common.marker.YallaMarkerState
 
 fun MViewModel.clearState() = intent {
     reduce {
         state.copy(
             order = null,
-            orderId = null
+            orderId = null,
+            location = null,
+            destinations = emptyList(),
+            route = emptyList(),
+            markerState = YallaMarkerState.LOADING
         )
     }
+
+    mapsViewModel.onIntent(MapsIntent.UpdateLocations(emptyList()))
+    mapsViewModel.onIntent(MapsIntent.UpdateRoute(emptyList()))
+    mapsViewModel.onIntent(MapsIntent.UpdateOrderStatus(null))
 }
+
 
 fun MViewModel.removeLastDestination() = intent {
     if (state.destinations.isNotEmpty())

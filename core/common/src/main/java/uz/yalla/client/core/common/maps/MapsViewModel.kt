@@ -548,6 +548,7 @@ class MapsViewModel(
     }
 
     private fun onCameraIdle() {
+        if (polyline != null) return
         val position = map?.cameraPosition?.target?.let {
             MapPoint(it.latitude, it.longitude)
         } ?: return

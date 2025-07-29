@@ -46,7 +46,7 @@ fun BottomSheetNavHost(
 
 fun NavController.shouldNavigateToSheet(
     routePattern: String,
-    orderId: Int
+    orderId: Int?
 ): Boolean {
     val currentDestination = this.currentDestination
     val thisRoute = currentDestination?.route ?: ""

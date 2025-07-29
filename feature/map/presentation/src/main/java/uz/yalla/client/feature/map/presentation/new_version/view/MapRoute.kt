@@ -58,6 +58,8 @@ import uz.yalla.client.feature.order.presentation.main.MAIN_SHEET_ROUTE
 import uz.yalla.client.feature.order.presentation.main.navigateToMainSheet
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetChannel
 import uz.yalla.client.feature.order.presentation.no_service.NO_SERVICE_ROUTE
+import uz.yalla.client.feature.order.presentation.no_service.navigateToNoServiceSheet
+import uz.yalla.client.feature.order.presentation.no_service.view.NoServiceSheetChannel
 import uz.yalla.client.feature.order.presentation.on_the_ride.ON_THE_RIDE_ROUTE
 import uz.yalla.client.feature.order.presentation.on_the_ride.navigateToOnTheRideSheet
 import uz.yalla.client.feature.order.presentation.on_the_ride.view.OnTheRideSheetChannel
@@ -185,6 +187,15 @@ fun MRoute(
         }
     )
 
+    LaunchedEffect(state.serviceAvailable) {
+        if (state.serviceAvailable.not()) {
+            if (navController.shouldNavigateToSheet(NO_SERVICE_ROUTE, null)) {
+                navController.navigateToNoServiceSheet()
+                scope.launch { NoServiceSheetChannel.intentFlow.collect(viewModel::onIntent) }
+            }
+        }
+    }
+
     LaunchedEffect(state.order) {
         when (state.order?.status) {
             OrderStatus.Appointed -> {
@@ -233,16 +244,9 @@ fun MRoute(
             }
 
             null -> {
-                val currentDestination = navController.currentDestination?.route ?: ""
-                val isInOrderFlow = listOf(
-                    CLIENT_WAITING_ROUTE, DRIVER_WAITING_ROUTE, ON_THE_RIDE_ROUTE,
-                    FEEDBACK_ROUTE, SEARCH_CAR_ROUTE, ORDER_CANCELED_ROUTE
-                ).any { currentDestination.contains(it) }
-
-                if (!currentDestination.contains(MAIN_SHEET_ROUTE) &&
-                    !currentDestination.contains(NO_SERVICE_ROUTE)
-                ) {
+                if (navController.shouldNavigateToSheet(MAIN_SHEET_ROUTE, null)) {
                     navController.navigateToMainSheet()
+                    scope.launch { MainSheetChannel.intentFlow.collect(viewModel::onIntent) }
                 }
             }
 
@@ -250,14 +254,22 @@ fun MRoute(
                 state.order?.id?.let { orderId ->
                     state.location?.point?.let { point ->
                         state.tariffId?.let { tariffId ->
-                            if (navController.shouldNavigateToSheet(SEARCH_CAR_ROUTE, orderId)) {
+                            if (navController.shouldNavigateToSheet(
+                                    SEARCH_CAR_ROUTE,
+                                    orderId
+                                )
+                            ) {
                                 navController.navigateToSearchForCarBottomSheet(
                                     orderId = orderId,
                                     point = point,
                                     tariffId = tariffId
                                 )
                                 viewModel.onIntent(MapIntent.MapOverlayIntent.MoveToFirstLocation)
-                                scope.launch { SearchCarSheetChannel.intentFlow.collect(viewModel::onIntent) }
+                                scope.launch {
+                                    SearchCarSheetChannel.intentFlow.collect(
+                                        viewModel::onIntent
+                                    )
+                                }
                             }
                         }
                     }

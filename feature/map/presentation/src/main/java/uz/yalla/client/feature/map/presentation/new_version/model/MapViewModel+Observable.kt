@@ -18,7 +18,7 @@ import kotlin.time.Duration.Companion.seconds
 
 fun MViewModel.startObserve() {
     observerScope.launch { observeActiveOrders() }
-    observerScope.launch { onCameraStateChanged() }
+    observerScope.launch { observeMarkerState() }
     observerScope.launch { observeLocation() }
     observerScope.launch { observeDestination() }
     observerScope.launch { observeLocations() }
@@ -56,10 +56,10 @@ fun MViewModel.observeActiveOrders() = viewModelScope.launch {
     }
 }
 
-fun MViewModel.onCameraStateChanged() = viewModelScope.launch {
+fun MViewModel.observeMarkerState() = viewModelScope.launch {
     mapsViewModel.cameraState.collectLatest { markerState ->
-        if (container.stateFlow.value.order == null && container.stateFlow.value.destinations.isEmpty()) {
-            intent {
+        intent {
+            if (state.order == null && state.destinations.isEmpty()) {
                 if (markerState.isMoving) {
                     reduce { state.copy(markerState = YallaMarkerState.LOADING) }
                 } else {
