@@ -36,8 +36,10 @@ import uz.yalla.client.core.common.utils.createInfoMarkerBitmapDescriptor
 import uz.yalla.client.core.common.utils.dpToPx
 import uz.yalla.client.core.common.utils.getCurrentLocation
 import uz.yalla.client.core.common.utils.vectorToBitmapDescriptor
+import uz.yalla.client.core.common.utils.vectorToBitmapDescriptorWithSize
 import uz.yalla.client.core.common.viewmodel.BaseViewModel
 import uz.yalla.client.core.common.viewmodel.LifeCycleAware
+import uz.yalla.client.core.domain.model.Executor
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.OrderStatus
 
@@ -52,7 +54,9 @@ data class MapsState(
     val locations: List<MapPoint> = emptyList(),
     val carArrivesInMinutes: Int? = null,
     val orderEndsInMinutes: Int? = null,
-    val orderStatus: OrderStatus? = null
+    val orderStatus: OrderStatus? = null,
+    val driver: Executor? = null,
+    val drivers: List<Executor> = emptyList()
 )
 
 data class CameraState(
@@ -79,6 +83,8 @@ sealed interface MapsIntent {
     data class UpdateCarArrivesInMinutes(val minutes: Int?) : MapsIntent
     data class UpdateOrderEndsInMinutes(val minutes: Int?) : MapsIntent
     data class UpdateOrderStatus(val status: OrderStatus?) : MapsIntent
+    data class UpdateDriver(val driver: Executor?) : MapsIntent
+    data class UpdateDrivers(val drivers: List<Executor>) : MapsIntent
 }
 
 class MapsViewModel(
@@ -96,12 +102,15 @@ class MapsViewModel(
     private var polyline: Polyline? = null
     private val dashedPolylines = mutableListOf<Polyline>()
     private val markers = mutableListOf<Marker>()
+    private val driverMarkers = mutableListOf<Marker>()
+    private val driversMarkers = mutableListOf<Marker>()
 
     private var originIcon: BitmapDescriptor? = null
     private var middleIcon: BitmapDescriptor? = null
     private var destinationIcon: BitmapDescriptor? = null
     private var originInfoIcon: BitmapDescriptor? = null
     private var destinationInfoIcon: BitmapDescriptor? = null
+    private var driverIcon: BitmapDescriptor? = null
 
     fun hasSavedCameraPosition(): Boolean = container.stateFlow.value.savedCameraPosition != null
     fun getSavedCameraPosition(): MapPoint? = container.stateFlow.value.savedCameraPosition
@@ -334,6 +343,14 @@ class MapsViewModel(
             is MapsIntent.SetMapPadding -> reduce {
                 state.copy(mapPaddingPx = intent.paddingPx)
             }
+
+            is MapsIntent.UpdateDriver -> reduce {
+                state.copy(driver = intent.driver)
+            }
+
+            is MapsIntent.UpdateDrivers -> reduce {
+                state.copy(drivers = intent.drivers)
+            }
         }
     }
 
@@ -349,7 +366,8 @@ class MapsViewModel(
     private fun redrawAllMapElements(state: MapsState) {
         clearAllMapElements()
 
-        if (state.route.isNotEmpty()) {
+        // Only draw regular route when order status is NOT APPOINTED
+        if (state.route.isNotEmpty() && state.orderStatus != OrderStatus.Appointed) {
             drawRoute(state.route, state.mapPaddingPx, animate = true)
         }
 
@@ -358,21 +376,83 @@ class MapsViewModel(
             carArrivesInMinutes = state.carArrivesInMinutes,
             orderEndsInMinutes = state.orderEndsInMinutes,
             orderStatus = state.orderStatus,
-            hasRoute = state.route.isNotEmpty()
+            hasRoute = state.route.isNotEmpty() && state.orderStatus != OrderStatus.Appointed
         )
 
-        drawDashedConnections(state.locations, state.route)
+        // Only draw dashed connections when order status is NOT APPOINTED
+        if (state.orderStatus != OrderStatus.Appointed) {
+            drawDashedConnections(state.locations, state.route)
+        }
+
+        state.driver?.let { 
+            drawDriver(it)
+            if (state.locations.isNotEmpty() && state.orderStatus == OrderStatus.Appointed) {
+                drawDriverToFirstLocationConnection(it, state.locations.first())
+            }
+        }
+
+        if (state.drivers.isNotEmpty()) {
+            drawDrivers(state.drivers)
+        }
     }
 
     private fun clearAllMapElements() {
         markers.forEach { it.remove() }
         markers.clear()
 
+        driverMarkers.forEach { it.remove() }
+        driverMarkers.clear()
+
+        driversMarkers.forEach { it.remove() }
+        driversMarkers.clear()
+
         polyline?.remove()
         polyline = null
 
         dashedPolylines.forEach { it.remove() }
         dashedPolylines.clear()
+    }
+
+    private fun drawDriver(driver: Executor) {
+        if (driverIcon == null) {
+            driverIcon = vectorToBitmapDescriptorWithSize(appContext, R.drawable.img_car_marker, 48)
+        }
+
+        map?.let { googleMap ->
+            val markerOptions = MarkerOptions()
+                .position(LatLng(driver.lat, driver.lng))
+                .flat(true)
+                .rotation(driver.heading.toFloat())
+                .anchor(0.5f, 0.5f)
+                .zIndex(1f)
+                .icon(driverIcon ?: BitmapDescriptorFactory.defaultMarker())
+
+            googleMap.addMarker(markerOptions)?.let { 
+                driverMarkers.add(it) 
+            }
+        }
+    }
+
+    private fun drawDrivers(drivers: List<Executor>) {
+        if (driverIcon == null) {
+            driverIcon = vectorToBitmapDescriptorWithSize(appContext, R.drawable.img_car_marker, 48)
+        }
+
+        map?.let { googleMap ->
+            drivers.forEach { driver ->
+                val markerOptions = MarkerOptions()
+                    .position(LatLng(driver.lat, driver.lng))
+                    .flat(true)
+                    .rotation(driver.heading.toFloat())
+                    .anchor(0.5f, 0.5f)
+                    .zIndex(1f)
+                    .icon(driverIcon ?: BitmapDescriptorFactory.defaultMarker())
+
+                googleMap.addMarker(markerOptions)?.let { 
+                    driversMarkers.add(it) 
+                }
+            }
+        }
     }
 
     private fun drawRoute(route: List<MapPoint>, paddingPx: Int, animate: Boolean = true) {
@@ -508,6 +588,32 @@ class MapsViewModel(
                     )
                     dashedPolylines.add(dashedPolyline)
                 }
+            }
+        }
+    }
+
+    private fun drawDriverToFirstLocationConnection(
+        driver: Executor,
+        firstLocation: MapPoint
+    ) {
+        map?.let { googleMap ->
+            val driverPoint = MapPoint(driver.lat, driver.lng)
+
+            if (driverPoint != firstLocation) {
+                val polylineColor = if (isNightMode(appContext)) {
+                    MapConstants.POLYLINE_COLOR_NIGHT
+                } else {
+                    MapConstants.POLYLINE_COLOR_DAY
+                }
+
+                val solidPolyline = googleMap.addPolyline(
+                    PolylineOptions()
+                        .add(LatLng(driver.lat, driver.lng))
+                        .add(LatLng(firstLocation.lat, firstLocation.lng))
+                        .color(polylineColor)
+                        .width(MapConstants.POLYLINE_WIDTH)
+                )
+                dashedPolylines.add(solidPolyline) // Still add to the same list for cleanup
             }
         }
     }

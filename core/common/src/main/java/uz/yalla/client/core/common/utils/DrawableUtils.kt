@@ -16,3 +16,13 @@ fun vectorToBitmapDescriptor(context: Context, vectorResId: Int): BitmapDescript
     vectorDrawable.draw(canvas)
     return BitmapDescriptorFactory.fromBitmap(bitmap)
 }
+
+fun vectorToBitmapDescriptorWithSize(context: Context, vectorResId: Int, sizeDp: Int): BitmapDescriptor? {
+    val vectorDrawable = ContextCompat.getDrawable(context, vectorResId) ?: return null
+    val sizePx = dpToPx(context, sizeDp)
+    vectorDrawable.setBounds(0, 0, sizePx, sizePx)
+    val bitmap = createBitmap(sizePx, sizePx)
+    val canvas = Canvas(bitmap)
+    vectorDrawable.draw(canvas)
+    return BitmapDescriptorFactory.fromBitmap(bitmap)
+}

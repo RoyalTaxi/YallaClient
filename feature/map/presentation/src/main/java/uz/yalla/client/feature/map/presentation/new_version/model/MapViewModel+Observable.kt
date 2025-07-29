@@ -12,6 +12,8 @@ import uz.yalla.client.core.common.state.CameraButtonState.FirstLocation
 import uz.yalla.client.core.common.state.CameraButtonState.MyLocationView
 import uz.yalla.client.core.common.state.CameraButtonState.MyRouteView
 import uz.yalla.client.core.common.state.NavigationButtonState
+import uz.yalla.client.core.domain.model.Executor
+import uz.yalla.client.feature.order.domain.model.response.order.toCommonExecutor
 import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetChannel
 import uz.yalla.client.feature.order.presentation.no_service.NO_SERVICE_ROUTE
@@ -28,6 +30,7 @@ fun MViewModel.startObserve() {
     observerScope.launch { observeRoute() }
     observerScope.launch { observeInfoMarkers() }
     observerScope.launch { observeNavigationButton() }
+    observerScope.launch { observeDrivers() }
 }
 
 fun MViewModel.observeInfoMarkers() = viewModelScope.launch {
@@ -159,6 +162,32 @@ fun MViewModel.observeNavigationButton() = viewModelScope.launch {
                         }
                     )
                 }
+            }
+        }
+}
+
+fun MViewModel.observeDrivers() = viewModelScope.launch {
+    container.stateFlow
+        .distinctUntilChangedBy { it.order }
+        .collectLatest { state ->
+            state.order?.let { order ->
+                // Update single driver
+                mapsViewModel.onIntent(MapsIntent.UpdateDriver(order.executor.toCommonExecutor()))
+            } ?: run {
+                // Clear driver when no order
+                mapsViewModel.onIntent(MapsIntent.UpdateDriver(null))
+            }
+        }
+
+    // Observe active orders for multiple drivers
+    container.stateFlow
+        .distinctUntilChangedBy { it.orders }
+        .collectLatest { state ->
+            if (state.orders.isNotEmpty()) {
+                val drivers = state.orders.map { it.executor.toCommonExecutor() }
+                mapsViewModel.onIntent(MapsIntent.UpdateDrivers(drivers))
+            } else {
+                mapsViewModel.onIntent(MapsIntent.UpdateDrivers(emptyList()))
             }
         }
 }
