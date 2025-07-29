@@ -140,7 +140,12 @@ fun MViewModel.onIntent(intent: MainSheetIntent) = intent {
         }
 
         is MainSheetIntent.OrderTaxiSheetIntent.SetTimeout -> {
-            reduce { state.copy(carArrivalInMinutes = intent.timeout) }
+            reduce {
+                state.copy(
+                    carArrivalInMinutes = intent.timeout,
+                    drivers = intent.drivers
+                )
+            }
         }
 
         is MainSheetIntent.OrderTaxiSheetIntent.SetServiceState -> {

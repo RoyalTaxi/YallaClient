@@ -6,6 +6,7 @@ import uz.yalla.client.core.common.state.CameraButtonState
 import uz.yalla.client.core.common.state.NavigationButtonState
 import uz.yalla.client.core.domain.model.Client
 import uz.yalla.client.core.domain.model.Destination
+import uz.yalla.client.core.domain.model.Executor
 import uz.yalla.client.core.domain.model.Location
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
@@ -32,6 +33,7 @@ data class MapState(
     val orderId: Int? = null,
     val order: ShowOrderModel? = null,
     val orders: List<ShowOrderModel> = emptyList(),
+    val drivers: List<Executor> = emptyList(),
 
     val navigationButtonState: NavigationButtonState = NavigationButtonState.OpenDrawer,
     val cameraButtonState: CameraButtonState = CameraButtonState.MyLocationView,
