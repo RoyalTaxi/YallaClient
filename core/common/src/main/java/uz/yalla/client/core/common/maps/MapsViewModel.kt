@@ -48,6 +48,7 @@ import uz.yalla.client.core.domain.model.Executor
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.core.domain.model.type.ThemeType
+import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 
 data class MapsState(
     val isMapReady: Boolean = false,
@@ -60,7 +61,7 @@ data class MapsState(
     val locations: List<MapPoint> = emptyList(),
     val carArrivesInMinutes: Int? = null,
     val orderEndsInMinutes: Int? = null,
-    val orderStatus: OrderStatus? = null,
+    val order: ShowOrderModel? = null,
     val driver: Executor? = null,
     val drivers: List<Executor> = emptyList()
 )
@@ -88,7 +89,7 @@ sealed interface MapsIntent {
     data class UpdateLocations(val locations: List<MapPoint>) : MapsIntent
     data class UpdateCarArrivesInMinutes(val minutes: Int?) : MapsIntent
     data class UpdateOrderEndsInMinutes(val minutes: Int?) : MapsIntent
-    data class UpdateOrderStatus(val status: OrderStatus?) : MapsIntent
+    data class UpdateOrderStatus(val status: ShowOrderModel?) : MapsIntent
     data class UpdateDriver(val driver: Executor?) : MapsIntent
     data class UpdateDrivers(val drivers: List<Executor>) : MapsIntent
 }
@@ -195,7 +196,7 @@ class MapsViewModel(
                 .distinctUntilChangedBy {
                     listOf(
                         it.route,
-                        it.orderStatus
+                        it.order
                     )
                 }
                 .collectLatest { state ->
@@ -213,7 +214,7 @@ class MapsViewModel(
                         it.locations,
                         it.carArrivesInMinutes,
                         it.orderEndsInMinutes,
-                        it.orderStatus
+                        it.order
                     )
                 }
                 .collectLatest { state ->
@@ -247,16 +248,16 @@ class MapsViewModel(
 
         jobs += viewModelScope.launch {
             container.stateFlow
-                .distinctUntilChangedBy { it.orderStatus }
+                .distinctUntilChangedBy { it.order }
                 .collectLatest { state ->
                     map?.uiSettings?.isScrollGesturesEnabled =
-                        state.orderStatus !in OrderStatus.nonInteractive
+                        state.order?.status !in OrderStatus.nonInteractive
                     map?.uiSettings?.isZoomGesturesEnabled =
-                        state.orderStatus !in OrderStatus.nonInteractive
+                        state.order?.status !in OrderStatus.nonInteractive
                     map?.uiSettings?.isTiltGesturesEnabled =
-                        state.orderStatus !in OrderStatus.nonInteractive
+                        state.order?.status !in OrderStatus.nonInteractive
                     map?.uiSettings?.isRotateGesturesEnabled =
-                        state.orderStatus !in OrderStatus.nonInteractive
+                        state.order?.status !in OrderStatus.nonInteractive
                 }
         }
     }
@@ -370,8 +371,8 @@ class MapsViewModel(
             }
 
             is MapsIntent.UpdateOrderStatus -> {
-                reduce { state.copy(orderStatus = intent.status) }
-                withContext(Dispatchers.IO) { updateDriversOnMap(state) }
+                reduce { state.copy(order = intent.status) }
+                updateDriversOnMap(state)
             }
 
             is MapsIntent.MoveTo -> {
@@ -538,8 +539,8 @@ class MapsViewModel(
                 locations = state.locations,
                 carArrivesInMinutes = state.carArrivesInMinutes,
                 orderEndsInMinutes = state.orderEndsInMinutes,
-                orderStatus = state.orderStatus,
-                hasRoute = state.route.isNotEmpty() && state.orderStatus != OrderStatus.Appointed
+                orderStatus = state.order?.status,
+                hasRoute = state.route.isNotEmpty() && state.order?.status != OrderStatus.Appointed
             )
         }
     }
@@ -595,7 +596,7 @@ class MapsViewModel(
         initializeIcons() // Ensure driver icon is initialized
 
         // Don't show drivers when order status is not null
-        if (state.drivers.isEmpty() || state.orderStatus != null) {
+        if (state.drivers.isEmpty() || state.order != null) {
             // No drivers in state or order status is not null, remove any existing markers
             driversMarkers.forEach { it.remove() }
             driversMarkers.clear()
@@ -764,7 +765,7 @@ class MapsViewModel(
             )
 
             val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, paddingPx)
-            if (container.stateFlow.value.orderStatus !in OrderStatus.nonInteractive)
+            if (container.stateFlow.value.order?.status !in OrderStatus.nonInteractive)
                 if (animate) googleMap.animateCamera(cameraUpdate)
                 else googleMap.moveCamera(cameraUpdate)
         }
@@ -783,7 +784,8 @@ class MapsViewModel(
 
         map?.let { googleMap ->
             locations.forEachIndexed { index, point ->
-                val markerOptions = MarkerOptions().position(LatLng(point.lat, point.lng)).zIndex(2f)
+                val markerOptions =
+                    MarkerOptions().position(LatLng(point.lat, point.lng)).zIndex(2f)
 
                 when (index) {
                     0 -> {
@@ -821,7 +823,7 @@ class MapsViewModel(
         originInfoIcon = null
         destinationInfoIcon = null
 
-        if (carArrivesInMinutes != null && container.stateFlow.value.orderStatus == null) {
+        if (carArrivesInMinutes != null && container.stateFlow.value.order == null) {
             originInfoIcon = createInfoMarkerBitmapDescriptor(
                 context = appContext,
                 title = "$carArrivesInMinutes min",
@@ -833,7 +835,7 @@ class MapsViewModel(
             )
         }
 
-        if (orderEndsInMinutes != null && container.stateFlow.value.orderStatus == null) {
+        if (orderEndsInMinutes != null && container.stateFlow.value.order == null) {
             destinationInfoIcon = createInfoMarkerBitmapDescriptor(
                 context = appContext,
                 title = "$orderEndsInMinutes min",

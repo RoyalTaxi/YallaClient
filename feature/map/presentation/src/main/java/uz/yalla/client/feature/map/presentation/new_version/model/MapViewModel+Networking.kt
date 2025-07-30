@@ -155,7 +155,7 @@ fun MViewModel.getActiveOrder() = viewModelScope.launch {
     intent {
         val orderId = state.orderId ?: return@intent
         getShowOrderUseCase(orderId).onSuccess { order ->
-            mapsViewModel.onIntent(MapsIntent.UpdateOrderStatus(order.status))
+            mapsViewModel.onIntent(MapsIntent.UpdateOrderStatus(order))
             reduce {
                 state.copy(
                     order = order,
