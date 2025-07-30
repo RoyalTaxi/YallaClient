@@ -119,7 +119,7 @@ fun MViewModel.observeLocations() = viewModelScope.launch {
 
 fun MViewModel.observeRoute() = viewModelScope.launch {
     container.stateFlow
-        .distinctUntilChangedBy { it.route }
+        .distinctUntilChangedBy { Pair(it.route, it.order?.status) }
         .collectLatest { state ->
             mapsViewModel.onIntent(MapsIntent.UpdateRoute(state.route))
 

@@ -44,7 +44,7 @@ fun PaymentMethodBottomSheet(
 ) {
     ModalBottomSheet(
         shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
-        containerColor = YallaTheme.color.surface,
+        containerColor = YallaTheme.color.background,
         sheetState = sheetState,
         onDismissRequest = { onIntent(PaymentMethodSheetIntent.OnDismissRequest) },
         dragHandle = null

@@ -7,6 +7,7 @@ import uz.yalla.client.core.domain.formations.TimeFormation.toFormattedDate
 import uz.yalla.client.core.domain.formations.TimeFormation.toFormattedTime
 import uz.yalla.client.core.domain.model.GivenAwardPaymentType
 import uz.yalla.client.core.domain.model.OrderStatus
+import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.feature.domain.model.OrderHistoryModel
 import uz.yalla.client.service.history.response.OrderHistoryResponse
 
@@ -18,7 +19,8 @@ object OrderHistoryMapper {
             executor = remote?.executor?.let(executorMapper) ?: defaultExecutor(),
             status = OrderStatus.from(remote?.status),
             taxi = remote?.taxi?.let(taxiMapper) ?: defaultTaxi(),
-            award = remote?.award?.let(awardMapper) ?: defaultAward()
+            award = remote?.award?.let(awardMapper) ?: defaultAward(),
+            paymentType = PaymentType.fromTypeName(remote?.payment_type.orEmpty())
         )
     }
 

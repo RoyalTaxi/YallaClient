@@ -9,6 +9,7 @@
     <string name="payment">To\'lov</string>
     <string name="car">Avtomobil</string>
     <string name="cash">Naqd</string>
+    <string name="card">Bank kartasi orqali</string>
     <string name="fixed_cost">%s so\'m</string>
     <string name="tariff">Tariff</string>
     <string name="cashback">Keshbak</string>

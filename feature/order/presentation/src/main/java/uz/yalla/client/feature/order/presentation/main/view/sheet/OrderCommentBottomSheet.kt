@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -48,7 +49,7 @@ fun OrderCommentBottomSheet(
 
     ModalBottomSheet(
         shape = SheetTopCornerShape,
-        containerColor = YallaTheme.color.surface,
+        containerColor = YallaTheme.color.background,
         sheetState = sheetState,
         dragHandle = null,
         onDismissRequest = { onIntent(OrderCommentSheetIntent.OnDismissRequest(currentComment)) }
