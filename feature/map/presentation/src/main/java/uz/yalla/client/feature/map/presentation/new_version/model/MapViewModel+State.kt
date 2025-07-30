@@ -13,6 +13,7 @@ fun MViewModel.clearState() = intent {
         state.copy(
             order = null,
             orderId = null,
+            location = null,
             destinations = emptyList(),
             route = emptyList(),
             markerState = YallaMarkerState.LOADING
@@ -21,6 +22,11 @@ fun MViewModel.clearState() = intent {
 
     mapsViewModel.onIntent(MapsIntent.UpdateRoute(emptyList()))
     mapsViewModel.onIntent(MapsIntent.UpdateOrderStatus(null))
+    mapsViewModel.onIntent(MapsIntent.UpdateDriver(null))
+    mapsViewModel.onIntent(MapsIntent.UpdateDrivers(emptyList()))
+    mapsViewModel.onIntent(MapsIntent.UpdateOrderEndsInMinutes(null))
+    mapsViewModel.onIntent(MapsIntent.UpdateCarArrivesInMinutes(null))
+    mapsViewModel.onIntent(MapsIntent.UpdateLocations(emptyList()))
 }
 
 

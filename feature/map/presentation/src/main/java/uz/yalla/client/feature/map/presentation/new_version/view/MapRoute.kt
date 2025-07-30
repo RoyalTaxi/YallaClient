@@ -12,6 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.platform.LocalContext
@@ -23,6 +25,8 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.orbitmvi.orbit.compose.collectSideEffect
@@ -70,6 +74,7 @@ import uz.yalla.client.feature.order.presentation.search.SEARCH_CAR_ROUTE
 import uz.yalla.client.feature.order.presentation.search.navigateToSearchForCarBottomSheet
 import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheetChannel
 
+
 @Composable
 fun MRoute(
     networkState: Boolean,
@@ -96,6 +101,8 @@ fun MRoute(
     val locationServiceReceiver = rememberUpdatedState(
         LocationServiceReceiver { isEnabled -> viewModel.setLocationEnabled(isEnabled) }
     )
+
+    val activeCollectorRef = remember { mutableStateOf<Job?>(null) }
 
     BackHandler {
         when {
@@ -131,6 +138,7 @@ fun MRoute(
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
             context.unregisterReceiver(receiver)
+            activeCollectorRef.value?.cancel()
         }
     }
 
@@ -208,12 +216,18 @@ fun MRoute(
     }
 
     LaunchedEffect(state.order) {
+        activeCollectorRef.value?.cancel()
+
         when (state.order?.status) {
             OrderStatus.Appointed -> {
                 state.order?.id?.let { orderId ->
                     if (navController.shouldNavigateToSheet(CLIENT_WAITING_ROUTE, orderId)) {
                         navController.navigateToClientWaitingSheet(orderId = orderId)
-                        scope.launch { ClientWaitingSheetChannel.intentFlow.collect(viewModel::onIntent) }
+                    }
+                    activeCollectorRef.value = scope.launch {
+                        ClientWaitingSheetChannel.intentFlow.collectLatest { intent ->
+                            viewModel.onIntent(intent)
+                        }
                     }
                 }
             }
@@ -222,7 +236,11 @@ fun MRoute(
                 state.order?.id?.let { orderId ->
                     if (navController.shouldNavigateToSheet(DRIVER_WAITING_ROUTE, orderId)) {
                         navController.navigateToDriverWaitingSheet(orderId = orderId)
-                        scope.launch { DriverWaitingSheetChannel.intentFlow.collect(viewModel::onIntent) }
+                    }
+                    activeCollectorRef.value = scope.launch {
+                        DriverWaitingSheetChannel.intentFlow.collectLatest { intent ->
+                            viewModel.onIntent(intent)
+                        }
                     }
                 }
             }
@@ -231,7 +249,11 @@ fun MRoute(
                 state.order?.id?.let { orderId ->
                     if (navController.shouldNavigateToSheet(ON_THE_RIDE_ROUTE, orderId)) {
                         navController.navigateToOnTheRideSheet(orderId = orderId)
-                        scope.launch { OnTheRideSheetChannel.intentFlow.collect(viewModel::onIntent) }
+                    }
+                    activeCollectorRef.value = scope.launch {
+                        OnTheRideSheetChannel.intentFlow.collectLatest { intent ->
+                            viewModel.onIntent(intent)
+                        }
                     }
                 }
             }
@@ -240,7 +262,11 @@ fun MRoute(
                 state.order?.id?.let { orderId ->
                     if (navController.shouldNavigateToSheet(ORDER_CANCELED_ROUTE, orderId)) {
                         navController.navigateToCanceledOrder()
-                        scope.launch { OrderCanceledSheetChannel.intentFlow.collect(viewModel::onIntent) }
+                    }
+                    activeCollectorRef.value = scope.launch {
+                        OrderCanceledSheetChannel.intentFlow.collectLatest { intent ->
+                            viewModel.onIntent(intent)
+                        }
                     }
                 }
             }
@@ -249,7 +275,11 @@ fun MRoute(
                 state.order?.id?.let { orderId ->
                     if (navController.shouldNavigateToSheet(FEEDBACK_ROUTE, orderId)) {
                         navController.navigateToFeedbackSheet(orderId = orderId)
-                        scope.launch { FeedbackSheetChannel.intentFlow.collect(viewModel::onIntent) }
+                    }
+                    activeCollectorRef.value = scope.launch {
+                        FeedbackSheetChannel.intentFlow.collectLatest { intent ->
+                            viewModel.onIntent(intent)
+                        }
                     }
                 }
             }
@@ -257,7 +287,11 @@ fun MRoute(
             null -> {
                 if (navController.shouldNavigateToSheet(MAIN_SHEET_ROUTE, null)) {
                     navController.navigateToMainSheet()
-                    scope.launch { MainSheetChannel.intentFlow.collect(viewModel::onIntent) }
+                }
+                activeCollectorRef.value = scope.launch {
+                    MainSheetChannel.intentFlow.collectLatest { intent ->
+                        viewModel.onIntent(intent)
+                    }
                 }
             }
 
@@ -265,21 +299,17 @@ fun MRoute(
                 state.order?.id?.let { orderId ->
                     state.location?.point?.let { point ->
                         state.tariffId?.let { tariffId ->
-                            if (navController.shouldNavigateToSheet(
-                                    SEARCH_CAR_ROUTE,
-                                    orderId
-                                )
-                            ) {
+                            if (navController.shouldNavigateToSheet(SEARCH_CAR_ROUTE, orderId)) {
                                 navController.navigateToSearchForCarBottomSheet(
                                     orderId = orderId,
                                     point = point,
                                     tariffId = tariffId
                                 )
                                 viewModel.onIntent(MapIntent.MapOverlayIntent.MoveToFirstLocation)
-                                scope.launch {
-                                    SearchCarSheetChannel.intentFlow.collect(
-                                        viewModel::onIntent
-                                    )
+                            }
+                            activeCollectorRef.value = scope.launch {
+                                SearchCarSheetChannel.intentFlow.collectLatest { intent ->
+                                    viewModel.onIntent(intent)
                                 }
                             }
                         }
@@ -288,7 +318,6 @@ fun MRoute(
             }
         }
     }
-
 
     if (state.permissionDialogVisible) {
         BaseDialog(
