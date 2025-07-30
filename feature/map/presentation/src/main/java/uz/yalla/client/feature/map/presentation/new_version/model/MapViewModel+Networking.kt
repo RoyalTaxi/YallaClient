@@ -37,7 +37,10 @@ fun MViewModel.getAddress(point: MapPoint) = viewModelScope.launch {
                 MainSheetChannel.setLocation(location = location)
                 reduce {
                     state.copy(
-                        markerState = YallaMarkerState.IDLE(it.displayName, null),
+                        markerState = YallaMarkerState.IDLE(
+                            it.displayName,
+                            state.carArrivalInMinutes
+                        ),
                         location = Location(
                             name = it.displayName,
                             addressId = null,

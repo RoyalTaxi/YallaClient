@@ -26,6 +26,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -293,6 +294,8 @@ fun MRoute(
                         viewModel.onIntent(intent)
                     }
                 }
+                delay(300)
+                mapsViewModel.onIntent(MapsIntent.AnimateToMyLocation(context))
             }
 
             else -> {

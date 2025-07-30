@@ -76,16 +76,13 @@ fun MViewModel.onIntent(intent: MapIntent) = intent {
 
         is MapIntent.MapOverlayIntent.RefocusLastState -> {
             if (state.serviceAvailable == false) return@intent
+            getActiveOrder()
             state.order?.taxi?.routes?.firstOrNull()?.let { point ->
                 mapsViewModel.onIntent(
-                    MapsIntent.MoveTo(
+                    MapsIntent.AnimateTo(
                         MapPoint(point.coords.lat, point.coords.lng)
                     )
                 )
-            } ?: run {
-                state.location?.point?.let { point ->
-                    mapsViewModel.onIntent(MapsIntent.MoveTo(point))
-                }
             }
         }
     }
@@ -94,11 +91,8 @@ fun MViewModel.onIntent(intent: MapIntent) = intent {
 fun MViewModel.onIntent(intent: NoServiceSheetIntent) = intent {
     when (intent) {
         is NoServiceSheetIntent.SetSelectedLocation -> {
-            reduce {
-                state.copy(
-                    location = intent.location,
-                    markerState = YallaMarkerState.IDLE(intent.location.name, null)
-                )
+            intent.location.point?.let { point ->
+                mapsViewModel.onIntent(MapsIntent.AnimateTo(point))
             }
         }
     }
@@ -107,11 +101,8 @@ fun MViewModel.onIntent(intent: NoServiceSheetIntent) = intent {
 fun MViewModel.onIntent(intent: MainSheetIntent) = intent {
     when (intent) {
         is MainSheetIntent.OrderTaxiSheetIntent.SetSelectedLocation -> {
-            reduce {
-                state.copy(
-                    location = intent.location,
-                    markerState = YallaMarkerState.IDLE(intent.location.name, null)
-                )
+            intent.location.point?.let { point ->
+                mapsViewModel.onIntent(MapsIntent.AnimateTo(point))
             }
         }
 
