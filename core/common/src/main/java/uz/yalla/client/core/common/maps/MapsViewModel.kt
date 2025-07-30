@@ -783,7 +783,7 @@ class MapsViewModel(
 
         map?.let { googleMap ->
             locations.forEachIndexed { index, point ->
-                val markerOptions = MarkerOptions().position(LatLng(point.lat, point.lng))
+                val markerOptions = MarkerOptions().position(LatLng(point.lat, point.lng)).zIndex(2f)
 
                 when (index) {
                     0 -> {

@@ -24,7 +24,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -74,7 +73,7 @@ fun SetBonusAmountBottomSheet(
             SetBonusAmountBody(
                 currentBonusAmount = currentBonusAmount,
                 minBonus = minBonus,
-                maxBonus = maxBonus,
+                maxBonus = min(maxBonus, balance),
                 onDecrement = {
                     currentBonusAmount = (currentBonusAmount - CHANGE_AMOUNT)
                         .coerceAtLeast(minBonus)
