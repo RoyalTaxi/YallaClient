@@ -75,5 +75,8 @@ interface AppPreferences {
     val themeType: Flow<ThemeType>
     fun setThemeType(value: ThemeType)
 
+    val hasPerformedLogout: Flow<Boolean>
+    fun setHasPerformedLogout(value: Boolean)
+
     fun performLogout()
 }

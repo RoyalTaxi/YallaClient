@@ -5,7 +5,6 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.Preferences.Key
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.CoroutineScope
@@ -31,7 +30,7 @@ internal class AppPreferencesImpl(
 
         val HAS_PROCESSED = booleanPreferencesKey("hasProcessedOrderOnEntry")
         val FIREBASE_TOKEN = stringPreferencesKey("firebaseToken")
-        val DEVICE_REGISTERED = booleanPreferencesKey("isDeviceRegistered")
+        val HAS_PERFORMED_LOGOUT = booleanPreferencesKey("hasPerformedLogout")
 
         val FIRST_NAME = stringPreferencesKey("firstName")
         val LAST_NAME = stringPreferencesKey("lastName")
@@ -215,8 +214,14 @@ internal class AppPreferencesImpl(
         val typeName = prefs[Prefs.THEME_TYPE] ?: ThemeType.SYSTEM.name
         ThemeType.fromValue(typeName)
     }
+
     override fun setThemeType(value: ThemeType) {
         scope.launch { set(Prefs.THEME_TYPE, value.name) }
+    }
+
+    override val hasPerformedLogout: Flow<Boolean> = get(Prefs.HAS_PERFORMED_LOGOUT, false)
+    override fun setHasPerformedLogout(value: Boolean) {
+        scope.launch { set(Prefs.HAS_PERFORMED_LOGOUT, value) }
     }
 
     override fun performLogout() {
@@ -224,6 +229,7 @@ internal class AppPreferencesImpl(
             store.edit { prefs ->
                 prefs.clear()
                 prefs[Prefs.SKIP_ONBOARDING] = true
+                prefs[Prefs.HAS_PERFORMED_LOGOUT] = true
             }
         }
     }

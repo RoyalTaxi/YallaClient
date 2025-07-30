@@ -2,14 +2,18 @@ package uz.yalla.client.feature.map.presentation.new_version.navigation
 
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import org.koin.compose.koinInject
+import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.presentation.navigation.safeNavigate
 import uz.yalla.client.feature.map.presentation.new_version.view.MRoute
 
 const val MAP_ROUTE = "map_route"
+const val TO_AUTH = "to_auth"
 
 sealed interface FromMap {
     data object ToRegister : FromMap
@@ -30,7 +34,7 @@ sealed interface FromMap {
 
 fun NavGraphBuilder.mapScreen(
     networkState: Boolean,
-    navigate: (FromMap) -> Unit
+    navigate: (FromMap) -> Unit,
 ) {
     composable(
         route = MAP_ROUTE,

@@ -15,14 +15,4 @@ fun NavGraphBuilder.mainSheet() {
     }
 }
 
-fun NavController.navigateToMainSheet() {
-    if (currentDestination?.route == MAIN_SHEET_ROUTE) return
-    safeNavigate(
-        MAIN_SHEET_ROUTE,
-        navOptions {
-            launchSingleTop = true
-            restoreState = false
-            popUpTo(0) { inclusive = false }
-        }
-    )
-}
+fun NavController.navigateToMainSheet() = safeNavigate(MAIN_SHEET_ROUTE)

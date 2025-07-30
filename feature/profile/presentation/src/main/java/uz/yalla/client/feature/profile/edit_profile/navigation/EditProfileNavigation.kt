@@ -9,14 +9,12 @@ import uz.yalla.client.feature.profile.edit_profile.view.EditProfileRoute
 const val EDIT_PROFILE_ROUTE = "edit_profile_route"
 
 fun NavGraphBuilder.editProfileScreen(
-    onNavigateToStart: () -> Unit,
     onNavigateBack: () -> Unit
 ) {
     composable(
         route = EDIT_PROFILE_ROUTE,
     ) {
         EditProfileRoute(
-            onNavigateToStart = onNavigateToStart,
             onNavigateBack = onNavigateBack
         )
     }
