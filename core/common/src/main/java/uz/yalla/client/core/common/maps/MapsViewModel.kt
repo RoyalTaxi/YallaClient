@@ -129,7 +129,7 @@ class MapsViewModel(
             if (intent.action == Intent.ACTION_CONFIGURATION_CHANGED) {
                 if (currentThemeType == ThemeType.SYSTEM) {
                     viewModelScope.launch {
-                        delay(200)
+                        delay(500)
                         val newIsDarkTheme = isNightMode(context)
 
                         isDarkTheme = newIsDarkTheme
@@ -369,8 +369,9 @@ class MapsViewModel(
                 state.copy(orderEndsInMinutes = intent.minutes)
             }
 
-            is MapsIntent.UpdateOrderStatus -> reduce {
-                state.copy(orderStatus = intent.status)
+            is MapsIntent.UpdateOrderStatus -> {
+                reduce { state.copy(orderStatus = intent.status) }
+                withContext(Dispatchers.IO) { updateDriversOnMap(state) }
             }
 
             is MapsIntent.MoveTo -> {
@@ -512,13 +513,13 @@ class MapsViewModel(
         dashedPolylines.forEach { it.remove() }
         dashedPolylines.clear()
 
-        // Only draw regular route when order status is NOT APPOINTED
-        if (state.route.isNotEmpty() && state.orderStatus != OrderStatus.Appointed) {
+        // Draw regular route
+        if (state.route.isNotEmpty()) {
             drawRoute(state.route, state.mapPaddingPx, animate = true)
         }
 
-        // Only draw dashed connections when order status is NOT APPOINTED
-        if (state.orderStatus != OrderStatus.Appointed && state.locations.isNotEmpty()) {
+        // Draw dashed connections
+        if (state.locations.isNotEmpty()) {
             drawDashedConnections(state.locations, state.route)
         }
     }
@@ -590,7 +591,7 @@ class MapsViewModel(
     private val lastDriversPositions = mutableMapOf<Int, Pair<Double, Double>>()
     private val lastDriversHeadings = mutableMapOf<Int, Float>()
 
-    private fun updateDriversOnMap(state: MapsState) {
+    private fun updateDriversOnMap(state: MapsState) = viewModelScope.launch(Dispatchers.Main) {
         initializeIcons() // Ensure driver icon is initialized
 
         // Don't show drivers when order status is not null
@@ -600,7 +601,7 @@ class MapsViewModel(
             driversMarkers.clear()
             lastDriversPositions.clear()
             lastDriversHeadings.clear()
-            return
+            return@launch
         }
 
         // Update existing markers or create new ones as needed
@@ -911,7 +912,7 @@ class MapsViewModel(
     }
 
     private fun onCameraIdle() {
-        if (polyline != null) return
+        if (polyline != null || markers.isNotEmpty()) return
         val position = map?.cameraPosition?.target?.let {
             MapPoint(it.latitude, it.longitude)
         } ?: return

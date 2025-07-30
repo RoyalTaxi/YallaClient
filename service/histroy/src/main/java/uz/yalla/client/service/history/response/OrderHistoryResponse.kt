@@ -10,6 +10,7 @@ data class OrderHistoryResponse(
     val executor: Executor?,
     val status: String?,
     val taxi: Taxi?,
+    val payment_type: String?
 ) {
     @Serializable
     data class Award(

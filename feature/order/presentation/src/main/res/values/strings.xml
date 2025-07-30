@@ -42,7 +42,7 @@
     <string name="order_canceled">Buyurtma bekor qilindi</string>
     <string name="new_order">Yangi buyurtma</string>
     <string name="order_completed">Buyurtma yakunlandi</string>
-    <string name="with_card">Karta bilan</string>
+    <string name="with_card">Bank kartasi bilan</string>
     <string name="rate_the_trip">Safarni baholang</string>
     <string name="create_new_order">Yangi buyurtma berish</string>
     <string name="rate">Baholash</string>

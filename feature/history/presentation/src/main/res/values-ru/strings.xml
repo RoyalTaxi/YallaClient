@@ -9,6 +9,7 @@
     <string name="payment">Оплата</string>
     <string name="car">Автомобиль</string>
     <string name="cash">Наличние</string>
+    <string name="card">Банковской картой</string>
     <string name="fixed_cost">%s сум</string>
     <string name="tariff">Тариф</string>
     <string name="cashback">Кэшбек</string>

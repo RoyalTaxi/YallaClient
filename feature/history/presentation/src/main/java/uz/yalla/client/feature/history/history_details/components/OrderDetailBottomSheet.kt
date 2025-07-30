@@ -16,6 +16,7 @@ import uz.yalla.client.core.common.item.OrderDetailItem
 import uz.yalla.client.core.common.item.OrderDetailsStatus
 import uz.yalla.client.core.common.item.formatWithSpaces
 import uz.yalla.client.core.domain.model.GivenAwardPaymentType
+import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.domain.model.OrderHistoryModel
 import uz.yalla.client.feature.history.R
@@ -83,7 +84,10 @@ internal fun OrderDetailsBottomSheet(
 
             OrderDetailItem(
                 title = stringResource(R.string.payment),
-                bodyText = stringResource(R.string.cash),
+                bodyText = when (order.paymentType) {
+                    is PaymentType.CARD -> stringResource(R.string.card)
+                    PaymentType.CASH -> stringResource(R.string.cash)
+                },
                 description = stringResource(
                     R.string.fixed_cost,
                     order.taxi.totalPrice.formatWithSpaces()

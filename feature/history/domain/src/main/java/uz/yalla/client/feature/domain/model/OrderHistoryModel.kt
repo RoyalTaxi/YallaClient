@@ -2,6 +2,7 @@ package uz.yalla.client.feature.domain.model
 
 import uz.yalla.client.core.domain.model.GivenAwardPaymentType
 import uz.yalla.client.core.domain.model.OrderStatus
+import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.core.domain.model.ServiceModel
 
 
@@ -12,6 +13,7 @@ data class OrderHistoryModel(
     val executor: Executor,
     val status: OrderStatus,
     val taxi: Taxi,
+    val paymentType: PaymentType
 ) {
     data class Award(
         val paymentAward: Int,

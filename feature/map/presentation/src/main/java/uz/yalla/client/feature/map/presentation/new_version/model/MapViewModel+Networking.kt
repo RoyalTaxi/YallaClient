@@ -8,6 +8,7 @@ import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.Location
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.feature.map.domain.model.request.GetRoutingDtoItem
+import uz.yalla.client.feature.order.domain.model.response.order.toCommonExecutor
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetChannel
 import kotlin.math.ceil
 
@@ -149,6 +150,7 @@ fun MViewModel.getRouting() = intent {
         }
     }
 }
+
 
 fun MViewModel.getActiveOrder() = viewModelScope.launch {
     val orderId = container.stateFlow.value.orderId
