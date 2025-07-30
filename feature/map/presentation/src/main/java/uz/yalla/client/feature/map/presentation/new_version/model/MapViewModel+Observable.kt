@@ -12,6 +12,8 @@ import uz.yalla.client.core.common.state.CameraButtonState.FirstLocation
 import uz.yalla.client.core.common.state.CameraButtonState.MyLocationView
 import uz.yalla.client.core.common.state.CameraButtonState.MyRouteView
 import uz.yalla.client.core.common.state.NavigationButtonState
+import uz.yalla.client.core.domain.model.MapPoint
+import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.feature.order.domain.model.response.order.toCommonExecutor
 import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetChannel
@@ -175,6 +177,20 @@ fun MViewModel.observeDriver() = viewModelScope.launch {
                 mapsViewModel.onIntent(MapsIntent.UpdateDriver(order.executor.toCommonExecutor()))
             } ?: run {
                 mapsViewModel.onIntent(MapsIntent.UpdateDriver(null))
+            }
+
+            if (state.order?.status in OrderStatus.nonInteractive) return@collectLatest
+
+            state.order?.taxi?.routes?.firstOrNull()?.let { point ->
+                mapsViewModel.onIntent(
+                    MapsIntent.MoveTo(
+                        MapPoint(point.coords.lat, point.coords.lng)
+                    )
+                )
+            } ?: run {
+                state.location?.point?.let { point ->
+                    mapsViewModel.onIntent(MapsIntent.MoveTo(point))
+                }
             }
         }
 }
