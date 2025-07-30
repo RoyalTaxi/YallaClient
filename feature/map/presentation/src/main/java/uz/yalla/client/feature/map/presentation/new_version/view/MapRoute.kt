@@ -23,6 +23,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.withStateAtLeast
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -30,10 +31,13 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 import org.orbitmvi.orbit.compose.collectSideEffect
 import uz.yalla.client.core.common.dialog.BaseDialog
 import uz.yalla.client.core.common.maps.MapsIntent
 import uz.yalla.client.core.common.maps.MapsViewModel
+import uz.yalla.client.core.domain.local.AppPreferences
+import uz.yalla.client.core.domain.local.StaticPreferences
 import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.feature.map.presentation.R
 import uz.yalla.client.feature.map.presentation.new_version.intent.MapDrawerIntent
@@ -81,7 +85,8 @@ fun MRoute(
     networkState: Boolean,
     onNavigate: (FromMap) -> Unit,
     viewModel: MViewModel = koinViewModel(),
-    mapsViewModel: MapsViewModel = koinViewModel()
+    mapsViewModel: MapsViewModel = koinViewModel(),
+    staticPreferences: StaticPreferences = koinInject()
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
@@ -90,7 +95,6 @@ fun MRoute(
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     val navController = rememberNavController()
-
     val statusBarHeight = WindowInsets.statusBars.getTop(density)
     val topPaddingDp = with(density) { statusBarHeight.toDp() }
 
@@ -109,6 +113,14 @@ fun MRoute(
         when {
             state.destinations.isNotEmpty() -> viewModel.removeLastDestination()
             state.order == null -> activity?.moveTaskToBack(true)
+        }
+    }
+
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.withStateAtLeast(Lifecycle.State.RESUMED) {
+            if (staticPreferences.isDeviceRegistered.not()) {
+                onNavigate(FromMap.ToRegister)
+            }
         }
     }
 

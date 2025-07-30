@@ -31,6 +31,7 @@ class StaticPreferencesImpl(val context: Context) : StaticPreferences {
     override fun performLogout() {
         preferences.edit { clear() }
         skipOnboarding = true
+        hasProcessedOrderOnEntry = true
     }
 
 }

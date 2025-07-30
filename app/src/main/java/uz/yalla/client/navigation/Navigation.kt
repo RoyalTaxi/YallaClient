@@ -12,7 +12,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navOptions
 import org.koin.compose.koinInject
 import uz.yalla.client.core.domain.local.StaticPreferences
 import uz.yalla.client.feature.auth.AUTH_ROUTE
@@ -28,7 +27,6 @@ import uz.yalla.client.feature.info.about_app.navigation.aboutAppScreen
 import uz.yalla.client.feature.info.about_app.navigation.navigateToAboutAppScreen
 import uz.yalla.client.feature.intro.INTRO_ROUTE
 import uz.yalla.client.feature.intro.introModule
-import uz.yalla.client.feature.intro.navigateToIntroModel
 import uz.yalla.client.feature.map.presentation.new_version.navigation.FromMap
 import uz.yalla.client.feature.map.presentation.new_version.navigation.MAP_ROUTE
 import uz.yalla.client.feature.map.presentation.new_version.navigation.mapScreen
@@ -50,6 +48,8 @@ import uz.yalla.client.feature.setting.navigation.settingsScreen
 import uz.yalla.client.feature.web.navigateToWebScreen
 import uz.yalla.client.feature.web.webScreen
 import uz.yalla.client.ui.screens.OfflineScreen
+
+const val TO_AUTH = "to_auth"
 
 @Composable
 fun Navigation(isConnected: Boolean) {
@@ -157,9 +157,6 @@ fun Navigation(isConnected: Boolean) {
 
         editProfileScreen(
             onNavigateBack = navController::safePopBackStack,
-            onNavigateToStart = {
-                navController.navigateToAuthModule(navOptions { popUpTo(0) })
-            }
         )
 
         settingsScreen(onNavigateBack = navController::safePopBackStack)

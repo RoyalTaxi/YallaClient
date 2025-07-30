@@ -23,7 +23,6 @@ import uz.yalla.client.feature.profile.edit_profile.model.onIntent
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfileRoute(
-    onNavigateToStart: () -> Unit,
     onNavigateBack: () -> Unit,
     viewModel: EditProfileViewModel = koinViewModel()
 ) {
@@ -67,7 +66,6 @@ fun EditProfileRoute(
             viewModel.container.sideEffectFlow.collect { sideEffect ->
                 when (sideEffect) {
                     is EditProfileSideEffect.NavigateBack -> onNavigateBack()
-                    is EditProfileSideEffect.NavigateToStart -> onNavigateToStart()
                     is EditProfileSideEffect.ShowImagePicker -> {
                         imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                     }
