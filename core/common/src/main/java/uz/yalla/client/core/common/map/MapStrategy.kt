@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
+import com.google.maps.android.compose.MapUiSettings
 import kotlinx.coroutines.flow.Flow
 import uz.yalla.client.core.domain.model.Executor
 import uz.yalla.client.core.domain.model.MapPoint
@@ -20,7 +21,8 @@ interface MapStrategy {
         enabled: Boolean,
         modifier: Modifier,
         contentPadding: PaddingValues,
-        onMapReady: () -> Unit
+        isMyLocationEnabled: Boolean,
+        onMapReady: () -> Unit,
     )
 
     fun move(to: MapPoint)

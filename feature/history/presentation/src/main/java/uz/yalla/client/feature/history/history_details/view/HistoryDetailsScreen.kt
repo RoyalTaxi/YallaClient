@@ -49,6 +49,7 @@ internal fun HistoryDetailsScreen(
                         startingPoint = null,
                         contentPadding = PaddingValues(0.dp),
                         enabled = false,
+                        isMyLocationEnabled = false,
                         onMapReady = {
                             onIntent(HistoryDetailsIntent.OnMapReady)
                         },

@@ -156,8 +156,7 @@ fun MainSheet(
                 )
             }
         }
-
-        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        launch {
             SheetCoordinator.updateSheetHeight(
                 route = MAIN_SHEET_ROUTE,
                 height = state.sheetHeight + state.footerHeight

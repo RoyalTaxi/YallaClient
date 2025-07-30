@@ -3,7 +3,9 @@ package uz.yalla.client.feature.history.history_details.view
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
@@ -15,6 +17,10 @@ import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.core.common.map.ConcreteGoogleMap
 import uz.yalla.client.core.common.map.ConcreteLibreMap
 import uz.yalla.client.core.common.map.MapStrategy
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.runtime.MutableState
+import androidx.compose.ui.Modifier
+import com.google.maps.android.compose.MapProperties
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.MapType
@@ -32,13 +38,15 @@ internal fun HistoryDetailsRoute(
 
     val uiState by vm.uiState.collectAsStateWithLifecycle()
     val loading by vm.loading.collectAsStateWithLifecycle()
+    var isMapReady by remember { mutableStateOf(false) }
 
     val showErrorDialog by vm.showErrorDialog.collectAsStateWithLifecycle()
     val currentErrorMessageId by vm.currentErrorMessageId.collectAsStateWithLifecycle()
 
     val mapType by prefs.mapType.collectAsStateWithLifecycle(null)
 
-    val map: MapStrategy? = remember(mapType) {
+    // Create a map instance based on the user's preferred map type
+    val originalMap: MapStrategy? = remember(mapType) {
         mapType?.let { type ->
             when (type) {
                 MapType.Google -> ConcreteGoogleMap()
@@ -47,6 +55,9 @@ internal fun HistoryDetailsRoute(
             }
         }
     }
+
+    // Wrap the original map in a decorator that disables the user's current location display
+    val map: MapStrategy? = originalMap
 
     fun updateRoute() {
         map?.let { mapInstance ->
@@ -93,7 +104,10 @@ internal fun HistoryDetailsRoute(
             onIntent = { intent ->
                 when (intent) {
                     HistoryDetailsIntent.NavigateBack -> onNavigateBack()
-                    HistoryDetailsIntent.OnMapReady -> updateRoute()
+                    HistoryDetailsIntent.OnMapReady -> {
+                        updateRoute()
+                        isMapReady = true
+                    }
                 }
             }
         )
@@ -109,7 +123,8 @@ internal fun HistoryDetailsRoute(
         )
     }
 
-    if (loading) {
+    // Show loading dialog until both data is loaded and map is ready
+    if (loading || !isMapReady) {
         LoadingDialog()
     }
 }

@@ -14,4 +14,5 @@ object MapConstants {
     const val DASHED_POLYLINE_WIDTH = 4f
 
     const val DEFAULT_ZOOM = 15f
+    const val MIN_ZOOM = 12f
 }

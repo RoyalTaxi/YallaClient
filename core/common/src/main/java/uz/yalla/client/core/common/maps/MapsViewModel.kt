@@ -448,7 +448,7 @@ class MapsViewModel(
                 viewModelScope.launch(Dispatchers.Main.immediate) {
                     map?.let { googleMap ->
                         val currentZoom = googleMap.cameraPosition.zoom
-                        if (currentZoom > MapConstants.DEFAULT_ZOOM) {
+                        if (currentZoom > MapConstants.MIN_ZOOM) {
                             googleMap.animateCamera(CameraUpdateFactory.zoomOut())
                         }
                     }
@@ -540,7 +540,7 @@ class MapsViewModel(
                 carArrivesInMinutes = state.carArrivesInMinutes,
                 orderEndsInMinutes = state.orderEndsInMinutes,
                 orderStatus = state.order?.status,
-                hasRoute = state.route.isNotEmpty() && state.order?.status != OrderStatus.Appointed
+                hasRoute = state.route.isNotEmpty()
             )
         }
     }

@@ -214,7 +214,8 @@ private fun BoxScope.MapContent(
         modifier = Modifier.matchParentSize(),
         enabled = true,
         contentPadding = PaddingValues(bottom = mapBottomPadding),
-        onMapReady = onMapReady
+        onMapReady = onMapReady,
+        isMyLocationEnabled = true,
     )
 }
 
