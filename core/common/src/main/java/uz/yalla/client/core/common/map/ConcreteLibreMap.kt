@@ -12,7 +12,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -91,6 +90,7 @@ class ConcreteLibreMap : MapStrategy, KoinComponent {
         enabled: Boolean,
         modifier: Modifier,
         contentPadding: PaddingValues,
+        isMyLocationEnabled: Boolean,
         onMapReady: () -> Unit
     ) {
         context = LocalContext.current
@@ -117,9 +117,6 @@ class ConcreteLibreMap : MapStrategy, KoinComponent {
             )
         )
 
-        val mapReadyCalled = remember { mutableStateOf(false) }
-
-        // Separate initialization logic
         LaunchedEffect(cameraState, savedLoc) {
             if (savedLoc.first == 0.0 && savedLoc.second == 0.0) return@LaunchedEffect
             coroutineScope {

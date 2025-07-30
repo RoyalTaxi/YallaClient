@@ -123,6 +123,7 @@ class ConcreteGoogleMap : MapStrategy, KoinComponent {
         enabled: Boolean,
         modifier: Modifier,
         contentPadding: PaddingValues,
+        isMyLocationEnabled: Boolean,
         onMapReady: () -> Unit
     ) {
         context = LocalContext.current
@@ -182,7 +183,7 @@ class ConcreteGoogleMap : MapStrategy, KoinComponent {
                         loadMapStyleFromRaw(context)
                     ) else null,
                     mapType = MapType.NORMAL,
-                    isMyLocationEnabled = context.hasLocationPermission()
+                    isMyLocationEnabled = isMyLocationEnabled && context.hasLocationPermission()
                 ),
                 uiSettings = MapUiSettings(
                     scrollGesturesEnabled = enabled,
