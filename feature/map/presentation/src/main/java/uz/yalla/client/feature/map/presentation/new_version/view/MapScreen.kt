@@ -1,5 +1,6 @@
 package uz.yalla.client.feature.map.presentation.new_version.view
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -59,6 +60,8 @@ fun MScreen(
         if (networkState) snackBarHostState.currentSnackbarData?.dismiss()
         else snackBarHostState.showSnackbar(message = "")
     }
+
+    BackHandler(isDrawerOpen) { isDrawerOpen = false }
 
     NavigationDrawer(
         isOpen = isDrawerOpen,

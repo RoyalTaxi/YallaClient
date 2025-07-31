@@ -7,6 +7,7 @@ import uz.yalla.client.core.domain.model.Location
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.feature.map.presentation.new_version.intent.MapEffect
 import uz.yalla.client.feature.map.presentation.new_version.intent.MapIntent
+import uz.yalla.client.feature.order.presentation.cancel_reason.view.CancelReasonIntent
 import uz.yalla.client.feature.order.presentation.client_waiting.view.ClientWaitingSheetIntent
 import uz.yalla.client.feature.order.presentation.driver_waiting.view.DriverWaitingSheetIntent
 import uz.yalla.client.feature.order.presentation.feedback.view.FeedbackSheetIntent
@@ -101,9 +102,7 @@ fun MViewModel.onIntent(intent: NoServiceSheetIntent) = intent {
 fun MViewModel.onIntent(intent: MainSheetIntent) = intent {
     when (intent) {
         is MainSheetIntent.OrderTaxiSheetIntent.SetSelectedLocation -> {
-            intent.location.point?.let { point ->
-                mapsViewModel.onIntent(MapsIntent.AnimateTo(point))
-            }
+            reduce { state.copy(location = intent.location) }
         }
 
         is MainSheetIntent.OrderTaxiSheetIntent.SetDestinations -> {
@@ -115,6 +114,7 @@ fun MViewModel.onIntent(intent: MainSheetIntent) = intent {
         }
 
         is MainSheetIntent.OrderTaxiSheetIntent.OrderCreated -> {
+            staticPrefs.hasProcessedOrderOnEntry = true
             reduce {
                 state.copy(
                     order = intent.order,
@@ -171,7 +171,6 @@ fun MViewModel.onIntent(intent: SearchCarSheetIntent) = intent {
         SearchCarSheetIntent.ZoomOut -> mapsViewModel.onIntent(MapsIntent.ZoomOut)
         is SearchCarSheetIntent.OnCancelled -> {
             val orderId = intent.orderId ?: return@intent
-            clearState()
             postSideEffect(MapEffect.NavigateToCancelled(orderId))
         }
 
@@ -186,7 +185,6 @@ fun MViewModel.onIntent(intent: ClientWaitingSheetIntent) = intent {
         ClientWaitingSheetIntent.AddNewOrder -> clearState()
         is ClientWaitingSheetIntent.OnCancelled -> {
             state.orderId?.let { orderId ->
-                clearState()
                 postSideEffect(MapEffect.NavigateToCancelled(orderId))
             }
         }
@@ -206,7 +204,6 @@ fun MViewModel.onIntent(intent: DriverWaitingSheetIntent) = intent {
         DriverWaitingSheetIntent.AddNewOrder -> clearState()
         is DriverWaitingSheetIntent.OnCancelled -> {
             state.orderId?.let { orderId ->
-                clearState()
                 postSideEffect(MapEffect.NavigateToCancelled(orderId))
             }
         }
@@ -235,6 +232,15 @@ fun MViewModel.onIntent(intent: OrderCanceledSheetIntent) {
 fun MViewModel.onIntent(intent: FeedbackSheetIntent) {
     when (intent) {
         FeedbackSheetIntent.OnCompleteOrder -> clearState()
+        else -> {
+            /* no-op */
+        }
+    }
+}
+
+fun MViewModel.onIntent(intent: CancelReasonIntent) {
+    when (intent) {
+        CancelReasonIntent.NavigateBack -> clearState()
         else -> {
             /* no-op */
         }

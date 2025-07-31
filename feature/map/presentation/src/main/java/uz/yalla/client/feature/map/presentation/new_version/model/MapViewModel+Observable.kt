@@ -73,7 +73,7 @@ fun MViewModel.observeMarkerState() = viewModelScope.launch {
                 }
             }
 
-            when {
+            if (markerState.isMoving.not()) when {
                 state.cameraButtonState == MyRouteView && markerState.isByUser -> {
                     reduce { state.copy(cameraButtonState = MyRouteView) }
                 }
