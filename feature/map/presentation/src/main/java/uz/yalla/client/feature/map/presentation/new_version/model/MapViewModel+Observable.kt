@@ -56,10 +56,14 @@ fun MViewModel.observeActiveOrder() = viewModelScope.launch {
 }
 
 fun MViewModel.observeActiveOrders() = viewModelScope.launch {
-    while (isActive) {
-        getActiveOrders()
-        delay(10.seconds)
-    }
+    container.stateFlow
+        .distinctUntilChangedBy { it.orderId }
+        .collectLatest {
+            while (isActive) {
+                getActiveOrders()
+                delay(10.seconds)
+            }
+        }
 }
 
 fun MViewModel.observeMarkerState() = viewModelScope.launch {
