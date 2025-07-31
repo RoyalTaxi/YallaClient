@@ -223,7 +223,15 @@ private fun DrawerContent(
                         is PaymentType.CASH -> R.drawable.ic_money
                     }
                 ),
-                tintColor = Color.Unspecified,
+                tintColor = when (paymentType) {
+                    is PaymentType.CARD -> when ((paymentType as PaymentType.CARD).cardId.length) {
+                        16 -> Color.Unspecified
+                        32 -> Color.Unspecified
+                        else -> YallaTheme.color.onBackground
+                    }
+
+                    is PaymentType.CASH -> YallaTheme.color.onBackground
+                },
                 onClick = { onIntent(MapDrawerIntent.PaymentType) }
             )
         }
