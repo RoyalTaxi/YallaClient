@@ -223,6 +223,7 @@ private fun DrawerContent(
                         is PaymentType.CASH -> R.drawable.ic_money
                     }
                 ),
+                tintColor = Color.Unspecified,
                 onClick = { onIntent(MapDrawerIntent.PaymentType) }
             )
         }

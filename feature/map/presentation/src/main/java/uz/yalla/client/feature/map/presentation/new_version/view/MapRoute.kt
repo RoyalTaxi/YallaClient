@@ -36,7 +36,6 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 import uz.yalla.client.core.common.dialog.BaseDialog
 import uz.yalla.client.core.common.maps.MapsIntent
 import uz.yalla.client.core.common.maps.MapsViewModel
-import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.local.StaticPreferences
 import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.feature.map.presentation.R
@@ -55,6 +54,9 @@ import uz.yalla.client.feature.map.presentation.new_version.utils.LocationServic
 import uz.yalla.client.feature.map.presentation.new_version.utils.checkLocation
 import uz.yalla.client.feature.map.presentation.new_version.utils.requestPermission
 import uz.yalla.client.feature.map.presentation.new_version.utils.showEnableLocationSettings
+import uz.yalla.client.feature.order.presentation.cancel_reason.CANCEL_REASON_ROUTE
+import uz.yalla.client.feature.order.presentation.cancel_reason.navigateToCancelReasonSheet
+import uz.yalla.client.feature.order.presentation.cancel_reason.view.CancelReasonSheetChannel
 import uz.yalla.client.feature.order.presentation.client_waiting.CLIENT_WAITING_ROUTE
 import uz.yalla.client.feature.order.presentation.client_waiting.navigateToClientWaitingSheet
 import uz.yalla.client.feature.order.presentation.client_waiting.view.ClientWaitingSheetChannel
@@ -113,6 +115,9 @@ fun MRoute(
         when {
             state.destinations.isNotEmpty() -> viewModel.removeLastDestination()
             state.order == null -> activity?.moveTaskToBack(true)
+            navController.currentDestination?.route == MAIN_SHEET_ROUTE -> {
+                activity?.moveTaskToBack(true)
+            }
         }
     }
 
@@ -130,7 +135,16 @@ fun MRoute(
             MapEffect.GrantLocation -> requestPermission(context, locationPermissionRequest)
             MapEffect.NavigateToAddCard -> onNavigate(FromMap.ToAddNewCard)
             MapEffect.NavigateToRegister -> onNavigate(FromMap.ToRegister)
-            is MapEffect.NavigateToCancelled -> onNavigate(FromMap.ToCancel(effect.orderId))
+            is MapEffect.NavigateToCancelled -> {
+                if (navController.shouldNavigateToSheet(CANCEL_REASON_ROUTE, effect.orderId)) {
+                    navController.navigateToCancelReasonSheet(effect.orderId)
+                }
+                activeCollectorRef.value = scope.launch {
+                    CancelReasonSheetChannel.intentFlow.collectLatest { intent ->
+                        viewModel.onIntent(intent)
+                    }
+                }
+            }
         }
     }
 
@@ -170,47 +184,13 @@ fun MRoute(
         }
     }
 
-    MScreen(
-        state = state,
-        networkState = networkState,
-        navController = navController,
-        onIntent = viewModel::onIntent,
-        onDrawerIntent = { intent ->
-            when (intent) {
-                MapDrawerIntent.AboutTheApp -> onNavigate(FromMap.ToAboutApp)
-                MapDrawerIntent.Bonus -> onNavigate(FromMap.ToBonuses)
-                MapDrawerIntent.ContactUs -> onNavigate(FromMap.ToContactUs)
-                MapDrawerIntent.MyPlaces -> onNavigate(FromMap.ToAddresses)
-                MapDrawerIntent.Notifications -> onNavigate(FromMap.ToNotifications)
-                MapDrawerIntent.OrdersHistory -> onNavigate(FromMap.ToOrderHistory)
-                MapDrawerIntent.PaymentType -> onNavigate(FromMap.ToPaymentType)
-                MapDrawerIntent.Profile -> onNavigate(FromMap.ToProfile)
-                MapDrawerIntent.RegisterDevice -> onNavigate(FromMap.ToRegister)
-                MapDrawerIntent.Settings -> onNavigate(FromMap.ToSettings)
-                is MapDrawerIntent.BecomeADriver -> onNavigate(
-                    FromMap.ToBecomeDriver(
-                        title = intent.title,
-                        url = intent.url
-                    )
-                )
-
-                is MapDrawerIntent.InviteFriend -> onNavigate(
-                    FromMap.ToInviteFriend(
-                        intent.title,
-                        intent.url
-                    )
-                )
-            }
-        }
-    )
-
     LaunchedEffect(state.serviceAvailable) {
         if (state.serviceAvailable == true) {
             val currentDestination = navController.currentDestination?.route ?: ""
             if (!currentDestination.contains(MAIN_SHEET_ROUTE)) {
                 val orderRelatedRoutes = listOf(
                     CLIENT_WAITING_ROUTE, DRIVER_WAITING_ROUTE, ON_THE_RIDE_ROUTE,
-                    FEEDBACK_ROUTE, SEARCH_CAR_ROUTE, ORDER_CANCELED_ROUTE
+                    FEEDBACK_ROUTE, SEARCH_CAR_ROUTE, ORDER_CANCELED_ROUTE, CANCEL_REASON_ROUTE
                 )
                 val isInOrderFlow = orderRelatedRoutes.any { currentDestination.contains(it) }
 
@@ -298,9 +278,7 @@ fun MRoute(
             }
 
             null -> {
-                if (navController.shouldNavigateToSheet(MAIN_SHEET_ROUTE, null)) {
-                    navController.navigateToMainSheet()
-                }
+                navController.navigateToMainSheet()
                 activeCollectorRef.value = scope.launch {
                     MainSheetChannel.intentFlow.collectLatest { intent ->
                         viewModel.onIntent(intent)
@@ -343,4 +321,38 @@ fun MRoute(
             onDismiss = { viewModel.setPermissionDialog(false) }
         )
     }
+
+    MScreen(
+        state = state,
+        networkState = networkState,
+        navController = navController,
+        onIntent = viewModel::onIntent,
+        onDrawerIntent = { intent ->
+            when (intent) {
+                MapDrawerIntent.AboutTheApp -> onNavigate(FromMap.ToAboutApp)
+                MapDrawerIntent.Bonus -> onNavigate(FromMap.ToBonuses)
+                MapDrawerIntent.ContactUs -> onNavigate(FromMap.ToContactUs)
+                MapDrawerIntent.MyPlaces -> onNavigate(FromMap.ToAddresses)
+                MapDrawerIntent.Notifications -> onNavigate(FromMap.ToNotifications)
+                MapDrawerIntent.OrdersHistory -> onNavigate(FromMap.ToOrderHistory)
+                MapDrawerIntent.PaymentType -> onNavigate(FromMap.ToPaymentType)
+                MapDrawerIntent.Profile -> onNavigate(FromMap.ToProfile)
+                MapDrawerIntent.RegisterDevice -> onNavigate(FromMap.ToRegister)
+                MapDrawerIntent.Settings -> onNavigate(FromMap.ToSettings)
+                is MapDrawerIntent.BecomeADriver -> onNavigate(
+                    FromMap.ToBecomeDriver(
+                        title = intent.title,
+                        url = intent.url
+                    )
+                )
+
+                is MapDrawerIntent.InviteFriend -> onNavigate(
+                    FromMap.ToInviteFriend(
+                        intent.title,
+                        intent.url
+                    )
+                )
+            }
+        }
+    )
 }

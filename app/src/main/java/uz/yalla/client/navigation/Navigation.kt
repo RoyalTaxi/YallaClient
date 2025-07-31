@@ -33,8 +33,6 @@ import uz.yalla.client.feature.map.presentation.new_version.navigation.mapScreen
 import uz.yalla.client.feature.map.presentation.new_version.navigation.navigateToMapScreen
 import uz.yalla.client.feature.notification.navigateToNotificationModule
 import uz.yalla.client.feature.notification.notificationModule
-import uz.yalla.client.feature.order.presentation.cancel_reason.cancelReasonScreen
-import uz.yalla.client.feature.order.presentation.cancel_reason.navigateToCancelReasonScreen
 import uz.yalla.client.feature.payment.navigateToPaymentModule
 import uz.yalla.client.feature.payment.paymentModule
 import uz.yalla.client.feature.places.addressModule
@@ -129,7 +127,6 @@ fun Navigation(isConnected: Boolean) {
                     FromMap.ToProfile -> navController.navigateToEditProfileScreen()
                     FromMap.ToRegister -> navController.navigateToAuthModule()
                     FromMap.ToSettings -> navController.navigateToSettings()
-                    is FromMap.ToCancel -> navController.navigateToCancelReasonScreen(fromMap.orderId)
                     is FromMap.ToInviteFriend -> navController.navigateToWebScreen(
                         fromMap.title,
                         fromMap.url
@@ -148,10 +145,6 @@ fun Navigation(isConnected: Boolean) {
         historyModule(navController = navController)
 
         paymentModule(navController = navController)
-
-        cancelReasonScreen(
-            onNavigateBack = navController::navigateToMapScreen
-        )
 
         addressModule(navController = navController)
 

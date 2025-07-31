@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import uz.yalla.client.feature.order.presentation.cancel_reason.cancelReasonSheet
 import uz.yalla.client.feature.order.presentation.client_waiting.clientWaitingBottomSheet
 import uz.yalla.client.feature.order.presentation.driver_waiting.driverWaitingBottomSheet
 import uz.yalla.client.feature.order.presentation.feedback.feedbackBottomSheet
@@ -41,6 +42,7 @@ fun BottomSheetNavHost(
         onTheRideBottomSheet()
         feedbackBottomSheet()
         noServiceSheet()
+        cancelReasonSheet()
     }
 }
 

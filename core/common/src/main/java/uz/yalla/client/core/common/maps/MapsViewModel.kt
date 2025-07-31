@@ -540,7 +540,7 @@ class MapsViewModel(
                 carArrivesInMinutes = state.carArrivesInMinutes,
                 orderEndsInMinutes = state.orderEndsInMinutes,
                 orderStatus = state.order?.status,
-                hasRoute = state.route.isNotEmpty()
+                hasDestination = state.locations.size > 1
             )
         }
     }
@@ -776,7 +776,7 @@ class MapsViewModel(
         carArrivesInMinutes: Int?,
         orderEndsInMinutes: Int?,
         orderStatus: OrderStatus?,
-        hasRoute: Boolean
+        hasDestination: Boolean
     ) {
         if (locations.isEmpty()) return
 
@@ -789,7 +789,7 @@ class MapsViewModel(
 
                 when (index) {
                     0 -> {
-                        if (orderStatus != null || hasRoute) {
+                        if (orderStatus != null || hasDestination) {
                             val icon = originInfoIcon ?: originIcon
                             ?: BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
                             markerOptions.icon(icon)
@@ -914,7 +914,7 @@ class MapsViewModel(
     }
 
     private fun onCameraIdle() {
-        if (polyline != null || markers.isNotEmpty()) return
+//        if (polyline != null || markers.isNotEmpty()) return
         val position = map?.cameraPosition?.target?.let {
             MapPoint(it.latitude, it.longitude)
         } ?: return

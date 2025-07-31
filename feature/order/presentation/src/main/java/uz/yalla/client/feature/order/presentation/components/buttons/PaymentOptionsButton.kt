@@ -3,6 +3,7 @@ package uz.yalla.client.feature.order.presentation.components.buttons
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -48,6 +49,7 @@ fun PaymentOptionsButton(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
+                        .offset(x = 4.dp, y = (-4).dp)
                 ) {
                     Box(
                         modifier = Modifier
