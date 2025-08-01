@@ -102,7 +102,9 @@ fun MViewModel.onIntent(intent: NoServiceSheetIntent) = intent {
 fun MViewModel.onIntent(intent: MainSheetIntent) = intent {
     when (intent) {
         is MainSheetIntent.OrderTaxiSheetIntent.SetSelectedLocation -> {
-            reduce { state.copy(location = intent.location) }
+            intent.location.point?.let { point ->
+                mapsViewModel.onIntent(MapsIntent.AnimateTo(point))
+            }
         }
 
         is MainSheetIntent.OrderTaxiSheetIntent.SetDestinations -> {
