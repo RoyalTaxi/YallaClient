@@ -92,6 +92,7 @@ fun TariffItem(
                     model = tariff.photo,
                     contentDescription = null,
                     error = painterResource(R.drawable.img_default_car),
+                    placeholder = painterResource(R.drawable.img_default_car),
                     modifier = Modifier.height(30.dp),
                     contentScale = ContentScale.FillHeight
                 )
