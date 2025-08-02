@@ -44,4 +44,8 @@
     <string name="full_name">ФИО</string>
     <string name="ok">Понятно</string>
     <string name="error">Ошибка</string>
+    <string name="attention">Внимание!</string>
+    <string name="confirm_to_delete">Вы действительно хотите удалить способ оплаты?</string>
+    <string name="cancel">Отмена</string>
+    <string name="delete">Удалить</string>
 </resources>

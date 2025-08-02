@@ -413,6 +413,22 @@ fun MainSheet(
             onDismiss = { viewModel.dismissErrorDialog() }
         )
     }
+
+    if (state.isNotSufficientBalanceDialogVisibility) {
+        BaseDialog(
+            title = stringResource(R.string.error),
+            description = stringResource(R.string.not_sufficient_balance),
+            actionText = stringResource(R.string.ok),
+            onAction = {
+                viewModel.onIntent(MainSheetIntent.FooterIntent.ClickPaymentButton)
+                viewModel.setNotSufficientBalanceDialogVisibility(false)
+            },
+            onDismiss = {
+                viewModel.onIntent(MainSheetIntent.FooterIntent.ClickPaymentButton)
+                viewModel.setNotSufficientBalanceDialogVisibility(false)
+            }
+        )
+    }
 }
 
 @Composable

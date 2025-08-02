@@ -9,6 +9,7 @@ sealed class DataError : Error() {
         data object NO_INTERNET_ERROR : Network()
         data object SERIALIZATION_ERROR : Network()
         data object SOCKET_TIME_OUT_ERROR : Network()
+        data object NOT_SUFFICIENT_BALANCE : Network()
         data object UNKNOWN_ERROR : Network()
     }
 }

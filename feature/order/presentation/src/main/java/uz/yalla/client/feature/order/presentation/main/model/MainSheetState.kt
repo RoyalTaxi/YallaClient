@@ -48,7 +48,8 @@ data class MainSheetState(
     val isAddDestinationSheetVisible: Boolean = false,
     val isArrangeDestinationsSheetVisible: Boolean = false,
     val isSetBonusAmountBottomSheetVisible: Boolean = false,
-    val isBonusInfoSheetVisibility: Boolean = false
+    val isBonusInfoSheetVisibility: Boolean = false,
+    val isNotSufficientBalanceDialogVisibility: Boolean = false
 ) {
 
     fun getBadgeText(): String? = when {
