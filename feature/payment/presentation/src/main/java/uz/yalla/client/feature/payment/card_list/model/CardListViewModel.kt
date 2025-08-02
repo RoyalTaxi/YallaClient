@@ -8,10 +8,12 @@ import kotlinx.coroutines.launch
 import uz.yalla.client.core.common.viewmodel.BaseViewModel
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.PaymentType
+import uz.yalla.client.feature.payment.domain.usecase.DeleteCardUseCase
 import uz.yalla.client.feature.payment.domain.usecase.GetCardListUseCase
 
 internal class CardListViewModel(
     private val getCardListUseCase: GetCardListUseCase,
+    private val deleteCardUseCase: DeleteCardUseCase,
     private val prefs: AppPreferences
 ) : BaseViewModel() {
 
@@ -32,9 +34,26 @@ internal class CardListViewModel(
         }.onFailure(::handleException)
     }
 
+    fun deleteCard(cardId: String) = viewModelScope.launchWithLoading {
+        deleteCardUseCase(cardId)
+            .onSuccess {
+                getCardList()
+            }
+            .onFailure (::handleException)
+    }
+
     fun selectPaymentType(paymentType: PaymentType) {
         viewModelScope.launch {
             prefs.setPaymentType(paymentType)
         }
+    }
+
+    fun setSelectedCardId(cardId: String) {
+        _uiState.update { it.copy(selectedCardId = cardId) }
+        setConfirmDeleteCardDialogVisibility(true)
+    }
+
+    fun setConfirmDeleteCardDialogVisibility(value: Boolean) {
+        _uiState.update { it.copy(isConfirmDeleteDialogVisibility = value) }
     }
 }
