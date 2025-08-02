@@ -24,7 +24,7 @@ dependencies {
 
     api(project.dependencies.platform(libs.koin.bom))
     api(libs.koin.core)
-    implementation(libs.koin.android)
+    api(libs.koin.android)
 
     implementation(libs.datastore)
     implementation(libs.datastore.preferences)

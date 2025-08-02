@@ -69,4 +69,5 @@
     <string name="bonus_percentage">%s%% gacha</string>
     <string name="bonus_added_as_percent">+%s%%</string>
     <string name="bonus_added_as_cash">+%s so\'m</string>
+    <string name="not_sufficient_balance">Balans yetarli emas</string>
 </resources>

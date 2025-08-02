@@ -23,25 +23,26 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.Polyline
 import com.google.android.gms.maps.model.PolylineOptions
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.orbitmvi.orbit.Container
-import org.orbitmvi.orbit.ContainerHost
-import org.orbitmvi.orbit.viewmodel.container
 import uz.yalla.client.core.common.R
 import uz.yalla.client.core.common.utils.createInfoMarkerBitmapDescriptor
 import uz.yalla.client.core.common.utils.dpToPx
 import uz.yalla.client.core.common.utils.getCurrentLocation
 import uz.yalla.client.core.common.utils.vectorToBitmapDescriptor
 import uz.yalla.client.core.common.utils.vectorToBitmapDescriptorWithSize
-import uz.yalla.client.core.common.viewmodel.BaseViewModel
 import uz.yalla.client.core.common.viewmodel.LifeCycleAware
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.Executor
@@ -97,9 +98,20 @@ sealed interface MapsIntent {
 class MapsViewModel(
     private val appContext: Context,
     private val appPreferences: AppPreferences
-) : BaseViewModel(), LifeCycleAware, ContainerHost<MapsState, Nothing> {
+) : LifeCycleAware {
 
-    override val container: Container<MapsState, Nothing> = container(MapsState())
+    // Create a custom coroutine scope with error handling
+    private val exceptionHandler = CoroutineExceptionHandler { _, _ -> 
+        // Error handling can be implemented here if needed
+    }
+    
+    private val coroutineScope = CoroutineScope(
+        Dispatchers.Main.immediate + SupervisorJob() + exceptionHandler
+    )
+
+    // State management
+    private val _state = MutableStateFlow(MapsState())
+    val state: StateFlow<MapsState> = _state.asStateFlow()
 
     private var map: GoogleMap? = null
     private val _cameraState = MutableStateFlow(CameraState())
@@ -129,17 +141,17 @@ class MapsViewModel(
         override fun onReceive(context: Context, intent: Intent) {
             if (intent.action == Intent.ACTION_CONFIGURATION_CHANGED) {
                 if (currentThemeType == ThemeType.SYSTEM) {
-                    viewModelScope.launch {
+                    coroutineScope.launch {
                         delay(500)
                         val newIsDarkTheme = isNightMode(context)
 
                         isDarkTheme = newIsDarkTheme
                         updateMapStyle(isDarkTheme)
 
-                        viewModelScope.launch(Dispatchers.Main.immediate) {
+                        coroutineScope.launch(Dispatchers.Main.immediate) {
                             clearIconCache()
                             initializeIcons()
-                            redrawAllMapElements(container.stateFlow.value)
+                            redrawAllMapElements(state.value)
                         }
                     }
                 }
@@ -162,8 +174,8 @@ class MapsViewModel(
         }
     }
 
-    fun hasSavedCameraPosition(): Boolean = container.stateFlow.value.savedCameraPosition != null
-    fun getSavedCameraPosition(): MapPoint? = container.stateFlow.value.savedCameraPosition
+    fun hasSavedCameraPosition(): Boolean = state.value.savedCameraPosition != null
+    fun getSavedCameraPosition(): MapPoint? = state.value.savedCameraPosition
 
     init {
         initializeObservers()
@@ -171,8 +183,8 @@ class MapsViewModel(
     }
 
     private fun initializeObservers() {
-        jobs += viewModelScope.launch {
-            container.stateFlow
+        jobs += coroutineScope.launch {
+            state
                 .distinctUntilChangedBy {
                     listOf(
                         it.isMapReady,
@@ -181,34 +193,34 @@ class MapsViewModel(
                         it.bottomPaddingPx
                     )
                 }
-                .collectLatest { state ->
-                    if (state.isMapReady) {
+                .collectLatest { currentState ->
+                    if (currentState.isMapReady) {
                         withContext(Dispatchers.Main.immediate) {
-                            applyMapPadding(state)
+                            applyMapPadding(currentState)
                         }
                     }
                 }
         }
 
         // Observe route changes
-        jobs += viewModelScope.launch {
-            container.stateFlow
+        jobs += coroutineScope.launch {
+            state
                 .distinctUntilChangedBy {
                     listOf(
                         it.route,
                         it.order
                     )
                 }
-                .collectLatest { state ->
+                .collectLatest { currentState ->
                     withContext(Dispatchers.Main.immediate) {
-                        updateRouteOnMap(state)
+                        updateRouteOnMap(currentState)
                     }
                 }
         }
 
         // Observe location changes
-        jobs += viewModelScope.launch {
-            container.stateFlow
+        jobs += coroutineScope.launch {
+            state
                 .distinctUntilChangedBy {
                     listOf(
                         it.locations,
@@ -217,47 +229,47 @@ class MapsViewModel(
                         it.order
                     )
                 }
-                .collectLatest { state ->
+                .collectLatest { currentState ->
                     withContext(Dispatchers.Main.immediate) {
-                        updateMarkersOnMap(state)
+                        updateMarkersOnMap(currentState)
                     }
                 }
         }
 
         // Observe driver changes
-        jobs += viewModelScope.launch {
-            container.stateFlow
+        jobs += coroutineScope.launch {
+            state
                 .distinctUntilChangedBy { it.driver }
-                .collectLatest { state ->
+                .collectLatest { currentState ->
                     withContext(Dispatchers.Main.immediate) {
-                        updateDriverOnMap(state)
+                        updateDriverOnMap(currentState)
                     }
                 }
         }
 
         // Observe drivers list changes
-        jobs += viewModelScope.launch {
-            container.stateFlow
+        jobs += coroutineScope.launch {
+            state
                 .distinctUntilChangedBy { it.drivers }
-                .collectLatest { state ->
+                .collectLatest { currentState ->
                     withContext(Dispatchers.Main.immediate) {
-                        updateDriversOnMap(state)
+                        updateDriversOnMap(currentState)
                     }
                 }
         }
 
-        jobs += viewModelScope.launch {
-            container.stateFlow
+        jobs += coroutineScope.launch {
+            state
                 .distinctUntilChangedBy { it.order }
-                .collectLatest { state ->
+                .collectLatest { currentState ->
                     map?.uiSettings?.isScrollGesturesEnabled =
-                        state.order?.status !in OrderStatus.nonInteractive
+                        currentState.order?.status !in OrderStatus.nonInteractive
                     map?.uiSettings?.isZoomGesturesEnabled =
-                        state.order?.status !in OrderStatus.nonInteractive
+                        currentState.order?.status !in OrderStatus.nonInteractive
                     map?.uiSettings?.isTiltGesturesEnabled =
-                        state.order?.status !in OrderStatus.nonInteractive
+                        currentState.order?.status !in OrderStatus.nonInteractive
                     map?.uiSettings?.isRotateGesturesEnabled =
-                        state.order?.status !in OrderStatus.nonInteractive
+                        currentState.order?.status !in OrderStatus.nonInteractive
                 }
         }
     }
@@ -272,7 +284,7 @@ class MapsViewModel(
             IntentFilter(Intent.ACTION_CONFIGURATION_CHANGED)
         )
 
-        container.stateFlow.value.savedCameraPosition?.let { position ->
+        state.value.savedCameraPosition?.let { position ->
             map?.moveTo(position, MapConstants.DEFAULT_ZOOM)
         } ?: run {
             getCurrentLocation(context = appContext) { location ->
@@ -307,10 +319,10 @@ class MapsViewModel(
         // when the view reappears
     }
 
-    fun onIntent(intent: MapsIntent) = intent {
+    fun onIntent(intent: MapsIntent) {
         when (intent) {
             is MapsIntent.OnMapReady -> {
-                viewModelScope.launch(Dispatchers.Main.immediate) {
+                coroutineScope.launch(Dispatchers.Main.immediate) {
                     map = intent.googleMap
                     configureMapSettings(intent.googleMap)
 
@@ -322,25 +334,25 @@ class MapsViewModel(
                         onCameraMoveStarted(reason)
                     }
 
-                    intent { reduce { state.copy(isMapReady = true) } }
-                    applyMapPadding(state)
+                    _state.update { it.copy(isMapReady = true) }
+                    applyMapPadding(state.value)
 
                     // Initial draw of map elements
                     // Each subsequent update will be handled by the specific update methods
-                    updateRouteOnMap(state)
-                    updateMarkersOnMap(state)
-                    updateDriverOnMap(state)
-                    updateDriversOnMap(state)
+                    updateRouteOnMap(state.value)
+                    updateMarkersOnMap(state.value)
+                    updateDriverOnMap(state.value)
+                    updateDriversOnMap(state.value)
                 }
             }
 
-            is MapsIntent.UpdateRoute -> intent {
-                val oldRoute = state.route
-                reduce { state.copy(route = intent.route) }
+            is MapsIntent.UpdateRoute -> {
+                val oldRoute = state.value.route
+                _state.update { it.copy(route = intent.route) }
 
-                if (oldRoute.isNotEmpty() && intent.route.isEmpty() && state.locations.isNotEmpty()) {
-                    val firstLocation = state.locations.first()
-                    viewModelScope.launch(Dispatchers.Main.immediate) {
+                if (oldRoute.isNotEmpty() && intent.route.isEmpty() && state.value.locations.isNotEmpty()) {
+                    val firstLocation = state.value.locations.first()
+                    coroutineScope.launch(Dispatchers.Main.immediate) {
                         map?.animateCamera(
                             CameraUpdateFactory.newLatLngZoom(
                                 LatLng(firstLocation.lat, firstLocation.lng),
@@ -348,35 +360,35 @@ class MapsViewModel(
                             )
                         )
                     }
-                    intent { reduce { state.copy(savedCameraPosition = firstLocation) } }
+                    _state.update { it.copy(savedCameraPosition = firstLocation) }
                 }
 
                 if (intent.route.isEmpty()) {
-                    viewModelScope.launch(Dispatchers.Main.immediate) {
+                    coroutineScope.launch(Dispatchers.Main.immediate) {
                         clearAllMapElements()
                     }
                 }
             }
 
-            is MapsIntent.UpdateLocations -> reduce {
-                state.copy(locations = intent.locations)
+            is MapsIntent.UpdateLocations -> {
+                _state.update { it.copy(locations = intent.locations) }
             }
 
-            is MapsIntent.UpdateCarArrivesInMinutes -> reduce {
-                state.copy(carArrivesInMinutes = intent.minutes)
+            is MapsIntent.UpdateCarArrivesInMinutes -> {
+                _state.update { it.copy(carArrivesInMinutes = intent.minutes) }
             }
 
-            is MapsIntent.UpdateOrderEndsInMinutes -> reduce {
-                state.copy(orderEndsInMinutes = intent.minutes)
+            is MapsIntent.UpdateOrderEndsInMinutes -> {
+                _state.update { it.copy(orderEndsInMinutes = intent.minutes) }
             }
 
             is MapsIntent.UpdateOrderStatus -> {
-                reduce { state.copy(order = intent.status) }
-                updateDriversOnMap(state)
+                _state.update { it.copy(order = intent.status) }
+                updateDriversOnMap(state.value)
             }
 
             is MapsIntent.MoveTo -> {
-                viewModelScope.launch(Dispatchers.Main.immediate) {
+                coroutineScope.launch(Dispatchers.Main.immediate) {
                     map?.moveCamera(
                         CameraUpdateFactory.newLatLngZoom(
                             LatLng(intent.point.lat, intent.point.lng),
@@ -384,22 +396,22 @@ class MapsViewModel(
                         )
                     )
                 }
-                reduce { state.copy(savedCameraPosition = intent.point) }
+                _state.update { it.copy(savedCameraPosition = intent.point) }
             }
 
             is MapsIntent.AnimateTo -> {
-                viewModelScope.launch(Dispatchers.Main.immediate) {
+                coroutineScope.launch(Dispatchers.Main.immediate) {
                     map?.animateCamera(
                         CameraUpdateFactory.newLatLng(
                             LatLng(intent.point.lat, intent.point.lng)
                         )
                     )
                 }
-                reduce { state.copy(savedCameraPosition = intent.point) }
+                _state.update { it.copy(savedCameraPosition = intent.point) }
             }
 
             is MapsIntent.MoveToMyLocation -> {
-                viewModelScope.launch(Dispatchers.Main.immediate) {
+                coroutineScope.launch(Dispatchers.Main.immediate) {
                     map?.let { googleMap ->
                         getCurrentLocation(intent.context) { location ->
                             val point = MapPoint(location.latitude, location.longitude)
@@ -409,14 +421,14 @@ class MapsViewModel(
                                     MapConstants.DEFAULT_ZOOM
                                 )
                             )
-                            intent { reduce { state.copy(savedCameraPosition = point) } }
+                            _state.update { it.copy(savedCameraPosition = point) }
                         }
                     }
                 }
             }
 
             is MapsIntent.AnimateToMyLocation -> {
-                viewModelScope.launch(Dispatchers.Main.immediate) {
+                coroutineScope.launch(Dispatchers.Main.immediate) {
                     map?.let { googleMap ->
                         getCurrentLocation(intent.context) { location ->
                             val point = MapPoint(location.latitude, location.longitude)
@@ -426,26 +438,26 @@ class MapsViewModel(
                                     MapConstants.DEFAULT_ZOOM
                                 )
                             )
-                            intent { reduce { state.copy(savedCameraPosition = point) } }
+                            _state.update { it.copy(savedCameraPosition = point) }
                         }
                     }
                 }
             }
 
             is MapsIntent.FitBounds -> {
-                viewModelScope.launch(Dispatchers.Main.immediate) {
-                    drawRoute(state.route, state.mapPaddingPx, animate = false)
+                coroutineScope.launch(Dispatchers.Main.immediate) {
+                    drawRoute(state.value.route, state.value.mapPaddingPx, animate = false)
                 }
             }
 
             is MapsIntent.AnimateFitBounds -> {
-                viewModelScope.launch(Dispatchers.Main.immediate) {
-                    drawRoute(state.route, state.mapPaddingPx, animate = true)
+                coroutineScope.launch(Dispatchers.Main.immediate) {
+                    drawRoute(state.value.route, state.value.mapPaddingPx, animate = true)
                 }
             }
 
             is MapsIntent.ZoomOut -> {
-                viewModelScope.launch(Dispatchers.Main.immediate) {
+                coroutineScope.launch(Dispatchers.Main.immediate) {
                     map?.let { googleMap ->
                         val currentZoom = googleMap.cameraPosition.zoom
                         if (currentZoom > MapConstants.MIN_ZOOM) {
@@ -455,28 +467,28 @@ class MapsViewModel(
                 }
             }
 
-            is MapsIntent.SetGoogleMarkPadding -> reduce {
-                state.copy(googleMarkPaddingPx = intent.paddingPx)
+            is MapsIntent.SetGoogleMarkPadding -> {
+                _state.update { it.copy(googleMarkPaddingPx = intent.paddingPx) }
             }
 
-            is MapsIntent.SetBottomPadding -> reduce {
-                state.copy(bottomPaddingPx = dpToPx(appContext, intent.padding.value.toInt()))
+            is MapsIntent.SetBottomPadding -> {
+                _state.update { it.copy(bottomPaddingPx = dpToPx(appContext, intent.padding.value.toInt())) }
             }
 
-            is MapsIntent.SetTopPadding -> reduce {
-                state.copy(topPaddingPx = dpToPx(appContext, intent.padding.value.toInt()))
+            is MapsIntent.SetTopPadding -> {
+                _state.update { it.copy(topPaddingPx = dpToPx(appContext, intent.padding.value.toInt())) }
             }
 
-            is MapsIntent.SetMapPadding -> reduce {
-                state.copy(mapPaddingPx = intent.paddingPx)
+            is MapsIntent.SetMapPadding -> {
+                _state.update { it.copy(mapPaddingPx = intent.paddingPx) }
             }
 
-            is MapsIntent.UpdateDriver -> reduce {
-                state.copy(driver = intent.driver)
+            is MapsIntent.UpdateDriver -> {
+                _state.update { it.copy(driver = intent.driver) }
             }
 
-            is MapsIntent.UpdateDrivers -> reduce {
-                state.copy(drivers = intent.drivers)
+            is MapsIntent.UpdateDrivers -> {
+                _state.update { it.copy(drivers = intent.drivers) }
             }
         }
     }
@@ -592,7 +604,7 @@ class MapsViewModel(
     private val lastDriversPositions = mutableMapOf<Int, Pair<Double, Double>>()
     private val lastDriversHeadings = mutableMapOf<Int, Float>()
 
-    private fun updateDriversOnMap(state: MapsState) = viewModelScope.launch(Dispatchers.Main) {
+    private fun updateDriversOnMap(state: MapsState) = coroutineScope.launch(Dispatchers.Main) {
         initializeIcons() // Ensure driver icon is initialized
 
         // Don't show drivers when order status is not null
@@ -765,7 +777,7 @@ class MapsViewModel(
             )
 
             val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, paddingPx)
-            if (container.stateFlow.value.order?.status !in OrderStatus.nonInteractive)
+            if (state.value.order?.status !in OrderStatus.nonInteractive)
                 if (animate) googleMap.animateCamera(cameraUpdate)
                 else googleMap.moveCamera(cameraUpdate)
         }
@@ -823,7 +835,7 @@ class MapsViewModel(
         originInfoIcon = null
         destinationInfoIcon = null
 
-        if (carArrivesInMinutes != null && container.stateFlow.value.order == null) {
+        if (carArrivesInMinutes != null && state.value.order == null) {
             originInfoIcon = createInfoMarkerBitmapDescriptor(
                 context = appContext,
                 title = "$carArrivesInMinutes min",
@@ -835,7 +847,7 @@ class MapsViewModel(
             )
         }
 
-        if (orderEndsInMinutes != null && container.stateFlow.value.order == null) {
+        if (orderEndsInMinutes != null && state.value.order == null) {
             destinationInfoIcon = createInfoMarkerBitmapDescriptor(
                 context = appContext,
                 title = "$orderEndsInMinutes min",
@@ -914,7 +926,6 @@ class MapsViewModel(
     }
 
     private fun onCameraIdle() {
-//        if (polyline != null || markers.isNotEmpty()) return
         val position = map?.cameraPosition?.target?.let {
             MapPoint(it.latitude, it.longitude)
         } ?: return
@@ -934,7 +945,7 @@ class MapsViewModel(
     }
 
     private fun initializeThemeObserver() {
-        viewModelScope.launch {
+        coroutineScope.launch {
             appPreferences.themeType.collect { themeType ->
                 currentThemeType = themeType
 
@@ -950,10 +961,10 @@ class MapsViewModel(
                 updateMapStyle(isDarkTheme)
 
                 if (map != null) {
-                    viewModelScope.launch(Dispatchers.Main.immediate) {
+                    coroutineScope.launch(Dispatchers.Main.immediate) {
                         clearIconCache()
                         initializeIcons()
-                        redrawAllMapElements(container.stateFlow.value)
+                        redrawAllMapElements(state.value)
                     }
                 }
             }

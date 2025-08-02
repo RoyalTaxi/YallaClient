@@ -15,4 +15,9 @@ object MapConstants {
 
     const val DEFAULT_ZOOM = 15f
     const val MIN_ZOOM = 12f
+    const val MAX_ZOOM = 20f
+
+    const val DRIVER_ICON_SIZE = 48
+    const val UPDATE_DEBOUNCE_MS = 100L
+    const val CAMERA_ANIMATION_DURATION = 300
 }

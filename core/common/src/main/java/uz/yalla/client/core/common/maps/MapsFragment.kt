@@ -9,14 +9,16 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import uz.yalla.client.core.common.R
 import uz.yalla.client.core.common.utils.dpToPx
 import uz.yalla.client.core.common.utils.getCurrentLocation
 import uz.yalla.client.core.domain.model.MapPoint
 
-class MapsFragment : Fragment() {
-    private val viewModel: MapsViewModel by viewModel()
+class MapsFragment(
+    private val viewModel: MapsViewModel
+) : Fragment() {
 
     companion object {
         const val GOOGLE_MARK_PADDING = 8

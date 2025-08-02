@@ -44,4 +44,8 @@
     <string name="full_name">FIO</string>
     <string name="ok">Tushunarli</string>
     <string name="error">Xatolik</string>
+    <string name="attention">Diqqat</string>
+    <string name="confirm_to_delete">Haqiqatan ham to\ʻlov katasini o\ʻchirib tashlamoqchimisiz?</string>
+    <string name="cancel">Bekor qilish</string>
+    <string name="delete">O\'chirish</string>
 </resources>
