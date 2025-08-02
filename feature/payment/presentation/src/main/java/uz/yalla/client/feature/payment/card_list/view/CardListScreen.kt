@@ -30,6 +30,7 @@ import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.payment.R
+import uz.yalla.client.feature.payment.card_list.components.CardListItem
 import uz.yalla.client.feature.payment.card_list.model.CardListUIState
 
 @Composable
@@ -99,7 +100,7 @@ private fun CardListContent(
         }
 
         items(uiState.cards) { cardListItem ->
-            SelectPaymentTypeItem(
+            CardListItem(
                 enabled = cardEnabled,
                 isSelected = uiState.selectedPaymentType == PaymentType.CARD(
                     cardListItem.cardId,
@@ -117,6 +118,9 @@ private fun CardListContent(
                             cardListItem.maskedPan
                         )
                     )
+                },
+                onDelete = {
+                    onIntent(CardListIntent.OnDeleteCard(cardId = cardListItem.cardId))
                 }
             )
         }

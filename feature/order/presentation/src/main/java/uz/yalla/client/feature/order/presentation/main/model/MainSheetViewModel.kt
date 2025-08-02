@@ -9,6 +9,7 @@ import uz.yalla.client.core.common.sheet.search_address.SearchByNameSheetValue
 import uz.yalla.client.core.common.sheet.select_from_map.SelectFromMapViewValue
 import uz.yalla.client.core.common.viewmodel.BaseViewModel
 import uz.yalla.client.core.data.mapper.orFalse
+import uz.yalla.client.core.domain.error.DataError
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.*
 import uz.yalla.client.feature.order.domain.model.response.tarrif.GetTariffsModel
@@ -339,7 +340,16 @@ class MainSheetViewModel(
                             )
                         }
                     }
-                    .onFailure(::handleException)
+                    .onFailure {throwable ->
+                        when (throwable) {
+                            DataError.Network.NOT_SUFFICIENT_BALANCE -> {
+                                setNotSufficientBalanceDialogVisibility(true)
+                            }
+                            else -> {
+                                handleException(throwable)
+                            }
+                        }
+                    }
             }
         }
     }
@@ -403,4 +413,7 @@ class MainSheetViewModel(
 
     fun setBonusInfoVisibility(value: Boolean) =
         _uiState.update { it.copy(isBonusInfoSheetVisibility = value) }
+
+    fun setNotSufficientBalanceDialogVisibility(value: Boolean) =
+        _uiState.update { it.copy(isNotSufficientBalanceDialogVisibility = value) }
 }

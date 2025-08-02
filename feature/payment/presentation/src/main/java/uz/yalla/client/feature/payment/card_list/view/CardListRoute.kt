@@ -44,6 +44,7 @@ internal fun CardListRoute(
                 is CardListIntent.OnNavigateBack -> onNavigateBack()
                 is CardListIntent.AddCorporateAccount -> onAddCompany()
                 is CardListIntent.AddBusinessAccount -> onAddBusinessAccount()
+                is CardListIntent.OnDeleteCard -> viewModel.setSelectedCardId(intent.cardId)
             }
         }
     )
@@ -55,6 +56,17 @@ internal fun CardListRoute(
             actionText = stringResource(R.string.ok),
             onAction = { viewModel.dismissErrorDialog() },
             onDismiss = { viewModel.dismissErrorDialog() }
+        )
+    }
+
+    if (uiState.isConfirmDeleteDialogVisibility) {
+        BaseDialog(
+            title = stringResource(R.string.attention),
+            description = stringResource(R.string.confirm_to_delete),
+            dismissText = stringResource(R.string.cancel),
+            actionText = stringResource(R.string.delete),
+            onAction = { viewModel.deleteCard(uiState.selectedCardId) },
+            onDismiss = { viewModel.setConfirmDeleteCardDialogVisibility(false) }
         )
     }
 
