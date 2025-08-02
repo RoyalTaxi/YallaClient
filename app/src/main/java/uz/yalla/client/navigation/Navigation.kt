@@ -12,11 +12,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
-import org.koin.compose.koinInject
-import uz.yalla.client.core.domain.local.StaticPreferences
-import uz.yalla.client.feature.auth.AUTH_ROUTE
-import uz.yalla.client.feature.auth.authModule
-import uz.yalla.client.feature.auth.navigateToAuthModule
+import uz.yalla.client.core.common.maps.MapsViewModel
 import uz.yalla.client.feature.bonus.bonusModule
 import uz.yalla.client.feature.bonus.navigateToBonusModule
 import uz.yalla.client.feature.contact.navigation.contactUsScreen
@@ -25,12 +21,9 @@ import uz.yalla.client.feature.history.historyModule
 import uz.yalla.client.feature.history.navigateToHistoryModule
 import uz.yalla.client.feature.info.about_app.navigation.aboutAppScreen
 import uz.yalla.client.feature.info.about_app.navigation.navigateToAboutAppScreen
-import uz.yalla.client.feature.intro.INTRO_ROUTE
-import uz.yalla.client.feature.intro.introModule
 import uz.yalla.client.feature.map.presentation.new_version.navigation.FromMap
 import uz.yalla.client.feature.map.presentation.new_version.navigation.MAP_ROUTE
 import uz.yalla.client.feature.map.presentation.new_version.navigation.mapScreen
-import uz.yalla.client.feature.map.presentation.new_version.navigation.navigateToMapScreen
 import uz.yalla.client.feature.notification.navigateToNotificationModule
 import uz.yalla.client.feature.notification.notificationModule
 import uz.yalla.client.feature.payment.navigateToPaymentModule
@@ -39,22 +32,21 @@ import uz.yalla.client.feature.places.addressModule
 import uz.yalla.client.feature.places.navigateToAddressModule
 import uz.yalla.client.feature.profile.edit_profile.navigation.editProfileScreen
 import uz.yalla.client.feature.profile.edit_profile.navigation.navigateToEditProfileScreen
-import uz.yalla.client.feature.registration.presentation.navigation.navigateToRegistrationScreen
-import uz.yalla.client.feature.registration.presentation.navigation.registrationScreen
 import uz.yalla.client.feature.setting.navigation.navigateToSettings
 import uz.yalla.client.feature.setting.navigation.settingsScreen
 import uz.yalla.client.feature.web.navigateToWebScreen
 import uz.yalla.client.feature.web.webScreen
 import uz.yalla.client.ui.screens.OfflineScreen
 
-const val TO_AUTH = "to_auth"
 
 @Composable
-fun Navigation(isConnected: Boolean) {
-    val staticPreferences = koinInject<StaticPreferences>()
+fun Navigation(
+    isConnected: Boolean,
+    navigateToLogin: () -> Unit,
+    mapsViewModel: MapsViewModel
+) {
     val navController = rememberNavController()
     var route by remember { mutableStateOf("") }
-    var showOfflineByMap by remember { mutableStateOf(false) }
 
     LaunchedEffect(navController.currentDestination?.route) {
         route = navController.currentDestination?.route ?: ""
@@ -63,11 +55,7 @@ fun Navigation(isConnected: Boolean) {
     NavHost(
         modifier = Modifier.fillMaxSize(),
         navController = navController,
-        startDestination = when {
-            staticPreferences.isDeviceRegistered -> MAP_ROUTE
-            staticPreferences.skipOnboarding -> AUTH_ROUTE
-            else -> INTRO_ROUTE
-        },
+        startDestination = MAP_ROUTE,
         enterTransition = {
             slideIntoContainer(
                 AnimatedContentTransitionScope.SlideDirection.Start,
@@ -93,27 +81,9 @@ fun Navigation(isConnected: Boolean) {
             )
         }
     ) {
-        introModule(
-            navController = navController,
-            onPermissionGranted = {
-                if (staticPreferences.isDeviceRegistered) navController.navigateToMapScreen()
-                else navController.navigateToAuthModule()
-            }
-        )
-
-        authModule(
-            navController = navController,
-            onClientNotFound = navController::navigateToRegistrationScreen,
-            onClientFound = navController::navigateToMapScreen
-        )
-
-        registrationScreen(
-            onBack = navController::safePopBackStack,
-            onNext = navController::navigateToMapScreen
-        )
-
         mapScreen(
             networkState = isConnected,
+            mapsViewModel = mapsViewModel,
             navigate = { fromMap ->
                 when (fromMap) {
                     FromMap.ToAboutApp -> navController.navigateToAboutAppScreen()
@@ -125,8 +95,9 @@ fun Navigation(isConnected: Boolean) {
                     FromMap.ToOrderHistory -> navController.navigateToHistoryModule()
                     FromMap.ToPaymentType -> navController.navigateToPaymentModule()
                     FromMap.ToProfile -> navController.navigateToEditProfileScreen()
-                    FromMap.ToRegister -> navController.navigateToAuthModule()
+                    FromMap.ToRegister -> navigateToLogin()
                     FromMap.ToSettings -> navController.navigateToSettings()
+
                     is FromMap.ToInviteFriend -> navController.navigateToWebScreen(
                         fromMap.title,
                         fromMap.url
@@ -169,7 +140,7 @@ fun Navigation(isConnected: Boolean) {
         notificationModule(navController = navController)
     }
 
-    if ((!isConnected && route != MAP_ROUTE) || (showOfflineByMap && route == MAP_ROUTE)) {
+    if (!isConnected && route != MAP_ROUTE) {
         OfflineScreen()
     }
 }

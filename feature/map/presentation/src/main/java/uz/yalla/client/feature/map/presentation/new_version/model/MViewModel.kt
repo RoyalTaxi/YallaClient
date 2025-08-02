@@ -3,9 +3,13 @@ package uz.yalla.client.feature.map.presentation.new_version.model
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import org.orbitmvi.orbit.Container
-import org.orbitmvi.orbit.ContainerHost
-import org.orbitmvi.orbit.viewmodel.container
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import uz.yalla.client.core.common.maps.MapsViewModel
 import uz.yalla.client.core.common.viewmodel.BaseViewModel
 import uz.yalla.client.core.common.viewmodel.LifeCycleAware
@@ -23,9 +27,9 @@ import uz.yalla.client.feature.profile.domain.usecase.GetMeUseCase
 
 
 class MViewModel(
+    internal val mapsViewModel: MapsViewModel,
     internal val prefs: AppPreferences,
     internal val staticPrefs: StaticPreferences,
-    internal val mapsViewModel: MapsViewModel,
     internal val getMeUseCase: GetMeUseCase,
     internal val getAddressNameUseCase: GetAddressNameUseCase,
     internal val getShowOrderUseCase: GetShowOrderUseCase,
@@ -33,10 +37,35 @@ class MViewModel(
     internal val getActiveOrdersUseCase: GetActiveOrdersUseCase,
     internal val getNotificationsCountUseCase: GetNotificationsCountUseCase,
     internal val getSettingUseCase: GetSettingUseCase,
-) : BaseViewModel(), LifeCycleAware, ContainerHost<MapState, MapEffect> {
+) : BaseViewModel(), LifeCycleAware {
 
     private val supervisorJob = SupervisorJob()
-    override val container: Container<MapState, MapEffect> = container(MapState())
+    internal val _stateFlow = MutableStateFlow(MapState())
+    val stateFlow: StateFlow<MapState> = _stateFlow.asStateFlow()
+
+    internal val _effectFlow = MutableSharedFlow<MapEffect>()
+    val effectFlow: SharedFlow<MapEffect> = _effectFlow.asSharedFlow()
+
+    fun updateState(update: (MapState) -> MapState) {
+        _stateFlow.value = update(_stateFlow.value)
+    }
+
+    suspend fun emitEffect(effect: MapEffect) {
+        _effectFlow.emit(effect)
+    }
+
+    fun launchEffect(effect: MapEffect) {
+        viewModelScope.launch {
+            _effectFlow.emit(effect)
+        }
+    }
+
+    fun <T> launch(block: suspend () -> T) {
+        viewModelScope.launch {
+            block()
+        }
+    }
+
     internal var cancelable = arrayOf<Job>()
     internal val observerScope = CoroutineScope(viewModelScope.coroutineContext + supervisorJob)
 

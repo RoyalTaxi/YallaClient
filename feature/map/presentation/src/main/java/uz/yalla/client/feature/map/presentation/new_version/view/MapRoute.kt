@@ -32,7 +32,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
-import org.orbitmvi.orbit.compose.collectSideEffect
+import org.koin.core.parameter.parametersOf
 import uz.yalla.client.core.common.dialog.BaseDialog
 import uz.yalla.client.core.common.maps.MapsIntent
 import uz.yalla.client.core.common.maps.MapsViewModel
@@ -86,15 +86,15 @@ import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheetChan
 fun MRoute(
     networkState: Boolean,
     onNavigate: (FromMap) -> Unit,
-    viewModel: MViewModel = koinViewModel(),
-    mapsViewModel: MapsViewModel = koinViewModel(),
+    mapsViewModel: MapsViewModel,
+    viewModel: MViewModel = koinViewModel(parameters = { parametersOf(mapsViewModel) }),
     staticPreferences: StaticPreferences = koinInject()
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
     val activity = LocalActivity.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
+    val state by viewModel.stateFlow.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     val navController = rememberNavController()
     val statusBarHeight = WindowInsets.statusBars.getTop(density)
@@ -129,19 +129,21 @@ fun MRoute(
         }
     }
 
-    viewModel.collectSideEffect { effect ->
-        when (effect) {
-            MapEffect.EnableLocation -> showEnableLocationSettings(context)
-            MapEffect.GrantLocation -> requestPermission(context, locationPermissionRequest)
-            MapEffect.NavigateToAddCard -> onNavigate(FromMap.ToAddNewCard)
-            MapEffect.NavigateToRegister -> onNavigate(FromMap.ToRegister)
-            is MapEffect.NavigateToCancelled -> {
-                if (navController.shouldNavigateToSheet(CANCEL_REASON_ROUTE, effect.orderId)) {
-                    navController.navigateToCancelReasonSheet(effect.orderId)
-                }
-                activeCollectorRef.value = scope.launch {
-                    CancelReasonSheetChannel.intentFlow.collectLatest { intent ->
-                        viewModel.onIntent(intent)
+    LaunchedEffect(Unit) {
+        viewModel.effectFlow.collect { effect ->
+            when (effect) {
+                MapEffect.EnableLocation -> showEnableLocationSettings(context)
+                MapEffect.GrantLocation -> requestPermission(context, locationPermissionRequest)
+                MapEffect.NavigateToAddCard -> onNavigate(FromMap.ToAddNewCard)
+                MapEffect.NavigateToRegister -> onNavigate(FromMap.ToRegister)
+                is MapEffect.NavigateToCancelled -> {
+                    if (navController.shouldNavigateToSheet(CANCEL_REASON_ROUTE, effect.orderId)) {
+                        navController.navigateToCancelReasonSheet(effect.orderId)
+                    }
+                    activeCollectorRef.value = scope.launch {
+                        CancelReasonSheetChannel.intentFlow.collectLatest { intent ->
+                            viewModel.onIntent(intent)
+                        }
                     }
                 }
             }
@@ -174,14 +176,8 @@ fun MRoute(
     }
 
     DisposableEffect(Unit) {
-        scope.launch {
-            viewModel.onAppear()
-            mapsViewModel.onAppear()
-        }
-        onDispose {
-            viewModel.onDisappear()
-            mapsViewModel.onDisappear()
-        }
+        scope.launch { viewModel.onAppear() }
+        onDispose { viewModel.onDisappear() }
     }
 
     LaunchedEffect(state.serviceAvailable) {

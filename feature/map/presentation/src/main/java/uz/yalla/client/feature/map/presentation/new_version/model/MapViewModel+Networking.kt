@@ -12,42 +12,40 @@ import uz.yalla.client.feature.order.presentation.main.view.MainSheetChannel
 import kotlin.math.ceil
 
 fun MViewModel.getMe() = viewModelScope.launch {
-    getMeUseCase().onSuccess {
-        intent { reduce { state.copy(client = it.client, balance = it.client.balance) } }
-        prefs.setBalance(it.client.balance)
+    getMeUseCase().onSuccess { user ->
+        updateState { state -> state.copy(client = user.client, balance = user.client.balance) }
+        prefs.setBalance(user.client.balance)
     }.onFailure(::handleException)
 }
 
 
 fun MViewModel.getNotificationsCount() = viewModelScope.launch {
-    getNotificationsCountUseCase().onSuccess {
-        intent { reduce { state.copy(notificationCount = it) } }
+    getNotificationsCountUseCase().onSuccess { count ->
+        updateState { state -> state.copy(notificationCount = count) }
     }
 }
 
 fun MViewModel.getAddress(point: MapPoint) = viewModelScope.launch {
-    getAddressNameUseCase(point.lat, point.lng).onSuccess {
-        intent {
-            if (state.destinations.isEmpty() && state.order == null) {
-                val location = Location(
-                    name = it.displayName,
-                    addressId = null,
-                    point = MapPoint(point.lat, point.lng)
-                )
-                MainSheetChannel.setLocation(location = location)
-                reduce {
-                    state.copy(
-                        markerState = YallaMarkerState.IDLE(
-                            it.displayName,
-                            state.carArrivalInMinutes
-                        ),
-                        location = Location(
-                            name = it.displayName,
-                            addressId = null,
-                            point = MapPoint(point.lat, point.lng)
-                        )
+    getAddressNameUseCase(point.lat, point.lng).onSuccess { address ->
+        if (stateFlow.value.destinations.isEmpty() && stateFlow.value.order == null) {
+            val location = Location(
+                name = address.displayName,
+                addressId = null,
+                point = MapPoint(point.lat, point.lng)
+            )
+            MainSheetChannel.setLocation(location = location)
+            updateState { state ->
+                state.copy(
+                    markerState = YallaMarkerState.IDLE(
+                        address.displayName,
+                        state.carArrivalInMinutes
+                    ),
+                    location = Location(
+                        name = address.displayName,
+                        addressId = null,
+                        point = MapPoint(point.lat, point.lng)
                     )
-                }
+                )
             }
         }
     }
@@ -64,47 +62,47 @@ fun MViewModel.getActiveOrders() {
 
             if (shouldInject) {
                 val order = activeOrders.list.first()
-                intent {
-                    reduce {
-                        state.copy(
-                            order = order,
-                            orderId = order.id
-                        )
-                    }
+                updateState { state ->
+                    state.copy(
+                        order = order,
+                        orderId = order.id
+                    )
                 }
                 staticPrefs.hasProcessedOrderOnEntry = true
                 hasInjectedOnceInThisSession = true
                 getActiveOrder()
             } else if (activeOrders.list.size > 1 && !alreadyMarkedAsProcessed) {
-                intent { reduce { state.copy(ordersSheetVisible = true) } }
+                updateState { state -> state.copy(ordersSheetVisible = true) }
                 staticPrefs.hasProcessedOrderOnEntry = true
                 hasInjectedOnceInThisSession = true
             }
 
-            intent { reduce { state.copy(orders = activeOrders.list) } }
+            updateState { state -> state.copy(orders = activeOrders.list) }
         }
     }
 }
 
 fun MViewModel.getSettingConfig() {
     viewModelScope.launch {
-        getSettingUseCase().onSuccess {
-            prefs.setBonusEnabled(it.isBonusEnabled)
-            prefs.setMinBonus(it.minBonus)
-            prefs.setMaxBonus(it.maxBonus)
+        getSettingUseCase().onSuccess { setting ->
+            prefs.setBonusEnabled(setting.isBonusEnabled)
+            prefs.setMinBonus(setting.minBonus)
+            prefs.setMaxBonus(setting.maxBonus)
         }
     }
 }
 
-fun MViewModel.getRouting() = intent {
+fun MViewModel.getRouting() {
     val points = listOfNotNull(
-        state.location?.point,
-        *state.destinations.mapNotNull { it.point }.toTypedArray()
+        stateFlow.value.location?.point,
+        *stateFlow.value.destinations.mapNotNull { it.point }.toTypedArray()
     )
 
+    mapsViewModel.onIntent(MapsIntent.UpdateLocations(points))
+
     if (points.size < 2) {
-        reduce { state.copy(route = emptyList()) }
-        return@intent
+        updateState { state -> state.copy(route = emptyList()) }
+        return
     }
 
     viewModelScope.launch {
@@ -143,7 +141,7 @@ fun MViewModel.getRouting() = intent {
 
             val routingPoints = route.routing.map { MapPoint(it.lat, it.lng) }
 
-            reduce {
+            updateState { state ->
                 state.copy(
                     orderEndsInMinutes = duration?.let { ceil(it).toInt() },
                     route = routingPoints
@@ -155,30 +153,31 @@ fun MViewModel.getRouting() = intent {
 
 
 fun MViewModel.getActiveOrder() = viewModelScope.launch {
-    intent {
-        val orderId = state.orderId ?: return@intent
-        getShowOrderUseCase(orderId).onSuccess { order ->
-            mapsViewModel.onIntent(MapsIntent.UpdateOrderStatus(order))
-            reduce {
-                state.copy(
-                    order = order,
-                    tariffId = order.taxi.tariffId,
-                    markerState = YallaMarkerState.Searching,
-                    location = Location(
-                        name = order.taxi.routes.firstOrNull()?.fullAddress,
-                        addressId = null,
-                        point = order.taxi.routes.firstOrNull()?.coords?.let { c ->
-                            MapPoint(c.lat, c.lng)
-                        }
-                    ),
-                    destinations = order.taxi.routes.drop(1).map { d ->
-                        Destination(
-                            name = d.fullAddress,
-                            point = MapPoint(d.coords.lat, d.coords.lng)
-                        )
+    val orderId = stateFlow.value.orderId ?: run {
+        mapsViewModel.onIntent(MapsIntent.UpdateOrderStatus(null))
+        return@launch
+    }
+    getShowOrderUseCase(orderId).onSuccess { order ->
+        mapsViewModel.onIntent(MapsIntent.UpdateOrderStatus(order))
+        updateState { state ->
+            state.copy(
+                order = order,
+                tariffId = order.taxi.tariffId,
+                markerState = YallaMarkerState.Searching,
+                location = Location(
+                    name = order.taxi.routes.firstOrNull()?.fullAddress,
+                    addressId = null,
+                    point = order.taxi.routes.firstOrNull()?.coords?.let { c ->
+                        MapPoint(c.lat, c.lng)
                     }
-                )
-            }
+                ),
+                destinations = order.taxi.routes.drop(1).map { d ->
+                    Destination(
+                        name = d.fullAddress,
+                        point = MapPoint(d.coords.lat, d.coords.lng)
+                    )
+                }
+            )
         }
     }
 }

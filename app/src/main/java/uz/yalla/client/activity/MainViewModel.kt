@@ -1,12 +1,13 @@
 package uz.yalla.client.activity
 
-import uz.yalla.client.core.common.viewmodel.BaseViewModel
 import android.content.Context
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -14,6 +15,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import uz.yalla.client.connectivity.ConnectivityObserver
 import uz.yalla.client.core.common.utils.getCurrentLocation
+import uz.yalla.client.core.common.viewmodel.BaseViewModel
 import uz.yalla.client.core.common.viewmodel.LifeCycleAware
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.local.StaticPreferences
@@ -46,6 +48,9 @@ class MainViewModel(
 
     private val _isReady = MutableStateFlow<ReadyState>(ReadyState.Loading)
     val isReady = _isReady.asStateFlow()
+
+    private val _logoutEvent = MutableSharedFlow<Unit>()
+    val logoutEvent: SharedFlow<Unit> = _logoutEvent.asSharedFlow()
 
     init {
         viewModelScope.launch {
@@ -110,5 +115,10 @@ class MainViewModel(
 
     override fun onDisappear() {
 
+    }
+
+    fun logout() = viewModelScope.launch {
+        appPreferences.performLogout()
+        _logoutEvent.emit(Unit)
     }
 }
