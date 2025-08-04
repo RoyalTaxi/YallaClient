@@ -14,6 +14,7 @@ import uz.yalla.client.feature.notification.show_notification.navigation.showNot
 internal const val NOTIFICATION_ROUTE = "notification_route"
 
 fun NavGraphBuilder.notificationModule(
+    onBack: () -> Unit,
     navController: NavHostController
 ) {
     navigation(
@@ -21,7 +22,7 @@ fun NavGraphBuilder.notificationModule(
         route = NOTIFICATION_ROUTE
     ) {
         notificationsScreen(
-            onBack = navController::safePopBackStack,
+            onBack = onBack,
             onClickNotification = navController::navigateToShowNotification
         )
 

@@ -80,7 +80,7 @@ class MainActivity : ScopeActivity() {
         )
 
         supportFragmentManager.beginTransaction()
-            .add(R.id.fragmentContainerHost, MapsFragment(mapsViewModel))
+            .add(R.id.fragmentContainerHost, MapsFragment())
             .commit()
 
         lifecycleScope.launch {
@@ -99,7 +99,6 @@ class MainActivity : ScopeActivity() {
             YallaTheme {
                 Navigation(
                     isConnected = isConnected,
-                    mapsViewModel = mapsViewModel,
                     navigateToLogin = ::navigateToLoginActivity
                 )
             }

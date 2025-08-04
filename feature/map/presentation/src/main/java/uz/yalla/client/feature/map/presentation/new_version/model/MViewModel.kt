@@ -71,11 +71,8 @@ class MViewModel(
 
     internal var hasInjectedOnceInThisSession = false
 
-    init {
-        startObserve()
-    }
-
     override fun onAppear() {
+        startObserve()
         getMe()
         getNotificationsCount()
         getSettingConfig()

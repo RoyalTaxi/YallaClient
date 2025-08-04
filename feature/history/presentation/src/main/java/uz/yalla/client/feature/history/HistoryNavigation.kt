@@ -14,6 +14,7 @@ import uz.yalla.client.feature.history.history_details.navigation.navigateToDeta
 internal const val HISTORY_MODULE_ROUTE = "history_module_route"
 
 fun NavGraphBuilder.historyModule(
+    onBack: () -> Unit,
     navController: NavHostController
 ) {
     navigation(
@@ -21,7 +22,7 @@ fun NavGraphBuilder.historyModule(
         route = HISTORY_MODULE_ROUTE
     ) {
         historyScreen(
-            onBack = navController::safePopBackStack,
+            onBack = onBack,
             onClickItem = navController::navigateToDetailsScreen
         )
 

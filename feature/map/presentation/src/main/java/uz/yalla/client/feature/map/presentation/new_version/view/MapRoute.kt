@@ -12,10 +12,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -31,6 +33,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.koin.androidx.scope.ScopeActivity
 import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
 import uz.yalla.client.core.common.dialog.BaseDialog
@@ -175,9 +178,9 @@ fun MRoute(
         mapsViewModel.onIntent(MapsIntent.SetTopPadding(topPaddingDp))
     }
 
-    DisposableEffect(Unit) {
-        scope.launch { viewModel.onAppear() }
-        onDispose { viewModel.onDisappear() }
+    LaunchedEffect(Unit, LocalConfiguration.current) {
+        viewModel.onDisappear()
+        viewModel.onAppear()
     }
 
     LaunchedEffect(state.serviceAvailable) {

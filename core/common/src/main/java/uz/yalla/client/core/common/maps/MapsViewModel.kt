@@ -43,7 +43,7 @@ import uz.yalla.client.core.common.utils.dpToPx
 import uz.yalla.client.core.common.utils.getCurrentLocation
 import uz.yalla.client.core.common.utils.vectorToBitmapDescriptor
 import uz.yalla.client.core.common.utils.vectorToBitmapDescriptorWithSize
-import uz.yalla.client.core.common.viewmodel.LifeCycleAware
+import uz.yalla.client.core.common.viewmodel.BaseViewModel
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.Executor
 import uz.yalla.client.core.domain.model.MapPoint
@@ -98,13 +98,13 @@ sealed interface MapsIntent {
 class MapsViewModel(
     private val appContext: Context,
     private val appPreferences: AppPreferences
-) : LifeCycleAware {
+) : BaseViewModel() {
 
     // Create a custom coroutine scope with error handling
-    private val exceptionHandler = CoroutineExceptionHandler { _, _ -> 
+    private val exceptionHandler = CoroutineExceptionHandler { _, _ ->
         // Error handling can be implemented here if needed
     }
-    
+
     private val coroutineScope = CoroutineScope(
         Dispatchers.Main.immediate + SupervisorJob() + exceptionHandler
     )
@@ -178,8 +178,32 @@ class MapsViewModel(
     fun getSavedCameraPosition(): MapPoint? = state.value.savedCameraPosition
 
     init {
+        initializeIcons()
         initializeObservers()
         initializeThemeObserver()
+
+        appContext.registerReceiver(
+            configurationChangeReceiver,
+            IntentFilter(Intent.ACTION_CONFIGURATION_CHANGED)
+        )
+
+        state.value.savedCameraPosition?.let { position ->
+            map?.moveTo(position, MapConstants.DEFAULT_ZOOM)
+        } ?: run {
+            getCurrentLocation(context = appContext) { location ->
+                map?.moveCamera(
+                    CameraUpdateFactory.newLatLngZoom(
+                        LatLng(
+                            location.latitude,
+                            location.longitude
+                        ),
+                        MapConstants.DEFAULT_ZOOM
+                    )
+                )
+            }
+        }
+
+        initializeObservers()
     }
 
     private fun initializeObservers() {
@@ -274,36 +298,8 @@ class MapsViewModel(
         }
     }
 
-    override fun onAppear() {
-        // Initialize icons once at startup
-        initializeIcons()
 
-        // Register for configuration changes
-        appContext.registerReceiver(
-            configurationChangeReceiver,
-            IntentFilter(Intent.ACTION_CONFIGURATION_CHANGED)
-        )
-
-        state.value.savedCameraPosition?.let { position ->
-            map?.moveTo(position, MapConstants.DEFAULT_ZOOM)
-        } ?: run {
-            getCurrentLocation(context = appContext) { location ->
-                map?.moveCamera(
-                    CameraUpdateFactory.newLatLngZoom(
-                        LatLng(
-                            location.latitude,
-                            location.longitude
-                        ),
-                        MapConstants.DEFAULT_ZOOM
-                    )
-                )
-            }
-        }
-
-        initializeObservers()
-    }
-
-    override fun onDisappear() {
+    override fun onCleared() {
         jobs.forEach { it.cancel() }
         jobs.clear()
         clearAllMapElements()
@@ -315,8 +311,17 @@ class MapsViewModel(
             // Receiver might not be registered
         }
 
-        // Don't clear icon cache on disappear to avoid recreating them
-        // when the view reappears
+        // Clear map reference
+        map = null
+
+        super.onCleared()
+    }
+
+    // Restart observers when map is ready
+    private fun restartObservers() {
+        jobs.forEach { it.cancel() }
+        jobs.clear()
+        initializeObservers()
     }
 
     fun onIntent(intent: MapsIntent) {
@@ -336,6 +341,9 @@ class MapsViewModel(
 
                     _state.update { it.copy(isMapReady = true) }
                     applyMapPadding(state.value)
+
+                    // Restart all observers with new map
+                    restartObservers()
 
                     // Initial draw of map elements
                     // Each subsequent update will be handled by the specific update methods
@@ -472,11 +480,25 @@ class MapsViewModel(
             }
 
             is MapsIntent.SetBottomPadding -> {
-                _state.update { it.copy(bottomPaddingPx = dpToPx(appContext, intent.padding.value.toInt())) }
+                _state.update {
+                    it.copy(
+                        bottomPaddingPx = dpToPx(
+                            appContext,
+                            intent.padding.value.toInt()
+                        )
+                    )
+                }
             }
 
             is MapsIntent.SetTopPadding -> {
-                _state.update { it.copy(topPaddingPx = dpToPx(appContext, intent.padding.value.toInt())) }
+                _state.update {
+                    it.copy(
+                        topPaddingPx = dpToPx(
+                            appContext,
+                            intent.padding.value.toInt()
+                        )
+                    )
+                }
             }
 
             is MapsIntent.SetMapPadding -> {
