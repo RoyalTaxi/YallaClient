@@ -33,10 +33,11 @@ import uz.yalla.client.feature.registration.presentation.navigation.registration
 class LoginActivity : AppCompatActivity() {
     private val appPreferences: AppPreferences by inject()
     private val staticPreferences: StaticPreferences by inject()
+    private var keepSplashScreen = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
-        installSplashScreen()
+        val splashScreen = installSplashScreen()
+        splashScreen.setKeepOnScreenCondition { keepSplashScreen }
 
         super.onCreate(savedInstanceState)
 
@@ -46,6 +47,7 @@ class LoginActivity : AppCompatActivity() {
                 navigateToMainActivity()
                 return@launch
             }
+            keepSplashScreen = false
         }
 
         enableEdgeToEdge(

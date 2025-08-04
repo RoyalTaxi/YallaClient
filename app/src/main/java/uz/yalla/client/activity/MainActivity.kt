@@ -10,11 +10,13 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.scope.ScopeActivity
@@ -23,6 +25,8 @@ import uz.yalla.client.BuildConfig
 import uz.yalla.client.R
 import uz.yalla.client.core.common.maps.MapsFragment
 import uz.yalla.client.core.common.maps.MapsViewModel
+import uz.yalla.client.core.domain.local.AppPreferences
+import uz.yalla.client.core.domain.local.StaticPreferences
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.databinding.ActivityMainBinding
 import uz.yalla.client.navigation.Navigation
@@ -36,13 +40,29 @@ class MainActivity : ScopeActivity() {
 
     private val viewModel: MainViewModel by viewModel()
     private val mapsViewModel: MapsViewModel by inject()
+    private val appPreferences: AppPreferences by inject()
+    private val staticPreferences: StaticPreferences by inject()
 
     private val isAppReady = MutableStateFlow(false)
+    private var keepSplashScreen = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
+        splashScreen.setKeepOnScreenCondition { keepSplashScreen }
+
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Check if user is logged in
+        lifecycleScope.launch {
+            val accessToken = appPreferences.accessToken.firstOrNull() ?: ""
+            if (!staticPreferences.isDeviceRegistered || accessToken.isEmpty()) {
+                navigateToLoginActivity()
+                return@launch
+            }
+            keepSplashScreen = false
+        }
 
         viewModel.onAppear()
 
