@@ -9,26 +9,34 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import kotlinx.coroutines.launch
-import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.androidx.scope.ScopeActivity
 import uz.yalla.client.core.common.R
 import uz.yalla.client.core.common.utils.dpToPx
 import uz.yalla.client.core.common.utils.getCurrentLocation
 import uz.yalla.client.core.domain.model.MapPoint
 
-class MapsFragment(
-    private val viewModel: MapsViewModel
-) : Fragment() {
+class MapsFragment : Fragment() {
 
     companion object {
         const val GOOGLE_MARK_PADDING = 8
         const val MAP_PADDING = 100
     }
 
+    private val viewModel: MapsViewModel by lazy {
+        (requireActivity() as ScopeActivity).scope.get<MapsViewModel>()
+    }
+
     private val callback = OnMapReadyCallback { googleMap ->
         viewModel.onIntent(MapsIntent.OnMapReady(googleMap))
 
-        viewModel.onIntent(MapsIntent.SetGoogleMarkPadding(dpToPx(requireContext(), GOOGLE_MARK_PADDING)))
+        viewModel.onIntent(
+            MapsIntent.SetGoogleMarkPadding(
+                dpToPx(
+                    requireContext(),
+                    GOOGLE_MARK_PADDING
+                )
+            )
+        )
         viewModel.onIntent(MapsIntent.SetMapPadding(dpToPx(requireContext(), MAP_PADDING)))
 
         handleInitialCameraPosition()

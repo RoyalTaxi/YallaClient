@@ -21,10 +21,8 @@ internal fun NotificationRoute(
 ) {
 
     val notifications = viewModel.notifications.collectAsLazyPagingItems()
-    val baseLoading by viewModel.loading.collectAsStateWithLifecycle()
     val showErrorDialog by viewModel.showErrorDialog.collectAsStateWithLifecycle()
     val currentErrorMessageId by viewModel.currentErrorMessageId.collectAsStateWithLifecycle()
-
 
     LaunchedEffect(notifications.loadState) {
         val errorState = notifications.loadState.refresh as? LoadState.Error
@@ -36,10 +34,6 @@ internal fun NotificationRoute(
         }
     }
 
-    val isLoading = baseLoading ||
-            (notifications.loadState.refresh is LoadState.Loading && notifications.itemCount == 0)
-
-
     NotificationScreen(
         notifications = notifications,
         onIntent = { intent ->
@@ -50,7 +44,7 @@ internal fun NotificationRoute(
         }
     )
 
-    if (isLoading) LoadingDialog()
+    if (notifications.loadState.refresh is LoadState.Loading) LoadingDialog()
 
     if (showErrorDialog) {
         BaseDialog(

@@ -10,9 +10,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
-import uz.yalla.client.core.common.maps.MapsViewModel
 import uz.yalla.client.feature.bonus.bonusModule
 import uz.yalla.client.feature.bonus.navigateToBonusModule
 import uz.yalla.client.feature.contact.navigation.contactUsScreen
@@ -24,6 +24,7 @@ import uz.yalla.client.feature.info.about_app.navigation.navigateToAboutAppScree
 import uz.yalla.client.feature.map.presentation.new_version.navigation.FromMap
 import uz.yalla.client.feature.map.presentation.new_version.navigation.MAP_ROUTE
 import uz.yalla.client.feature.map.presentation.new_version.navigation.mapScreen
+import uz.yalla.client.feature.map.presentation.new_version.navigation.navigateToMapScreen
 import uz.yalla.client.feature.notification.navigateToNotificationModule
 import uz.yalla.client.feature.notification.notificationModule
 import uz.yalla.client.feature.payment.navigateToPaymentModule
@@ -42,14 +43,21 @@ import uz.yalla.client.ui.screens.OfflineScreen
 @Composable
 fun Navigation(
     isConnected: Boolean,
-    navigateToLogin: () -> Unit,
-    mapsViewModel: MapsViewModel
+    navigateToLogin: () -> Unit
 ) {
     val navController = rememberNavController()
     var route by remember { mutableStateOf("") }
 
     LaunchedEffect(navController.currentDestination?.route) {
         route = navController.currentDestination?.route ?: ""
+    }
+
+    LaunchedEffect(LocalConfiguration.current.uiMode, route) {
+        if (route == MAP_ROUTE) navController.navigate(route) {
+            popUpTo(route) {
+                inclusive = true
+            }
+        }
     }
 
     NavHost(
@@ -83,7 +91,6 @@ fun Navigation(
     ) {
         mapScreen(
             networkState = isConnected,
-            mapsViewModel = mapsViewModel,
             navigate = { fromMap ->
                 when (fromMap) {
                     FromMap.ToAboutApp -> navController.navigateToAboutAppScreen()
@@ -111,33 +118,48 @@ fun Navigation(
             }
         )
 
-        bonusModule(navController = navController)
-
-        historyModule(navController = navController)
-
-        paymentModule(navController = navController)
-
-        addressModule(navController = navController)
-
-        editProfileScreen(
-            onNavigateBack = navController::safePopBackStack,
+        bonusModule(
+            onBack = navController::navigateToMapScreen,
+            navController = navController
         )
 
-        settingsScreen(onNavigateBack = navController::safePopBackStack)
+        historyModule(
+            onBack = navController::navigateToMapScreen,
+            navController = navController
+        )
+
+        paymentModule(
+            onBack = navController::navigateToMapScreen,
+            navController = navController,
+        )
+
+        addressModule(
+            onBack = navController::navigateToMapScreen,
+            navController = navController
+        )
+
+        editProfileScreen(
+            onNavigateBack = navController::navigateToMapScreen,
+        )
+
+        settingsScreen(onNavigateBack = navController::navigateToMapScreen)
 
         aboutAppScreen(
-            onBack = navController::safePopBackStack,
+            onBack = navController::navigateToMapScreen,
             onClickUrl = navController::navigateToWebScreen
         )
 
         contactUsScreen(
-            onBack = navController::safePopBackStack,
+            onBack = navController::navigateToMapScreen,
             onClickUrl = navController::navigateToWebScreen
         )
 
-        webScreen(onNavigateBack = navController::popBackStack)
+        webScreen(onNavigateBack = navController::navigateToMapScreen)
 
-        notificationModule(navController = navController)
+        notificationModule(
+            onBack = navController::navigateToMapScreen,
+            navController = navController
+        )
     }
 
     if (!isConnected && route != MAP_ROUTE) {
