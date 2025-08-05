@@ -3,6 +3,7 @@
     <string name="new_card">Yangi karta</string>
     <string name="link_card">Kartani bog\'lash</string>
     <string name="payment_method">To\'lov usuli</string>
+    <string name="edit_cards">Karta va hisoblarni o\'zgartirish</string>
     <string name="choose_payment_method">Qulay to\'lov usulini tanlang</string>
     <string name="add_card">Karta qo\'shish</string>
     <string name="card_number">Karta raqami</string>

@@ -87,7 +87,14 @@ private fun CardListTopBar(
         title = {},
         colors = TopAppBarDefaults.topAppBarColors(YallaTheme.color.background),
         navigationIcon = {
-            IconButton(onClick = onNavigateBack) {
+            IconButton(
+                onClick = {
+                    when (editCardEnabled) {
+                        true -> editCards(false)
+                        false -> onNavigateBack()
+                    }
+                }
+            ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Default.ArrowBack,
                     contentDescription = null,
@@ -103,9 +110,10 @@ private fun CardListTopBar(
                     }
                 ) {
                     Text(
-                        text = if (!editCardEnabled) stringResource(R.string.edit) else stringResource(
-                            R.string.finish
-                        ),
+                        text = when (editCardEnabled) {
+                            true -> stringResource(R.string.finish)
+                            false -> stringResource(R.string.edit)
+                        },
                         color = YallaTheme.color.onBackground,
                         style = YallaTheme.font.labelLarge
                     )
@@ -140,10 +148,10 @@ private fun CardListContent(
                 },
                 label = "header_section_transition"
             ) { editMode ->
-                if (!editMode) {
-                    Column {
-                        Spacer(modifier = Modifier.height(40.dp))
-                        CardListHeader()
+                Column {
+                    Spacer(modifier = Modifier.height(40.dp))
+                    CardListHeader(editMode)
+                    if (!editMode) {
                         Spacer(modifier = Modifier.height(20.dp))
                         SelectPaymentTypeItem(
                             isSelected = uiState.selectedPaymentType == PaymentType.CASH,
@@ -197,10 +205,17 @@ private fun CardListContent(
 }
 
 @Composable
-private fun CardListHeader() {
+private fun CardListHeader(
+    editCardEnabled: Boolean
+) {
     Column(modifier = Modifier.padding(horizontal = 20.dp)) {
         Text(
-            text = stringResource(id = R.string.payment_method),
+            text = stringResource(
+                id = when (editCardEnabled) {
+                    true -> R.string.edit_cards
+                    false -> R.string.payment_method
+                }
+            ),
             color = YallaTheme.color.onBackground,
             style = YallaTheme.font.headline
         )
