@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.LocaleManager
 import android.os.Build
 import android.os.LocaleList
+import androidx.activity.compose.LocalActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -29,20 +30,20 @@ import uz.yalla.client.feature.setting.model.SettingsViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun SettingsRoute(
-    onNavigateBack: () -> Unit,
+    onBack: () -> Unit,
     viewModel: SettingsViewModel = koinViewModel(),
 ) {
     val changeLanguageSheetState = rememberModalBottomSheetState()
     val changeThemeSheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val context = LocalContext.current as Activity
+    val context = LocalActivity.current as Activity
 
     SettingsScreen(
         uiState = uiState,
         onIntent = { intent ->
             when (intent) {
-                SettingsIntent.OnNavigateBack -> onNavigateBack()
+                SettingsIntent.OnNavigateBack -> onBack()
                 SettingsIntent.OnClickLanguage -> {
                     viewModel.setChangeLanguageVisibility(true)
                     scope.launch { changeLanguageSheetState.show() }

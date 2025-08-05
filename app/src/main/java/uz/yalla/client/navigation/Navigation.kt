@@ -143,10 +143,12 @@ fun Navigation(
         )
 
         editProfileScreen(
-            onNavigateBack = navController::navigateToMapScreen,
+            onBack = navController::navigateToMapScreen,
         )
 
-        settingsScreen(onNavigateBack = navController::navigateToMapScreen)
+        settingsScreen(
+            onBack = navController::navigateToMapScreen
+        )
 
         aboutAppScreen(
             onBack = navController::navigateToMapScreen,
@@ -158,7 +160,13 @@ fun Navigation(
             onClickUrl = navController::navigateToWebScreen
         )
 
-        webScreen(onNavigateBack = navController::navigateToMapScreen)
+        webScreen(
+            fromMap = navController.previousBackStackEntry?.destination?.route == MAP_ROUTE,
+            onBack = { fromMap ->
+                if (fromMap) navController.navigateToMapScreen()
+                else navController.safePopBackStack()
+            }
+        )
 
         notificationModule(
             onBack = navController::navigateToMapScreen,

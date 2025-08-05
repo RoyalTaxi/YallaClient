@@ -48,7 +48,7 @@ class MainActivity : ScopeActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
-        splashScreen.setKeepOnScreenCondition { keepSplashScreen }
+        splashScreen.setKeepOnScreenCondition { keepSplashScreen && !isAppReady.value }
 
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)

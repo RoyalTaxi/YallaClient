@@ -3,6 +3,7 @@ package uz.yalla.client.feature.map.presentation.new_version.model
 import uz.yalla.client.core.common.marker.YallaMarkerState
 
 fun MViewModel.clearState() {
+    staticPrefs.processingOrderId = null
     updateState { state ->
         state.copy(
             order = null,
