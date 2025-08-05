@@ -41,8 +41,14 @@ internal class CardListViewModel(
     }
 
     fun deleteCard(cardId: String) = viewModelScope.launchWithLoading {
+        val currentPaymentType = _uiState.value.selectedPaymentType
+
         deleteCardUseCase(cardId)
             .onSuccess {
+                if (currentPaymentType is PaymentType.CARD && currentPaymentType.cardId == cardId) {
+                    selectPaymentType(PaymentType.CASH)
+                }
+
                 getCardList()
                 setEditCardEnabled(false)
             }
