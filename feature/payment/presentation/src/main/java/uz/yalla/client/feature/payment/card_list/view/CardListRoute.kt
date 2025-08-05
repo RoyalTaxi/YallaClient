@@ -66,7 +66,10 @@ internal fun CardListRoute(
             description = stringResource(R.string.confirm_to_delete),
             dismissText = stringResource(R.string.cancel),
             actionText = stringResource(R.string.delete),
-            onAction = { viewModel.deleteCard(uiState.selectedCardId) },
+            onAction = {
+                viewModel.deleteCard(uiState.selectedCardId)
+                viewModel.setConfirmDeleteCardDialogVisibility(false)
+            },
             onDismiss = { viewModel.setConfirmDeleteCardDialogVisibility(false) }
         )
     }
