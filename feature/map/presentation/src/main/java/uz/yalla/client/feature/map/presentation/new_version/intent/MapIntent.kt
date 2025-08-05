@@ -20,4 +20,5 @@ sealed interface MapIntent {
 
     data object OnDismissActiveOrders : MapIntent
     data class SetShowingOrder(val order: ShowOrderModel) : MapIntent
+    data class SetShowingOrderId(val orderId: Int) : MapIntent
 }

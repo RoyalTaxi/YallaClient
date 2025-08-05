@@ -69,7 +69,6 @@ class MViewModel(
     internal var hasInjectedOnceInThisSession = false
 
     init {
-        _stateFlow.update { it.copy(orderId = staticPrefs.processingOrderId) }
         startObserve()
         getMe()
         getNotificationsCount()

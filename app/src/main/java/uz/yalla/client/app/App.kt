@@ -37,6 +37,7 @@ class App : Application() {
 
         // Set hasProcessedOrderOnEntry to false in StaticPreferences
         staticPreferences.hasProcessedOrderOnEntry = false
+        staticPreferences.processingOrderId = null
         appPreferences.setMapType(MapType.Google)
     }
 }

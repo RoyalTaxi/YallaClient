@@ -11,11 +11,13 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -126,6 +128,12 @@ fun MRoute(
             if (staticPreferences.isDeviceRegistered.not()) {
                 onNavigate(FromMap.ToRegister)
             }
+        }
+    }
+
+    LaunchedEffect(LocalConfiguration.current) {
+        staticPreferences.processingOrderId?.let { orderId ->
+            viewModel.onIntent(MapIntent.SetShowingOrderId(orderId))
         }
     }
 
