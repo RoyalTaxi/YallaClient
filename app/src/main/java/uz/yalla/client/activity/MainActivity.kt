@@ -48,13 +48,12 @@ class MainActivity : ScopeActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
-        splashScreen.setKeepOnScreenCondition { keepSplashScreen && !isAppReady.value }
+        splashScreen.setKeepOnScreenCondition { keepSplashScreen || !isAppReady.value }
 
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        // Check if user is logged in
+        
         lifecycleScope.launch {
             val accessToken = appPreferences.accessToken.firstOrNull() ?: ""
             if (!staticPreferences.isDeviceRegistered || accessToken.isEmpty()) {

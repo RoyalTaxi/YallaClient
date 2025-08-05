@@ -86,6 +86,10 @@ fun MViewModel.onIntent(intent: MapIntent) {
                 )
             }
         }
+
+        is MapIntent.SetShowingOrderId -> {
+            updateState { it.copy(orderId = intent.orderId) }
+        }
     }
 }
 
