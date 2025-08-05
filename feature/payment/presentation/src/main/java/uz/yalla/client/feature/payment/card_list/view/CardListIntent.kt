@@ -3,6 +3,7 @@ package uz.yalla.client.feature.payment.card_list.view
 internal sealed interface CardListIntent {
     data class SelectDefaultCard(val cardId: Int)
     data class OnDeleteCard(val cardId: String) : CardListIntent
+    data class EditCards(val editCardEnabled: Boolean) : CardListIntent
     data object AddNewCard : CardListIntent
     data object OnNavigateBack : CardListIntent
     data object AddCorporateAccount : CardListIntent

@@ -56,4 +56,8 @@ internal class CardListViewModel(
     fun setConfirmDeleteCardDialogVisibility(value: Boolean) {
         _uiState.update { it.copy(isConfirmDeleteDialogVisibility = value) }
     }
+
+    fun setEditCardEnabled(value: Boolean) {
+        _uiState.update { it.copy(editCardEnabled = value) }
+    }
 }

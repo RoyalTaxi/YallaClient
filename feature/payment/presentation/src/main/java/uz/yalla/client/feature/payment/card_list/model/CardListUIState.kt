@@ -7,5 +7,6 @@ internal data class CardListUIState(
     val cards: List<CardListItemModel> = emptyList(),
     val selectedPaymentType: PaymentType = PaymentType.CASH,
     val isConfirmDeleteDialogVisibility: Boolean = false,
-    val selectedCardId: String = ""
+    val selectedCardId: String = "",
+    val editCardEnabled: Boolean = false
 )
