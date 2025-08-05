@@ -5,6 +5,7 @@ interface StaticPreferences {
     var skipOnboarding: Boolean
     var isDeviceRegistered: Boolean
     var hasProcessedOrderOnEntry: Boolean
+    var processingOrderId: Int?
 
     fun performLogout()
 }

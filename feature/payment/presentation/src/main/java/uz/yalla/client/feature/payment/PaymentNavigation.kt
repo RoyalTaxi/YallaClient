@@ -36,7 +36,7 @@ fun NavGraphBuilder.paymentModule(
         route = PAYMENT_ROUTE
     ) {
         cardListScreen(
-            onNavigateBack = onBack,
+            onBack = onBack,
             onAddNewCard = navController::navigateToAddCardScreen,
             onAddCompany = navController::navigateToCorporateAccountScreen,
             onAddBusinessAccount = navController::navigateToBusinessAccount

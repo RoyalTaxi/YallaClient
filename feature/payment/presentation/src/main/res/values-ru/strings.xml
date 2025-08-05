@@ -3,6 +3,7 @@
     <string name="new_card">Новая карта</string>
     <string name="link_card">Привязать карту</string>
     <string name="payment_method">Способ оплаты</string>
+    <string name="edit_cards">Редактирование карт и счетов</string>
     <string name="choose_payment_method">Выберите удобный способ оплаты</string>
     <string name="add_card">Добавить карту</string>
     <string name="card_number">Номер карты</string>
@@ -48,4 +49,6 @@
     <string name="confirm_to_delete">Вы действительно хотите удалить способ оплаты?</string>
     <string name="cancel">Отмена</string>
     <string name="delete">Удалить</string>
+    <string name="edit">Изменять</string>
+    <string name="finish">Завершить</string>
 </resources>

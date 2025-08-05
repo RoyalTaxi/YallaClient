@@ -158,6 +158,7 @@ fun MViewModel.getActiveOrder() = viewModelScope.launch {
         return@launch
     }
     getShowOrderUseCase(orderId).onSuccess { order ->
+        staticPrefs.processingOrderId = order.id
         mapsViewModel.onIntent(MapsIntent.UpdateOrderStatus(order))
         updateState { state ->
             state.copy(
@@ -179,5 +180,7 @@ fun MViewModel.getActiveOrder() = viewModelScope.launch {
                 }
             )
         }
+    }.onFailure {
+        staticPrefs.processingOrderId = null
     }
 }

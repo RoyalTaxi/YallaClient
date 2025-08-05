@@ -31,14 +31,14 @@ import androidx.core.net.toUri
 internal fun WebScreen(
     title: String,
     url: String,
-    onNavigateBack: () -> Unit
+    onBack: () -> Unit
 ) {
     Scaffold(
         containerColor = YallaTheme.color.background,
         topBar = {
             WebScreenTopBar(
                 title = title,
-                onNavigateBack = onNavigateBack
+                onBack = onBack
             )
         },
         content = { paddingValues ->
@@ -47,7 +47,7 @@ internal fun WebScreen(
                     .fillMaxSize()
                     .padding(paddingValues),
                 url = url,
-                onNavigateBack = onNavigateBack
+                onBack = onBack
             )
         }
     )
@@ -57,7 +57,7 @@ internal fun WebScreen(
 @Composable
 private fun WebScreenTopBar(
     title: String,
-    onNavigateBack: () -> Unit
+    onBack: () -> Unit
 ) {
     CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(YallaTheme.color.background),
@@ -69,7 +69,7 @@ private fun WebScreenTopBar(
             )
         },
         navigationIcon = {
-            IconButton(onClick = onNavigateBack) {
+            IconButton(onClick = onBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Default.ArrowBack,
                     contentDescription = null,
@@ -84,12 +84,12 @@ private fun WebScreenTopBar(
 private fun WebContent(
     modifier: Modifier = Modifier,
     url: String,
-    onNavigateBack: () -> Unit
+    onBack: () -> Unit
 ) {
     AndroidView(
         modifier = modifier,
         factory = { context ->
-            createWebView(context, onNavigateBack)
+            createWebView(context, onBack)
         },
         update = { webView ->
             webView.loadUrl(url)

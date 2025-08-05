@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uz.yalla.client.core.common.maps.MapsViewModel
 import uz.yalla.client.core.common.viewmodel.BaseViewModel
@@ -50,10 +51,6 @@ class MViewModel(
         _stateFlow.value = update(_stateFlow.value)
     }
 
-    suspend fun emitEffect(effect: MapEffect) {
-        _effectFlow.emit(effect)
-    }
-
     fun launchEffect(effect: MapEffect) {
         viewModelScope.launch {
             _effectFlow.emit(effect)
@@ -72,6 +69,7 @@ class MViewModel(
     internal var hasInjectedOnceInThisSession = false
 
     init {
+        _stateFlow.update { it.copy(orderId = staticPrefs.processingOrderId) }
         startObserve()
         getMe()
         getNotificationsCount()

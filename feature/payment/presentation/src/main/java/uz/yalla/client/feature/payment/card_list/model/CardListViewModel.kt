@@ -21,6 +21,10 @@ internal class CardListViewModel(
     val uiState = _uiState.asStateFlow()
 
     init {
+        observePaymentType()
+    }
+
+    private fun observePaymentType() {
         viewModelScope.launch {
             prefs.paymentType.collectLatest { type ->
                 _uiState.update { it.copy(selectedPaymentType = type) }
@@ -29,17 +33,20 @@ internal class CardListViewModel(
     }
 
     fun getCardList() = viewModelScope.launchWithLoading {
-        getCardListUseCase().onSuccess { result ->
-            _uiState.update { it.copy(cards = result) }
-        }.onFailure(::handleException)
+        getCardListUseCase()
+            .onSuccess { result ->
+                _uiState.update { it.copy(cards = result) }
+            }
+            .onFailure(::handleException)
     }
 
     fun deleteCard(cardId: String) = viewModelScope.launchWithLoading {
         deleteCardUseCase(cardId)
             .onSuccess {
                 getCardList()
+                setEditCardEnabled(false)
             }
-            .onFailure (::handleException)
+            .onFailure(::handleException)
     }
 
     fun selectPaymentType(paymentType: PaymentType) {
@@ -53,7 +60,11 @@ internal class CardListViewModel(
         setConfirmDeleteCardDialogVisibility(true)
     }
 
-    fun setConfirmDeleteCardDialogVisibility(value: Boolean) {
-        _uiState.update { it.copy(isConfirmDeleteDialogVisibility = value) }
+    fun setConfirmDeleteCardDialogVisibility(visible: Boolean) {
+        _uiState.update { it.copy(isConfirmDeleteDialogVisibility = visible) }
+    }
+
+    fun setEditCardEnabled(enabled: Boolean) {
+        _uiState.update { it.copy(editCardEnabled = enabled) }
     }
 }

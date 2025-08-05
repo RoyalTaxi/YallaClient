@@ -22,7 +22,7 @@ fun NavGraphBuilder.addressModule(
         route = ADDRESS_MODULE_ROUTE
     ) {
         addressesScreen(
-            onNavigateBack =onBack,
+            onBack = onBack,
             onClickAddress = navController::navigateToAddressScreen,
             onAddAddress = navController::navigateToAddressScreen
         )

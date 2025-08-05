@@ -1,5 +1,12 @@
 package uz.yalla.client.feature.payment.card_list.view
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +22,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -40,8 +48,18 @@ internal fun CardListScreen(
     onSelectItem: (PaymentType) -> Unit,
     onIntent: (CardListIntent) -> Unit
 ) {
+    val prefs = koinInject<AppPreferences>()
+    val cardEnabled by prefs.isCardEnabled.collectAsStateWithLifecycle(false)
+
     Scaffold(
-        topBar = { CardListTopBar(onNavigateBack) },
+        topBar = {
+            CardListTopBar(
+                onNavigateBack = onNavigateBack,
+                cardEnabled = cardEnabled && uiState.cards.isNotEmpty(),
+                editCards = { enabled -> onIntent(CardListIntent.EditCards(enabled)) },
+                editCardEnabled = uiState.editCardEnabled
+            )
+        },
         content = { paddingValues ->
             CardListContent(
                 modifier = Modifier
@@ -49,6 +67,7 @@ internal fun CardListScreen(
                     .background(YallaTheme.color.background)
                     .padding(paddingValues),
                 uiState = uiState,
+                cardEnabled = cardEnabled,
                 onSelectItem = onSelectItem,
                 onIntent = onIntent
             )
@@ -58,17 +77,47 @@ internal fun CardListScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CardListTopBar(onNavigateBack: () -> Unit) {
+private fun CardListTopBar(
+    editCardEnabled: Boolean,
+    onNavigateBack: () -> Unit,
+    cardEnabled: Boolean,
+    editCards: (editCardEnabled: Boolean) -> Unit
+) {
     TopAppBar(
         title = {},
         colors = TopAppBarDefaults.topAppBarColors(YallaTheme.color.background),
         navigationIcon = {
-            IconButton(onClick = onNavigateBack) {
+            IconButton(
+                onClick = {
+                    when (editCardEnabled) {
+                        true -> editCards(false)
+                        false -> onNavigateBack()
+                    }
+                }
+            ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Default.ArrowBack,
                     contentDescription = null,
                     tint = YallaTheme.color.onBackground
                 )
+            }
+        },
+        actions = {
+            if (cardEnabled) {
+                TextButton(
+                    onClick = {
+                        editCards(!editCardEnabled)
+                    }
+                ) {
+                    Text(
+                        text = when (editCardEnabled) {
+                            true -> stringResource(R.string.finish)
+                            false -> stringResource(R.string.edit)
+                        },
+                        color = YallaTheme.color.onBackground,
+                        style = YallaTheme.font.labelLarge
+                    )
+                }
             }
         }
     )
@@ -78,30 +127,47 @@ private fun CardListTopBar(onNavigateBack: () -> Unit) {
 private fun CardListContent(
     modifier: Modifier = Modifier,
     uiState: CardListUIState,
+    cardEnabled: Boolean,
     onSelectItem: (PaymentType) -> Unit,
     onIntent: (CardListIntent) -> Unit
 ) {
-    val prefs = koinInject<AppPreferences>()
-    val cardEnabled by prefs.isCardEnabled.collectAsStateWithLifecycle(false)
     LazyColumn(modifier = modifier) {
-        item { Spacer(modifier = Modifier.height(40.dp)) }
-
-        item { CardListHeader() }
-
-        item { Spacer(modifier = Modifier.height(20.dp)) }
 
         item {
-            SelectPaymentTypeItem(
-                isSelected = uiState.selectedPaymentType == PaymentType.CASH,
-                text = stringResource(R.string.cash),
-                painter = painterResource(R.drawable.ic_money_color),
-                onSelect = { onSelectItem(PaymentType.CASH) }
-            )
+            AnimatedContent(
+                targetState = uiState.editCardEnabled,
+                transitionSpec = {
+                    slideInVertically(
+                        animationSpec = tween(300),
+                        initialOffsetY = { -it / 3 }
+                    ) + fadeIn(animationSpec = tween(300)) togetherWith
+                            slideOutVertically(
+                                animationSpec = tween(300),
+                                targetOffsetY = { -it / 3 }
+                            ) + fadeOut(animationSpec = tween(300))
+                },
+                label = "header_section_transition"
+            ) { editMode ->
+                Column {
+                    Spacer(modifier = Modifier.height(40.dp))
+                    CardListHeader(editMode)
+                    if (!editMode) {
+                        Spacer(modifier = Modifier.height(20.dp))
+                        SelectPaymentTypeItem(
+                            isSelected = uiState.selectedPaymentType == PaymentType.CASH,
+                            text = stringResource(R.string.cash),
+                            painter = painterResource(R.drawable.ic_money_color),
+                            onSelect = { onSelectItem(PaymentType.CASH) }
+                        )
+                    }
+                }
+            }
         }
 
         items(uiState.cards) { cardListItem ->
             CardListItem(
                 enabled = cardEnabled,
+                editCardEnabled = uiState.editCardEnabled,
                 isSelected = uiState.selectedPaymentType == PaymentType.CARD(
                     cardListItem.cardId,
                     cardListItem.maskedPan
@@ -109,7 +175,6 @@ private fun CardListContent(
                 painter = painterResource(
                     id = getCardLogo(cardListItem.cardId)
                 ),
-
                 text = cardListItem.maskedPan,
                 onSelect = {
                     onSelectItem(
@@ -125,23 +190,32 @@ private fun CardListContent(
             )
         }
 
-        if (cardEnabled) item {
-            SelectPaymentTypeItem(
-                isSelected = false,
-                tint = YallaTheme.color.gray,
-                painter = painterResource(R.drawable.ic_add),
-                text = stringResource(R.string.add_card),
-                onSelect = { onIntent(CardListIntent.AddNewCard) }
-            )
+        if (cardEnabled && !uiState.editCardEnabled) {
+            item {
+                SelectPaymentTypeItem(
+                    isSelected = false,
+                    tint = YallaTheme.color.gray,
+                    painter = painterResource(R.drawable.ic_add),
+                    text = stringResource(R.string.add_card),
+                    onSelect = { onIntent(CardListIntent.AddNewCard) }
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun CardListHeader() {
+private fun CardListHeader(
+    editCardEnabled: Boolean
+) {
     Column(modifier = Modifier.padding(horizontal = 20.dp)) {
         Text(
-            text = stringResource(id = R.string.payment_method),
+            text = stringResource(
+                id = when (editCardEnabled) {
+                    true -> R.string.edit_cards
+                    false -> R.string.payment_method
+                }
+            ),
             color = YallaTheme.color.onBackground,
             style = YallaTheme.font.headline
         )

@@ -6,11 +6,11 @@ import androidx.compose.runtime.Composable
 internal fun WebRoute(
     title: String,
     url: String,
-    onNavigateBack: () -> Unit
+    onBack: () -> Unit
 ) {
     WebScreen(
         title = title,
         url = url,
-        onNavigateBack = onNavigateBack
+        onBack = onBack
     )
 }
