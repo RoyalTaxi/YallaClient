@@ -1,6 +1,7 @@
 package uz.yalla.client.feature.map.presentation.new_version.model
 
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
@@ -185,4 +186,5 @@ fun MViewModel.observeDrivers() = viewModelScope.launch {
 
 fun MViewModel.stopObserve() = viewModelScope.launch {
     cancelable.forEach { it.cancel() }
+    observerScope.cancel()
 }

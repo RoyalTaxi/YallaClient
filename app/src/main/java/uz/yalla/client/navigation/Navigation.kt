@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navOptions
 import uz.yalla.client.feature.bonus.bonusModule
 import uz.yalla.client.feature.bonus.navigateToBonusModule
 import uz.yalla.client.feature.contact.navigation.contactUsScreen
@@ -52,12 +53,15 @@ fun Navigation(
         route = navController.currentDestination?.route ?: ""
     }
 
-    LaunchedEffect(LocalConfiguration.current.uiMode, route) {
-        if (route == MAP_ROUTE) navController.navigate(route) {
-            popUpTo(route) {
-                inclusive = true
+    LaunchedEffect(LocalConfiguration.current, route) {
+        if (route == MAP_ROUTE) navController.safeNavigate(
+            screen = route,
+            navOptions = navOptions {
+                popUpTo(route) {
+                    inclusive = true
+                }
             }
-        }
+        )
     }
 
     NavHost(

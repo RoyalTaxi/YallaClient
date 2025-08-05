@@ -3,13 +3,12 @@ package uz.yalla.client.feature.map.presentation.new_version.navigation
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import androidx.navigation.navOptions
 import org.koin.androidx.scope.ScopeActivity
 import uz.yalla.client.core.common.maps.MapsViewModel
 import uz.yalla.client.core.presentation.navigation.safeNavigate
@@ -54,5 +53,11 @@ fun NavGraphBuilder.mapScreen(
     }
 }
 
-fun NavController.navigateToMapScreen(navOptions: NavOptions? = null) =
-    safeNavigate(MAP_ROUTE, navOptions)
+fun NavController.navigateToMapScreen(navOptions: NavOptions? = null) = safeNavigate(
+    screen = MAP_ROUTE,
+    navOptions = navOptions ?: navOptions {
+        restoreState = false
+        launchSingleTop = true
+        popUpTo(MAP_ROUTE) { inclusive = true }
+    }
+)

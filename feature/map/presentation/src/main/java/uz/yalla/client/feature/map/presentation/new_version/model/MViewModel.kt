@@ -37,7 +37,7 @@ class MViewModel(
     internal val getActiveOrdersUseCase: GetActiveOrdersUseCase,
     internal val getNotificationsCountUseCase: GetNotificationsCountUseCase,
     internal val getSettingUseCase: GetSettingUseCase,
-) : BaseViewModel(), LifeCycleAware {
+) : BaseViewModel() {
 
     private val supervisorJob = SupervisorJob()
     internal val _stateFlow = MutableStateFlow(MapState())
@@ -71,14 +71,15 @@ class MViewModel(
 
     internal var hasInjectedOnceInThisSession = false
 
-    override fun onAppear() {
+    init {
         startObserve()
         getMe()
         getNotificationsCount()
         getSettingConfig()
     }
 
-    override fun onDisappear() {
+    override fun onCleared() {
+        super.onCleared()
         stopObserve()
     }
 }
