@@ -45,6 +45,7 @@ internal fun CardListRoute(
                 is CardListIntent.AddCorporateAccount -> onAddCompany()
                 is CardListIntent.AddBusinessAccount -> onAddBusinessAccount()
                 is CardListIntent.OnDeleteCard -> viewModel.setSelectedCardId(intent.cardId)
+                is CardListIntent.EditCards -> viewModel.setEditCardEnabled(intent.editCardEnabled)
             }
         }
     )
