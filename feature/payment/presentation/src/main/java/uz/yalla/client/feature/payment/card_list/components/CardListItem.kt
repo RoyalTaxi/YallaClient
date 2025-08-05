@@ -33,6 +33,7 @@ fun CardListItem(
     text: String,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    editCardEnabled: Boolean = false,
     tint: Color = Color.Unspecified,
     onSelect: () -> Unit,
     onDelete: () -> Unit
@@ -76,28 +77,29 @@ fun CardListItem(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            Icon(
-                imageVector = Icons.Filled.Done,
-                contentDescription = null,
-                tint = YallaTheme.color.background,
-                modifier = Modifier
-                    .background(
-                        color = if (isSelected) YallaTheme.color.primary else YallaTheme.color.background,
-                        shape = CircleShape
+            if (editCardEnabled) {
+                IconButton(
+                    onClick = onDelete,
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = null,
+                        tint = YallaTheme.color.onBackground,
+                        modifier = Modifier.padding(6.dp)
                     )
-                    .padding(6.dp)
-            )
+                }
+            } else {
 
-            Spacer(modifier = Modifier.width(8.dp))
-
-            IconButton(
-                onClick = onDelete,
-            ) {
                 Icon(
-                    imageVector = Icons.Default.Delete,
+                    imageVector = Icons.Filled.Done,
                     contentDescription = null,
-                    tint = YallaTheme.color.onBackground,
-                    modifier = Modifier.padding(6.dp)
+                    tint = YallaTheme.color.background,
+                    modifier = Modifier
+                        .background(
+                            color = if (isSelected) YallaTheme.color.primary else YallaTheme.color.background,
+                            shape = CircleShape
+                        )
+                        .padding(6.dp)
                 )
             }
         }

@@ -48,4 +48,6 @@
     <string name="confirm_to_delete">Haqiqatan ham to\ʻlov katasini o\ʻchirib tashlamoqchimisiz?</string>
     <string name="cancel">Bekor qilish</string>
     <string name="delete">O\'chirish</string>
+    <string name="edit">Tahrirlash</string>
+    <string name="finish">Yakunlash</string>
 </resources>
