@@ -74,6 +74,9 @@ fun SearchByNameBottomSheet(
             initialAddress?.let { viewModel.setInitialQuery(it.name.orEmpty()) }
             initialDestination?.let { viewModel.setInitialDestinationQuery(it.name.orEmpty()) }
 
+            if (isForDestination.not()) initialAddress?.let { viewModel.setQuery(it.name.orEmpty()) }
+            else initialDestination?.let { viewModel.setDestinationQuery(it.name.orEmpty()) }
+
             viewModel.fetchPolygons()
         }
 
