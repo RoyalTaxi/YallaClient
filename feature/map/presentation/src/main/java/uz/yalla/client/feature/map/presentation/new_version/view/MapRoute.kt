@@ -16,7 +16,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -135,8 +134,8 @@ fun MRoute(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-
-    LaunchedEffect(LocalConfiguration.current) {
+    // Initialize stored order ID early to avoid race condition
+    LaunchedEffect(Unit) {
         staticPreferences.processingOrderId?.let { orderId ->
             viewModel.onIntent(MapIntent.SetShowingOrderId(orderId))
         }
@@ -282,14 +281,16 @@ fun MRoute(
             }
 
             null -> {
-                navController.navigateToMainSheet()
-                activeCollectorRef.value = scope.launch {
-                    MainSheetChannel.intentFlow.collectLatest { intent ->
-                        viewModel.onIntent(intent)
+                if (state.orderId == null) {
+                    navController.navigateToMainSheet()
+                    activeCollectorRef.value = scope.launch {
+                        MainSheetChannel.intentFlow.collectLatest { intent ->
+                            viewModel.onIntent(intent)
+                        }
                     }
+                    delay(300)
+                    mapsViewModel.onIntent(MapsIntent.AnimateToMyLocation(context))
                 }
-                delay(300)
-                mapsViewModel.onIntent(MapsIntent.AnimateToMyLocation(context))
             }
 
             else -> {
