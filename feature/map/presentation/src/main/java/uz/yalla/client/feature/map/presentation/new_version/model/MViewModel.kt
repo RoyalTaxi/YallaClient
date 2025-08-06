@@ -73,7 +73,6 @@ class MViewModel(
     }
 
     override fun onDisappear() {
-        clearState()
         stopObserve()
     }
 }
