@@ -7,6 +7,7 @@ import uz.yalla.client.core.domain.model.Location
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.feature.map.presentation.new_version.intent.MapEffect
 import uz.yalla.client.feature.map.presentation.new_version.intent.MapIntent
+import uz.yalla.client.feature.order.domain.model.response.order.toCommonExecutor
 import uz.yalla.client.feature.order.presentation.cancel_reason.view.CancelReasonIntent
 import uz.yalla.client.feature.order.presentation.client_waiting.view.ClientWaitingSheetIntent
 import uz.yalla.client.feature.order.presentation.driver_waiting.view.DriverWaitingSheetIntent
@@ -68,11 +69,14 @@ fun MViewModel.onIntent(intent: MapIntent) {
         }
 
         is MapIntent.SetShowingOrder -> {
-            updateState { it.copy(
-                order = intent.order,
-                orderId = intent.order.id,
-                ordersSheetVisible = false
-            ) }
+            mapsViewModel.onIntent(MapsIntent.UpdateDriver(intent.order.executor.toCommonExecutor()))
+            updateState {
+                it.copy(
+                    order = intent.order,
+                    orderId = intent.order.id,
+                    ordersSheetVisible = false
+                )
+            }
         }
 
         is MapIntent.MapOverlayIntent.RefocusLastState -> {
@@ -123,32 +127,36 @@ fun MViewModel.onIntent(intent: MainSheetIntent) {
         }
 
         is MainSheetIntent.OrderTaxiSheetIntent.OrderCreated -> {
-            updateState { it.copy(
-                order = intent.order,
-                orderId = intent.order.id,
-                tariffId = intent.order.taxi.tariffId,
-                markerState = YallaMarkerState.Searching,
-                location = Location(
-                    name = intent.order.taxi.routes.firstOrNull()?.fullAddress,
-                    addressId = null,
-                    point = intent.order.taxi.routes.firstOrNull()?.coords?.let { c ->
-                        MapPoint(c.lat, c.lng)
+            updateState {
+                it.copy(
+                    order = intent.order,
+                    orderId = intent.order.id,
+                    tariffId = intent.order.taxi.tariffId,
+                    markerState = YallaMarkerState.Searching,
+                    location = Location(
+                        name = intent.order.taxi.routes.firstOrNull()?.fullAddress,
+                        addressId = null,
+                        point = intent.order.taxi.routes.firstOrNull()?.coords?.let { c ->
+                            MapPoint(c.lat, c.lng)
+                        }
+                    ),
+                    destinations = intent.order.taxi.routes.drop(1).map { d ->
+                        Destination(
+                            name = d.fullAddress,
+                            point = MapPoint(d.coords.lat, d.coords.lng)
+                        )
                     }
-                ),
-                destinations = intent.order.taxi.routes.drop(1).map { d ->
-                    Destination(
-                        name = d.fullAddress,
-                        point = MapPoint(d.coords.lat, d.coords.lng)
-                    )
-                }
-            ) }
+                )
+            }
         }
 
         is MainSheetIntent.OrderTaxiSheetIntent.SetTimeout -> {
-            updateState { it.copy(
-                carArrivalInMinutes = intent.timeout,
-                drivers = if (it.order == null) intent.drivers else emptyList()
-            ) }
+            updateState {
+                it.copy(
+                    carArrivalInMinutes = intent.timeout,
+                    drivers = if (it.order == null) intent.drivers else emptyList()
+                )
+            }
         }
 
         is MainSheetIntent.OrderTaxiSheetIntent.SetServiceState -> {
