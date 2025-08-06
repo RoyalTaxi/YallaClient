@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uz.yalla.client.core.common.maps.MapsViewModel
 import uz.yalla.client.core.common.viewmodel.BaseViewModel
@@ -38,7 +37,7 @@ class MViewModel(
     internal val getActiveOrdersUseCase: GetActiveOrdersUseCase,
     internal val getNotificationsCountUseCase: GetNotificationsCountUseCase,
     internal val getSettingUseCase: GetSettingUseCase,
-) : BaseViewModel() {
+) : BaseViewModel(), LifeCycleAware {
 
     private val supervisorJob = SupervisorJob()
     internal val _stateFlow = MutableStateFlow(MapState())
@@ -66,17 +65,15 @@ class MViewModel(
     internal var cancelable = arrayOf<Job>()
     internal val observerScope = CoroutineScope(viewModelScope.coroutineContext + supervisorJob)
 
-    internal var hasInjectedOnceInThisSession = false
-
-    init {
+    override fun onAppear() {
         startObserve()
         getMe()
         getNotificationsCount()
         getSettingConfig()
     }
 
-    override fun onCleared() {
-        super.onCleared()
+    override fun onDisappear() {
+        clearState()
         stopObserve()
     }
 }
