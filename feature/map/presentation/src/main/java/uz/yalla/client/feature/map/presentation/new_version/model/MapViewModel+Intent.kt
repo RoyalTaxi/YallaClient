@@ -123,7 +123,6 @@ fun MViewModel.onIntent(intent: MainSheetIntent) {
         }
 
         is MainSheetIntent.OrderTaxiSheetIntent.OrderCreated -> {
-            staticPrefs.hasProcessedOrderOnEntry = true
             updateState { it.copy(
                 order = intent.order,
                 orderId = intent.order.id,

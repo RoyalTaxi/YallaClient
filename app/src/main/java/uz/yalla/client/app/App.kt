@@ -19,7 +19,6 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         val appPreferences: AppPreferences by lazy { KoinJavaComponent.getKoin().get() }
-        val staticPreferences: StaticPreferences by lazy { KoinJavaComponent.getKoin().get() }
 
         AndroidThreeTen.init(this)
         MapsInitializer.initialize(this)
@@ -35,9 +34,7 @@ class App : Application() {
             )
         }
 
-        // Set hasProcessedOrderOnEntry to false in StaticPreferences
-        staticPreferences.hasProcessedOrderOnEntry = false
-        staticPreferences.processingOrderId = null
+        appPreferences.setHasProcessedOrderOnEntry(false)
         appPreferences.setMapType(MapType.Google)
     }
 }

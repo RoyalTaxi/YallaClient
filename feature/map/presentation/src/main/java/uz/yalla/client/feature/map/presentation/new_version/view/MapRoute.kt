@@ -59,6 +59,7 @@ import uz.yalla.client.feature.order.presentation.cancel_reason.view.CancelReaso
 import uz.yalla.client.feature.order.presentation.client_waiting.CLIENT_WAITING_ROUTE
 import uz.yalla.client.feature.order.presentation.client_waiting.navigateToClientWaitingSheet
 import uz.yalla.client.feature.order.presentation.client_waiting.view.ClientWaitingSheetChannel
+import uz.yalla.client.feature.order.presentation.client_waiting.view.intentFlow
 import uz.yalla.client.feature.order.presentation.driver_waiting.DRIVER_WAITING_ROUTE
 import uz.yalla.client.feature.order.presentation.driver_waiting.navigateToDriverWaitingSheet
 import uz.yalla.client.feature.order.presentation.driver_waiting.view.DriverWaitingSheetChannel
@@ -70,6 +71,7 @@ import uz.yalla.client.feature.order.presentation.main.navigateToMainSheet
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetChannel
 import uz.yalla.client.feature.order.presentation.no_service.NO_SERVICE_ROUTE
 import uz.yalla.client.feature.order.presentation.no_service.navigateToNoServiceSheet
+import uz.yalla.client.feature.order.presentation.no_service.view.NoServiceSheetChannel
 import uz.yalla.client.feature.order.presentation.on_the_ride.ON_THE_RIDE_ROUTE
 import uz.yalla.client.feature.order.presentation.on_the_ride.navigateToOnTheRideSheet
 import uz.yalla.client.feature.order.presentation.on_the_ride.view.OnTheRideSheetChannel
@@ -128,12 +130,6 @@ fun MRoute(
 
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
-    }
-
-    LaunchedEffect(Unit) {
-        staticPreferences.processingOrderId?.let { orderId ->
-            viewModel.onIntent(MapIntent.SetShowingOrderId(orderId))
-        }
     }
 
     LaunchedEffect(Unit) {
@@ -201,6 +197,9 @@ fun MRoute(
             if (!currentDestination.contains(NO_SERVICE_ROUTE)) {
                 scope.launch(Dispatchers.Main.immediate) {
                     navController.navigateToNoServiceSheet()
+                    NoServiceSheetChannel.intentFlow.collectLatest { intent ->
+                        viewModel.onIntent(intent)
+                    }
                 }
             }
         }

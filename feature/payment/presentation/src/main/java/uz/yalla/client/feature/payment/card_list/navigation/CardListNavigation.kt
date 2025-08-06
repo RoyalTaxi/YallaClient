@@ -1,11 +1,9 @@
 package uz.yalla.client.feature.payment.card_list.navigation
 
-import androidx.activity.compose.BackHandler
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
-import uz.yalla.client.core.common.navigation.getExitTransition
 import uz.yalla.client.core.presentation.navigation.safeNavigate
 import uz.yalla.client.feature.payment.card_list.view.CardListRoute
 
@@ -17,11 +15,7 @@ internal fun NavGraphBuilder.cardListScreen(
     onAddCompany: () -> Unit,
     onAddBusinessAccount: () -> Unit
 ) {
-    composable(
-        route = CARD_LIST_ROUTE,
-        exitTransition = { getExitTransition(isGoingBackToMap = true) }
-    ) {
-        BackHandler { onBack() }
+    composable(route = CARD_LIST_ROUTE) {
         CardListRoute(
             onNavigateBack = onBack,
             onAddNewCard = onAddNewCard,

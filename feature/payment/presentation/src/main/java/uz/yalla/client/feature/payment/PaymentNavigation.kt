@@ -28,7 +28,6 @@ import uz.yalla.client.feature.payment.top_up_balance.navigation.topUpScreen
 internal const val PAYMENT_ROUTE = "payment_route"
 
 fun NavGraphBuilder.paymentModule(
-    onBack: () -> Unit,
     navController: NavHostController
 ) {
     navigation(
@@ -36,7 +35,7 @@ fun NavGraphBuilder.paymentModule(
         route = PAYMENT_ROUTE
     ) {
         cardListScreen(
-            onBack = onBack,
+            onBack = navController::safePopBackStack,
             onAddNewCard = navController::navigateToAddCardScreen,
             onAddCompany = navController::navigateToCorporateAccountScreen,
             onAddBusinessAccount = navController::navigateToBusinessAccount
