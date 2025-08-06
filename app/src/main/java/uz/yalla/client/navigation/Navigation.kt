@@ -144,6 +144,7 @@ fun Navigation(
 
         editProfileScreen(
             onBack = navController::navigateToMapScreen,
+            onNavigateToLogin = navigateToLogin
         )
 
         settingsScreen(
