@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,7 +24,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.withStateAtLeast
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -123,13 +121,20 @@ fun MRoute(
         }
     }
 
-    LaunchedEffect(lifecycleOwner) {
-        lifecycleOwner.lifecycle.withStateAtLeast(Lifecycle.State.RESUMED) {
-            if (staticPreferences.isDeviceRegistered.not()) {
-                onNavigate(FromMap.ToRegister)
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_START) {
+                viewModel.onAppear()
+                if (staticPreferences.isDeviceRegistered.not()) onNavigate(FromMap.ToRegister)
+            } else if (event == Lifecycle.Event.ON_STOP) {
+                viewModel.onDisappear()
             }
         }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
+
 
     LaunchedEffect(LocalConfiguration.current) {
         staticPreferences.processingOrderId?.let { orderId ->
