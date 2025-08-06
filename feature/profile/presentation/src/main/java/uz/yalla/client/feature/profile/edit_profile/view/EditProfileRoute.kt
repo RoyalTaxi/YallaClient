@@ -12,6 +12,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.orbitmvi.orbit.compose.collectSideEffect
 import uz.yalla.client.core.common.sheet.ConfirmationBottomSheet
 import uz.yalla.client.core.common.system.isFileSizeTooLarge
 import uz.yalla.client.core.common.system.isImageDimensionTooLarge
@@ -24,6 +25,7 @@ import uz.yalla.client.feature.profile.edit_profile.model.onIntent
 @Composable
 fun EditProfileRoute(
     onNavigateBack: () -> Unit,
+    onNavigateToLogin: () -> Unit,
     viewModel: EditProfileViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
@@ -57,40 +59,38 @@ fun EditProfileRoute(
         }
     )
 
-    LaunchedEffect(Unit) {
-        launch(Dispatchers.IO) {
-            viewModel.onIntent(EditProfileIntent.LoadProfile)
-        }
+    viewModel.collectSideEffect { effect ->
+        when (effect) {
+            is EditProfileSideEffect.NavigateBack -> onNavigateBack()
+            is EditProfileSideEffect.ShowImagePicker -> {
+                imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            }
 
-        launch(Dispatchers.Main) {
-            viewModel.container.sideEffectFlow.collect { sideEffect ->
-                when (sideEffect) {
-                    is EditProfileSideEffect.NavigateBack -> onNavigateBack()
-                    is EditProfileSideEffect.ShowImagePicker -> {
-                        imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                    }
+            is EditProfileSideEffect.ShowDeleteConfirmation -> {
+                sheetVisibility = true
+                scope.launch { sheetState.show() }
+            }
 
-                    is EditProfileSideEffect.ShowDeleteConfirmation -> {
-                        sheetVisibility = true
-                        scope.launch { sheetState.show() }
-                    }
+            is EditProfileSideEffect.ClearFocus -> {
+                focusManager.clearFocus(force = true)
+            }
 
-                    is EditProfileSideEffect.ClearFocus -> {
-                        focusManager.clearFocus(force = true)
-                    }
-
-                    is EditProfileSideEffect.ShowErrorMessage -> {
-                        scope.launch {
-                            snackbarHostState.showSnackbar(
-                                message = sideEffect.message,
-                                withDismissAction = true,
-                                duration = SnackbarDuration.Short
-                            )
-                        }
-                    }
+            is EditProfileSideEffect.ShowErrorMessage -> {
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = effect.message,
+                        withDismissAction = true,
+                        duration = SnackbarDuration.Short
+                    )
                 }
             }
+
+            EditProfileSideEffect.NavigateToLogin -> onNavigateToLogin()
         }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.onIntent(EditProfileIntent.LoadProfile)
     }
 
     LaunchedEffect(uiState.isDatePickerVisible) {

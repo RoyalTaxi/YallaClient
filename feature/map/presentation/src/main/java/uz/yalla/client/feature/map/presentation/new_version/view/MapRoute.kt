@@ -131,7 +131,6 @@ fun MRoute(
     }
 
     LaunchedEffect(Unit) {
-        if (staticPreferences.isDeviceRegistered.not()) onNavigate(FromMap.ToRegister)
         staticPreferences.processingOrderId?.let { orderId ->
             viewModel.onIntent(MapIntent.SetShowingOrderId(orderId))
         }

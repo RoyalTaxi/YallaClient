@@ -42,6 +42,6 @@ class StaticPreferencesImpl(val context: Context) : StaticPreferences {
         preferences.edit { clear() }
         skipOnboarding = true
         hasProcessedOrderOnEntry = true
+        isDeviceRegistered = false
     }
-
 }

@@ -8,8 +8,7 @@ fun EditProfileViewModel.logout() = intent {
         logoutUseCase().onSuccess {
             appPreferences.performLogout()
             staticPreferences.performLogout()
+            postSideEffect(EditProfileSideEffect.NavigateToLogin)
         }.onFailure(::handleException)
     }
-
-    postSideEffect(EditProfileSideEffect.NavigateBack)
 }
