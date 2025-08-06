@@ -9,6 +9,7 @@ import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.Location
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.feature.map.domain.model.request.GetRoutingDtoItem
+import uz.yalla.client.feature.order.domain.model.response.order.toCommonExecutor
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetChannel
 import kotlin.math.ceil
 
@@ -62,6 +63,7 @@ fun MViewModel.getActiveOrders() {
             if (shouldInject) {
                 val order = activeOrders.list.first()
                 updateState { state -> state.copy(order = order, orderId = order.id) }
+                mapsViewModel.onIntent(MapsIntent.UpdateDriver(order.executor.toCommonExecutor()))
                 prefs.setHasProcessedOrderOnEntry(true)
             } else if (activeOrders.list.size > 1 && !alreadyMarkedAsProcessed) {
                 updateState { state -> state.copy(ordersSheetVisible = true) }
@@ -150,6 +152,7 @@ fun MViewModel.getActiveOrder() = viewModelScope.launch {
     }
     getShowOrderUseCase(orderId).onSuccess { order ->
         mapsViewModel.onIntent(MapsIntent.UpdateOrderStatus(order))
+        mapsViewModel.onIntent(MapsIntent.UpdateDriver(order.executor.toCommonExecutor()))
         updateState { state ->
             state.copy(
                 order = order,
