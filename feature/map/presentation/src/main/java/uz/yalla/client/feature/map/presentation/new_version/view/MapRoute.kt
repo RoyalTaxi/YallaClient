@@ -122,20 +122,16 @@ fun MRoute(
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_START) {
-                viewModel.onAppear()
-                if (staticPreferences.isDeviceRegistered.not()) onNavigate(FromMap.ToRegister)
-            } else if (event == Lifecycle.Event.ON_STOP) {
-                viewModel.onDisappear()
-            }
+            if (event == Lifecycle.Event.ON_START) viewModel.onAppear()
+            else if (event == Lifecycle.Event.ON_STOP) viewModel.onDisappear()
         }
 
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    // Initialize stored order ID early to avoid race condition
     LaunchedEffect(Unit) {
+        if (staticPreferences.isDeviceRegistered.not()) onNavigate(FromMap.ToRegister)
         staticPreferences.processingOrderId?.let { orderId ->
             viewModel.onIntent(MapIntent.SetShowingOrderId(orderId))
         }
