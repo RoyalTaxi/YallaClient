@@ -14,7 +14,6 @@ import uz.yalla.client.feature.places.places.navigation.addressesScreen
 internal const val ADDRESS_MODULE_ROUTE = "address_module_route"
 
 fun NavGraphBuilder.addressModule(
-    onBack: () -> Unit,
     navController: NavHostController
 ) {
     navigation(
@@ -22,7 +21,7 @@ fun NavGraphBuilder.addressModule(
         route = ADDRESS_MODULE_ROUTE
     ) {
         addressesScreen(
-            onBack = onBack,
+            onBack = navController::safePopBackStack,
             onClickAddress = navController::navigateToAddressScreen,
             onAddAddress = navController::navigateToAddressScreen
         )

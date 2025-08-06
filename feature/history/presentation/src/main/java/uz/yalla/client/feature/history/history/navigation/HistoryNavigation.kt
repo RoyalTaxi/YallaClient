@@ -1,14 +1,9 @@
 package uz.yalla.client.feature.history.history.navigation
 
-import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.core.tween
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
-import uz.yalla.client.core.common.navigation.getExitTransition
 import uz.yalla.client.core.presentation.navigation.safeNavigate
 import uz.yalla.client.feature.history.history.view.HistoryRoute
 
@@ -19,11 +14,8 @@ fun NavGraphBuilder.historyScreen(
     onClickItem: (Int) -> Unit
 ) {
     composable(
-        route = HISTORY_ROUTE,
-        exitTransition = { getExitTransition(isGoingBackToMap = true) }
-
+        route = HISTORY_ROUTE
     ) {
-        BackHandler { onBack() }
         HistoryRoute(
             onBack = onBack,
             onClickItem = onClickItem

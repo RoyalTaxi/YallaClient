@@ -1,6 +1,7 @@
 package uz.yalla.client.feature.map.presentation.new_version.model
 
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import uz.yalla.client.core.common.maps.MapsIntent
 import uz.yalla.client.core.common.marker.YallaMarkerState
@@ -53,7 +54,7 @@ fun MViewModel.getAddress(point: MapPoint) = viewModelScope.launch {
 
 fun MViewModel.getActiveOrders() {
     viewModelScope.launch {
-        val alreadyMarkedAsProcessed = staticPrefs.hasProcessedOrderOnEntry
+        val alreadyMarkedAsProcessed = prefs.hasProcessedOrderOnEntry.first()
 
         getActiveOrdersUseCase().onSuccess { activeOrders ->
             val shouldInject = activeOrders.list.size == 1 && !alreadyMarkedAsProcessed
@@ -61,10 +62,10 @@ fun MViewModel.getActiveOrders() {
             if (shouldInject) {
                 val order = activeOrders.list.first()
                 updateState { state -> state.copy(order = order, orderId = order.id) }
-                staticPrefs.hasProcessedOrderOnEntry = true
+                prefs.setHasProcessedOrderOnEntry(true)
             } else if (activeOrders.list.size > 1 && !alreadyMarkedAsProcessed) {
                 updateState { state -> state.copy(ordersSheetVisible = true) }
-                staticPrefs.hasProcessedOrderOnEntry = true
+                prefs.setHasProcessedOrderOnEntry(true)
             }
 
             updateState { state -> state.copy(orders = activeOrders.list) }
@@ -148,7 +149,6 @@ fun MViewModel.getActiveOrder() = viewModelScope.launch {
         return@launch
     }
     getShowOrderUseCase(orderId).onSuccess { order ->
-        staticPrefs.processingOrderId = order.id
         mapsViewModel.onIntent(MapsIntent.UpdateOrderStatus(order))
         updateState { state ->
             state.copy(
@@ -170,7 +170,5 @@ fun MViewModel.getActiveOrder() = viewModelScope.launch {
                 }
             )
         }
-    }.onFailure {
-        staticPrefs.processingOrderId = null
     }
 }

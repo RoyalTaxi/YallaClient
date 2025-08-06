@@ -10,10 +10,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navOptions
 import uz.yalla.client.feature.bonus.bonusModule
 import uz.yalla.client.feature.bonus.navigateToBonusModule
 import uz.yalla.client.feature.contact.navigation.contactUsScreen
@@ -25,7 +23,6 @@ import uz.yalla.client.feature.info.about_app.navigation.navigateToAboutAppScree
 import uz.yalla.client.feature.map.presentation.new_version.navigation.FromMap
 import uz.yalla.client.feature.map.presentation.new_version.navigation.MAP_ROUTE
 import uz.yalla.client.feature.map.presentation.new_version.navigation.mapScreen
-import uz.yalla.client.feature.map.presentation.new_version.navigation.navigateToMapScreen
 import uz.yalla.client.feature.notification.navigateToNotificationModule
 import uz.yalla.client.feature.notification.notificationModule
 import uz.yalla.client.feature.payment.navigateToPaymentModule
@@ -51,17 +48,6 @@ fun Navigation(
 
     LaunchedEffect(navController.currentDestination?.route) {
         route = navController.currentDestination?.route ?: ""
-    }
-
-    LaunchedEffect(LocalConfiguration.current, route) {
-        if (route == MAP_ROUTE) navController.safeNavigate(
-            screen = route,
-            navOptions = navOptions {
-                popUpTo(route) {
-                    inclusive = true
-                }
-            }
-        )
     }
 
     NavHost(
@@ -122,57 +108,36 @@ fun Navigation(
             }
         )
 
-        bonusModule(
-            onBack = navController::navigateToMapScreen,
-            navController = navController
-        )
+        bonusModule(navController = navController)
 
-        historyModule(
-            onBack = navController::navigateToMapScreen,
-            navController = navController
-        )
+        historyModule(navController = navController)
 
-        paymentModule(
-            onBack = navController::navigateToMapScreen,
-            navController = navController,
-        )
+        paymentModule(navController = navController)
 
-        addressModule(
-            onBack = navController::navigateToMapScreen,
-            navController = navController
-        )
+        addressModule(navController = navController)
 
         editProfileScreen(
-            onBack = navController::navigateToMapScreen,
+            onBack = navController::safePopBackStack,
             onNavigateToLogin = navigateToLogin
         )
 
         settingsScreen(
-            onBack = navController::navigateToMapScreen
+            onBack = navController::safePopBackStack
         )
 
         aboutAppScreen(
-            onBack = navController::navigateToMapScreen,
+            onBack = navController::safePopBackStack,
             onClickUrl = navController::navigateToWebScreen
         )
 
         contactUsScreen(
-            onBack = navController::navigateToMapScreen,
+            onBack = navController::safePopBackStack,
             onClickUrl = navController::navigateToWebScreen
         )
 
-        webScreen(
-            fromMap = navController.previousBackStackEntry?.destination?.route == MAP_ROUTE,
-            onBack = { fromMap ->
-                if (fromMap) navController.navigateToMapScreen()
-                else navController.safePopBackStack()
-            }
-        )
+        webScreen(onBack = navController::safePopBackStack)
 
-        notificationModule(
-            onBack = navController::navigateToMapScreen,
-            navController = navController
-        )
+        notificationModule(navController = navController)
     }
 
     if (!isConnected && route != MAP_ROUTE) {

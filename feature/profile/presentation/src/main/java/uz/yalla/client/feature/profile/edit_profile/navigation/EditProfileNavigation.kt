@@ -1,10 +1,8 @@
 package uz.yalla.client.feature.profile.edit_profile.navigation
 
-import androidx.activity.compose.BackHandler
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import uz.yalla.client.core.common.navigation.getExitTransition
 import uz.yalla.client.core.presentation.navigation.safeNavigate
 import uz.yalla.client.feature.profile.edit_profile.view.EditProfileRoute
 
@@ -15,10 +13,8 @@ fun NavGraphBuilder.editProfileScreen(
     onNavigateToLogin: () -> Unit
 ) {
     composable(
-        route = EDIT_PROFILE_ROUTE,
-        exitTransition = { getExitTransition(isGoingBackToMap = true) }
+        route = EDIT_PROFILE_ROUTE
     ) {
-        BackHandler { onBack() }
         EditProfileRoute(
             onNavigateBack = onBack,
             onNavigateToLogin = onNavigateToLogin

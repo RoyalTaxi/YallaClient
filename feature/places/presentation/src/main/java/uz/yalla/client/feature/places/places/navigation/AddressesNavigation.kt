@@ -1,10 +1,8 @@
 package uz.yalla.client.feature.places.places.navigation
 
-import androidx.activity.compose.BackHandler
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import uz.yalla.client.core.common.navigation.getExitTransition
 import uz.yalla.client.core.presentation.navigation.safeNavigate
 import uz.yalla.client.feature.places.places.view.AddressesRoute
 
@@ -16,10 +14,8 @@ internal fun NavGraphBuilder.addressesScreen(
     onAddAddress: (String) -> Unit
 ) {
     composable(
-        route = ADDRESSES_ROUTE,
-        exitTransition = { getExitTransition(isGoingBackToMap = true) }
+        route = ADDRESSES_ROUTE
     ) {
-        BackHandler { onBack() }
         AddressesRoute(
             onNavigateBack = onBack,
             onClickAddress = onClickAddress,

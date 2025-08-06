@@ -25,23 +25,9 @@ class StaticPreferencesImpl(val context: Context) : StaticPreferences {
         get() = preferences.getBoolean(::isDeviceRegistered.name, false)
         set(value) = preferences.edit { putBoolean(::isDeviceRegistered.name, value) }
 
-    override var hasProcessedOrderOnEntry: Boolean
-        get() = preferences.getBoolean(::hasProcessedOrderOnEntry.name, false)
-        set(value) = preferences.edit { putBoolean(::hasProcessedOrderOnEntry.name, value) }
-
-    override var processingOrderId: Int?
-        get() = preferences
-            .getInt(::processingOrderId.name, NULLABLE_INT)
-            .takeIf { it != NULLABLE_INT }
-        set(value) = preferences
-            .edit {
-                putInt(::processingOrderId.name, value ?: NULLABLE_INT)
-            }
-
     override fun performLogout() {
         preferences.edit { clear() }
         skipOnboarding = true
-        hasProcessedOrderOnEntry = true
         isDeviceRegistered = false
     }
 }

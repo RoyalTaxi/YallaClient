@@ -252,29 +252,29 @@ class MapViewModel(
         }
     }
 
-    fun getActiveOrders() {
-        viewModelScope.launch {
-            val alreadyMarkedAsProcessed = staticPrefs.hasProcessedOrderOnEntry
-
-            getActiveOrdersUseCase().onSuccess { activeOrders ->
-                val shouldInject = activeOrders.list.size == 1 &&
-                        !alreadyMarkedAsProcessed &&
-                        !hasInjectedOnceInThisSession
-
-                if (shouldInject) {
-                    setSelectedOrder(activeOrders.list.first())
-                    staticPrefs.hasProcessedOrderOnEntry = true
-                    hasInjectedOnceInThisSession = true
-                } else if (activeOrders.list.size > 1 && !alreadyMarkedAsProcessed) {
-                    _uiState.update { it.copy(isActiveOrdersSheetVisibility = true) }
-                    staticPrefs.hasProcessedOrderOnEntry = true
-                    hasInjectedOnceInThisSession = true
-                }
-
-                _uiState.update { it.copy(orders = activeOrders.list) }
-            }
-        }
-    }
+//    fun getActiveOrders() {
+//        viewModelScope.launch {
+//            val alreadyMarkedAsProcessed = staticPrefs.hasProcessedOrderOnEntry
+//
+//            getActiveOrdersUseCase().onSuccess { activeOrders ->
+//                val shouldInject = activeOrders.list.size == 1 &&
+//                        !alreadyMarkedAsProcessed &&
+//                        !hasInjectedOnceInThisSession
+//
+//                if (shouldInject) {
+//                    setSelectedOrder(activeOrders.list.first())
+//                    staticPrefs.hasProcessedOrderOnEntry = true
+//                    hasInjectedOnceInThisSession = true
+//                } else if (activeOrders.list.size > 1 && !alreadyMarkedAsProcessed) {
+//                    _uiState.update { it.copy(isActiveOrdersSheetVisibility = true) }
+//                    staticPrefs.hasProcessedOrderOnEntry = true
+//                    hasInjectedOnceInThisSession = true
+//                }
+//
+//                _uiState.update { it.copy(orders = activeOrders.list) }
+//            }
+//        }
+//    }
 
 
     private fun getRouting() {

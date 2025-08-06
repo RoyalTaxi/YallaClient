@@ -36,8 +36,7 @@
 
         <activity
             android:name="uz.yalla.client.activity.MainActivity"
-            android:configChanges="locale|layoutDirection|screenSize|smallestScreenSize|screenLayout"
-            android:exported="true"
+            android:configChanges="locale|layoutDirection|screenSize|smallestScreenSize|screenLayout|orientation|uiMode|density|fontScale|colorMode"            android:exported="true"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/SplashTheme">
@@ -49,8 +48,7 @@
 
         <activity
             android:name="uz.yalla.client.activity.LoginActivity"
-            android:configChanges="locale|layoutDirection|screenSize|smallestScreenSize|screenLayout"
-            android:exported="true"
+            android:configChanges="locale|layoutDirection|screenSize|smallestScreenSize|screenLayout|orientation|uiMode|density|fontScale|colorMode"            android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/SplashTheme" />
 
