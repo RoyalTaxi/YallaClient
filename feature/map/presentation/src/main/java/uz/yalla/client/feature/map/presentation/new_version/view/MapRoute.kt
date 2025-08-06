@@ -123,7 +123,7 @@ fun MRoute(
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_START) viewModel.onAppear()
-            else if (event == Lifecycle.Event.ON_STOP) viewModel.onDisappear()
+            else if (event == Lifecycle.Event.ON_PAUSE) viewModel.onDisappear()
         }
 
         lifecycleOwner.lifecycle.addObserver(observer)
