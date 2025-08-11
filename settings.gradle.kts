@@ -43,33 +43,71 @@ include(
     ":core:dgis"
 )
 
-include(":feature:auth:data", ":feature:auth:domain", ":feature:auth:presentation")
-include(":feature:contact:presentation")
-include(":feature:history:data", ":feature:history:domain", ":feature:history:presentation")
-include(":feature:info:presentation")
-include(":feature:intro:presentation")
-include(":feature:map:data", ":feature:map:domain", ":feature:map:presentation")
-include(":feature:order:data", ":feature:order:domain", ":feature:order:presentation")
-include(":feature:payment:data", ":feature:payment:domain", ":feature:payment:presentation")
-include(":feature:places:data", ":feature:places:domain", ":feature:places:presentation")
-include(":feature:profile:data", ":feature:profile:domain", ":feature:profile:presentation")
-include(":feature:registration:presentation")
-include(":feature:setting:data", ":feature:setting:domain", ":feature:setting:presentation")
-include(":feature:web:presentation")
-include(":feature:bonus:presentation")
+include(
+    ":feature:auth:data",
+    ":feature:auth:domain",
+    ":feature:auth:presentation",
 
-include(":service:auth")
-include(":service:map")
-include(":service:places")
-include(":service:histroy")
-include(":service:order")
-include(":service:payment")
-include(":service:profile")
-include(":service:config")
-include(":core:test")
-include(":feature:notification")
-include(":feature:notification:domain")
-include(":feature:notification:presentation")
-include(":feature:notification:data")
-include(":service:notification")
-include(":benchmark")
+    ":feature:contact:presentation",
+
+    ":feature:history:data",
+    ":feature:history:domain",
+    ":feature:history:presentation",
+
+    ":feature:info:presentation",
+
+    ":feature:intro:presentation",
+
+    ":feature:map:data",
+    ":feature:map:domain",
+    ":feature:map:presentation",
+
+    ":feature:order:data",
+    ":feature:order:domain",
+    ":feature:order:presentation",
+
+    ":feature:payment:data",
+    ":feature:payment:domain",
+    ":feature:payment:presentation",
+
+    ":feature:places:data",
+    ":feature:places:domain",
+    ":feature:places:presentation",
+
+    ":feature:profile:data",
+    ":feature:profile:domain",
+    ":feature:profile:presentation",
+
+    ":feature:registration:presentation",
+
+    ":feature:setting:data",
+    ":feature:setting:domain",
+    ":feature:setting:presentation",
+
+    ":feature:web:presentation",
+
+    ":feature:bonus:presentation",
+
+    ":feature:notification:data",
+    ":feature:notification:domain",
+    ":feature:notification:presentation",
+
+    ":feature:promocode:data",
+    ":feature:promocode:domain",
+    ":feature:promocode:presentation"
+)
+
+include(
+    ":service:auth",
+    ":service:map",
+    ":service:places",
+    ":service:histroy",
+    ":service:order",
+    ":service:payment",
+    ":service:profile",
+    ":service:config",
+    ":service:notification",
+    ":service:promocode",
+    ":core:test",
+    ":benchmark"
+)

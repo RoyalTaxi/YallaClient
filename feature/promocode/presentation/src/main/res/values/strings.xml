@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="promocode">Promokod</string>
+    <string name="add">Qo\'shish</string>
+    <string name="add_promocode">Promokodni kiriting</string>
+    <string name="great">Ajoyib</string>
+    <string name="x_bonus_amount">+%s bonus</string>
+    <string name="already_in_balance">sizning hisobingizda</string>
+    <string name="incorrect_code">Noto\'g\'ri kod</string>
+    <string name="retry">Qayta urininsh</string>
+</resources>

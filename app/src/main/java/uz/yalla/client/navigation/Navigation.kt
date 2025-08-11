@@ -31,6 +31,8 @@ import uz.yalla.client.feature.places.addressModule
 import uz.yalla.client.feature.places.navigateToAddressModule
 import uz.yalla.client.feature.profile.edit_profile.navigation.editProfileScreen
 import uz.yalla.client.feature.profile.edit_profile.navigation.navigateToEditProfileScreen
+import uz.yalla.client.feature.promocode.presentation.add_promocode.navigation.addPromocodeScreen
+import uz.yalla.client.feature.promocode.presentation.add_promocode.navigation.navigateToAddPromocodeScreen
 import uz.yalla.client.feature.setting.navigation.navigateToSettings
 import uz.yalla.client.feature.setting.navigation.settingsScreen
 import uz.yalla.client.feature.web.navigateToWebScreen
@@ -108,7 +110,10 @@ fun Navigation(
             }
         )
 
-        bonusModule(navController = navController)
+        bonusModule(
+            navController = navController,
+            onAddPromocodeClicked = navController::navigateToAddPromocodeScreen
+        )
 
         historyModule(navController = navController)
 
@@ -138,6 +143,8 @@ fun Navigation(
         webScreen(onBack = navController::safePopBackStack)
 
         notificationModule(navController = navController)
+
+        addPromocodeScreen(onBack = navController::safePopBackStack)
     }
 
     if (!isConnected && route != MAP_ROUTE) {

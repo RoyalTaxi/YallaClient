@@ -65,7 +65,7 @@ import uz.yalla.client.core.common.field.PrimaryTextField
 import uz.yalla.client.core.common.formation.formatWithDotsDMY
 import uz.yalla.client.core.common.sheet.DatePickerModalBottomSheet
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
-import uz.yalla.client.feature.profile.R
+import uz.yalla.client.feature.profile.presentation.R
 import uz.yalla.client.feature.profile.edit_profile.components.Gender
 import uz.yalla.client.feature.profile.edit_profile.model.EditProfileUIState
 import java.io.ByteArrayInputStream

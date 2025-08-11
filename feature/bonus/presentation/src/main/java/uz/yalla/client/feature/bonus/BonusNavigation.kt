@@ -13,7 +13,8 @@ import uz.yalla.client.feature.bonus.bonus_balance.navigation.navigateToBonusBal
 internal const val BONUS_MODULE_ROUTE = "bonus_module_route"
 
 fun NavGraphBuilder.bonusModule(
-    navController: NavController
+    navController: NavController,
+    onAddPromocodeClicked: () -> Unit,
 ) {
     navigation(
         startDestination = BONUS_ACCOUNT_ROUTE,
@@ -21,7 +22,8 @@ fun NavGraphBuilder.bonusModule(
     ) {
         bonusAccountScreen(
             onBack = navController::safePopBackStack,
-            onBonusClicked = navController::navigateToBonusBalanceScreen
+            onBonusClicked = navController::navigateToBonusBalanceScreen,
+            onAddPromocodeClicked = onAddPromocodeClicked
         )
 
         bonusBalanceScreen(
