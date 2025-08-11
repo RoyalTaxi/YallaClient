@@ -29,7 +29,7 @@ class AddPromocodeViewModel(
             }.onFailure {
                 reduce {
                     AddPromocodeState.Error(
-                        message = it.message.toString(),
+                        message = it.message.orEmpty(),
                         buttonState = PromocodeButtonState.RETRY
                     )
                 }
