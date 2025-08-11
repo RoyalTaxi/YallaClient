@@ -110,6 +110,7 @@ dependencies {
     implementation(projects.feature.order.presentation)
     implementation(projects.feature.notification.presentation)
     implementation(projects.feature.bonus.presentation)
+    implementation(projects.feature.promocode.presentation)
 
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling.preview)
