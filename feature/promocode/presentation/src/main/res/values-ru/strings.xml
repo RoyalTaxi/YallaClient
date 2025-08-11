@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="promocode">Промокод</string>
+    <string name="add">Добавить</string>
+    <string name="add_promocode">Введите промокод</string>
+    <string name="great">Отлично</string>
+    <string name="x_bonus_amount">+%s бонусов</string>
+    <string name="already_in_balance">уже на вашем счету</string>
+    <string name="incorrect_code">Неверный код</string>
+    <string name="retry">Повторить ещё</string>
+</resources>

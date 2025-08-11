@@ -20,6 +20,7 @@ import uz.yalla.client.feature.order.presentation.di.Order
 import uz.yalla.client.feature.payment.di.Payment
 import uz.yalla.client.feature.places.di.Places
 import uz.yalla.client.feature.profile.di.Profile
+import uz.yalla.client.feature.promocode.presentation.di.Promocode
 import uz.yalla.client.feature.registration.presentation.di.Registration
 import uz.yalla.client.feature.setting.di.Setting
 
@@ -53,5 +54,6 @@ object Navigation {
         *Setting.modules.toTypedArray(),
         *Contact.modules.toTypedArray(),
         *Notifications.modules.toTypedArray(),
+        *Promocode.modules.toTypedArray(),
     )
 }

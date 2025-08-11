@@ -16,7 +16,7 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 import uz.yalla.client.core.common.sheet.ConfirmationBottomSheet
 import uz.yalla.client.core.common.system.isFileSizeTooLarge
 import uz.yalla.client.core.common.system.isImageDimensionTooLarge
-import uz.yalla.client.feature.profile.R
+import uz.yalla.client.feature.profile.presentation.R
 import uz.yalla.client.feature.profile.edit_profile.model.EditProfileSideEffect
 import uz.yalla.client.feature.profile.edit_profile.model.EditProfileViewModel
 import uz.yalla.client.feature.profile.edit_profile.model.onIntent

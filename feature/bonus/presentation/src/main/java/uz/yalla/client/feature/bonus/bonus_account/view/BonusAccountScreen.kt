@@ -65,6 +65,12 @@ internal fun BonusAccountScreen(
                         onClickBalance = { }
                     )
                 }
+
+                item {
+                    PromoCodes {
+                        onIntent(BonusAccountIntent.NavigateToAddPromocode)
+                    }
+                }
             }
         }
     )
@@ -107,7 +113,6 @@ private fun BonusAccountHeader() {
     )
 }
 
-@Suppress("UNUSED")
 @Composable
 private fun PromoCodes(
     onEnterPromoCode: () -> Unit

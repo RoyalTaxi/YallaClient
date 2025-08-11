@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "uz.yalla.client.feature.profile"
+    namespace = "uz.yalla.client.feature.profile.presentation"
 }
 
 dependencies {

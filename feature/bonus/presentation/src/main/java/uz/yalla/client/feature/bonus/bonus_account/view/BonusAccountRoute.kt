@@ -10,6 +10,7 @@ import uz.yalla.client.core.domain.local.AppPreferences
 internal fun BonusAccountRoute(
     onBack: () -> Unit,
     onBonusClicked: () -> Unit,
+    onAddPromocodeClicked: () -> Unit,
     prefs: AppPreferences = koinInject()
 ) {
     val balance by prefs.balance.collectAsStateWithLifecycle(0)
@@ -20,6 +21,7 @@ internal fun BonusAccountRoute(
             when (intent) {
                 is BonusAccountIntent.OnNavigateBack -> onBack()
                 is BonusAccountIntent.OnBonusClicked -> onBonusClicked()
+                is BonusAccountIntent.NavigateToAddPromocode -> onAddPromocodeClicked()
             }
         }
     )
