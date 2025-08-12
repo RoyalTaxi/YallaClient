@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -61,6 +62,7 @@ private fun AddPromocodeIdleScreen(
 ) {
     Scaffold(
         containerColor = YallaTheme.color.background,
+        modifier = Modifier.imePadding(),
         topBar = {
             CenterAlignedTopAppBar(
                 modifier = Modifier.statusBarsPadding(),
@@ -121,7 +123,7 @@ private fun AddPromocodeIdleScreen(
                         .focusRequester(focusRequester)
                         .fillMaxWidth()
                         .padding(paddingValues)
-                        .padding(horizontal = 20.dp),
+                        .padding(horizontal = 20.dp)
                 )
             }
         },
