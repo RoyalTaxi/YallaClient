@@ -9,11 +9,11 @@ import androidx.navigation.navArgument
 import uz.yalla.client.core.presentation.navigation.safeNavigate
 import uz.yalla.client.feature.history.history_details.view.HistoryDetailsRoute
 
-internal const val ID = "id"
-internal const val DETAILS_ROUTE_BASE = "credentials_route"
-internal const val DETAILS_ROUTE = "$DETAILS_ROUTE_BASE?$ID={$ID}"
+ const val ID = "id"
+ const val DETAILS_ROUTE_BASE = "credentials_route"
+ const val DETAILS_ROUTE = "$DETAILS_ROUTE_BASE?$ID={$ID}"
 
-internal fun NavGraphBuilder.historyDetailsScreen(
+ fun NavGraphBuilder.historyDetailsScreen(
     onNavigateBack: () -> Unit,
 ) {
     composable(

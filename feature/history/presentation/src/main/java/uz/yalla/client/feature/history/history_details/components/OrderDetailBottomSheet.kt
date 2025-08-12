@@ -22,7 +22,7 @@ import uz.yalla.client.feature.domain.model.OrderHistoryModel
 import uz.yalla.client.feature.history.R
 
 @Composable
-internal fun OrderDetailsBottomSheet(
+ fun OrderDetailsBottomSheet(
     order: OrderHistoryModel,
 ) {
     Column(

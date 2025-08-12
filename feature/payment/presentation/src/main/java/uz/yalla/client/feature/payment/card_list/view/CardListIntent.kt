@@ -4,7 +4,7 @@ package uz.yalla.client.feature.payment.card_list.view
  * Represents user intents for the card list screen.
  * These are actions that the user can take on the UI.
  */
-internal sealed interface CardListIntent {
+ sealed interface CardListIntent {
     /**
      * Select a default card by ID.
      * @param cardId The ID of the card to select.

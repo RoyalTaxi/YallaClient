@@ -42,7 +42,7 @@ import uz.yalla.client.feature.payment.card_list.components.CardListItem
 import uz.yalla.client.feature.payment.card_list.model.CardListUIState
 
 @Composable
-internal fun CardListScreen(
+ fun CardListScreen(
     uiState: CardListUIState,
     onNavigateBack: () -> Unit,
     onSelectItem: (PaymentType) -> Unit,

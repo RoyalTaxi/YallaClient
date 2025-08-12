@@ -28,7 +28,7 @@ import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import androidx.core.net.toUri
 
 @Composable
-internal fun WebScreen(
+ fun WebScreen(
     title: String,
     url: String,
     onBack: () -> Unit

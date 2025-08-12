@@ -25,7 +25,7 @@ import uz.yalla.client.feature.payment.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun CardDateField(
+ fun CardDateField(
     date: String,
     modifier: Modifier = Modifier,
     onDateChange: (String) -> Unit

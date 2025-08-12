@@ -27,7 +27,7 @@ import uz.yalla.client.feature.payment.add_employee.model.AddEmployeeUIState
 import uz.yalla.client.feature.payment.corporate_account.components.BusinessAccountTextField
 
 @Composable
-internal fun AddEmployeeScreen(
+ fun AddEmployeeScreen(
     onIntent: (AddEmployeeIntent) -> Unit,
     uiState: AddEmployeeUIState
 ) {

@@ -29,7 +29,7 @@ import uz.yalla.client.feature.history.R
 import uz.yalla.client.feature.history.history_details.model.HistoryDetailsViewModel
 
 @Composable
-internal fun HistoryDetailsRoute(
+ fun HistoryDetailsRoute(
     onNavigateBack: () -> Unit,
     orderId: Int,
     vm: HistoryDetailsViewModel = koinViewModel()

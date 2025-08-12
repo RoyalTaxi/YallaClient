@@ -27,7 +27,7 @@ import uz.yalla.client.feature.contact.model.ContactUsUIState
 import uz.yalla.client.feature.setting.domain.model.SocialNetworkType
 
 @Composable
-internal fun ContactUsScreen(
+ fun ContactUsScreen(
     uiState: ContactUsUIState,
     onIntent: (ContactUsIntent) -> Unit
 ) {

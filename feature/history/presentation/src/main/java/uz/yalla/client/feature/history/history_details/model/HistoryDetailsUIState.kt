@@ -6,7 +6,7 @@ import com.google.maps.android.compose.MapUiSettings
 import uz.yalla.client.feature.domain.model.OrderHistoryModel
 import uz.yalla.client.feature.order.domain.model.response.tarrif.GetTariffsModel
 
-internal data class HistoryDetailsUIState(
+ data class HistoryDetailsUIState(
     val orderDetails: OrderHistoryModel? = null,
     val routes: List<GetTariffsModel.Map.Routing> = emptyList(),
     val mapUiSettings: MapUiSettings = MapUiSettings(

@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-internal class TopUpViewModel: ViewModel() {
+class TopUpViewModel : ViewModel() {
 
     private var _uiState = MutableStateFlow(TopUpUIState())
     val uiState = _uiState.asStateFlow()

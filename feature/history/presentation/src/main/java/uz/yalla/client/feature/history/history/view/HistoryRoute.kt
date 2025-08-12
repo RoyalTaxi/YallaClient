@@ -14,7 +14,7 @@ import uz.yalla.client.feature.history.R
 import uz.yalla.client.feature.history.history.model.HistoryViewModel
 
 @Composable
-internal fun HistoryRoute(
+ fun HistoryRoute(
     onBack: () -> Unit,
     onClickItem: (Int) -> Unit,
     vm: HistoryViewModel = koinViewModel()

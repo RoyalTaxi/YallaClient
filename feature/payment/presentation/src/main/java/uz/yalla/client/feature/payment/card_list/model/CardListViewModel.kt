@@ -11,7 +11,7 @@ import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.feature.payment.domain.usecase.DeleteCardUseCase
 import uz.yalla.client.feature.payment.domain.usecase.GetCardListUseCase
 
-internal class CardListViewModel(
+ class CardListViewModel(
     private val getCardListUseCase: GetCardListUseCase,
     private val deleteCardUseCase: DeleteCardUseCase,
     private val prefs: AppPreferences

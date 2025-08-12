@@ -25,7 +25,7 @@ import uz.yalla.client.feature.payment.employee.navigation.navigateToEmployee
 import uz.yalla.client.feature.payment.top_up_balance.navigation.navigateToTopUpScreen
 import uz.yalla.client.feature.payment.top_up_balance.navigation.topUpScreen
 
-internal const val PAYMENT_ROUTE = "payment_route"
+ const val PAYMENT_ROUTE = "payment_route"
 
 fun NavGraphBuilder.paymentModule(
     navController: NavHostController

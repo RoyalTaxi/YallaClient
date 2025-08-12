@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 
 @Composable
-internal fun CardViewCard(
+ fun CardViewCard(
     cardNumber: String,
     cardDate: String,
     onCardNumberChange: (String) -> Unit,

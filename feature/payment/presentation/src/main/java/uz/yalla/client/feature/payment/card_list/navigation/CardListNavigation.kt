@@ -7,9 +7,9 @@ import androidx.navigation.compose.composable
 import uz.yalla.client.core.presentation.navigation.safeNavigate
 import uz.yalla.client.feature.payment.card_list.view.CardListRoute
 
-internal const val CARD_LIST_ROUTE = "card_list_route"
+ const val CARD_LIST_ROUTE = "card_list_route"
 
-internal fun NavGraphBuilder.cardListScreen(
+ fun NavGraphBuilder.cardListScreen(
     onBack: () -> Unit,
     onAddNewCard: () -> Unit,
     onAddCompany: () -> Unit,

@@ -20,7 +20,7 @@ import uz.yalla.client.feature.contact.components.openBrowser
 import uz.yalla.client.feature.contact.model.ContactUsViewModel
 
 @Composable
-internal fun ContactUsRoute(
+ fun ContactUsRoute(
     onNavigateBack: () -> Unit,
     onClickUrl: (String, String) -> Unit,
     viewModel: ContactUsViewModel = koinViewModel()

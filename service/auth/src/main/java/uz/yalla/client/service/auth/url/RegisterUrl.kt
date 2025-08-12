@@ -1,5 +1,5 @@
 package uz.yalla.client.service.auth.url
 
-internal object RegisterUrl {
+ object RegisterUrl {
     const val REGISTER = "register"
 }

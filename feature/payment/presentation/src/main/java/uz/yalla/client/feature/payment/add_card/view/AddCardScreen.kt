@@ -28,7 +28,7 @@ import uz.yalla.client.feature.payment.add_card.components.CardViewCard
 import uz.yalla.client.feature.payment.add_card.model.AddCardUIState
 
 @Composable
-internal fun AddCardScreen(
+ fun AddCardScreen(
     uiState: AddCardUIState,
     onIntent: (AddCardIntent) -> Unit
 ) {

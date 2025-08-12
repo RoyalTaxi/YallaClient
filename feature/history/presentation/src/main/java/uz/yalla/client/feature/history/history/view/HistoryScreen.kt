@@ -28,7 +28,7 @@ import uz.yalla.client.core.common.utils.getRelativeDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun HistoryScreen(
+ fun HistoryScreen(
     orders: LazyPagingItems<OrdersHistory>,
     onIntent: (HistoryIntent) -> Unit
 ) {

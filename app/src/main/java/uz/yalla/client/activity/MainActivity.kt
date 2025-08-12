@@ -63,8 +63,6 @@ class MainActivity : ScopeActivity() {
             keepSplashScreen = false
         }
 
-        viewModel.onAppear()
-
         registerUpdateFlowLauncher()
 
         enableEdgeToEdge(

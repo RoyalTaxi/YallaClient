@@ -27,7 +27,7 @@ import uz.yalla.client.feature.payment.top_up_balance.components.input.BalanceIn
 import uz.yalla.client.feature.payment.top_up_balance.model.TopUpUIState
 
 @Composable
-internal fun TopUpScreen(
+ fun TopUpScreen(
     onIntent: (TopUpIntent) -> Unit,
     uiState: TopUpUIState
 ) {

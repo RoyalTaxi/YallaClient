@@ -15,7 +15,7 @@ import uz.yalla.client.feature.info.R
 import uz.yalla.client.feature.info.about_app.model.AboutAppViewModel
 
 @Composable
-internal fun AboutAppRoute(
+ fun AboutAppRoute(
     onNavigateBack: () -> Unit,
     onClickUrl: (String, String) -> Unit,
     viewModel: AboutAppViewModel = koinViewModel()

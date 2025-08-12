@@ -16,7 +16,6 @@ import kotlinx.coroutines.withTimeoutOrNull
 import uz.yalla.client.connectivity.ConnectivityObserver
 import uz.yalla.client.core.common.utils.getCurrentLocation
 import uz.yalla.client.core.common.viewmodel.BaseViewModel
-import uz.yalla.client.core.common.viewmodel.LifeCycleAware
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.local.StaticPreferences
 import uz.yalla.client.core.domain.model.PaymentType
@@ -32,7 +31,7 @@ class MainViewModel(
     private val refreshFCMTokenUseCase: RefreshFCMTokenUseCase,
     private val appPreferences: AppPreferences,
     private val staticPreferences: StaticPreferences
-) : BaseViewModel(), LifeCycleAware {
+) : BaseViewModel() {
 
     companion object {
         private const val MAX_LOCATION_ATTEMPTS = 3
@@ -61,6 +60,8 @@ class MainViewModel(
         }
 
         getConfig()
+
+        viewModelScope.launch { refreshFCMTokenUseCase() }
     }
 
     private fun getConfig() = viewModelScope.launch {
@@ -108,14 +109,6 @@ class MainViewModel(
                 }
             )
         }
-
-    override fun onAppear() {
-        viewModelScope.launch { refreshFCMTokenUseCase() }
-    }
-
-    override fun onDisappear() {
-
-    }
 
     fun logout() = viewModelScope.launch {
         appPreferences.performLogout()
