@@ -150,8 +150,11 @@ class MapsViewModel(
 
                         coroutineScope.launch(Dispatchers.Main.immediate) {
                             clearIconCache()
-                            initializeIcons()
-                            redrawAllMapElements(state.value)
+                            // Only initialize icons if the map is ready
+                            if (state.value.isMapReady) {
+                                initializeIcons()
+                                redrawAllMapElements(state.value)
+                            }
                         }
                     }
                 }
@@ -178,7 +181,7 @@ class MapsViewModel(
     fun getSavedCameraPosition(): MapPoint? = state.value.savedCameraPosition
 
     init {
-        initializeIcons()
+        // Icons will be initialized when the map is ready
         initializeObservers()
         initializeThemeObserver()
 
@@ -584,7 +587,10 @@ class MapsViewModel(
     private var lastDriverHeading: Float? = null
 
     private fun updateDriverOnMap(state: MapsState) {
-        initializeIcons() // Ensure driver icon is initialized
+        // Only initialize icons if the map is ready
+        if (state.isMapReady) {
+            initializeIcons()
+        }
 
         // Only hide driver if there's no driver in state
         if (state.driver == null) {
@@ -627,7 +633,10 @@ class MapsViewModel(
     private val lastDriversHeadings = mutableMapOf<Int, Float>()
 
     private fun updateDriversOnMap(state: MapsState) = coroutineScope.launch(Dispatchers.Main) {
-        initializeIcons() // Ensure driver icon is initialized
+        // Only initialize icons if the map is ready
+        if (state.isMapReady) {
+            initializeIcons()
+        }
 
         // Don't show drivers when order status is not null
         if (state.drivers.isEmpty() || state.order != null) {
@@ -706,8 +715,10 @@ class MapsViewModel(
 
     private fun redrawAllMapElements(state: MapsState) {
         clearAllMapElements()
-
-        initializeIcons()
+        // Only initialize icons if the map is ready
+        if (state.isMapReady) {
+            initializeIcons()
+        }
 
         updateRouteOnMap(state)
         updateMarkersOnMap(state)
@@ -985,8 +996,11 @@ class MapsViewModel(
                 if (map != null) {
                     coroutineScope.launch(Dispatchers.Main.immediate) {
                         clearIconCache()
-                        initializeIcons()
-                        redrawAllMapElements(state.value)
+                        // Only initialize icons if the map is ready
+                        if (state.value.isMapReady) {
+                            initializeIcons()
+                            redrawAllMapElements(state.value)
+                        }
                     }
                 }
             }

@@ -15,3 +15,8 @@
     public static final android.os.Parcelable$Creator CREATOR;
 }
 -dontwarn org.slf4j.impl.**
+
+# Keep Fragment constructors
+-keep public class * extends androidx.fragment.app.Fragment {
+    public <init>();
+}
