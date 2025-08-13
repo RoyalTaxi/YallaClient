@@ -9,7 +9,7 @@
     <!-- Splash theme that combines AppCompat and SplashScreen -->
     <style name="SplashTheme" parent="Theme.SplashScreen">
         <item name="android:windowSplashScreenBackground">@color/yalla_primary</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_splash</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_splash_logo</item>
         <item name="postSplashScreenTheme">@style/AppTheme</item>
         <!-- Include AppCompat theme attributes -->
         <item name="windowActionBar">false</item>
