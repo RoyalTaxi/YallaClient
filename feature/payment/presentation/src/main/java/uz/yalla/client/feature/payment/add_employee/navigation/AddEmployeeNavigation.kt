@@ -6,7 +6,7 @@ import androidx.navigation.compose.composable
 import uz.yalla.client.core.presentation.navigation.safeNavigate
 import uz.yalla.client.feature.payment.add_employee.model.AddEmployeeRoute
 
-internal const val ADD_EMPLOYEE_ROUTE = "add_employee_route"
+ const val ADD_EMPLOYEE_ROUTE = "add_employee_route"
 
 internal fun NavGraphBuilder.addEmployeeScreen(
     onNavigateBack: () -> Unit

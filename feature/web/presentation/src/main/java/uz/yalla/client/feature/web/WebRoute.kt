@@ -3,7 +3,7 @@ package uz.yalla.client.feature.web
 import androidx.compose.runtime.Composable
 
 @Composable
-internal fun WebRoute(
+ fun WebRoute(
     title: String,
     url: String,
     onBack: () -> Unit

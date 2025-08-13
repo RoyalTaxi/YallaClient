@@ -8,7 +8,7 @@ import uz.yalla.client.feature.payment.add_employee.view.AddEmployeeIntent
 import uz.yalla.client.feature.payment.add_employee.view.AddEmployeeScreen
 
 @Composable
-internal fun AddEmployeeRoute(
+ fun AddEmployeeRoute(
     onNavigateBack: () -> Unit,
     viewModel: AddEmployeeViewModel = koinViewModel()
 ) {

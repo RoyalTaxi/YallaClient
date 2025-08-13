@@ -3,7 +3,6 @@ package uz.yalla.client.feature.map.presentation.new_version.model
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.isActive
@@ -23,16 +22,16 @@ import uz.yalla.client.feature.order.presentation.no_service.NO_SERVICE_ROUTE
 import kotlin.time.Duration.Companion.seconds
 
 fun MViewModel.startObserve() {
-    observerScope.launch { observeActiveOrders() }
-    observerScope.launch { observeMarkerState() }
-    observerScope.launch { observeLocations() }
-    observerScope.launch { observeActiveOrder() }
-    observerScope.launch { observeSheetCoordinator() }
-    observerScope.launch { observeRoute() }
-    observerScope.launch { observeInfoMarkers() }
-    observerScope.launch { observeNavigationButton() }
-    observerScope.launch { observeDriver() }
-    observerScope.launch { observeDrivers() }
+    scope.launch { observeActiveOrders() }
+    scope.launch { observeMarkerState() }
+    scope.launch { observeLocations() }
+    scope.launch { observeActiveOrder() }
+    scope.launch { observeSheetCoordinator() }
+    scope.launch { observeRoute() }
+    scope.launch { observeInfoMarkers() }
+    scope.launch { observeNavigationButton() }
+    scope.launch { observeDriver() }
+    scope.launch { observeDrivers() }
 }
 
 fun MViewModel.observeInfoMarkers() = viewModelScope.launch {
@@ -186,5 +185,5 @@ fun MViewModel.observeDrivers() = viewModelScope.launch {
 
 fun MViewModel.stopObserve() = viewModelScope.launch {
     cancelable.forEach { it.cancel() }
-    observerScope.cancel()
+    scope.cancel()
 }

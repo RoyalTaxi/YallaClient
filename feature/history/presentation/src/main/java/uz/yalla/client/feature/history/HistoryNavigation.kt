@@ -11,7 +11,7 @@ import uz.yalla.client.feature.history.history.navigation.historyScreen
 import uz.yalla.client.feature.history.history_details.navigation.historyDetailsScreen
 import uz.yalla.client.feature.history.history_details.navigation.navigateToDetailsScreen
 
-internal const val HISTORY_MODULE_ROUTE = "history_module_route"
+ const val HISTORY_MODULE_ROUTE = "history_module_route"
 
 fun NavGraphBuilder.historyModule(
     navController: NavHostController

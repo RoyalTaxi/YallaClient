@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.update
 import uz.yalla.client.core.common.viewmodel.BaseViewModel
 import uz.yalla.client.feature.payment.domain.usecase.AddCardUseCase
 
-internal class AddCardViewModel(
+ class AddCardViewModel(
     private val addCardUseCase: AddCardUseCase,
 ) : BaseViewModel() {
 

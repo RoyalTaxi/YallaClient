@@ -7,7 +7,7 @@ import uz.yalla.client.core.presentation.navigation.safeNavigate
 import uz.yalla.client.feature.info.about_app.view.AboutAppRoute
 
 
-internal const val ABOUT_APP_ROUTE = "about_app_route"
+ const val ABOUT_APP_ROUTE = "about_app_route"
 
 fun NavGraphBuilder.aboutAppScreen(
     onBack: () -> Unit,

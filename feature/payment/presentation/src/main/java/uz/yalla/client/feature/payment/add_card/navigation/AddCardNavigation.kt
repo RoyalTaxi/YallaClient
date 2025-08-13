@@ -6,9 +6,9 @@ import androidx.navigation.compose.composable
 import uz.yalla.client.core.presentation.navigation.safeNavigate
 import uz.yalla.client.feature.payment.add_card.view.AddCardRoute
 
-internal const val ADD_CARD_ROUTE = "add_card_route"
+ const val ADD_CARD_ROUTE = "add_card_route"
 
-internal fun NavGraphBuilder.addCardScreen(
+ fun NavGraphBuilder.addCardScreen(
     onNavigateBack: () -> Unit,
     onNavigateNext: (key: String, cardNumber: String, cardExpiry: String) -> Unit
 ) {
@@ -22,4 +22,4 @@ internal fun NavGraphBuilder.addCardScreen(
     }
 }
 
-internal fun NavController.navigateToAddCardScreen() = safeNavigate(ADD_CARD_ROUTE)
+ fun NavController.navigateToAddCardScreen() = safeNavigate(ADD_CARD_ROUTE)

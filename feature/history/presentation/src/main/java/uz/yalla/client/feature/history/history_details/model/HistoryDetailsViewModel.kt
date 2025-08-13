@@ -8,7 +8,7 @@ import uz.yalla.client.core.common.viewmodel.BaseViewModel
 import uz.yalla.client.feature.domain.usecase.GetOrderHistoryUseCase
 import uz.yalla.client.feature.order.domain.usecase.tariff.GetTariffsUseCase
 
-internal class HistoryDetailsViewModel(
+ class HistoryDetailsViewModel(
     private val getOrderHistoryUseCase: GetOrderHistoryUseCase,
     private val getTariffsUseCase: GetTariffsUseCase
 ) : BaseViewModel() {

@@ -63,7 +63,7 @@ class MViewModel(
     }
 
     internal var cancelable = arrayOf<Job>()
-    internal val observerScope = CoroutineScope(viewModelScope.coroutineContext + supervisorJob)
+    override val scope = CoroutineScope(viewModelScope.coroutineContext + supervisorJob)
 
     override fun onAppear() {
         startObserve()

@@ -59,7 +59,7 @@ import uz.yalla.client.feature.order.presentation.components.items.OrderActionsI
 import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
 import uz.yalla.client.feature.order.presentation.main.view.sheet.OrderDetailsBottomSheet
 
-internal val mutableIntentFlow = MutableSharedFlow<ClientWaitingSheetIntent>()
+ val mutableIntentFlow = MutableSharedFlow<ClientWaitingSheetIntent>()
 val intentFlow = mutableIntentFlow.asSharedFlow()
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)

@@ -23,7 +23,7 @@ import uz.yalla.client.feature.payment.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun CardNumberField(
+ fun CardNumberField(
     number: String,
     modifier: Modifier = Modifier,
     onClickCamera: () -> Unit,

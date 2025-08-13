@@ -6,7 +6,7 @@ import uz.yalla.client.feature.payment.card_list.view.CardListIntent
  * Extension function to handle intents for the CardListViewModel.
  * This separates the intent handling logic from the ViewModel implementation.
  */
-internal fun CardListViewModel.onIntent(intent: CardListIntent) {
+ fun CardListViewModel.onIntent(intent: CardListIntent) {
     when (intent) {
         is CardListIntent.LoadCardList -> {
             getCardList()

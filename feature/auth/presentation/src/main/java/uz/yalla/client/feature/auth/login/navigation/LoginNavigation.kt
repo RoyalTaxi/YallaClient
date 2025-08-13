@@ -10,19 +10,14 @@ import uz.yalla.client.feature.auth.login.view.LoginRoute
 
 internal const val LOGIN_ROUTE = "login_route"
 
-internal fun NavGraphBuilder.loginScreen(
-    onBack: () -> Unit,
-    onNext: (String, Int) -> Unit,
-) {
-    composable(
-        route = LOGIN_ROUTE
-    ) {
-        LoginRoute(
-            onBack = onBack,
-            onNext = onNext
-        )
-    }
+sealed interface FromLogin {
+    data object ToBack : FromLogin
+    data class ToVerification(val phoneNumber: String, val seconds: Int) : FromLogin
 }
 
-internal fun NavController.navigateToLoginScreen(navOptions: NavOptions? = null) =
+fun NavGraphBuilder.loginScreen(fromLogin: (FromLogin) -> Unit) =
+    composable(LOGIN_ROUTE) { LoginRoute(navigate = fromLogin) }
+
+
+fun NavController.navigateToLoginScreen(navOptions: NavOptions? = null) =
     safeNavigate(LOGIN_ROUTE, navOptions)

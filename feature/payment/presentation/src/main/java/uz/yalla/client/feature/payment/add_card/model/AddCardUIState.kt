@@ -1,6 +1,6 @@
 package uz.yalla.client.feature.payment.add_card.model
 
-internal data class AddCardUIState(
+ data class AddCardUIState(
     val buttonState: Boolean = false,
     val cardNumber: String = "",
     val cardExpiry: String = ""

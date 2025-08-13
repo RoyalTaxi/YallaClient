@@ -10,7 +10,7 @@ import uz.yalla.client.core.common.viewmodel.BaseViewModel
 import uz.yalla.client.feature.domain.model.OrdersHistory
 import uz.yalla.client.feature.domain.usecase.GetOrdersHistoryUseCase
 
-internal class HistoryViewModel(
+ class HistoryViewModel(
     private val getOrdersHistoryUseCase: GetOrdersHistoryUseCase
 ) : BaseViewModel() {
 

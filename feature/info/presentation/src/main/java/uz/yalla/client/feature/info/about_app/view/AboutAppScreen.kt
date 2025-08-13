@@ -49,7 +49,7 @@ import uz.yalla.client.feature.setting.domain.model.SocialNetwork
 import uz.yalla.client.feature.setting.domain.model.SocialNetworkType
 
 @Composable
-internal fun AboutAppScreen(
+ fun AboutAppScreen(
     uiState: AboutAppUIState,
     onIntent: (AboutAppIntent) -> Unit
 ) {

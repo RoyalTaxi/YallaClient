@@ -22,7 +22,7 @@ import uz.yalla.client.feature.payment.business_account.components.EmployeeItem
 import uz.yalla.client.feature.payment.employee.component.BalanceCard
 
 @Composable
-internal fun EmployeeScreen(
+ fun EmployeeScreen(
     onIntent: (EmployeeIntent) -> Unit
 ) {
     Scaffold(

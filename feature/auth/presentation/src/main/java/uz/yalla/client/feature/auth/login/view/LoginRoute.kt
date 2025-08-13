@@ -3,67 +3,71 @@ package uz.yalla.client.feature.auth.login.view
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import org.koin.compose.koinInject
+import org.orbitmvi.orbit.compose.collectSideEffect
 import uz.yalla.client.core.common.dialog.BaseDialog
 import uz.yalla.client.core.common.dialog.LoadingDialog
-import uz.yalla.client.core.domain.local.AppPreferences
-import uz.yalla.client.core.domain.local.StaticPreferences
 import uz.yalla.client.feature.auth.R
+import uz.yalla.client.feature.auth.login.intent.LoginSideEffect
 import uz.yalla.client.feature.auth.login.model.LoginViewModel
-import uz.yalla.client.feature.auth.verification.signature.SignatureHelper
+import uz.yalla.client.feature.auth.login.navigation.FromLogin
 
 @Composable
-internal fun LoginRoute(
-    onBack: () -> Unit,
-    onNext: (String, Int) -> Unit,
-    appPreferences: AppPreferences = koinInject(),
-    staticPreferences: StaticPreferences = koinInject(),
+fun LoginRoute(
+    navigate: (FromLogin) -> Unit,
     viewModel: LoginViewModel = koinViewModel()
 ) {
     val activity = LocalActivity.current
-    val focusManager = LocalFocusManager.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     val loading by viewModel.loading.collectAsStateWithLifecycle()
-    val phoneNumber by viewModel.phoneNumber.collectAsStateWithLifecycle()
-    val sendCodeButtonState by viewModel.sendCodeButtonState.collectAsStateWithLifecycle()
-    val context = LocalContext.current
-
+    val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
     val showErrorDialog by viewModel.showErrorDialog.collectAsStateWithLifecycle()
     val currentErrorMessageId by viewModel.currentErrorMessageId.collectAsStateWithLifecycle()
 
     BackHandler { activity?.moveTaskToBack(true) }
 
-    LaunchedEffect(Unit) {
-        launch(Dispatchers.Main) {
-            viewModel.navigationChannel.collect { time ->
-                onNext(phoneNumber, time)
-            }
+    viewModel.collectSideEffect { effect ->
+        when (effect) {
+            LoginSideEffect.NavigateBack -> navigate(FromLogin.ToBack)
+            is LoginSideEffect.NavigateToVerification -> navigate(
+                FromLogin.ToVerification(
+                    phoneNumber = effect.phoneNumber,
+                    seconds = effect.seconds
+                )
+            )
         }
     }
 
-    LaunchedEffect(Unit) {
-        staticPreferences.skipOnboarding = true
+    DisposableEffect(lifecycleOwner) {
+        val observer = object : DefaultLifecycleObserver {
+            override fun onCreate(owner: LifecycleOwner) {
+                super.onCreate(owner)
+                viewModel.onAppear()
+            }
+
+            override fun onDestroy(owner: LifecycleOwner) {
+                super.onDestroy(owner)
+                viewModel.onDisappear()
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
     LoginScreen(
-        phoneNumber = phoneNumber,
-        sendCodeButtonState = sendCodeButtonState,
-        onIntent = { intent ->
-            when (intent) {
-                is LoginIntent.ClearFocus -> focusManager.clearFocus(true)
-                is LoginIntent.NavigateBack -> onBack()
-                is LoginIntent.SendCode -> viewModel.sendAuthCode(SignatureHelper.get(context))
-                is LoginIntent.SetNumber -> viewModel.setNumber(number = intent.number)
-            }
-        }
+        state = state,
+        onIntent = viewModel::onIntent
     )
 
     if (showErrorDialog) {

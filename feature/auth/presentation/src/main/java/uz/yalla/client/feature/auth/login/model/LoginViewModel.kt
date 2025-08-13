@@ -1,46 +1,63 @@
 package uz.yalla.client.feature.auth.login.model
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
+import org.orbitmvi.orbit.Container
+import org.orbitmvi.orbit.ContainerHost
+import org.orbitmvi.orbit.viewmodel.container
 import uz.yalla.client.core.common.viewmodel.BaseViewModel
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
+import uz.yalla.client.core.common.viewmodel.LifeCycleAware
+import uz.yalla.client.core.domain.local.StaticPreferences
 import uz.yalla.client.feature.auth.domain.usecase.auth.SendCodeUseCase
+import uz.yalla.client.feature.auth.login.intent.LoginIntent
+import uz.yalla.client.feature.auth.login.intent.LoginSideEffect
+import uz.yalla.client.feature.auth.login.intent.LoginState
 
-internal class LoginViewModel(
-    private val sendCodeUseCase: SendCodeUseCase,
-) : BaseViewModel() {
+class LoginViewModel(
+    staticPreferences: StaticPreferences,
+    private val sendCodeUseCase: SendCodeUseCase
+) : BaseViewModel(), LifeCycleAware, ContainerHost<LoginState, LoginSideEffect> {
 
-    private val _phoneNumber = MutableStateFlow("")
-    val phoneNumber = _phoneNumber.asStateFlow()
+    override val container: Container<LoginState, LoginSideEffect> = container(LoginState.INITIAL)
+    override val scope: CoroutineScope = viewModelScope + SupervisorJob()
 
-    private val _navigationChannel: Channel<Int> = Channel(Channel.CONFLATED)
-    val navigationChannel = _navigationChannel.receiveAsFlow()
+    init {
+        staticPreferences.skipOnboarding = true
+    }
 
-    val sendCodeButtonState =
-        combine(phoneNumber, loading) { number, loading -> number.length == 9 && loading.not() }
-            .distinctUntilChanged()
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.Lazily,
-                initialValue = false
-            )
+    override fun onAppear() {
+        scope.launch {
+            container.stateFlow.distinctUntilChangedBy { it.phoneNumber }.collect {
+                intent { reduce { state.copy(sendButtonState = it.isPhoneNumberValid()) } }
+            }
+        }
+    }
 
-    fun setNumber(number: String) {
-        if (number.length <= 9) _phoneNumber.update { number }
+    fun onIntent(intent: LoginIntent) = intent {
+        when (intent) {
+            is LoginIntent.SendCode -> sendAuthCode(hash = intent.hash)
+            is LoginIntent.UpdatePhoneNumber -> reduce { state.copy(phoneNumber = intent.number) }
+        }
     }
 
     fun sendAuthCode(hash: String?) = viewModelScope.launchWithLoading {
-        sendCodeUseCase(
-            number = phoneNumber.value,
-            hash = hash
-        ).onSuccess { result ->
-            _navigationChannel.send(result.time)
-        }.onFailure(::handleException)
+        intent {
+            sendCodeUseCase(number = state.phoneNumber, hash = hash).onSuccess { result ->
+                postSideEffect(
+                    LoginSideEffect.NavigateToVerification(
+                        phoneNumber = state.phoneNumber,
+                        seconds = result.time
+                    )
+                )
+            }.onFailure(::handleException)
+        }
+    }
+
+    override fun onDisappear() {
+        scope.cancel()
     }
 }

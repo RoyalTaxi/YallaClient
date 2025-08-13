@@ -7,7 +7,7 @@ import org.koin.androidx.compose.koinViewModel
 import uz.yalla.client.feature.payment.top_up_balance.model.TopUpViewModel
 
 @Composable
-internal fun TopUpRoute(
+ fun TopUpRoute(
     onNavigateBack: () -> Unit,
     viewModel: TopUpViewModel = koinViewModel()
 ) {

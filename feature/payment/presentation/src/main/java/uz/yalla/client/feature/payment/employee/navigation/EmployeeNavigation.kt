@@ -7,9 +7,9 @@ import uz.yalla.client.core.presentation.navigation.safeNavigate
 import uz.yalla.client.feature.payment.employee.view.EmployeeIntent
 import uz.yalla.client.feature.payment.employee.view.EmployeeScreen
 
-internal const val EMPLOYEE_ROUTE = "employee_route"
+ const val EMPLOYEE_ROUTE = "employee_route"
 
-internal fun NavGraphBuilder.employeeScreen(
+ fun NavGraphBuilder.employeeScreen(
     onNavigateBack: () -> Unit,
     addBalance: () -> Unit
 ) {
@@ -28,4 +28,4 @@ internal fun NavGraphBuilder.employeeScreen(
     }
 }
 
-internal fun NavController.navigateToEmployee() = safeNavigate(EMPLOYEE_ROUTE)
+ fun NavController.navigateToEmployee() = safeNavigate(EMPLOYEE_ROUTE)

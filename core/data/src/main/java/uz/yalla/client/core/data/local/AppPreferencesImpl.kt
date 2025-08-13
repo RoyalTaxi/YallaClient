@@ -18,7 +18,7 @@ import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.core.domain.model.type.ThemeType
 
 
-internal class AppPreferencesImpl(
+ class AppPreferencesImpl(
     private val store: DataStore<Preferences>
 ) : AppPreferences {
     private val scope = CoroutineScope(Dispatchers.IO)

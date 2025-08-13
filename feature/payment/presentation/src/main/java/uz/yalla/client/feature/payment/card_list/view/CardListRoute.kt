@@ -15,7 +15,7 @@ import uz.yalla.client.feature.payment.card_list.model.CardListViewModel
 import uz.yalla.client.feature.payment.card_list.model.onIntent
 
 @Composable
-internal fun CardListRoute(
+ fun CardListRoute(
     onNavigateBack: () -> Unit,
     onAddNewCard: () -> Unit,
     onAddCompany: () -> Unit,

@@ -7,6 +7,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.navigation
 import uz.yalla.client.core.presentation.navigation.safeNavigate
 import uz.yalla.client.core.presentation.navigation.safePopBackStack
+import uz.yalla.client.feature.auth.login.navigation.FromLogin
 import uz.yalla.client.feature.auth.login.navigation.LOGIN_ROUTE
 import uz.yalla.client.feature.auth.login.navigation.loginScreen
 import uz.yalla.client.feature.auth.verification.navigation.navigateToVerificationScreen
@@ -23,10 +24,15 @@ fun NavGraphBuilder.authModule(
         startDestination = LOGIN_ROUTE,
         route = AUTH_ROUTE
     ) {
-        loginScreen(
-            onBack = navController::safePopBackStack,
-            onNext = navController::navigateToVerificationScreen
-        )
+        loginScreen { fromLogin ->
+            when (fromLogin) {
+                FromLogin.ToBack -> navController.safePopBackStack()
+                is FromLogin.ToVerification -> navController.navigateToVerificationScreen(
+                    fromLogin.phoneNumber,
+                    fromLogin.seconds
+                )
+            }
+        }
 
         verificationScreen(
             onBack = navController::safePopBackStack,

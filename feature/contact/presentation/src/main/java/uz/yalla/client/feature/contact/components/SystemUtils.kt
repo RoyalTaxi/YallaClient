@@ -6,7 +6,7 @@ import android.content.Intent
 import android.widget.Toast
 import androidx.core.net.toUri
 
-internal fun Activity.openBrowser(url: String) {
+ fun Activity.openBrowser(url: String) {
     try {
         val browserIntent = Intent(Intent.ACTION_VIEW)
         browserIntent.data = url.toUri()

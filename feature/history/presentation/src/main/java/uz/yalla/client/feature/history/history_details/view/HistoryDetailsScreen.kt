@@ -28,7 +28,7 @@ import uz.yalla.client.core.common.map.MapStrategy
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 
 @Composable
-internal fun HistoryDetailsScreen(
+ fun HistoryDetailsScreen(
     uiState: HistoryDetailsUIState,
     loading: Boolean,
     map: MapStrategy,

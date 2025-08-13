@@ -10,7 +10,7 @@ import uz.yalla.client.feature.setting.domain.model.SocialNetwork
 import uz.yalla.client.feature.setting.domain.model.SocialNetworkType
 import uz.yalla.client.feature.setting.domain.usecase.GetConfigUseCase
 
-internal class ContactUsViewModel(
+ class ContactUsViewModel(
     private val getConfigUseCase: GetConfigUseCase,
     private val prefs: AppPreferences
 ) : BaseViewModel() {

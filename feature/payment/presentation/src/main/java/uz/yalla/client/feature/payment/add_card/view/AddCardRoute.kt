@@ -14,7 +14,7 @@ import uz.yalla.client.feature.payment.R
 import uz.yalla.client.feature.payment.add_card.model.AddCardViewModel
 
 @Composable
-internal fun AddCardRoute(
+ fun AddCardRoute(
     onNavigateBack: () -> Unit,
     onNavigateNext: (key: String, cardNumber: String, cardExpiry: String) -> Unit,
     viewModel: AddCardViewModel = koinViewModel(),
