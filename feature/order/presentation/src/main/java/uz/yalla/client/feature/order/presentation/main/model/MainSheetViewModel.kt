@@ -156,8 +156,12 @@ class MainSheetViewModel(
     private fun mapToButtonAndOptionsState(state: MainSheetState): ButtonAndOptionsState {
         val isTariffValid =
             state.selectedOptions.all { opt -> state.options.any { it.name == opt.name && it.cost == opt.cost } }
+        val hasTariffs = state.tariffs?.tariff?.isNotEmpty() == true
         val isButtonEnabled =
-            state.selectedTariff != null && isTariffValid && (!state.selectedTariff.isSecondAddressMandatory || state.destinations.isNotEmpty())
+            hasTariffs &&
+                    state.selectedTariff != null &&
+                    isTariffValid &&
+                    (!state.selectedTariff.isSecondAddressMandatory || state.destinations.isNotEmpty())
         return ButtonAndOptionsState(isButtonEnabled, isTariffValid)
     }
 
@@ -257,7 +261,6 @@ class MainSheetViewModel(
             result.fold(
                 onSuccess = ::handleTariffsSuccess,
                 onFailure = {
-                    println("Error: ${it.message}")
                     handleTariffsFailure()
                 }
             )
@@ -302,7 +305,7 @@ class MainSheetViewModel(
                 selectedTariff = null,
                 options = emptyList(),
                 selectedOptions = emptyList(),
-                selectedService = "no service"
+                selectedService = "road"
             )
         }
     }
