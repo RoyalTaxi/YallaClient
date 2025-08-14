@@ -5,7 +5,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -38,18 +37,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
-import  uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.common.navigable.ItemNavigable
 import uz.yalla.client.core.common.utils.openPlayMarket
+import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.info.R
 import uz.yalla.client.feature.info.about_app.model.AboutAppUIState
 import uz.yalla.client.feature.setting.domain.model.SocialNetwork
-import uz.yalla.client.feature.setting.domain.model.SocialNetworkType
 
 @Composable
- fun AboutAppScreen(
+fun AboutAppScreen(
     uiState: AboutAppUIState,
     onIntent: (AboutAppIntent) -> Unit
 ) {
@@ -131,7 +129,7 @@ private fun AppInfoSection(context: Context) {
         modifier = Modifier.padding(vertical = 12.dp)
     ) {
         Image(
-            painter = painterResource(id = R.drawable.ic_splash_logo),
+            painter = painterResource(id = R.drawable.ic_app_logo),
             modifier = Modifier
                 .size(100.dp)
                 .clip(RoundedCornerShape(16.dp)),
