@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import uz.yalla.client.core.common.maps.MapsViewModel
+import uz.yalla.client.core.common.maps.viewmodel.MapsViewModel
 import uz.yalla.client.core.common.viewmodel.BaseViewModel
 import uz.yalla.client.core.common.viewmodel.LifeCycleAware
 import uz.yalla.client.core.domain.local.AppPreferences

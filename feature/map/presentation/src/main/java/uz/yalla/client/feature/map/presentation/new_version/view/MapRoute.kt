@@ -33,8 +33,8 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
 import uz.yalla.client.core.common.dialog.BaseDialog
-import uz.yalla.client.core.common.maps.MapsIntent
-import uz.yalla.client.core.common.maps.MapsViewModel
+import uz.yalla.client.core.common.maps.model.MapsIntent
+import uz.yalla.client.core.common.maps.viewmodel.MapsViewModel
 import uz.yalla.client.core.domain.local.StaticPreferences
 import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.feature.map.presentation.R

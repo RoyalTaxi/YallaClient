@@ -10,7 +10,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.navigation.navOptions
 import org.koin.androidx.scope.ScopeActivity
-import uz.yalla.client.core.common.maps.MapsViewModel
+import uz.yalla.client.core.common.maps.viewmodel.MapsViewModel
 import uz.yalla.client.core.presentation.navigation.safeNavigate
 import uz.yalla.client.feature.map.presentation.new_version.view.MRoute
 

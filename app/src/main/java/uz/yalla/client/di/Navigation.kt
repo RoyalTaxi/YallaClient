@@ -8,7 +8,7 @@ import uz.yalla.client.activity.MainViewModel
 import uz.yalla.client.connectivity.AndroidConnectivityObserver
 import uz.yalla.client.connectivity.ConnectivityObserver
 import uz.yalla.client.core.common.di.Common
-import uz.yalla.client.core.common.maps.MapsViewModel
+import uz.yalla.client.core.common.maps.viewmodel.MapsViewModel
 import uz.yalla.client.feature.auth.di.Auth
 import uz.yalla.client.feature.contact.di.Contact
 import uz.yalla.client.feature.history.di.History
@@ -40,7 +40,7 @@ object Navigation {
     val modules = listOf(
         androidServices,
         viewModelModule,
-        Common.module,
+        *Common.modules.toTypedArray(),
         *Intro.modules.toTypedArray(),
         *Auth.modules.toTypedArray(),
         *Registration.modules.toTypedArray(),

@@ -1,4 +1,4 @@
-package uz.yalla.client.core.common.maps
+package uz.yalla.client.core.common.maps.ui
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,6 +11,8 @@ import com.google.android.gms.maps.SupportMapFragment
 import kotlinx.coroutines.launch
 import org.koin.androidx.scope.ScopeActivity
 import uz.yalla.client.core.common.R
+import uz.yalla.client.core.common.maps.model.MapsIntent
+import uz.yalla.client.core.common.maps.viewmodel.MapsViewModel
 import uz.yalla.client.core.common.utils.dpToPx
 import uz.yalla.client.core.common.utils.getCurrentLocation
 import uz.yalla.client.core.domain.model.MapPoint

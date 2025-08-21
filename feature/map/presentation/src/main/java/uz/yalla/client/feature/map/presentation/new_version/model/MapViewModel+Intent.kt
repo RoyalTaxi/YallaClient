@@ -1,6 +1,6 @@
 package uz.yalla.client.feature.map.presentation.new_version.model
 
-import uz.yalla.client.core.common.maps.MapsIntent
+import uz.yalla.client.core.common.maps.model.MapsIntent
 import uz.yalla.client.core.common.marker.YallaMarkerState
 import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.Location

@@ -1,4 +1,4 @@
-package uz.yalla.client.core.common.maps
+package uz.yalla.client.core.common.maps.util
 
 import androidx.annotation.ColorInt
 

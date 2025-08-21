@@ -23,8 +23,8 @@ import org.koin.androidx.scope.ScopeActivity
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import uz.yalla.client.BuildConfig
 import uz.yalla.client.R
-import uz.yalla.client.core.common.maps.MapsFragment
-import uz.yalla.client.core.common.maps.MapsViewModel
+import uz.yalla.client.core.common.maps.ui.MapsFragment
+import uz.yalla.client.core.common.maps.viewmodel.MapsViewModel
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.local.StaticPreferences
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
@@ -53,7 +53,7 @@ class MainActivity : ScopeActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        
+
         lifecycleScope.launch {
             val accessToken = appPreferences.accessToken.firstOrNull() ?: ""
             if (!staticPreferences.isDeviceRegistered || accessToken.isEmpty()) {
