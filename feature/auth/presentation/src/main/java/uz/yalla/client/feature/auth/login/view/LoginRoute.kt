@@ -3,17 +3,15 @@ package uz.yalla.client.feature.auth.login.view
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.androidx.compose.koinViewModel
 import org.orbitmvi.orbit.compose.collectSideEffect
 import uz.yalla.client.core.common.dialog.BaseDialog
 import uz.yalla.client.core.common.dialog.LoadingDialog
+import uz.yalla.client.core.common.lifecycle.MakeBridge
 import uz.yalla.client.feature.auth.R
 import uz.yalla.client.feature.auth.login.intent.LoginSideEffect
 import uz.yalla.client.feature.auth.login.model.LoginViewModel
@@ -33,6 +31,8 @@ fun LoginRoute(
 
     BackHandler { activity?.moveTaskToBack(true) }
 
+    lifecycleOwner.MakeBridge(viewModel)
+
     viewModel.collectSideEffect { effect ->
         when (effect) {
             LoginSideEffect.NavigateBack -> navigate(FromLogin.ToBack)
@@ -42,26 +42,6 @@ fun LoginRoute(
                     seconds = effect.seconds
                 )
             )
-        }
-    }
-
-    DisposableEffect(lifecycleOwner) {
-        val observer = object : DefaultLifecycleObserver {
-            override fun onCreate(owner: LifecycleOwner) {
-                super.onCreate(owner)
-                viewModel.onAppear()
-            }
-
-            override fun onDestroy(owner: LifecycleOwner) {
-                super.onDestroy(owner)
-                viewModel.onDisappear()
-            }
-        }
-
-        lifecycleOwner.lifecycle.addObserver(observer)
-
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
 
