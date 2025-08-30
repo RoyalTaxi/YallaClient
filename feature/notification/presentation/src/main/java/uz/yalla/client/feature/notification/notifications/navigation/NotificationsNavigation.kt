@@ -6,14 +6,15 @@ import uz.yalla.client.feature.notification.notifications.view.NotificationRoute
 
 internal const val NOTIFICATIONS_ROUTE = "notifications_route"
 
+sealed interface FromNotifications {
+    data object NavigateBack: FromNotifications
+    data class NavigateDetails(val id: Int) : FromNotifications
+}
+
 internal fun NavGraphBuilder.notificationsScreen(
-    onBack: () -> Unit,
-    onClickNotification: (Int) -> Unit
+    fromNotifications: (FromNotifications) -> Unit
 ) {
    composable(route = NOTIFICATIONS_ROUTE) {
-       NotificationRoute(
-           onNavigateBack = onBack,
-           onClickNotification = onClickNotification
-       )
+       NotificationRoute(fromNotifications)
    }
 }

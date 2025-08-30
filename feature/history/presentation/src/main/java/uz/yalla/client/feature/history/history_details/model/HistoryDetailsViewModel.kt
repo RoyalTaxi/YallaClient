@@ -1,41 +1,41 @@
 package uz.yalla.client.feature.history.history_details.model
 
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import org.orbitmvi.orbit.Container
+import org.orbitmvi.orbit.ContainerHost
+import org.orbitmvi.orbit.viewmodel.container
 import uz.yalla.client.core.common.viewmodel.BaseViewModel
+import uz.yalla.client.core.common.viewmodel.LifeCycleAware
 import uz.yalla.client.feature.domain.usecase.GetOrderHistoryUseCase
+import uz.yalla.client.feature.history.history_details.intent.HistoryDetailsSideEffect
+import uz.yalla.client.feature.history.history_details.intent.HistoryDetailsState
 import uz.yalla.client.feature.order.domain.usecase.tariff.GetTariffsUseCase
 
- class HistoryDetailsViewModel(
-    private val getOrderHistoryUseCase: GetOrderHistoryUseCase,
-    private val getTariffsUseCase: GetTariffsUseCase
-) : BaseViewModel() {
+class HistoryDetailsViewModel(
+    internal val orderId: Int,
+    internal val getOrderHistoryUseCase: GetOrderHistoryUseCase,
+    internal val getTariffsUseCase: GetTariffsUseCase
+) : BaseViewModel(), LifeCycleAware, ContainerHost<HistoryDetailsState, HistoryDetailsSideEffect> {
 
-    private val _uiState = MutableStateFlow(HistoryDetailsUIState())
-    val uiState = _uiState.asStateFlow()
+    override val container: Container<HistoryDetailsState, HistoryDetailsSideEffect> =
+        container(HistoryDetailsState.INITIAL)
 
-    fun getOrderHistory(orderId: Int) = viewModelScope.launchWithLoading {
-        getOrderHistoryUseCase(orderId)
-            .onSuccess { result ->
-                _uiState.update { it.copy(orderDetails = result) }
-                getMapPoints()
+    override var scope: CoroutineScope? = null
+
+    override fun onCreate() {
+        super.onCreate()
+        viewModelScope.launch {
+            intent {
+                postSideEffect(HistoryDetailsSideEffect.UpdateRoute)
             }
-            .onFailure(::handleException)
+        }
     }
 
-    fun getMapPoints() = viewModelScope.launch {
-        getTariffsUseCase(
-            coords = _uiState.value.orderDetails?.taxi?.routes?.map {
-                Pair(
-                    it.cords.lat,
-                    it.cords.lng
-                )
-            }.orEmpty(),
-            optionIds = emptyList()
-        ).onSuccess { result ->
-            _uiState.update { it.copy(routes = result.map.routing) }
-        }.onFailure(::handleException)
+    override fun onStart() {
+        super.onStart()
+        scope = CoroutineScope(viewModelScope.coroutineContext + SupervisorJob())
+        scope?.launch { getOrderHistory(orderId) }
     }
 }

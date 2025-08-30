@@ -1,23 +1,36 @@
 package uz.yalla.client.feature.places.places.model
 
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import org.orbitmvi.orbit.Container
+import org.orbitmvi.orbit.ContainerHost
+import org.orbitmvi.orbit.viewmodel.container
 import uz.yalla.client.core.common.viewmodel.BaseViewModel
+import uz.yalla.client.core.common.viewmodel.LifeCycleAware
 import uz.yalla.client.feature.order.domain.usecase.FindAllPlacesUseCase
+import uz.yalla.client.feature.places.places.intent.AddressesSideEffect
+import uz.yalla.client.feature.places.places.intent.AddressesState
 
 internal class AddressesViewModel(
-    private val findAllPlacesUseCase: FindAllPlacesUseCase
-) : BaseViewModel() {
+    internal val findAllPlacesUseCase: FindAllPlacesUseCase
+) : BaseViewModel(), LifeCycleAware, ContainerHost<AddressesState, AddressesSideEffect> {
 
-    private val _uiState = MutableStateFlow(AddressesUIState())
-    val uiState = _uiState.asStateFlow()
+    override val container: Container<AddressesState, AddressesSideEffect> =
+        container(AddressesState.INITIAL)
 
-    fun findAllAddresses() = viewModelScope.launchWithLoading {
-        findAllPlacesUseCase()
-            .onSuccess { result ->
-                _uiState.update { it.copy(addresses = result) }
-            }
-            .onFailure(::handleException)
+    override var scope: CoroutineScope? = null
+
+    override fun onCreate() {
+        super.onCreate()
+        viewModelScope.launch { }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        scope = CoroutineScope(viewModelScope.coroutineContext + SupervisorJob())
+        scope?.launch {
+            findAllAddresses()
+        }
     }
 }

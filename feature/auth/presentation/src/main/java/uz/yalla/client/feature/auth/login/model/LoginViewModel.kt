@@ -2,10 +2,8 @@ package uz.yalla.client.feature.auth.login.model
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.plus
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
@@ -18,23 +16,29 @@ import uz.yalla.client.feature.auth.login.intent.LoginSideEffect
 import uz.yalla.client.feature.auth.login.intent.LoginState
 
 class LoginViewModel(
-    staticPreferences: StaticPreferences,
-    private val sendCodeUseCase: SendCodeUseCase
+    private val staticPreferences: StaticPreferences,
+    internal val sendCodeUseCase: SendCodeUseCase
 ) : BaseViewModel(), LifeCycleAware, ContainerHost<LoginState, LoginSideEffect> {
 
-    override val container: Container<LoginState, LoginSideEffect> = container(LoginState.INITIAL)
-    override val scope: CoroutineScope = viewModelScope + SupervisorJob()
+    override val container: Container<LoginState, LoginSideEffect> =
+        container(LoginState.INITIAL)
 
-    init {
-        staticPreferences.skipOnboarding = true
-    }
+    override var scope: CoroutineScope? = null
 
-    override fun onAppear() {
-        scope.launch {
+    override fun onCreate() {
+        super.onCreate()
+        viewModelScope.launch {
             container.stateFlow.distinctUntilChangedBy { it.phoneNumber }.collect {
                 intent { reduce { state.copy(sendButtonState = it.isPhoneNumberValid()) } }
             }
+
+            staticPreferences.skipOnboarding = true
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        scope = CoroutineScope(viewModelScope.coroutineContext + SupervisorJob())
     }
 
     fun onIntent(intent: LoginIntent) = intent {
@@ -44,7 +48,7 @@ class LoginViewModel(
         }
     }
 
-    fun sendAuthCode(hash: String?) = viewModelScope.launchWithLoading {
+    private fun sendAuthCode(hash: String?) = viewModelScope.launchWithLoading {
         intent {
             sendCodeUseCase(number = state.phoneNumber, hash = hash).onSuccess { result ->
                 postSideEffect(
@@ -55,9 +59,5 @@ class LoginViewModel(
                 )
             }.onFailure(::handleException)
         }
-    }
-
-    override fun onDisappear() {
-        scope.cancel()
     }
 }

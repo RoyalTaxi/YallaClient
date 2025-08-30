@@ -9,52 +9,53 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
 import androidx.core.os.LocaleListCompat
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import org.koin.compose.koinInject
-import uz.yalla.client.core.domain.local.AppPreferences
-import uz.yalla.client.core.domain.model.type.ThemeType
+import org.orbitmvi.orbit.compose.collectSideEffect
+import uz.yalla.client.core.common.lifecycle.MakeBridge
 import uz.yalla.client.feature.setting.components.ChangeLanguageBottomSheet
 import uz.yalla.client.feature.setting.components.ChangeThemeBottomSheet
+import uz.yalla.client.feature.setting.intent.SettingsSideEffect
 import uz.yalla.client.feature.setting.model.SettingsViewModel
+import uz.yalla.client.feature.setting.model.onIntent
+import uz.yalla.client.feature.setting.model.setChangeLanguageVisibility
+import uz.yalla.client.feature.setting.model.setChangeThemeVisibility
+import uz.yalla.client.feature.setting.model.setSelectedLanguageType
+import uz.yalla.client.feature.setting.model.setThemeType
+import uz.yalla.client.feature.setting.navigation.FromSettings
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun SettingsRoute(
-    onBack: () -> Unit,
+    navigateTo: (FromSettings) -> Unit,
     viewModel: SettingsViewModel = koinViewModel(),
 ) {
+    val context = LocalActivity.current as Activity
+    val lifecycleOwner = LocalLifecycleOwner.current
+
     val changeLanguageSheetState = rememberModalBottomSheetState()
     val changeThemeSheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val context = LocalActivity.current as Activity
+    val uiState by viewModel.container.stateFlow.collectAsStateWithLifecycle()
+
+    lifecycleOwner.MakeBridge(viewModel)
+
+    viewModel.collectSideEffect { effect ->
+        when (effect) {
+            SettingsSideEffect.ClickLanguage ->  scope.launch { changeLanguageSheetState.show() }
+            SettingsSideEffect.ClickTheme -> scope.launch { changeThemeSheetState.show() }
+            SettingsSideEffect.NavigateBack -> navigateTo(FromSettings.NavigateBack)
+        }
+    }
 
     SettingsScreen(
         uiState = uiState,
-        onIntent = { intent ->
-            when (intent) {
-                SettingsIntent.OnNavigateBack -> onBack()
-                SettingsIntent.OnClickLanguage -> {
-                    viewModel.setChangeLanguageVisibility(true)
-                    scope.launch { changeLanguageSheetState.show() }
-                }
-
-                SettingsIntent.OnClickTheme -> {
-                    viewModel.setChangeThemeVisibility(true)
-                    scope.launch { changeLanguageSheetState.show()}
-                }
-            }
-        }
+        onIntent = viewModel::onIntent
     )
 
     if (uiState.changeLanguageSheetVisibility) {

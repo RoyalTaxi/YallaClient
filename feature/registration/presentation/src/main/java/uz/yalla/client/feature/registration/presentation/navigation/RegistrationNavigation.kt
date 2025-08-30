@@ -14,9 +14,13 @@ internal const val CREDENTIALS_ROUTE_BASE = "credentials_route"
 internal const val CREDENTIALS_ROUTE =
     "$CREDENTIALS_ROUTE_BASE?$NUMBER={$NUMBER}&$SECRET_KEY={$SECRET_KEY}"
 
+sealed interface FromRegistration {
+    data object NavigateBack: FromRegistration
+    data object NavigateMap: FromRegistration
+}
+
 fun NavGraphBuilder.registrationScreen(
-    onBack: () -> Unit,
-    onNext: () -> Unit
+    fromRegistration: (FromRegistration) -> Unit
 ) {
     composable(
         route = CREDENTIALS_ROUTE,
@@ -26,10 +30,9 @@ fun NavGraphBuilder.registrationScreen(
         )
     ) { backStackEntry ->
         RegistrationRoute(
-            number = backStackEntry.arguments?.getString(NUMBER).orEmpty(),
+            phoneNumber = backStackEntry.arguments?.getString(NUMBER).orEmpty(),
             secretKey = backStackEntry.arguments?.getString(SECRET_KEY).orEmpty(),
-            onBack = onBack,
-            onNext = onNext
+            navigateTo = fromRegistration
         )
     }
 }

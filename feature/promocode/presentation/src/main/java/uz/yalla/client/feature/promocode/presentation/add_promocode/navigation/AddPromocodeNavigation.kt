@@ -8,11 +8,15 @@ import uz.yalla.client.feature.promocode.presentation.add_promocode.view.AddProm
 
 const val ADD_PROMOCODE_ROUTE = "add_promocode_route"
 
+sealed interface FromAddPromocode {
+    data object NavigateBack : FromAddPromocode
+}
+
 fun NavGraphBuilder.addPromocodeScreen(
-    onBack: () -> Unit,
+    fromAddPromocode: (FromAddPromocode) -> Unit
 ) {
     composable(route = ADD_PROMOCODE_ROUTE) {
-        AddPromocodeRoute(onBack = onBack)
+        AddPromocodeRoute(fromAddPromocode)
     }
 }
 

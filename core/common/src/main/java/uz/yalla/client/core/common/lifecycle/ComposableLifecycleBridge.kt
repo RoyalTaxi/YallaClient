@@ -12,12 +12,32 @@ fun LifecycleOwner.MakeBridge(viewModel: LifeCycleAware) {
         val observer = object : DefaultLifecycleObserver {
             override fun onCreate(owner: LifecycleOwner) {
                 super.onCreate(owner)
-                viewModel.onAppear()
+                viewModel.onCreate()
+            }
+
+            override fun onStart(owner: LifecycleOwner) {
+                super.onCreate(owner)
+                viewModel.onStart()
+            }
+
+            override fun onResume(owner: LifecycleOwner) {
+                super.onResume(owner)
+                viewModel.onResume()
+            }
+
+            override fun onPause(owner: LifecycleOwner) {
+                super.onPause(owner)
+                viewModel.onPause()
+            }
+
+            override fun onStop(owner: LifecycleOwner) {
+                super.onDestroy(owner)
+                viewModel.onStop()
             }
 
             override fun onDestroy(owner: LifecycleOwner) {
                 super.onDestroy(owner)
-                viewModel.onDisappear()
+                viewModel.onDestroy()
             }
         }
 

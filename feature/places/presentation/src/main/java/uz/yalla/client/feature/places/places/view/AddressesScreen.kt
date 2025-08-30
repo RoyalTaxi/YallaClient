@@ -1,7 +1,7 @@
 package uz.yalla.client.feature.places.places.view
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -33,13 +33,14 @@ import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.common.item.OrderOptionsItem
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.domain.model.response.PlaceModel
-import uz.yalla.client.feature.places.places.model.AddressesUIState
+import uz.yalla.client.feature.places.places.intent.AddressesState
 import uz.yalla.client.feature.places.presentation.R
 import uz.yalla.client.core.domain.model.type.PlaceType
+import uz.yalla.client.feature.places.places.intent.AddressesIntent
 
 @Composable
 internal fun AddressesScreen(
-    uiState: AddressesUIState,
+    uiState: AddressesState,
     onIntent: (AddressesIntent) -> Unit
 ) {
     Scaffold(
@@ -47,7 +48,7 @@ internal fun AddressesScreen(
         containerColor = YallaTheme.color.background,
         modifier = Modifier
             .fillMaxSize()
-            .background(YallaTheme.color.background)
+            .background(color = YallaTheme.color.background)
             .imePadding()
             .navigationBarsPadding(),
         topBar = { AddressesTopBar { onIntent(AddressesIntent.OnNavigateBack) } },
@@ -146,47 +147,51 @@ private fun AddDefaultAddressItems(
     onAddHomeAddress: () -> Unit,
     onAddWorkAddress: () -> Unit
 ) {
-    OrderOptionsItem(
-        title = stringResource(R.string.add_home_address),
-        leadingIcon = {
-            Icon(
-                painter = painterResource(R.drawable.ic_home),
-                contentDescription = null,
-                tint = YallaTheme.color.gray
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-        },
-        trailingIcon = {
-            Spacer(modifier = Modifier.width(16.dp))
-            Icon(
-                painter = painterResource(R.drawable.ic_add),
-                contentDescription = null,
-                tint = YallaTheme.color.gray
-            )
-        },
-        onClick = onAddHomeAddress
-    )
+    Column(
+        modifier = Modifier.padding(horizontal = 20.dp)
+    ) {
+        OrderOptionsItem(
+            title = stringResource(R.string.add_home_address),
+            leadingIcon = {
+                Icon(
+                    painter = painterResource(R.drawable.ic_home),
+                    contentDescription = null,
+                    tint = YallaTheme.color.gray
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+            },
+            trailingIcon = {
+                Spacer(modifier = Modifier.width(16.dp))
+                Icon(
+                    painter = painterResource(R.drawable.ic_add),
+                    contentDescription = null,
+                    tint = YallaTheme.color.gray
+                )
+            },
+            onClick = onAddHomeAddress
+        )
 
-    OrderOptionsItem(
-        title = stringResource(R.string.add_work_address),
-        leadingIcon = {
-            Icon(
-                painter = painterResource(R.drawable.ic_work),
-                contentDescription = null,
-                tint = YallaTheme.color.gray
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-        },
-        trailingIcon = {
-            Spacer(modifier = Modifier.width(16.dp))
-            Icon(
-                painter = painterResource(R.drawable.ic_add),
-                contentDescription = null,
-                tint = YallaTheme.color.gray
-            )
-        },
-        onClick = onAddWorkAddress
-    )
+        OrderOptionsItem(
+            title = stringResource(R.string.add_work_address),
+            leadingIcon = {
+                Icon(
+                    painter = painterResource(R.drawable.ic_work),
+                    contentDescription = null,
+                    tint = YallaTheme.color.gray
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+            },
+            trailingIcon = {
+                Spacer(modifier = Modifier.width(16.dp))
+                Icon(
+                    painter = painterResource(R.drawable.ic_add),
+                    contentDescription = null,
+                    tint = YallaTheme.color.gray
+                )
+            },
+            onClick = onAddWorkAddress
+        )
+    }
 }
 
 @Composable

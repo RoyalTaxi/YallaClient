@@ -30,14 +30,15 @@ import uz.yalla.client.core.common.formation.formatWithDotsDMY
 import uz.yalla.client.core.common.sheet.DatePickerModalBottomSheet
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.registration.presentation.R
+import uz.yalla.client.feature.registration.presentation.intent.RegistrationIntent
 import uz.yalla.client.feature.registration.presentation.model.Gender
-import uz.yalla.client.feature.registration.presentation.model.RegistrationUIState
+import uz.yalla.client.feature.registration.presentation.intent.RegistrationState
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun RegistrationScreen(
-    uiState: RegistrationUIState,
+    uiState: RegistrationState,
     onIntent: (RegistrationIntent) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState()
@@ -52,7 +53,7 @@ internal fun RegistrationScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun RegistrationContent(
-    uiState: RegistrationUIState,
+    uiState: RegistrationState,
     sheetState: SheetState,
     onIntent: (RegistrationIntent) -> Unit
 ) {
@@ -113,7 +114,7 @@ private fun RegistrationHeader() {
 
 @Composable
 private fun RegistrationForm(
-    uiState: RegistrationUIState,
+    uiState: RegistrationState,
     onIntent: (RegistrationIntent) -> Unit
 ) {
     PrimaryTextField(
@@ -188,7 +189,7 @@ private fun RegistrationButton(
     )
 }
 
-private fun RegistrationUIState.isFormValid(): Boolean {
+private fun RegistrationState.isFormValid(): Boolean {
     return firstName.isNotBlank() &&
             lastName.isNotBlank() &&
             gender != Gender.NOT_SELECTED &&

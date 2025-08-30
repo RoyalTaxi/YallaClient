@@ -8,19 +8,19 @@ import uz.yalla.client.feature.places.places.view.AddressesRoute
 
 internal const val ADDRESSES_ROUTE = "addresses_route"
 
+sealed interface FromAddresses {
+    data object NavigateBack : FromAddresses
+    data class NavigateToAddress(val typeName: String, val id: Int) : FromAddresses
+    data class AddAddress(val typeName: String) : FromAddresses
+}
+
 internal fun NavGraphBuilder.addressesScreen(
-    onBack: () -> Unit,
-    onClickAddress: (String, Int) -> Unit,
-    onAddAddress: (String) -> Unit
+    fromAddresses: (FromAddresses) -> Unit
 ) {
     composable(
         route = ADDRESSES_ROUTE
     ) {
-        AddressesRoute(
-            onNavigateBack = onBack,
-            onClickAddress = onClickAddress,
-            onAddAddress = onAddAddress
-        )
+        AddressesRoute(fromAddresses)
     }
 }
 

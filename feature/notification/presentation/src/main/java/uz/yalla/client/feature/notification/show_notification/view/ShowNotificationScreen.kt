@@ -18,11 +18,12 @@ import androidx.compose.ui.res.stringResource
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.notification.notifications.components.NotificationItem
 import uz.yalla.client.feature.notification.presentation.R
-import uz.yalla.client.feature.notification.show_notification.model.ShowNotificationIntent
+import uz.yalla.client.feature.notification.show_notification.intent.ShowNotificationIntent
+import uz.yalla.client.feature.notification.show_notification.intent.ShowNotificationState
 
 @Composable
 internal fun ShowNotificationScreen(
-    state: ShowNotificationUIState,
+    state: ShowNotificationState,
     onIntent: (ShowNotificationIntent) -> Unit
 ){
     Scaffold(

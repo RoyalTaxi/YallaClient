@@ -44,7 +44,7 @@ internal fun BonusAccountScreen(
         },
         modifier = Modifier
             .fillMaxSize()
-            .background(YallaTheme.color.background)
+            .background(color = YallaTheme.color.background)
             .navigationBarsPadding(),
         content = { paddingValues ->
             LazyColumn(
@@ -122,7 +122,7 @@ private fun PromoCodes(
             text = stringResource(R.string.promocodes),
             style = YallaTheme.font.title2,
             color = YallaTheme.color.onBackground,
-            modifier = Modifier.padding(vertical = 17.dp, horizontal = 20.dp)
+            modifier = Modifier.padding(vertical = 17.dp)
         )
 
         OrderOptionsItem(

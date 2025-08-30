@@ -1,67 +1,35 @@
 package uz.yalla.client.feature.info.about_app.model
 
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import org.orbitmvi.orbit.Container
+import org.orbitmvi.orbit.ContainerHost
+import org.orbitmvi.orbit.viewmodel.container
 import uz.yalla.client.core.common.viewmodel.BaseViewModel
+import uz.yalla.client.core.common.viewmodel.LifeCycleAware
 import uz.yalla.client.core.domain.local.AppPreferences
-import uz.yalla.client.feature.info.R
-import uz.yalla.client.feature.setting.domain.model.SocialNetwork
-import uz.yalla.client.feature.setting.domain.model.SocialNetworkType
+import uz.yalla.client.feature.info.about_app.intent.AboutAppSideEffect
+import uz.yalla.client.feature.info.about_app.intent.AboutAppState
 import uz.yalla.client.feature.setting.domain.usecase.GetConfigUseCase
 
- class AboutAppViewModel(
-    private val getConfigUseCase: GetConfigUseCase,
-    private val prefs: AppPreferences
-) : BaseViewModel() {
+class AboutAppViewModel(
+    internal val getConfigUseCase: GetConfigUseCase,
+    internal val prefs: AppPreferences
+) : BaseViewModel(), LifeCycleAware, ContainerHost<AboutAppState, AboutAppSideEffect> {
 
-    private val _uiState = MutableStateFlow(AboutAppUIState())
-    val uiState = _uiState.asStateFlow()
+    override val container: Container<AboutAppState, AboutAppSideEffect> =
+        container(AboutAppState.INITIAL)
 
-    fun getConfig() = viewModelScope.launchWithLoading {
-        getConfigUseCase()
-            .onSuccess { result ->
-                val allSocialNetworks = listOf(
-                    SocialNetwork(
-                        iconResId = R.drawable.ic_telegram,
-                        titleResId = R.string.telegram,
-                        value = result.setting.supportTelegramNickname,
-                        type = SocialNetworkType.TELEGRAM
-                    ),
-                    SocialNetwork(
-                        iconResId = R.drawable.ic_instagram,
-                        titleResId = R.string.instagram,
-                        value = result.setting.instagram,
-                        type = SocialNetworkType.INSTAGRAM
-                    ),
-                    SocialNetwork(
-                        iconResId = R.drawable.ic_youtube,
-                        titleResId = R.string.youtube,
-                        value = result.setting.youtube,
-                        type = SocialNetworkType.YOUTUBE
-                    ),
-                    SocialNetwork(
-                        iconResId = R.drawable.ic_facebook,
-                        titleResId = R.string.facebook,
-                        value = result.setting.facebook,
-                        type = SocialNetworkType.FACEBOOK
-                    )
-                )
+    override var scope: CoroutineScope? = null
 
-                val filteredSocialNetworks = allSocialNetworks.filter {
-                    it.value.isNotBlank()
-                }
+    override fun onCreate() {
+        super.onCreate()
+        viewModelScope.launch { getConfig() }
+    }
 
-                _uiState.update {
-                    it.copy(
-                        socialNetworks = filteredSocialNetworks,
-                        privacyPolicyRu = result.setting.privacyPolicyRu to R.string.user_agreement,
-                        privacyPolicyUz = result.setting.privacyPolicyUz to R.string.user_agreement
-                    )
-                }
-
-                prefs.setSupportNumber(result.setting.supportPhone)
-            }
-            .onFailure(::handleException)
+    override fun onStart() {
+        super.onStart()
+        scope = CoroutineScope(viewModelScope.coroutineContext + SupervisorJob())
     }
 }
