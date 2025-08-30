@@ -6,6 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavOptions
 import androidx.navigation.navigation
 import uz.yalla.client.core.presentation.navigation.safeNavigate
+import uz.yalla.client.feature.intro.language.navigation.FromLanguage
 import uz.yalla.client.feature.intro.language.navigation.LANGUAGE_ROUTE
 import uz.yalla.client.feature.intro.language.navigation.languageScreen
 import uz.yalla.client.feature.intro.notification_permission.navigation.navigateToNotificationPermissionScreen
@@ -25,9 +26,11 @@ fun NavGraphBuilder.introModule(
         startDestination = LANGUAGE_ROUTE,
         route = INTRO_ROUTE
     ) {
-        languageScreen(
-            onNext = navController::navigateToOnboardingScreen
-        )
+        languageScreen { fromLanguage ->
+            when (fromLanguage) {
+                FromLanguage.NavigateOnboarding -> navController.navigateToOnboardingScreen()
+            }
+        }
 
         onboardingScreen(
             onNext = navController::navigateToNotificationPermissionScreen,

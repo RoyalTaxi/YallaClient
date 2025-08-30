@@ -1,7 +1,6 @@
 package uz.yalla.client.feature.map.presentation.new_version.model
 
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChangedBy
@@ -20,19 +19,6 @@ import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetChannel
 import uz.yalla.client.feature.order.presentation.no_service.NO_SERVICE_ROUTE
 import kotlin.time.Duration.Companion.seconds
-
-fun MViewModel.startObserve() {
-    scope.launch { observeActiveOrders() }
-    scope.launch { observeMarkerState() }
-    scope.launch { observeLocations() }
-    scope.launch { observeActiveOrder() }
-    scope.launch { observeSheetCoordinator() }
-    scope.launch { observeRoute() }
-    scope.launch { observeInfoMarkers() }
-    scope.launch { observeNavigationButton() }
-    scope.launch { observeDriver() }
-    scope.launch { observeDrivers() }
-}
 
 fun MViewModel.observeInfoMarkers() = viewModelScope.launch {
     stateFlow
@@ -181,9 +167,4 @@ fun MViewModel.observeDrivers() = viewModelScope.launch {
         .collectLatest { state ->
             mapsViewModel.onIntent(MapsIntent.UpdateDrivers(state.drivers))
         }
-}
-
-fun MViewModel.stopObserve() = viewModelScope.launch {
-    cancelable.forEach { it.cancel() }
-    scope.cancel()
 }

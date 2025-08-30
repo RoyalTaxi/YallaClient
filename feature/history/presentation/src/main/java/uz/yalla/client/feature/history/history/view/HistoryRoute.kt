@@ -8,24 +8,25 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import app.cash.paging.compose.collectAsLazyPagingItems
 import org.koin.androidx.compose.koinViewModel
+import org.orbitmvi.orbit.compose.collectSideEffect
 import uz.yalla.client.core.common.dialog.BaseDialog
 import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.feature.history.R
+import uz.yalla.client.feature.history.history.intent.HistorySideEffect
 import uz.yalla.client.feature.history.history.model.HistoryViewModel
+import uz.yalla.client.feature.history.history.model.onIntent
+import uz.yalla.client.feature.history.history.navigation.FromHistory
 
 @Composable
- fun HistoryRoute(
-    onBack: () -> Unit,
-    onClickItem: (Int) -> Unit,
+fun HistoryRoute(
+    navigateTo: (FromHistory) -> Unit,
     vm: HistoryViewModel = koinViewModel()
 ) {
-
     val orders = vm.orders.collectAsLazyPagingItems()
     val baseLoading by vm.loading.collectAsStateWithLifecycle()
 
     val showErrorDialog by vm.showErrorDialog.collectAsStateWithLifecycle()
     val currentErrorMessageId by vm.currentErrorMessageId.collectAsStateWithLifecycle()
-
 
     LaunchedEffect(orders.loadState) {
         val errorState = orders.loadState.refresh as? LoadState.Error
@@ -37,16 +38,20 @@ import uz.yalla.client.feature.history.history.model.HistoryViewModel
         }
     }
 
+    vm.collectSideEffect { effect ->
+        when (effect) {
+            HistorySideEffect.NavigateBack -> navigateTo(FromHistory.NavigateBack)
+            is HistorySideEffect.NavigateToDetails -> navigateTo(
+                FromHistory.NavigateToDetails(id = effect.id)
+            )
+        }
+    }
+
     val isLoading = baseLoading || orders.loadState.refresh is LoadState.Loading
 
     HistoryScreen(
         orders = orders,
-        onIntent = { intent ->
-            when (intent) {
-                is HistoryIntent.OnHistoryItemClick -> onClickItem(intent.id.toInt())
-                is HistoryIntent.OnNavigateBack -> onBack()
-            }
-        }
+        onIntent = vm::onIntent
     )
 
     if (isLoading) LoadingDialog()

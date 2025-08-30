@@ -23,12 +23,13 @@ import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.contact.R
 import uz.yalla.client.feature.contact.components.ContactUsCard
-import uz.yalla.client.feature.contact.model.ContactUsUIState
+import uz.yalla.client.feature.contact.intent.ContactUsIntent
+import uz.yalla.client.feature.contact.intent.ContactUsState
 import uz.yalla.client.feature.setting.domain.model.SocialNetworkType
 
 @Composable
  fun ContactUsScreen(
-    uiState: ContactUsUIState,
+    uiState: ContactUsState,
     onIntent: (ContactUsIntent) -> Unit
 ) {
     Scaffold(
@@ -69,7 +70,7 @@ private fun TopAppBar(
 
 @Composable
 private fun SocialNetworksList(
-    uiState: ContactUsUIState,
+    uiState: ContactUsState,
     onIntent: (ContactUsIntent) -> Unit,
     modifier: Modifier
 ) {

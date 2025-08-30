@@ -19,12 +19,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.setting.components.SettingButton
-import uz.yalla.client.feature.setting.model.SettingsUIState
+import uz.yalla.client.feature.setting.intent.SettingsIntent
+import uz.yalla.client.feature.setting.intent.SettingsState
 import uz.yalla.client.feature.settings.R
 
 @Composable
 internal fun SettingsScreen(
-    uiState: SettingsUIState,
+    uiState: SettingsState,
     onIntent: (SettingsIntent) -> Unit
 ) {
     Scaffold(

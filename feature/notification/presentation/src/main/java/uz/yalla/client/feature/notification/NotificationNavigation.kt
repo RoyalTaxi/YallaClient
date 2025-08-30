@@ -6,8 +6,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.navigation
 import uz.yalla.client.core.presentation.navigation.safeNavigate
 import uz.yalla.client.core.presentation.navigation.safePopBackStack
+import uz.yalla.client.feature.notification.notifications.navigation.FromNotifications
 import uz.yalla.client.feature.notification.notifications.navigation.NOTIFICATIONS_ROUTE
 import uz.yalla.client.feature.notification.notifications.navigation.notificationsScreen
+import uz.yalla.client.feature.notification.show_notification.navigation.FromShowNotification
 import uz.yalla.client.feature.notification.show_notification.navigation.navigateToShowNotification
 import uz.yalla.client.feature.notification.show_notification.navigation.showNotificationScreen
 
@@ -20,14 +22,20 @@ fun NavGraphBuilder.notificationModule(
         startDestination = NOTIFICATIONS_ROUTE,
         route = NOTIFICATION_ROUTE
     ) {
-        notificationsScreen(
-            onBack = navController::safePopBackStack,
-            onClickNotification = navController::navigateToShowNotification
-        )
+        notificationsScreen { fromNotifications ->
+            when (fromNotifications) {
+                FromNotifications.NavigateBack -> navController.safePopBackStack()
+                is FromNotifications.NavigateDetails -> {
+                    navController.navigateToShowNotification(id = fromNotifications.id)
+                }
+            }
+        }
 
-        showNotificationScreen(
-            onNavigateBack = navController::safePopBackStack
-        )
+        showNotificationScreen {fromShowNotification ->
+            when (fromShowNotification) {
+                FromShowNotification.NavigateBack -> navController.safePopBackStack()
+            }
+        }
     }
 }
 

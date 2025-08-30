@@ -8,15 +8,16 @@ import uz.yalla.client.feature.contact.view.ContactUsRoute
 
  const val CONTACT_US_ROUTE = "contact_us_route"
 
+sealed interface FromContactUs {
+    data object NavigateBack: FromContactUs
+    data class ToWeb(val title: String, val url: String) : FromContactUs
+}
+
 fun NavGraphBuilder.contactUsScreen(
-    onBack: () -> Unit,
-    onClickUrl: (String, String) -> Unit
+    fromContactUs: (FromContactUs) -> Unit
 ) {
     composable(route = CONTACT_US_ROUTE) {
-        ContactUsRoute(
-            onClickUrl = onClickUrl,
-            onNavigateBack = onBack
-        )
+        ContactUsRoute(fromContactUs)
     }
 }
 

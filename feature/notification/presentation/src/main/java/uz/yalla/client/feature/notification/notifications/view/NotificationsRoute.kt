@@ -8,18 +8,20 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import app.cash.paging.compose.collectAsLazyPagingItems
 import org.koin.androidx.compose.koinViewModel
+import org.orbitmvi.orbit.compose.collectSideEffect
 import uz.yalla.client.core.common.dialog.BaseDialog
 import uz.yalla.client.core.common.dialog.LoadingDialog
+import uz.yalla.client.feature.notification.notifications.intent.NotificationsSideEffect
 import uz.yalla.client.feature.notification.notifications.model.NotificationsViewModel
+import uz.yalla.client.feature.notification.notifications.model.onIntent
+import uz.yalla.client.feature.notification.notifications.navigation.FromNotifications
 import uz.yalla.client.feature.notification.presentation.R
 
 @Composable
 internal fun NotificationRoute(
-    onNavigateBack: () -> Unit,
-    onClickNotification: (Int) -> Unit,
+    navigateTo: (FromNotifications) -> Unit,
     viewModel: NotificationsViewModel = koinViewModel()
 ) {
-
     val notifications = viewModel.notifications.collectAsLazyPagingItems()
     val showErrorDialog by viewModel.showErrorDialog.collectAsStateWithLifecycle()
     val currentErrorMessageId by viewModel.currentErrorMessageId.collectAsStateWithLifecycle()
@@ -34,14 +36,20 @@ internal fun NotificationRoute(
         }
     }
 
+    viewModel.collectSideEffect { effect ->
+        when (effect) {
+            NotificationsSideEffect.NavigateBack -> navigateTo(FromNotifications.NavigateBack)
+            is NotificationsSideEffect.NavigateDetails -> navigateTo(
+                FromNotifications.NavigateDetails(
+                    effect.id
+                )
+            )
+        }
+    }
+
     NotificationScreen(
         notifications = notifications,
-        onIntent = { intent ->
-            when (intent) {
-                is NotificationsIntent.OnNavigateBack -> onNavigateBack()
-                is NotificationsIntent.OnClickNotifications -> onClickNotification(intent.id)
-            }
-        }
+        onIntent = viewModel::onIntent
     )
 
     if (notifications.loadState.refresh is LoadState.Loading) LoadingDialog()

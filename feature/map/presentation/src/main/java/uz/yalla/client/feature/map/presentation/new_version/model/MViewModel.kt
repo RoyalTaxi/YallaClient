@@ -63,16 +63,30 @@ class MViewModel(
     }
 
     internal var cancelable = arrayOf<Job>()
-    override val scope = CoroutineScope(viewModelScope.coroutineContext + supervisorJob)
 
-    override fun onAppear() {
-        startObserve()
-        getMe()
-        getNotificationsCount()
-        getSettingConfig()
+    override var scope: CoroutineScope? = null
+
+    override fun onCreate() {
+        super.onCreate()
+        viewModelScope.launch {
+            getMe()
+            getNotificationsCount()
+            getSettingConfig()
+        }
     }
 
-    override fun onDisappear() {
-        stopObserve()
+    override fun onStart() {
+        super.onStart()
+        scope = CoroutineScope(viewModelScope.coroutineContext + SupervisorJob())
+        scope?.launch { observeActiveOrders() }
+        scope?.launch { observeMarkerState() }
+        scope?.launch { observeLocations() }
+        scope?.launch { observeActiveOrder() }
+        scope?.launch { observeSheetCoordinator() }
+        scope?.launch { observeRoute() }
+        scope?.launch { observeInfoMarkers() }
+        scope?.launch { observeNavigationButton() }
+        scope?.launch { observeDriver() }
+        scope?.launch { observeDrivers() }
     }
 }

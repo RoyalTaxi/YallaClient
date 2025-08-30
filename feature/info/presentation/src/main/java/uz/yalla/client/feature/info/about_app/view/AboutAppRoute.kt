@@ -1,49 +1,53 @@
 package uz.yalla.client.feature.info.about_app.view
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.orbitmvi.orbit.compose.collectSideEffect
 import uz.yalla.client.core.common.dialog.BaseDialog
 import uz.yalla.client.core.common.dialog.LoadingDialog
+import uz.yalla.client.core.common.lifecycle.MakeBridge
 import uz.yalla.client.feature.info.R
+import uz.yalla.client.feature.info.about_app.intent.AboutAppSideEffect
 import uz.yalla.client.feature.info.about_app.model.AboutAppViewModel
+import uz.yalla.client.feature.info.about_app.model.onIntent
+import uz.yalla.client.feature.info.about_app.navigation.FromAboutApp
 
 @Composable
- fun AboutAppRoute(
-    onNavigateBack: () -> Unit,
-    onClickUrl: (String, String) -> Unit,
+fun AboutAppRoute(
+    navigateTo: (FromAboutApp) -> Unit,
     viewModel: AboutAppViewModel = koinViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val loading by viewModel.loading.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    val loading by viewModel.loading.collectAsStateWithLifecycle()
+    val uiState by viewModel.container.stateFlow.collectAsStateWithLifecycle()
 
     val showErrorDialog by viewModel.showErrorDialog.collectAsStateWithLifecycle()
     val currentErrorMessageId by viewModel.currentErrorMessageId.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
-        launch(Dispatchers.IO) {
-            viewModel.getConfig()
+    lifecycleOwner.MakeBridge(viewModel)
+
+    viewModel.collectSideEffect { effect ->
+        when (effect) {
+            AboutAppSideEffect.NavigateBack -> navigateTo(FromAboutApp.NavigateBack)
+            is AboutAppSideEffect.NavigateWeb -> navigateTo(
+                FromAboutApp.ToWeb(
+                    title = context.getString(effect.title),
+                    url = effect.url
+                )
+            )
         }
     }
 
     AboutAppScreen(
         uiState = uiState,
-        onIntent = { intent ->
-            when (intent) {
-                is AboutAppIntent.OnNavigateBack -> onNavigateBack()
-                is AboutAppIntent.OnClickUrl -> onClickUrl(
-                    context.getString(intent.title),
-                    intent.url
-                )
-            }
-        }
+        onIntent = viewModel::onIntent
     )
 
     if (showErrorDialog) {

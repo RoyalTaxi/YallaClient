@@ -31,6 +31,7 @@ import uz.yalla.client.core.common.topbar.CenterAlignedScrollableTopBar
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.domain.model.NotificationModel
 import uz.yalla.client.feature.notification.notifications.components.NotificationItem
+import uz.yalla.client.feature.notification.notifications.intent.NotificationsIntent
 import uz.yalla.client.feature.notification.presentation.R
 
 @OptIn(ExperimentalMaterial3Api::class)
