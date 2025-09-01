@@ -12,6 +12,7 @@ fun vectorToBitmapDescriptor(context: Context, vectorResId: Int): BitmapDescript
     val vectorDrawable = ContextCompat.getDrawable(context, vectorResId) ?: return null
     vectorDrawable.setBounds(0, 0, vectorDrawable.intrinsicWidth, vectorDrawable.intrinsicHeight)
     val bitmap = createBitmap(vectorDrawable.intrinsicWidth, vectorDrawable.intrinsicHeight)
+    bitmap.density = android.graphics.Bitmap.DENSITY_NONE
     val canvas = Canvas(bitmap)
     vectorDrawable.draw(canvas)
     return BitmapDescriptorFactory.fromBitmap(bitmap)
@@ -22,6 +23,7 @@ fun vectorToBitmapDescriptorWithSize(context: Context, vectorResId: Int, sizeDp:
     val sizePx = dpToPx(context, sizeDp)
     vectorDrawable.setBounds(0, 0, sizePx, sizePx)
     val bitmap = createBitmap(sizePx, sizePx)
+    bitmap.density = android.graphics.Bitmap.DENSITY_NONE
     val canvas = Canvas(bitmap)
     vectorDrawable.draw(canvas)
     return BitmapDescriptorFactory.fromBitmap(bitmap)

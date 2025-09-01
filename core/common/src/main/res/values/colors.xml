@@ -6,4 +6,17 @@
     <color name="white">#FFFFFF</color>
     <color name="white_50">#80FFFFFF</color>
     <color name="gray">#817A88</color>
+    <!-- Info marker colors (day) -->
+    <color name="info_marker_bg">@color/primary</color>
+    <color name="info_marker_title">@color/white</color>
+    <color name="info_marker_desc">@color/white_50</color>
+    <color name="info_marker_dot_origin">@color/gray</color>
+    <color name="info_marker_dot_destination">@color/primary</color>
+    <!-- Other UI-specific colors -->
+    <color name="car_plate_country_blue">#1D83D1</color>
+    <!-- Map polylines (day) -->
+    <color name="map_polyline_google">#000000</color>
+    <color name="map_dashed_polyline_google">#999999</color>
+    <color name="map_polyline_libre">#000000</color>
+    <color name="map_dashed_polyline_libre">#9E9E9E</color>
 </resources>

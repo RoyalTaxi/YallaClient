@@ -58,9 +58,9 @@ jobs:
         id: version_code
         run: |
           BASE_VERSION=50
-          NEW_VERSION_CODE=$((BASE_VERSION + ${{ github.run_number }}))
-          echo "VERSION_CODE=$NEW_VERSION_CODE" >> $GITHUB_OUTPUT
-          echo "New version code will be: $NEW_VERSION_CODE"
+         _CODE=$((BASE_VERSION + ${{ github.run_number }}))
+          echo "VERSION_CODE=_CODE" >> $GITHUB_OUTPUT
+          echo "New version code will be: _CODE"
 
       - name: Version Bump
         uses: chkfung/android-version-actions@v1.2.2

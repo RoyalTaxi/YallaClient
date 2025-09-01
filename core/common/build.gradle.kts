@@ -35,6 +35,7 @@ dependencies {
     implementation(libs.lottie.compose)
 
     implementation(libs.androidx.constraintlayout.compose)
+    api(libs.maplibre.android)
 
     testApi(projects.core.test)
     androidTestApi(projects.core.test)

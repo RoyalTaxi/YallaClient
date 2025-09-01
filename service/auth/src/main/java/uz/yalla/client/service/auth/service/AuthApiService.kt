@@ -1,7 +1,6 @@
 package uz.yalla.client.service.auth.service
 
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import uz.yalla.client.service.auth.response.auth.ValidateAuthCodeResponse
@@ -20,12 +19,12 @@ class AuthApiService(
     suspend fun sendAuthCode(
         body: SendAuthCodeRequest
     ): Either<ApiResponseWrapper<SendAuthCodeResponse>, DataError.Network> = safeApiCall {
-        ktor.post(AuthUrl.SEND_SMS) { setBody(body) }.body()
+        ktor.post(AuthUrl.SEND_SMS) { setBody(body) }
     }
 
     suspend fun validateAuthCode(
         body: ValidateAuthCodeRequest
     ): Either<ApiResponseWrapper<ValidateAuthCodeResponse>, DataError.Network> = safeApiCall {
-        ktor.post(AuthUrl.VALIDATE_CODE) { setBody(body) }.body()
+        ktor.post(AuthUrl.VALIDATE_CODE) { setBody(body) }
     }
 }

@@ -1,7 +1,6 @@
 package uz.yalla.client.service.auth.service
 
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import uz.yalla.client.service.auth.url.RegisterUrl
@@ -18,6 +17,6 @@ class RegisterApiService(
     suspend fun register(
         body: RegisterUserRequest
     ): Either<ApiResponseWrapper<RegisterResponse>, DataError.Network> = safeApiCall {
-        ktor.post(RegisterUrl.REGISTER) { setBody(body) }.body()
+        ktor.post(RegisterUrl.REGISTER) { setBody(body) }
     }
 }

@@ -1,28 +1,15 @@
 package uz.yalla.client.feature.info.about_app.view
 
-import android.content.Context
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -65,7 +52,7 @@ fun AboutAppScreen(
             ) {
                 Spacer(modifier = Modifier.height(60.dp))
 
-                AppInfoSection(context)
+                AppInfoSection(onIntent = onIntent)
 
                 PrivacyPolicySection(
                     uiState = uiState,
@@ -123,7 +110,8 @@ private fun TopBar(
 }
 
 @Composable
-private fun AppInfoSection(context: Context) {
+private fun AppInfoSection(onIntent: (AboutAppIntent) -> Unit) {
+    val context = LocalContext.current
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -133,7 +121,8 @@ private fun AppInfoSection(context: Context) {
             painter = painterResource(id = R.drawable.ic_app_logo),
             modifier = Modifier
                 .size(100.dp)
-                .clip(RoundedCornerShape(16.dp)),
+                .clip(RoundedCornerShape(16.dp))
+                .clickable { onIntent(AboutAppIntent.ChangeMap) },
             contentDescription = null,
             contentScale = ContentScale.Fit
         )

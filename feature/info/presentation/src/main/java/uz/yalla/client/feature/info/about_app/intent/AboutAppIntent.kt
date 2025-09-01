@@ -4,5 +4,6 @@ import androidx.annotation.StringRes
 
 sealed interface AboutAppIntent {
     data object NavigateBack : AboutAppIntent
+    data object ChangeMap : AboutAppIntent
     data class NavigateToWeb(@StringRes val title: Int, val url: String) : AboutAppIntent
 }

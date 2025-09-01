@@ -8,7 +8,7 @@ android {
 
 dependencies {
     implementation(projects.core.data)
-    implementation(projects.service.histroy)
+    implementation(projects.service.history)
     implementation(projects.feature.history.domain)
     implementation(libs.paging.common)
     implementation(libs.paging.compose.common)

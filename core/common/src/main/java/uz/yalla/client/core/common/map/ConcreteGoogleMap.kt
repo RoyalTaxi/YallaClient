@@ -376,7 +376,7 @@ private fun Driver(
                 painter = painterResource(R.drawable.img_car_marker),
                 contentDescription = null,
                 tint = Color.Unspecified,
-                modifier = Modifier.size(48.dp)
+                modifier = Modifier.size(20.dp)
             )
         }
     }
@@ -460,7 +460,7 @@ private fun DriversWithAnimation(
                     painter = painterResource(R.drawable.img_car_marker),
                     contentDescription = "Driver",
                     tint = Color.Unspecified,
-                    modifier = Modifier.size(48.dp)
+                    modifier = Modifier.size(20.dp)
                 )
             }
         }

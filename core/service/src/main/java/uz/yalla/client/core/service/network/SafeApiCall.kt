@@ -9,23 +9,19 @@ import io.ktor.client.plugins.ServerResponseException
 import io.ktor.client.statement.HttpResponse
 import io.ktor.utils.io.errors.IOException
 import kotlinx.coroutines.delay
+import kotlin.random.Random
 import kotlinx.serialization.SerializationException
-import org.koin.java.KoinJavaComponent.getKoin
 import uz.yalla.client.core.domain.error.DataError
 import uz.yalla.client.core.domain.error.Either
-import uz.yalla.client.core.domain.local.AppPreferences
 
 suspend inline fun <reified T> safeApiCall(
+    isIdempotent: Boolean = false,
     crossinline call: suspend () -> HttpResponse
 ): Either<T, DataError.Network> {
-    val prefs = getKoin().get<AppPreferences>()
     return try {
-        val response = retryIO { call() }
+        val response = retryIO(isIdempotent = isIdempotent) { call() }
         when (response.status.value) {
-            401 -> {
-                prefs.performLogout()
-                Either.Error(DataError.Network.UNAUTHORIZED_ERROR)
-            }
+            401 -> Either.Error(DataError.Network.UNAUTHORIZED_ERROR)
 
             302 -> {
                 Either.Error(DataError.Network.NOT_SUFFICIENT_BALANCE)
@@ -64,9 +60,10 @@ suspend inline fun <reified T> safeApiCall(
 
 suspend fun <T> retryIO(
     times: Int = 3,
-    initialDelay: Long = 100,
-    maxDelay: Long = 1000,
+    initialDelay: Long = 200,
+    maxDelay: Long = 2_000,
     factor: Double = 2.0,
+    isIdempotent: Boolean,
     block: suspend () -> T
 ): T {
     var currentDelay = initialDelay
@@ -74,10 +71,13 @@ suspend fun <T> retryIO(
     repeat(times - 1) {
         try {
             return block()
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            val retryable = isIdempotent && (e is IOException || e is SocketTimeoutException)
+            if (!retryable) throw e
         }
 
-        delay(currentDelay)
+        val jitter = Random.nextLong(0, (currentDelay / 2) + 1)
+        delay(currentDelay + jitter)
         currentDelay = (currentDelay * factor).toLong().coerceAtMost(maxDelay)
     }
 

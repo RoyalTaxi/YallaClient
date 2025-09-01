@@ -1,16 +1,13 @@
 package uz.yalla.client.feature.map.presentation.di
 
 import org.koin.core.module.dsl.viewModel
-import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
-import uz.yalla.client.core.common.maps.viewmodel.MapsViewModel
+import uz.yalla.client.core.common.maps.core.viewmodel.MapsViewModel
 import uz.yalla.client.feature.map.data.di.MapData
-import uz.yalla.client.feature.map.presentation.model.MapViewModel
-import uz.yalla.client.feature.map.presentation.new_version.model.MViewModel
+import uz.yalla.client.feature.map.presentation.model.MViewModel
 
 object Map {
     private val viewModelModule = module {
-        viewModelOf(::MapViewModel)
         viewModel { parameters ->
             MViewModel(
                 mapsViewModel = parameters.get<MapsViewModel>(),

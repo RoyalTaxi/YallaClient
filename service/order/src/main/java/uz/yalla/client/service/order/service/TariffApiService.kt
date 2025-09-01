@@ -1,7 +1,6 @@
 package uz.yalla.client.service.order.service
 
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
@@ -22,16 +21,16 @@ class TariffApiService(
     suspend fun getTariffs(
         body: GetTariffsRequest
     ): Either<ApiResponseWrapper<GetTariffsResponse>, DataError.Network> = safeApiCall {
-        ktor.post(TariffUrl.GET_TARIFFS) { setBody(body) }.body()
+        ktor.post(TariffUrl.GET_TARIFFS) { setBody(body) }
     }
 
     suspend fun getTimeOut(
         body: GetTimeOutRequest
-    ): Either<ApiResponseWrapper<GetTimeOutResponse>, DataError.Network> = safeApiCall {
+    ): Either<ApiResponseWrapper<GetTimeOutResponse>, DataError.Network> = safeApiCall(isIdempotent = true) {
         ktor.get(TariffUrl.GET_TIMEOUT) {
             parameter("lat", body.lat)
             parameter("lng", body.lng)
             parameter("tariff_id", body.tariff_id)
-        }.body()
+        }
     }
 }

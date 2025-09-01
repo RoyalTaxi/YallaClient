@@ -49,7 +49,6 @@ fun HistoryDetailsRoute(
         mapType?.let { type ->
             when (type) {
                 MapType.Google -> ConcreteGoogleMap()
-                MapType.Gis -> ConcreteGoogleMap()
                 MapType.Libre -> ConcreteLibreMap()
             }
         }

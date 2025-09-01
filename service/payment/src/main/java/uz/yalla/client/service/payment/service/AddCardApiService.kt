@@ -1,7 +1,6 @@
 package uz.yalla.client.service.payment.service
 
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import uz.yalla.client.service.payment.request.AddCardRequest
@@ -18,7 +17,7 @@ class AddCardApiService(
 ) {
     suspend fun addCard(body: AddCardRequest): Either<ApiResponseWrapper<AddCardResponse>, DataError.Network> =
         safeApiCall {
-            ktor.post(PaymentUrl.ADD_CARD) { setBody(body) }.body()
+            ktor.post(PaymentUrl.ADD_CARD) { setBody(body) }
         }
 
     suspend fun verifyCard(body: VerifyCardRequest): Either<Unit, DataError.Network> = safeApiCall {
