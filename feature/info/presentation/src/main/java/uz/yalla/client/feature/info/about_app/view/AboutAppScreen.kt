@@ -43,19 +43,20 @@ import uz.yalla.client.core.common.utils.openPlayMarket
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.info.R
-import uz.yalla.client.feature.info.about_app.model.AboutAppUIState
+import uz.yalla.client.feature.info.about_app.intent.AboutAppIntent
+import uz.yalla.client.feature.info.about_app.intent.AboutAppState
 import uz.yalla.client.feature.setting.domain.model.SocialNetwork
 
 @Composable
 fun AboutAppScreen(
-    uiState: AboutAppUIState,
+    uiState: AboutAppState,
     onIntent: (AboutAppIntent) -> Unit
 ) {
     val context = LocalContext.current
     Scaffold(
         containerColor = YallaTheme.color.background,
         modifier = Modifier,
-        topBar = { TopBar { onIntent(AboutAppIntent.OnNavigateBack) } },
+        topBar = { TopBar { onIntent(AboutAppIntent.NavigateBack) } },
         content = { paddingValues ->
             Column(
                 verticalArrangement = Arrangement.spacedBy(20.dp),
@@ -69,7 +70,7 @@ fun AboutAppScreen(
                 PrivacyPolicySection(
                     uiState = uiState,
                     onClickPrivacyPolicy = { url, title ->
-                        onIntent(AboutAppIntent.OnClickUrl(url, title))
+                        onIntent(AboutAppIntent.NavigateToWeb(url, title))
                     }
                 )
 
@@ -78,7 +79,7 @@ fun AboutAppScreen(
                 SocialNetworksSection(
                     socialNetworks = uiState.socialNetworks,
                     onClickSocialNetwork = { url, title ->
-                        onIntent(AboutAppIntent.OnClickUrl(url, title))
+                        onIntent(AboutAppIntent.NavigateToWeb(url, title))
                     }
                 )
 
@@ -162,7 +163,7 @@ private fun AppInfoSection(context: Context) {
 
 @Composable
 private fun PrivacyPolicySection(
-    uiState: AboutAppUIState,
+    uiState: AboutAppState,
     onClickPrivacyPolicy: (Int, String) -> Unit
 ) {
     val prefs = koinInject<AppPreferences>()

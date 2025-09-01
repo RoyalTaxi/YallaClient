@@ -67,13 +67,14 @@ import uz.yalla.client.core.common.sheet.DatePickerModalBottomSheet
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.profile.presentation.R
 import uz.yalla.client.feature.profile.edit_profile.components.Gender
-import uz.yalla.client.feature.profile.edit_profile.model.EditProfileUIState
+import uz.yalla.client.feature.profile.edit_profile.intent.EditProfileIntent
+import uz.yalla.client.feature.profile.edit_profile.intent.EditProfileState
 import java.io.ByteArrayInputStream
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun EditProfileScreen(
-    uiState: EditProfileUIState,
+    uiState: EditProfileState,
     snackbarHostState: SnackbarHostState,
     onIntent: (EditProfileIntent) -> Unit
 ) {
@@ -168,7 +169,7 @@ private fun EditProfileTopBar(
 
 @Composable
 private fun ProfileContent(
-    uiState: EditProfileUIState,
+    uiState: EditProfileState,
     onIntent: (EditProfileIntent) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -312,7 +313,7 @@ private fun ProfileHeaderInfo(
 
 @Composable
 private fun ProfileForm(
-    uiState: EditProfileUIState,
+    uiState: EditProfileState,
     onIntent: (EditProfileIntent) -> Unit
 ) {
     Column(

@@ -34,7 +34,6 @@ fun OrderOptionsItem(
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(
-                horizontal = 20.dp,
                 vertical = (if (description == null) 18 else 12).dp
             )
         ) {

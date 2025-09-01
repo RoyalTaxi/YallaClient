@@ -142,7 +142,7 @@ fun ClientWaitingSheet(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(30.dp))
-                            .background(YallaTheme.color.background)
+                            .background(color = YallaTheme.color.background)
                     ) {
 
                         state.selectedOrder?.let {

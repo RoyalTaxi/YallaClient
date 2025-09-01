@@ -8,14 +8,14 @@ import uz.yalla.client.feature.setting.view.SettingsRoute
 
 internal const val SETTINGS_ROUTE = "settings_route"
 
+sealed interface FromSettings {
+    data object NavigateBack : FromSettings
+}
+
 fun NavGraphBuilder.settingsScreen(
-    onBack: () -> Unit
+    fromSettings: (FromSettings) -> Unit
 ) {
-    composable(
-        route = SETTINGS_ROUTE
-    ) {
-        SettingsRoute(onBack = onBack)
-    }
+    composable(route = SETTINGS_ROUTE) { SettingsRoute(fromSettings) }
 }
 
 fun NavController.navigateToSettings() = safeNavigate(SETTINGS_ROUTE)

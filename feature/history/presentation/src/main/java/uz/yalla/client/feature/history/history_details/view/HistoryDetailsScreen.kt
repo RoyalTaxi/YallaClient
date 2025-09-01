@@ -23,13 +23,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.feature.history.R
 import uz.yalla.client.feature.history.history_details.components.OrderDetailsBottomSheet
-import uz.yalla.client.feature.history.history_details.model.HistoryDetailsUIState
+import uz.yalla.client.feature.history.history_details.intent.HistoryDetailsState
 import uz.yalla.client.core.common.map.MapStrategy
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
+import uz.yalla.client.feature.history.history_details.intent.HistoryDetailsIntent
 
 @Composable
  fun HistoryDetailsScreen(
-    uiState: HistoryDetailsUIState,
+    uiState: HistoryDetailsState,
     loading: Boolean,
     map: MapStrategy,
     onIntent: (HistoryDetailsIntent) -> Unit

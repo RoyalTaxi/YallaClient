@@ -27,8 +27,10 @@ import uz.yalla.client.feature.auth.authModule
 import uz.yalla.client.feature.auth.navigateToAuthModule
 import uz.yalla.client.feature.intro.INTRO_ROUTE
 import uz.yalla.client.feature.intro.introModule
+import uz.yalla.client.feature.registration.presentation.navigation.FromRegistration
 import uz.yalla.client.feature.registration.presentation.navigation.navigateToRegistrationScreen
 import uz.yalla.client.feature.registration.presentation.navigation.registrationScreen
+import uz.yalla.client.navigation.safePopBackStack
 
 class LoginActivity : AppCompatActivity() {
     private val appPreferences: AppPreferences by inject()
@@ -106,10 +108,12 @@ class LoginActivity : AppCompatActivity() {
                         onClientFound = { navigateToMainActivity() },
                         onClientNotFound = navController::navigateToRegistrationScreen,
                     )
-                    registrationScreen(
-                        onBack = navController::popBackStack,
-                        onNext = { navigateToMainActivity() }
-                    )
+                    registrationScreen { fromRegistration ->
+                        when (fromRegistration) {
+                            FromRegistration.NavigateBack -> navController.safePopBackStack()
+                            FromRegistration.NavigateMap -> navigateToMainActivity()
+                        }
+                    }
                 }
             }
         }

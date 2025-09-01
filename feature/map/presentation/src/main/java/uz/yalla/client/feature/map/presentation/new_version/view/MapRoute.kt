@@ -33,6 +33,7 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
 import uz.yalla.client.core.common.dialog.BaseDialog
+import uz.yalla.client.core.common.lifecycle.MakeBridge
 import uz.yalla.client.core.common.maps.model.MapsIntent
 import uz.yalla.client.core.common.maps.viewmodel.MapsViewModel
 import uz.yalla.client.core.domain.local.StaticPreferences
@@ -59,7 +60,6 @@ import uz.yalla.client.feature.order.presentation.cancel_reason.view.CancelReaso
 import uz.yalla.client.feature.order.presentation.client_waiting.CLIENT_WAITING_ROUTE
 import uz.yalla.client.feature.order.presentation.client_waiting.navigateToClientWaitingSheet
 import uz.yalla.client.feature.order.presentation.client_waiting.view.ClientWaitingSheetChannel
-import uz.yalla.client.feature.order.presentation.client_waiting.view.intentFlow
 import uz.yalla.client.feature.order.presentation.driver_waiting.DRIVER_WAITING_ROUTE
 import uz.yalla.client.feature.order.presentation.driver_waiting.navigateToDriverWaitingSheet
 import uz.yalla.client.feature.order.presentation.driver_waiting.view.DriverWaitingSheetChannel
@@ -122,15 +122,7 @@ fun MRoute(
         }
     }
 
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_START) viewModel.onAppear()
-            else if (event == Lifecycle.Event.ON_STOP) viewModel.onDisappear()
-        }
-
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
-    }
+    lifecycleOwner.MakeBridge(viewModel)
 
     LaunchedEffect(Unit) {
         viewModel.effectFlow.collect { effect ->

@@ -9,17 +9,18 @@ import uz.yalla.client.feature.history.history.view.HistoryRoute
 
 const val HISTORY_ROUTE = "history_route"
 
+sealed interface FromHistory {
+    data object NavigateBack : FromHistory
+    data class NavigateToDetails(val id: Int) : FromHistory
+}
+
 fun NavGraphBuilder.historyScreen(
-    onBack: () -> Unit,
-    onClickItem: (Int) -> Unit
+    fromHistory: (FromHistory) -> Unit
 ) {
     composable(
         route = HISTORY_ROUTE
     ) {
-        HistoryRoute(
-            onBack = onBack,
-            onClickItem = onClickItem
-        )
+        HistoryRoute(fromHistory)
     }
 }
 

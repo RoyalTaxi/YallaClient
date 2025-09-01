@@ -1,6 +1,7 @@
 package uz.yalla.client.feature.profile.edit_profile.model
 
-import uz.yalla.client.feature.profile.edit_profile.view.EditProfileIntent
+import uz.yalla.client.feature.profile.edit_profile.intent.EditProfileSideEffect
+import uz.yalla.client.feature.profile.edit_profile.intent.EditProfileIntent
 
 internal fun EditProfileViewModel.onIntent(intent: EditProfileIntent) {
     when (intent) {
