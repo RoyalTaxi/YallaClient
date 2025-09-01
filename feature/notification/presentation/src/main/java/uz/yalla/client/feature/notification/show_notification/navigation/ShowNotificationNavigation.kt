@@ -13,8 +13,12 @@ internal const val ID = "id"
 internal const val SHOW_NOTIFICATION_ROUTE_BASE = "show_notification_base"
 internal const val SHOW_NOTIFICATION_ROUTE = "$SHOW_NOTIFICATION_ROUTE_BASE?$ID={$ID}"
 
+sealed interface FromShowNotification{
+    data object NavigateBack: FromShowNotification
+}
+
 internal fun NavGraphBuilder.showNotificationScreen(
-    onNavigateBack: () -> Unit
+    fromShowNotification: (FromShowNotification) -> Unit
 ) {
     composable(
         route = SHOW_NOTIFICATION_ROUTE,
@@ -28,7 +32,7 @@ internal fun NavGraphBuilder.showNotificationScreen(
 
         ShowNotificationRoute(
             id = id,
-            onNavigateBack = onNavigateBack
+            navigateTo = fromShowNotification
         )
     }
 }

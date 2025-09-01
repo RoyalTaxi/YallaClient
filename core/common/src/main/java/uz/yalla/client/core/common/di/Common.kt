@@ -12,4 +12,9 @@ object Common {
         viewModelOf(::DualAddressViewModel)
         viewModelOf(::SelectFromMapViewModel)
     }
+
+    val modules = listOf(
+        module,
+        Maps.module
+    )
 }

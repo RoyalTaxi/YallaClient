@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.domain.error.DataError
 import uz.yalla.client.core.domain.error.Either
+import uz.yalla.client.core.data.ext.mapResult
 import uz.yalla.client.feature.domain.model.NotificationModel
 import uz.yalla.client.feature.domain.repository.NotificationRepository
 import uz.yalla.client.feature.notification.data.mapper.NotificationMapper
@@ -21,17 +22,9 @@ class NotificationRepositoryImpl(
         pagingSourceFactory = { NotificationPagingSource(service) }
     ).flow
 
-    override suspend fun getNotification(id: Int): Either<NotificationModel, DataError.Network> {
-        return when (val result = service.getNotification(id)) {
-            is Either.Error -> Either.Error(result.error)
-            is Either.Success -> Either.Success(result.data.result.let ( NotificationMapper.mapper ))
-        }
-    }
+    override suspend fun getNotification(id: Int): Either<NotificationModel, DataError.Network> =
+        service.getNotification(id).mapResult(NotificationMapper.mapper)
 
-    override suspend fun getNotificationsCount(): Either<Int, DataError.Network> {
-        return when (val result = service.getNotificationCount()) {
-            is Either.Error -> Either.Error(result.error)
-            is Either.Success -> Either.Success(result.data.result.or0())
-        }
-    }
+    override suspend fun getNotificationsCount(): Either<Int, DataError.Network> =
+        service.getNotificationCount().mapResult { it.or0() }
 }

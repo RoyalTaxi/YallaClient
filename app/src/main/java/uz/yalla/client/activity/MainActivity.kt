@@ -23,10 +23,14 @@ import org.koin.androidx.scope.ScopeActivity
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import uz.yalla.client.BuildConfig
 import uz.yalla.client.R
-import uz.yalla.client.core.common.maps.MapsFragment
-import uz.yalla.client.core.common.maps.MapsViewModel
+import uz.yalla.client.core.common.maps.ui.MapHostFragment
+import uz.yalla.client.core.common.maps.core.viewmodel.MapsViewModel
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.local.StaticPreferences
+import uz.yalla.client.core.domain.model.MapType
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.runBlocking
+import org.koin.core.parameter.parametersOf
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.databinding.ActivityMainBinding
 import uz.yalla.client.navigation.Navigation
@@ -53,7 +57,7 @@ class MainActivity : ScopeActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        
+
         lifecycleScope.launch {
             val accessToken = appPreferences.accessToken.firstOrNull() ?: ""
             if (!staticPreferences.isDeviceRegistered || accessToken.isEmpty()) {
@@ -77,17 +81,27 @@ class MainActivity : ScopeActivity() {
         )
 
         supportFragmentManager.beginTransaction()
-            .add(R.id.fragmentContainerHost, MapsFragment())
+            .add(R.id.fragmentContainerHost, MapHostFragment())
             .commit()
 
         lifecycleScope.launch {
-            combine(
-                viewModel.isReady,
-                mapsViewModel.state
-            ) { mainReady, mapsState ->
-                mainReady is ReadyState.Ready && mapsState.isMapReady
-            }.collectLatest { ready ->
-                isAppReady.value = ready
+            // Add a timeout to ensure the app doesn't get stuck waiting for the map
+            kotlinx.coroutines.withTimeoutOrNull(5000) { // 5 second timeout
+                combine(
+                    viewModel.isReady,
+                    mapsViewModel.state
+                ) { mainReady, mapsState ->
+                    mainReady is ReadyState.Ready && mapsState.isMapReady
+                }.collectLatest { ready ->
+                    if (ready) {
+                        isAppReady.value = true
+                    }
+                }
+            }
+
+            // If timeout occurs, proceed anyway
+            if (!isAppReady.value) {
+                isAppReady.value = true
             }
         }
 
@@ -106,6 +120,12 @@ class MainActivity : ScopeActivity() {
                 navigateToLoginActivity()
             }
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        // Ensure map style is reapplied if system theme changed while app was backgrounded
+        mapsViewModel.onStartReapplyIfNeeded()
     }
 
     override fun onResume() {

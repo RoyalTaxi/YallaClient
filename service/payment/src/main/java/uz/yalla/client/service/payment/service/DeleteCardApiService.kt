@@ -2,6 +2,7 @@ package uz.yalla.client.service.payment.service
 
 import io.ktor.client.HttpClient
 import io.ktor.client.request.put
+import io.ktor.http.appendPathSegments
 import uz.yalla.client.core.domain.error.DataError
 import uz.yalla.client.core.domain.error.Either
 import uz.yalla.client.core.service.network.safeApiCall
@@ -11,6 +12,8 @@ class DeleteCardApiService(
     private val ktor: HttpClient
 ) {
     suspend fun deleteCard(cardId: String) : Either<Unit, DataError.Network> = safeApiCall {
-        ktor.put("${PaymentUrl.DELETE_CARD}$cardId")
+        ktor.put(PaymentUrl.DELETE_CARD) {
+            url { appendPathSegments(cardId) }
+        }
     }
 }

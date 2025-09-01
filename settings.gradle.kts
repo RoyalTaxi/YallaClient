@@ -101,7 +101,7 @@ include(
     ":service:auth",
     ":service:map",
     ":service:places",
-    ":service:histroy",
+    ":service:history",
     ":service:order",
     ":service:payment",
     ":service:profile",

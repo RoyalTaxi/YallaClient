@@ -194,6 +194,8 @@ dependencies {
     implementation(libs.firebase.crashlytics.ktx)
     implementation(libs.firebase.analytics.ktx)
     implementation(libs.firebase.messaging.ktx)
+
+    debugImplementation(libs.leakcanary.android)
 }
 
 configurations.all {

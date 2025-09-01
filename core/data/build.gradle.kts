@@ -8,6 +8,11 @@ android {
     buildFeatures {
         buildConfig = true
     }
+
+    defaultConfig {
+        // TODO: Move to a secure source per environment
+        buildConfigField("String", "SECRET_KEY", "\"227da29a-b4b0-4682-a74f-492466836b6e\"")
+    }
 }
 
 dependencies {

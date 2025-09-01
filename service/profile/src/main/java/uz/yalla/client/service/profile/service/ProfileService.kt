@@ -1,7 +1,6 @@
 package uz.yalla.client.service.profile.service
 
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.post
@@ -26,11 +25,11 @@ class ProfileService(
     private val ktor: HttpClient
 ) {
     suspend fun getMe(): Either<ApiResponseWrapper<GetMeResponse>, DataError.Network> =
-        safeApiCall { ktor.post(ProfileUrl.GET_ME).body() }
+        safeApiCall { ktor.post(ProfileUrl.GET_ME) }
 
     suspend fun updateMe(body: UpdateMeRequest): Either<ApiResponseWrapper<ClientRemoteModel>, DataError.Network> =
         safeApiCall {
-            ktor.put(ProfileUrl.UPDATE_ME) { setBody(body) }.body()
+            ktor.put(ProfileUrl.UPDATE_ME) { setBody(body) }
         }
 
     suspend fun updateAvatar(image: ByteArray): Either<ApiResponseWrapper<UpdateAvatarResponse>, DataError.Network> =
@@ -55,6 +54,6 @@ class ProfileService(
             ktor.post(ProfileUrl.CHANGE_AVATAR) {
                 contentType(ContentType.MultiPart.FormData)
                 setBody(formData)
-            }.body()
+            }
         }
 }

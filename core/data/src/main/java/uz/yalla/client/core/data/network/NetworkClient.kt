@@ -3,6 +3,8 @@ package uz.yalla.client.core.data.network
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.HttpCallValidator
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.header
 import io.ktor.serialization.kotlinx.json.json
@@ -17,6 +19,8 @@ import kotlinx.serialization.json.Json
 import sp.bvantur.inspektify.ktor.InspektifyKtor
 import uz.yalla.client.core.data.BuildConfig
 import uz.yalla.client.core.domain.local.AppPreferences
+import io.ktor.http.HttpStatusCode
+import io.ktor.client.plugins.ClientRequestException
 
 private val localeCache = MutableStateFlow("")
 private val accessTokenCache = MutableStateFlow("")
@@ -46,6 +50,25 @@ fun provideNetworkClient(
             }
         }
 
+        install(HttpCallValidator) {
+            validateResponse { response ->
+                if (response.status == HttpStatusCode.Unauthorized) {
+                    UnauthorizedEventBus.emit()
+                }
+            }
+            handleResponseExceptionWithRequest { cause, _ ->
+                if (cause is ClientRequestException && cause.response.status == HttpStatusCode.Unauthorized) {
+                    UnauthorizedEventBus.emit()
+                }
+            }
+        }
+
+        install(HttpTimeout) {
+            requestTimeoutMillis = 15_000
+            connectTimeoutMillis = 10_000
+            socketTimeoutMillis = 15_000
+        }
+
         defaultRequest {
             url(baseUrl)
             header("lang", localeCache.value)
@@ -54,7 +77,7 @@ fun provideNetworkClient(
             header("Content-Type", "application/json")
             header("Device-Mode", "mobile")
             header("Device", "client")
-            header("secret-key", "227da29a-b4b0-4682-a74f-492466836b6e")
+            header("secret-key", BuildConfig.SECRET_KEY)
             header(
                 "Authorization",
                 "Bearer " + accessTokenCache.value
@@ -64,7 +87,7 @@ fun provideNetworkClient(
         install(ContentNegotiation) {
             json(
                 Json {
-                    prettyPrint = true
+                    prettyPrint = BuildConfig.DEBUG
                     isLenient = true
                     ignoreUnknownKeys = true
                     explicitNulls = false

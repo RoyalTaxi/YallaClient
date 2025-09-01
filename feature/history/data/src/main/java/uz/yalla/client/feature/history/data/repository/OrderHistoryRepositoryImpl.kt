@@ -9,6 +9,7 @@ import uz.yalla.client.feature.history.data.mapper.OrderHistoryMapper
 import uz.yalla.client.feature.history.data.paging.OrdersHistoryPagingSource
 import uz.yalla.client.core.domain.error.DataError
 import uz.yalla.client.core.domain.error.Either
+import uz.yalla.client.core.data.ext.mapResult
 import uz.yalla.client.feature.domain.model.OrderHistoryModel
 import uz.yalla.client.feature.domain.model.OrdersHistoryModel
 import uz.yalla.client.feature.domain.repository.OrderHistoryRepository
@@ -22,10 +23,6 @@ class OrderHistoryRepositoryImpl(
         pagingSourceFactory = { OrdersHistoryPagingSource(service) }
     ).flow
 
-    override suspend fun getOrderHistory(orderId: Int): Either<OrderHistoryModel, DataError.Network> {
-        return when (val result = service.getOrder(orderId)) {
-            is Either.Error -> Either.Error(result.error)
-            is Either.Success -> Either.Success(result.data.result.let(OrderHistoryMapper.mapper))
-        }
-    }
+    override suspend fun getOrderHistory(orderId: Int): Either<OrderHistoryModel, DataError.Network> =
+        service.getOrder(orderId).mapResult(OrderHistoryMapper.mapper)
 }

@@ -1,80 +1,35 @@
 package uz.yalla.client.feature.setting.model
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import org.orbitmvi.orbit.Container
+import org.orbitmvi.orbit.ContainerHost
+import org.orbitmvi.orbit.viewmodel.container
 import uz.yalla.client.core.common.viewmodel.BaseViewModel
+import uz.yalla.client.core.common.viewmodel.LifeCycleAware
 import uz.yalla.client.core.domain.local.AppPreferences
-import uz.yalla.client.core.domain.model.type.ThemeType
-import uz.yalla.client.feature.setting.components.Language
-import uz.yalla.client.feature.setting.components.Theme
-import uz.yalla.client.feature.settings.R
+import uz.yalla.client.feature.setting.intent.SettingsSideEffect
+import uz.yalla.client.feature.setting.intent.SettingsState
 
 internal class SettingsViewModel(
-    private val prefs: AppPreferences
-) : BaseViewModel() {
-    private val _uiState = MutableStateFlow(SettingsUIState())
-    val uiState = _uiState.asStateFlow()
+    internal val prefs: AppPreferences
+) : BaseViewModel(), LifeCycleAware, ContainerHost<SettingsState, SettingsSideEffect> {
 
-    init {
-        viewModelScope.launch {
-            prefs.locale.collectLatest { locale ->
-                _uiState.update {
-                    it.copy(
-                        selectedLanguage = when (locale) {
-                            "uz" -> Language(R.string.uzbek, "uz")
-                            else -> Language(R.string.russian, "ru")
-                        }
-                    )
-                }
-            }
-        }
+    override val container: Container<SettingsState, SettingsSideEffect> =
+        container(SettingsState.INITIAL)
 
-        viewModelScope.launch {
-            prefs.themeType.collectLatest { themType ->
-                _uiState.update {
-                    it.copy(
-                        selectedTheme = Theme(
-                            themeType = themType,
-                            stringResId = when (themType) {
-                                ThemeType.LIGHT -> R.string.light_mode
-                                ThemeType.DARK -> R.string.dark_mode
-                                ThemeType.SYSTEM -> R.string.system_mode
-                            }
-                        )
-                    )
-                }
-            }
-        }
+    override var scope: CoroutineScope? = null
+
+    override fun onCreate() {
+        super.onCreate()
+        viewModelScope.launch { }
     }
 
-
-    fun setSelectedLanguageType(languageType: Language) = viewModelScope.launch(Dispatchers.Main) {
-        _uiState.update { it.copy(selectedLanguage = languageType) }
-        updateAppLanguage(languageType)
-    }
-
-    fun setThemeType(theme: Theme) = viewModelScope.launch(Dispatchers.Main) {
-        _uiState.update { it.copy(selectedTheme = theme) }
-        updateAppTheme(theme.themeType)
-    }
-
-    fun setChangeLanguageVisibility(value: Boolean) {
-        _uiState.update { it.copy(changeLanguageSheetVisibility = value) }
-    }
-
-    fun setChangeThemeVisibility(value: Boolean) {
-        _uiState.update { it.copy(changeThemeSheetVisibility = value) }
-    }
-
-    private fun updateAppLanguage(languageType: Language) {
-        prefs.setLocale(languageType.languageTag)
-    }
-
-    private fun updateAppTheme(themeType: ThemeType) {
-        prefs.setThemeType(themeType)
+    override fun onStart() {
+        super.onStart()
+        scope = CoroutineScope(viewModelScope.coroutineContext + SupervisorJob())
+        scope?.launch { observeThemeChanges() }
+        scope?.launch { observeLocaleChanges() }
     }
 }

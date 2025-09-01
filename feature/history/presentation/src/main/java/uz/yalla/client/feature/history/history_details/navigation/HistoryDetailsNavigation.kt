@@ -13,8 +13,12 @@ import uz.yalla.client.feature.history.history_details.view.HistoryDetailsRoute
  const val DETAILS_ROUTE_BASE = "credentials_route"
  const val DETAILS_ROUTE = "$DETAILS_ROUTE_BASE?$ID={$ID}"
 
+sealed interface FromHistoryDetails {
+    data object NavigateBack: FromHistoryDetails
+}
+
  fun NavGraphBuilder.historyDetailsScreen(
-    onNavigateBack: () -> Unit,
+    fromHistoryDetails: (FromHistoryDetails) -> Unit
 ) {
     composable(
         route = DETAILS_ROUTE,
@@ -22,7 +26,7 @@ import uz.yalla.client.feature.history.history_details.view.HistoryDetailsRoute
     ) { backStackEntry ->
         HistoryDetailsRoute(
             orderId = backStackEntry.arguments?.getInt(ID) ?: 0,
-            onNavigateBack = onNavigateBack
+            navigateTo = fromHistoryDetails
         )
     }
 }

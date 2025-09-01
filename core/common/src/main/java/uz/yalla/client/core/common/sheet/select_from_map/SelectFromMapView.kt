@@ -3,27 +3,10 @@ package uz.yalla.client.core.common.sheet.select_from_map
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -51,8 +34,8 @@ import uz.yalla.client.core.common.map.ConcreteLibreMap
 import uz.yalla.client.core.common.map.MapStrategy
 import uz.yalla.client.core.common.marker.YallaMarker
 import uz.yalla.client.core.common.marker.YallaMarkerState
-import uz.yalla.client.core.domain.model.Location
 import uz.yalla.client.core.domain.local.AppPreferences
+import uz.yalla.client.core.domain.model.Location
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.MapType
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
@@ -181,7 +164,6 @@ private fun rememberMapImplementation(): MapStrategy? {
         mapType?.let { type ->
             when (type) {
                 MapType.Google -> ConcreteGoogleMap()
-                MapType.Gis -> ConcreteGoogleMap()
                 MapType.Libre -> ConcreteLibreMap()
             }
         }

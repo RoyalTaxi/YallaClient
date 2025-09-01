@@ -1,28 +1,15 @@
 package uz.yalla.client.feature.info.about_app.view
 
-import android.content.Context
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -43,19 +30,20 @@ import uz.yalla.client.core.common.utils.openPlayMarket
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.info.R
-import uz.yalla.client.feature.info.about_app.model.AboutAppUIState
+import uz.yalla.client.feature.info.about_app.intent.AboutAppIntent
+import uz.yalla.client.feature.info.about_app.intent.AboutAppState
 import uz.yalla.client.feature.setting.domain.model.SocialNetwork
 
 @Composable
 fun AboutAppScreen(
-    uiState: AboutAppUIState,
+    uiState: AboutAppState,
     onIntent: (AboutAppIntent) -> Unit
 ) {
     val context = LocalContext.current
     Scaffold(
         containerColor = YallaTheme.color.background,
         modifier = Modifier,
-        topBar = { TopBar { onIntent(AboutAppIntent.OnNavigateBack) } },
+        topBar = { TopBar { onIntent(AboutAppIntent.NavigateBack) } },
         content = { paddingValues ->
             Column(
                 verticalArrangement = Arrangement.spacedBy(20.dp),
@@ -64,12 +52,12 @@ fun AboutAppScreen(
             ) {
                 Spacer(modifier = Modifier.height(60.dp))
 
-                AppInfoSection(context)
+                AppInfoSection(onIntent = onIntent)
 
                 PrivacyPolicySection(
                     uiState = uiState,
                     onClickPrivacyPolicy = { url, title ->
-                        onIntent(AboutAppIntent.OnClickUrl(url, title))
+                        onIntent(AboutAppIntent.NavigateToWeb(url, title))
                     }
                 )
 
@@ -78,7 +66,7 @@ fun AboutAppScreen(
                 SocialNetworksSection(
                     socialNetworks = uiState.socialNetworks,
                     onClickSocialNetwork = { url, title ->
-                        onIntent(AboutAppIntent.OnClickUrl(url, title))
+                        onIntent(AboutAppIntent.NavigateToWeb(url, title))
                     }
                 )
 
@@ -122,7 +110,8 @@ private fun TopBar(
 }
 
 @Composable
-private fun AppInfoSection(context: Context) {
+private fun AppInfoSection(onIntent: (AboutAppIntent) -> Unit) {
+    val context = LocalContext.current
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -132,7 +121,8 @@ private fun AppInfoSection(context: Context) {
             painter = painterResource(id = R.drawable.ic_app_logo),
             modifier = Modifier
                 .size(100.dp)
-                .clip(RoundedCornerShape(16.dp)),
+                .clip(RoundedCornerShape(16.dp))
+                .clickable { onIntent(AboutAppIntent.ChangeMap) },
             contentDescription = null,
             contentScale = ContentScale.Fit
         )
@@ -162,7 +152,7 @@ private fun AppInfoSection(context: Context) {
 
 @Composable
 private fun PrivacyPolicySection(
-    uiState: AboutAppUIState,
+    uiState: AboutAppState,
     onClickPrivacyPolicy: (Int, String) -> Unit
 ) {
     val prefs = koinInject<AppPreferences>()

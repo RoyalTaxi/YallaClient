@@ -14,8 +14,12 @@ internal const val TYPE = "type"
 internal const val ADDRESS_ROUTE_BASE = "address_route"
 internal const val ADDRESS_ROUTE = "$ADDRESS_ROUTE_BASE?$ID={$ID}&$TYPE={$TYPE}"
 
+sealed interface FromPlace {
+    data object NavigateBack: FromPlace
+}
+
 internal fun NavGraphBuilder.addressScreen(
-    onNavigateBack: () -> Unit
+    fromPlace: (FromPlace) -> Unit
 ) {
     composable(
         route = ADDRESS_ROUTE,
@@ -36,7 +40,7 @@ internal fun NavGraphBuilder.addressScreen(
         AddressRoute(
             id = id,
             type = type,
-            onNavigateBack = onNavigateBack
+            navigateTo = fromPlace
         )
     }
 }

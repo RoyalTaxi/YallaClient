@@ -4,6 +4,5 @@
         <item name="android:windowSplashScreenBackground">@color/yalla_primary</item>
         <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_splash_logo</item>
         <item name="android:windowNoTitle">true</item>
-        <item name="android:windowFullscreen">true</item>
     </style>
 </resources>

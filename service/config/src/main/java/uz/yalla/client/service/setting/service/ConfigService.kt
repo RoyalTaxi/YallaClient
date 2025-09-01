@@ -1,7 +1,6 @@
 package uz.yalla.client.service.setting.service
 
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -18,12 +17,12 @@ class ConfigService(
     private val ktorGo: HttpClient
 ) {
     suspend fun getConfig(): Either<ApiResponseWrapper<ConfigResponse>, DataError.Network> =
-        safeApiCall {
-            ktorGo.get(ConfigUrl.CONFIG).body()
+        safeApiCall(isIdempotent = true) {
+            ktorGo.get(ConfigUrl.CONFIG)
         }
 
-    suspend fun sendFCMToken(body: SendFCMTokenRequest): Either<Any, DataError.Network> =
+    suspend fun sendFCMToken(body: SendFCMTokenRequest): Either<Unit, DataError.Network> =
         safeApiCall {
-            ktorPhp.post(ConfigUrl.FCM_TOKEN) { setBody(body) }.body()
+            ktorPhp.post(ConfigUrl.FCM_TOKEN) { setBody(body) }
         }
 }

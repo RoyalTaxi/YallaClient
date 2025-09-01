@@ -7,6 +7,8 @@ import kotlinx.coroutines.withContext
 import uz.yalla.client.core.domain.error.DataError
 import uz.yalla.client.core.domain.error.Either
 import uz.yalla.client.core.domain.local.AppPreferences
+import uz.yalla.client.core.data.ext.mapResult
+import uz.yalla.client.core.data.ext.mapSuccess
 import uz.yalla.client.feature.setting.data.mapper.ConfigMapper
 import uz.yalla.client.feature.setting.domain.model.ConfigModel
 import uz.yalla.client.feature.setting.domain.repository.ConfigRepository
@@ -18,10 +20,7 @@ class ConfigRepositoryImpl(
     private val prefs: AppPreferences
 ) : ConfigRepository {
     override suspend fun getConfig(): Either<ConfigModel, DataError.Network> {
-        return when (val result = service.getConfig()) {
-            is Either.Error -> Either.Error(result.error)
-            is Either.Success -> Either.Success(result.data.result.let(ConfigMapper.mapper))
-        }
+        return service.getConfig().mapResult(ConfigMapper.mapper)
     }
 
     override suspend fun getAndSaveFirebaseToken(): Either<String, DataError.Network> {
@@ -37,10 +36,7 @@ class ConfigRepositoryImpl(
         accessToken: String
     ): Either<Unit, DataError.Network> {
         return withContext(Dispatchers.IO) {
-            when (val result = service.sendFCMToken(SendFCMTokenRequest(token))) {
-                is Either.Error -> Either.Error(result.error)
-                is Either.Success -> Either.Success(Unit)
-            }
+            service.sendFCMToken(SendFCMTokenRequest(token)).mapSuccess { Unit }
         }
     }
 }

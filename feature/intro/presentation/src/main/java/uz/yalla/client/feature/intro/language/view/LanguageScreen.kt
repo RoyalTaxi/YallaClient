@@ -19,12 +19,13 @@ import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.common.selectable.ItemTextSelectable
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.intro.R
+import uz.yalla.client.feature.intro.language.intent.LanguageIntent
 import uz.yalla.client.feature.intro.language.model.Language
-import uz.yalla.client.feature.intro.language.model.LanguageUIState
+import uz.yalla.client.feature.intro.language.intent.LanguageState
 
 @Composable
 internal fun LanguageScreen(
-    uiState: LanguageUIState,
+    uiState: LanguageState,
     onIntent: (LanguageIntent) -> Unit
 ) {
     key(uiState.selectedLanguage) {

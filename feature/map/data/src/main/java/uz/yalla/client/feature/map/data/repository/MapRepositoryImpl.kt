@@ -2,6 +2,7 @@ package uz.yalla.client.feature.map.data.repository
 
 import uz.yalla.client.core.domain.error.DataError
 import uz.yalla.client.core.domain.error.Either
+import uz.yalla.client.core.data.ext.mapResult
 import uz.yalla.client.feature.map.data.mapper.MapMapper
 import uz.yalla.client.feature.map.domain.model.request.GetRoutingRequestItemDto
 import uz.yalla.client.feature.map.domain.model.response.GetRoutingModel
@@ -20,12 +21,7 @@ class MapRepositoryImpl(
     private val service: MapService
 ) : MapRepository {
     override suspend fun getPolygon(): Either<List<PolygonRemoteItem>, DataError.Network> {
-        return when (val result = service.getPolygons()) {
-            is Either.Error -> Either.Error(DataError.Network.UNKNOWN_ERROR)
-            is Either.Success -> Either.Success(
-                result.data.result?.map(MapMapper.polygonMapper).orEmpty()
-            )
-        }
+        return service.getPolygons().mapResult { it?.map(MapMapper.polygonMapper).orEmpty() }
     }
 
     override suspend fun getAddress(
@@ -46,50 +42,36 @@ class MapRepositoryImpl(
         lng: Double,
         query: String
     ): Either<List<SearchForAddressItemModel>, DataError.Network> {
-        return when (val result = service.searchForAddress(
+        return service.searchForAddress(
             SearchForAddressRequest(
                 lat = lat,
                 lng = lng,
                 q = query
             )
-        )) {
-            is Either.Error -> Either.Error(result.error)
-            is Either.Success -> Either.Success(
-                result.data.result?.map(MapMapper.searchAddressItemMapper).orEmpty()
-            )
-        }
+        ).mapResult { it?.map(MapMapper.searchAddressItemMapper).orEmpty() }
     }
 
     override suspend fun getRouting(addresses: List<GetRoutingRequestItemDto>): Either<GetRoutingModel, DataError.Network> {
-        return when (
-            val result = service.getRouting(
-                addresses.map {
-                    GetRoutingRequestItem(
-                        type = it.type,
-                        lng = it.lng,
-                        lat = it.lat
-                    )
-                }
-            )
-        ) {
-            is Either.Error -> Either.Error(result.error)
-            is Either.Success -> Either.Success(result.data.result.let(MapMapper.routingMapper))
-        }
+        return service.getRouting(
+            addresses.map {
+                GetRoutingRequestItem(
+                    type = it.type,
+                    lng = it.lng,
+                    lat = it.lat
+                )
+            }
+        ).mapResult(MapMapper.routingMapper)
     }
 
     override suspend fun searchSecondaryAddress(
         lat: Double,
         lng: Double
     ): Either<List<SecondaryAddressItemModel>, DataError.Network> {
-        return when (val result = service.getSecondaryAddressed(
+        return service.getSecondaryAddressed(
             SecondaryAddressesRequest(
                 lat = lat,
                 lng = lng
             )
-        )) {
-            is Either.Error -> Either.Error(result.error)
-            is Either.Success -> Either.Success(result.data.result?.map(MapMapper.secondaryAddressItemMapper).orEmpty()
-            )
-        }
+        ).mapResult { it?.map(MapMapper.secondaryAddressItemMapper).orEmpty() }
     }
 }

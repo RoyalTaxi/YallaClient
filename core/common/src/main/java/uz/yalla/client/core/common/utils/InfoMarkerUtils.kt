@@ -2,6 +2,7 @@ package uz.yalla.client.core.common.utils
 
 import android.content.Context
 import android.content.res.Configuration
+import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
@@ -14,6 +15,14 @@ import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import uz.yalla.client.core.common.R
 
+data class InfoMarkerImage(
+    val bitmap: Bitmap,
+    val anchorU: Float,
+    val anchorV: Float,
+    val widthPx: Int,
+    val heightPx: Int
+)
+
 fun createInfoMarkerBitmapDescriptor(
     context: Context,
     title: String?,
@@ -23,9 +32,48 @@ fun createInfoMarkerBitmapDescriptor(
     titleColor: Int,
     descriptionColor: Int
 ): BitmapDescriptor? {
-    if (title == null || description == null) {
-        return null
-    }
+    val image = createInfoMarkerBitmapWithAnchor(
+        context,
+        title,
+        description,
+        infoColor,
+        pointColor,
+        titleColor,
+        descriptionColor
+    )
+    return image?.let { BitmapDescriptorFactory.fromBitmap(it.bitmap) }
+}
+
+fun createInfoMarkerBitmap(
+    context: Context,
+    title: String?,
+    description: String?,
+    infoColor: Int,
+    pointColor: Int,
+    titleColor: Int,
+    descriptionColor: Int
+): Bitmap? {
+    return createInfoMarkerBitmapWithAnchor(
+        context,
+        title,
+        description,
+        infoColor,
+        pointColor,
+        titleColor,
+        descriptionColor
+    )?.bitmap
+}
+
+fun createInfoMarkerBitmapWithAnchor(
+    context: Context,
+    title: String?,
+    description: String?,
+    infoColor: Int,
+    pointColor: Int,
+    titleColor: Int,
+    descriptionColor: Int
+): InfoMarkerImage? {
+    if (title == null || description == null) return null
 
     val markerView = LayoutInflater.from(context).inflate(R.layout.info_marker, null)
 
@@ -45,11 +93,8 @@ fun createInfoMarkerBitmapDescriptor(
 
     val markerDrawable = GradientDrawable().apply {
         shape = GradientDrawable.OVAL
-        val innerColor = if (isDarkMode) {
-            ContextCompat.getColor(context, android.R.color.black)
-        } else {
-            ContextCompat.getColor(context, android.R.color.white)
-        }
+        val innerColor = if (isDarkMode) ContextCompat.getColor(context, android.R.color.black)
+        else ContextCompat.getColor(context, android.R.color.white)
         setColor(innerColor)
         val strokeWidthPx = (context.resources.displayMetrics.density * 4).toInt()
         setStroke(strokeWidthPx, pointColor)
@@ -66,9 +111,15 @@ fun createInfoMarkerBitmapDescriptor(
     val height = markerView.measuredHeight
     markerView.layout(0, 0, width, height)
 
+    // Compute anchor position for the marker point's center
+    val centerX = markerPoint.left + markerPoint.measuredWidth / 2f
+    val centerY = markerPoint.top + markerPoint.measuredHeight / 2f
+    val anchorU = if (width != 0) centerX / width.toFloat() else 0.5f
+    val anchorV = if (height != 0) centerY / height.toFloat() else 1f
+
     val bitmap = createBitmap(width, height)
     val canvas = Canvas(bitmap)
     markerView.draw(canvas)
 
-    return BitmapDescriptorFactory.fromBitmap(bitmap)
+    return InfoMarkerImage(bitmap, anchorU, anchorV, width, height)
 }
