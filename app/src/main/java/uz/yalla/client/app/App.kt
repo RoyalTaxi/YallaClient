@@ -35,6 +35,5 @@ class App : Application() {
         }
 
         appPreferences.setHasProcessedOrderOnEntry(false)
-        appPreferences.setMapType(MapType.Google)
     }
 }

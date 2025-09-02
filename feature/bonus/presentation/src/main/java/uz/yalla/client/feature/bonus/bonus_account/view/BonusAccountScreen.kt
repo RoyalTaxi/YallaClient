@@ -117,35 +117,33 @@ private fun BonusAccountHeader() {
 private fun PromoCodes(
     onEnterPromoCode: () -> Unit
 ) {
-    Column {
-        Text(
-            text = stringResource(R.string.promocodes),
-            style = YallaTheme.font.title2,
-            color = YallaTheme.color.onBackground,
-            modifier = Modifier.padding(vertical = 17.dp)
-        )
+    Text(
+        text = stringResource(R.string.promocodes),
+        style = YallaTheme.font.title2,
+        color = YallaTheme.color.onBackground,
+        modifier = Modifier.padding(vertical = 17.dp)
+    )
 
-        OrderOptionsItem(
-            title = stringResource(R.string.enter_promocod),
-            leadingIcon = {
-                Icon(
-                    painter = painterResource(R.drawable.ic_coupon),
-                    contentDescription = null,
-                    tint = YallaTheme.color.onBackground
-                )
+    OrderOptionsItem(
+        title = stringResource(R.string.enter_promocod),
+        leadingIcon = {
+            Icon(
+                painter = painterResource(R.drawable.ic_coupon),
+                contentDescription = null,
+                tint = YallaTheme.color.onBackground
+            )
 
-                Spacer(modifier = Modifier.width(16.dp))
-            },
-            trailingIcon = {
-                Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(16.dp))
+        },
+        trailingIcon = {
+            Spacer(modifier = Modifier.width(16.dp))
 
-                Icon(
-                    imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
-                    contentDescription = null,
-                    tint = YallaTheme.color.gray
-                )
-            },
-            onClick = onEnterPromoCode
-        )
-    }
+            Icon(
+                imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
+                contentDescription = null,
+                tint = YallaTheme.color.gray
+            )
+        },
+        onClick = onEnterPromoCode
+    )
 }
