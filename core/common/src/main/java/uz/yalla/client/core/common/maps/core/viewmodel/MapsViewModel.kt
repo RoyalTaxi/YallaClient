@@ -321,11 +321,18 @@ class MapsViewModel(
     }
 
     private fun applyMapPadding(state: MapState) {
-        mapController.setPadding(
+        // Persist paddings so MapLibre can reapply after style reloads
+        uz.yalla.client.core.common.maps.core.util.MapPaddingStore.set(
             state.sideMarkPaddingPx,
             state.topPaddingPx,
             state.sideMarkPaddingPx,
             state.bottomPaddingPx
+        )
+        mapController.setPadding(
+            uz.yalla.client.core.common.maps.core.util.MapPaddingStore.left,
+            uz.yalla.client.core.common.maps.core.util.MapPaddingStore.top,
+            uz.yalla.client.core.common.maps.core.util.MapPaddingStore.right,
+            uz.yalla.client.core.common.maps.core.util.MapPaddingStore.bottom
         )
     }
 

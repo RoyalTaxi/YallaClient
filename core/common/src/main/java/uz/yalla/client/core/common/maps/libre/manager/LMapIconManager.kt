@@ -99,7 +99,7 @@ class LMapIconManager : MapIconManager {
                 context = context,
                 title = title,
                 description = description,
-                infoColor = context.getColor(R.color.info_marker_bg),
+                infoColor = context.getColor(R.color.primary),
                 pointColor = context.getColor(R.color.info_marker_dot_origin),
                 titleColor = context.getColor(R.color.info_marker_title),
                 descriptionColor = context.getColor(R.color.info_marker_desc)
@@ -120,7 +120,7 @@ class LMapIconManager : MapIconManager {
                 context = context,
                 title = title,
                 description = description,
-                infoColor = context.getColor(R.color.info_marker_bg),
+                infoColor = context.getColor(R.color.black),
                 pointColor = context.getColor(R.color.info_marker_dot_destination),
                 titleColor = context.getColor(R.color.info_marker_title),
                 descriptionColor = context.getColor(uz.yalla.client.core.common.R.color.info_marker_desc)

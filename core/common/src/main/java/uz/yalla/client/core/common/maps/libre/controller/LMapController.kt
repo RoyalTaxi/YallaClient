@@ -43,7 +43,17 @@ class LMapController : MapController {
     }
 
     override fun setGesturesEnabled(enabled: Boolean) {
-        // Not exposed uniformly via classic MapLibreMap; skip toggling here.
+        // Toggle user gestures via MapLibre UiSettings
+        try {
+            map?.uiSettings?.apply {
+                isScrollGesturesEnabled = enabled
+                isZoomGesturesEnabled = enabled
+                isTiltGesturesEnabled = enabled
+                isRotateGesturesEnabled = enabled
+            }
+        } catch (_: Throwable) {
+            // Ignore if underlying SDK version differs
+        }
     }
 
     override fun setOnCameraIdle(listener: (MapPoint) -> Unit) {
@@ -66,7 +76,6 @@ class LMapController : MapController {
     }
 
     override fun moveWithoutZoom(point: MapPoint) {
-        // newLatLng keeps current zoom level in MapLibre classic
         map?.moveCamera(CameraUpdateFactory.newLatLng(LatLng(point.lat, point.lng)))
     }
 

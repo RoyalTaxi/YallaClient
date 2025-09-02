@@ -2,6 +2,7 @@ package uz.yalla.client.feature.places.places.view
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -93,7 +94,10 @@ private fun AddressesContent(
     onAddNewAddress: (PlaceType) -> Unit,
     onClickAddress: (Int, PlaceType) -> Unit
 ) {
-    LazyColumn(modifier = modifier) {
+    LazyColumn(
+        modifier = modifier,
+        contentPadding = PaddingValues(horizontal = 20.dp)
+    ) {
         stickyHeader {
             Spacer(modifier = Modifier.height(40.dp))
 
@@ -129,7 +133,7 @@ private fun AddressesHeader() {
         text = stringResource(R.string.my_places),
         color = YallaTheme.color.onBackground,
         style = YallaTheme.font.headline,
-        modifier = Modifier.padding(start = 20.dp, end = 60.dp)
+        modifier = Modifier.padding(end = 40.dp)
     )
 
     Spacer(modifier = Modifier.height(20.dp))
@@ -138,7 +142,7 @@ private fun AddressesHeader() {
         text = stringResource(R.string.my_places_desc),
         color = YallaTheme.color.onBackground,
         style = YallaTheme.font.body,
-        modifier = Modifier.padding(start = 20.dp, end = 60.dp)
+        modifier = Modifier.padding(end = 40.dp)
     )
 }
 
@@ -147,51 +151,47 @@ private fun AddDefaultAddressItems(
     onAddHomeAddress: () -> Unit,
     onAddWorkAddress: () -> Unit
 ) {
-    Column(
-        modifier = Modifier.padding(horizontal = 20.dp)
-    ) {
-        OrderOptionsItem(
-            title = stringResource(R.string.add_home_address),
-            leadingIcon = {
-                Icon(
-                    painter = painterResource(R.drawable.ic_home),
-                    contentDescription = null,
-                    tint = YallaTheme.color.gray
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-            },
-            trailingIcon = {
-                Spacer(modifier = Modifier.width(16.dp))
-                Icon(
-                    painter = painterResource(R.drawable.ic_add),
-                    contentDescription = null,
-                    tint = YallaTheme.color.gray
-                )
-            },
-            onClick = onAddHomeAddress
-        )
+    OrderOptionsItem(
+        title = stringResource(R.string.add_home_address),
+        leadingIcon = {
+            Icon(
+                painter = painterResource(R.drawable.ic_home),
+                contentDescription = null,
+                tint = YallaTheme.color.gray
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+        },
+        trailingIcon = {
+            Spacer(modifier = Modifier.width(16.dp))
+            Icon(
+                painter = painterResource(R.drawable.ic_add),
+                contentDescription = null,
+                tint = YallaTheme.color.gray
+            )
+        },
+        onClick = onAddHomeAddress
+    )
 
-        OrderOptionsItem(
-            title = stringResource(R.string.add_work_address),
-            leadingIcon = {
-                Icon(
-                    painter = painterResource(R.drawable.ic_work),
-                    contentDescription = null,
-                    tint = YallaTheme.color.gray
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-            },
-            trailingIcon = {
-                Spacer(modifier = Modifier.width(16.dp))
-                Icon(
-                    painter = painterResource(R.drawable.ic_add),
-                    contentDescription = null,
-                    tint = YallaTheme.color.gray
-                )
-            },
-            onClick = onAddWorkAddress
-        )
-    }
+    OrderOptionsItem(
+        title = stringResource(R.string.add_work_address),
+        leadingIcon = {
+            Icon(
+                painter = painterResource(R.drawable.ic_work),
+                contentDescription = null,
+                tint = YallaTheme.color.gray
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+        },
+        trailingIcon = {
+            Spacer(modifier = Modifier.width(16.dp))
+            Icon(
+                painter = painterResource(R.drawable.ic_add),
+                contentDescription = null,
+                tint = YallaTheme.color.gray
+            )
+        },
+        onClick = onAddWorkAddress
+    )
 }
 
 @Composable

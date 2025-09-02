@@ -29,6 +29,9 @@ class LMapElementManager(
     private val lastDriverPosById = mutableMapOf<Int, Pair<Double, Double>>()
     private val lastDriverHeadingById = mutableMapOf<Int, Float>()
 
+    // Track route identity to avoid unnecessary redraws on camera refocus
+    private var lastRouteSignature: String? = null
+
     override fun setMap(map: Any) {
         this.map = map as? MapLibreMap
     }
@@ -57,6 +60,7 @@ class LMapElementManager(
 
         lastDriverPosition = null
         lastDriverHeading = null
+        lastRouteSignature = null
     }
 
     override fun updateRouteOnMap(
@@ -71,27 +75,74 @@ class LMapElementManager(
         orderStatus: OrderStatus?,
         animate: Boolean
     ) {
-        polyline?.remove()
-        polyline = null
-        dashedPolylines.forEach { it.remove() }
-        dashedPolylines.clear()
+        val currentSignature = computeRouteSignature(route)
+        val routeChanged = currentSignature != lastRouteSignature
 
-        if (route.isNotEmpty()) {
-            drawRoute(
-                route,
-                mapPaddingPx,
-                leftPaddingPx,
-                topPaddingPx,
-                rightPaddingPx,
-                bottomPaddingPx,
-                isDarkTheme,
-                orderStatus,
-                animate,
-                locations
-            )
+        // Only redraw polyline and dashed connections if route actually changed
+        if (routeChanged || polyline == null) {
+            polyline?.remove(); polyline = null
+            dashedPolylines.forEach { it.remove() }; dashedPolylines.clear()
+
+            if (route.isNotEmpty()) {
+                drawRoute(
+                    route,
+                    mapPaddingPx,
+                    leftPaddingPx,
+                    topPaddingPx,
+                    rightPaddingPx,
+                    bottomPaddingPx,
+                    isDarkTheme,
+                    orderStatus,
+                    animate,
+                    locations
+                )
+                lastRouteSignature = currentSignature
+            }
+
+            if (locations.isNotEmpty()) {
+                drawDashedConnections(locations, route)
+            }
+        } else {
+            // Route is unchanged and already drawn — only adjust camera if requested
+            if (route.isNotEmpty()) {
+                val boundsBuilder = LatLngBounds.Builder()
+                route.forEach { boundsBuilder.include(LatLng(it.lat, it.lng)) }
+                locations.forEach { boundsBuilder.include(LatLng(it.lat, it.lng)) }
+                val bounds = try { boundsBuilder.build() } catch (_: Throwable) { null }
+                val m = map
+                if (bounds != null && m != null && orderStatus !in OrderStatus.nonInteractive) {
+                    try {
+                        val left = leftPaddingPx + mapPaddingPx
+                        val top = topPaddingPx + mapPaddingPx
+                        val right = rightPaddingPx + mapPaddingPx
+                        val bottom = bottomPaddingPx + mapPaddingPx
+                        val cam = m.getCameraForLatLngBounds(
+                            bounds,
+                            intArrayOf(left, top, right, bottom)
+                        )
+                        if (cam != null) {
+                            if (animate) m.animateCamera(
+                                org.maplibre.android.camera.CameraUpdateFactory.newCameraPosition(cam)
+                            ) else m.cameraPosition = cam
+                        }
+                    } catch (_: Throwable) {
+                        val uniform = maxOf(leftPaddingPx + mapPaddingPx, topPaddingPx + mapPaddingPx, rightPaddingPx + mapPaddingPx, bottomPaddingPx + mapPaddingPx)
+                        val update = org.maplibre.android.camera.CameraUpdateFactory.newLatLngBounds(bounds, uniform)
+                        if (animate) m?.animateCamera(update) else m?.moveCamera(update)
+                    }
+                }
+            }
         }
-        if (locations.isNotEmpty()) {
-            drawDashedConnections(locations, route)
+    }
+
+    private fun computeRouteSignature(route: List<MapPoint>): String? {
+        if (route.isEmpty()) return null
+        val first = route.first()
+        val last = route.last()
+        return buildString {
+            append(route.size).append(':')
+            append(first.lat).append(',').append(first.lng).append('-')
+            append(last.lat).append(',').append(last.lng)
         }
     }
 
