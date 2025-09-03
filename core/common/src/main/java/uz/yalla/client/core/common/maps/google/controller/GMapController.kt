@@ -51,10 +51,12 @@ class GMapController : MapController {
 
     override fun setGesturesEnabled(enabled: Boolean) {
         map?.uiSettings?.apply {
+            // Allow pan/zoom toggling via this flag
             isScrollGesturesEnabled = enabled
             isZoomGesturesEnabled = enabled
-            isTiltGesturesEnabled = enabled
-            isRotateGesturesEnabled = enabled
+            // Always keep tilt/rotate disabled
+            isTiltGesturesEnabled = false
+            isRotateGesturesEnabled = false
         }
     }
 
@@ -118,6 +120,7 @@ class GMapController : MapController {
             isZoomControlsEnabled = false
             isMyLocationButtonEnabled = false
             isTiltGesturesEnabled = false
+            isRotateGesturesEnabled = false
             isScrollGesturesEnabledDuringRotateOrZoom = false
         }
 

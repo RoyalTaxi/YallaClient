@@ -40,7 +40,6 @@ object Maps {
             )
         }
 
-        // Provide a delegating MapElementManager to adapt at runtime (no race with preferences)
         factory<MapElementManager> {
             DelegatingMapElementManager(
                 googleIconManager = get<GMapIconManager>(),

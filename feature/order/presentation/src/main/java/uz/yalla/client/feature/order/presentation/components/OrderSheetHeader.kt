@@ -3,7 +3,6 @@ package uz.yalla.client.feature.order.presentation.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,8 +17,7 @@ import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 @Composable
 fun OrderSheetHeader(
     text: String,
-    modifier:Modifier = Modifier,
-    timer: String? = null,
+    modifier: Modifier = Modifier,
     selectedDriver: ShowOrderModel? = null
 ) {
 
@@ -46,29 +44,14 @@ fun OrderSheetHeader(
                 color = YallaTheme.color.gray
             )
 
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-
-            ) {
-
-                CarNumberItem(
-                    code = driver.executor.driver.stateNumber.slice(0..<2),
-                    number = "(\\d+|[A-Za-z]+)"
-                        .toRegex()
-                        .findAll(driver.executor.driver.stateNumber.substring(2))
-                        .map { it.value }
-                        .toList()
-                )
-
-                timer?.let {
-                    Text(
-                        text = it,
-                        style = YallaTheme.font.label,
-                        color = YallaTheme.color.primary
-                    )
-                }
-            }
+            CarNumberItem(
+                code = driver.executor.driver.stateNumber.slice(0..<2),
+                number = "(\\d+|[A-Za-z]+)"
+                    .toRegex()
+                    .findAll(driver.executor.driver.stateNumber.substring(2))
+                    .map { it.value }
+                    .toList()
+            )
         }
     }
 }

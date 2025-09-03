@@ -68,15 +68,6 @@ class DriverWaitingSheetViewModel(
         }
     }
 
-    fun infiniteTimer(isActive: Boolean) = flow {
-        var seconds = 0
-        while (isActive && currentCoroutineContext().isActive) {
-            delay(1.seconds)
-            emit(seconds)
-            seconds++
-        }
-    }
-
     fun setDetailsBottomSheetVisibility(isVisible: Boolean) {
         _uiState.update { it.copy(detailsBottomSheetVisibility = isVisible) }
     }
