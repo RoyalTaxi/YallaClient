@@ -82,7 +82,6 @@ fun DriverWaitingSheet(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    var timer by remember { mutableStateOf("") }
     val cancelOrderSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val orderDetailsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -93,14 +92,6 @@ fun DriverWaitingSheet(
     LaunchedEffect(Unit) {
         launch(Dispatchers.IO) {
             viewModel.setOrderId(orderId)
-        }
-
-        launch(Dispatchers.Default) {
-            viewModel.infiniteTimer(true).collectLatest { seconds ->
-                val minutes = seconds / 60
-                val sec = seconds % 60
-                timer = String.format(Locale.US, "%02d:%02d", minutes, sec)
-            }
         }
     }
 
@@ -137,7 +128,6 @@ fun DriverWaitingSheet(
                     OrderSheetHeader(
                         text = stringResource(R.string.waiting_for_you),
                         selectedDriver = state.selectedDriver,
-                        timer = timer,
                         modifier = Modifier
                             .onSizeChanged {
                                 with(density) {

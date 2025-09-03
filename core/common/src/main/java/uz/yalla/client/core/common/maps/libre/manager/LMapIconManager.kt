@@ -4,15 +4,17 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
+import android.graphics.Matrix
 import android.graphics.drawable.BitmapDrawable
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.scale
-import org.maplibre.android.annotations.Icon
-import org.maplibre.android.annotations.IconFactory
 import uz.yalla.client.core.common.R
 import uz.yalla.client.core.common.maps.core.manager.MapIconManager
 import uz.yalla.client.core.common.maps.libre.util.LMapConstants
+import uz.yalla.client.core.common.maps.libre.util.LMapConstants.DRIVER_ICON_DP
+import uz.yalla.client.core.common.maps.libre.util.LMapConstants.INFO_MARKER_WIDTH_DP
+import uz.yalla.client.core.common.maps.libre.util.LMapConstants.PIN_ICON_DP
 import uz.yalla.client.core.common.utils.InfoMarkerImage
 import uz.yalla.client.core.common.utils.createInfoMarkerBitmapWithAnchor
 import uz.yalla.client.core.common.utils.dpToPx
@@ -20,11 +22,6 @@ import kotlin.math.abs
 import kotlin.math.max
 
 class LMapIconManager : MapIconManager {
-    private companion object {
-        const val DRIVER_ICON_DP = 20
-        const val PIN_ICON_DP = 8
-        const val INFO_MARKER_WIDTH_DP = 22
-    }
 
     private val driverResId: Int
     private val originResId: Int
@@ -44,36 +41,49 @@ class LMapIconManager : MapIconManager {
         this.destinationResId = destinationResId
     }
 
-    constructor(context: Context) : super(context) {
-        this.driverResId = R.drawable.img_car_marker
-        this.originResId = R.drawable.ic_origin_marker
-        this.middleResId = R.drawable.ic_middle_marker
-        this.destinationResId = R.drawable.ic_destination_marker
-    }
+    // Bitmaps for layer-based rendering (MapLibre)
+    private var driverBitmap: Bitmap? = null
+    private var originBitmap: Bitmap? = null
+    private var middleBitmap: Bitmap? = null
+    private var destinationBitmap: Bitmap? = null
 
-    private var driverIcon: Icon? = null
-    private var originIcon: Icon? = null
-    private var middleIcon: Icon? = null
-    private var destinationIcon: Icon? = null
+    // Info marker bitmaps (padded/anchored for SymbolLayer)
+    private var originInfoBitmap: Bitmap? = null
+    private var destinationInfoBitmap: Bitmap? = null
 
-    private val iconFactory by lazy { IconFactory.getInstance(context) }
+    // Cache of rotated driver bitmaps (quantized by degrees)
+    private val driverRotationCache = mutableMapOf<Int, Bitmap>()
 
     override fun initializeIcons() {
-        driverIcon = iconFactory.fromBitmap(scaleToDp(decode(driverResId), DRIVER_ICON_DP))
-        originIcon = iconFactory.fromBitmap(scaleToDp(decode(originResId), PIN_ICON_DP))
-        middleIcon = iconFactory.fromBitmap(scaleToDp(decode(middleResId), PIN_ICON_DP))
-        destinationIcon = iconFactory.fromBitmap(scaleToDp(decode(destinationResId), PIN_ICON_DP))
+        val driver = scaleToDp(decode(driverResId), DRIVER_ICON_DP)
+        val origin = scaleToDp(decode(originResId), PIN_ICON_DP)
+        val middle = scaleToDp(decode(middleResId), PIN_ICON_DP)
+        val destination = scaleToDp(decode(destinationResId), PIN_ICON_DP)
+
+        // Layer-based bitmaps
+        driverBitmap = driver
+        originBitmap = origin
+        middleBitmap = middle
+        destinationBitmap = destination
+
+        // Reset info markers; created on demand in createMarkerIcons
         originInfoIcon = null
         destinationInfoIcon = null
+        originInfoBitmap = null
+        destinationInfoBitmap = null
     }
 
     override fun clearCache() {
-        driverIcon = null
-        originIcon = null
-        middleIcon = null
-        destinationIcon = null
         originInfoIcon = null
         destinationInfoIcon = null
+        driverBitmap = null
+        originBitmap = null
+        middleBitmap = null
+        destinationBitmap = null
+        originInfoBitmap = null
+        destinationInfoBitmap = null
+        driverRotationCache.values.forEach { it.recycle() }
+        driverRotationCache.clear()
     }
 
     override fun createMarkerIcons(
@@ -82,6 +92,10 @@ class LMapIconManager : MapIconManager {
         hasOrder: Boolean,
         isDark: Boolean
     ) {
+        // Always reset current info bitmaps on each call
+        originInfoBitmap = null
+        destinationInfoBitmap = null
+
         // Hide info markers whenever there is an active order
         if (hasOrder) {
             originInfoIcon = null
@@ -89,7 +103,7 @@ class LMapIconManager : MapIconManager {
             return
         }
 
-        originInfoIcon = if (carArrivesInMinutes != null) {
+        if (carArrivesInMinutes != null) {
             val title = context.getString(
                 uz.yalla.client.core.common.R.string.x_min,
                 carArrivesInMinutes.coerceAtLeast(0).toString()
@@ -106,16 +120,16 @@ class LMapIconManager : MapIconManager {
             )?.let { img ->
                 val padded = centerPadToAnchor(img)
                 val scaled = scaleBitmapToDpWidth(padded, INFO_MARKER_WIDTH_DP)
-                iconFactory.fromBitmap(scaled)
+                originInfoBitmap = scaled
             }
-        } else null
+        }
 
-        destinationInfoIcon = if (orderEndsInMinutes != null) {
+        if (orderEndsInMinutes != null) {
             val title = context.getString(
-                uz.yalla.client.core.common.R.string.x_min,
+                R.string.x_min,
                 orderEndsInMinutes.coerceAtLeast(0).toString()
             )
-            val description = context.getString(uz.yalla.client.core.common.R.string.on_the_way)
+            val description = context.getString(R.string.on_the_way)
             createInfoMarkerBitmapWithAnchor(
                 context = context,
                 title = title,
@@ -123,26 +137,26 @@ class LMapIconManager : MapIconManager {
                 infoColor = context.getColor(R.color.black),
                 pointColor = context.getColor(R.color.info_marker_dot_destination),
                 titleColor = context.getColor(R.color.info_marker_title),
-                descriptionColor = context.getColor(uz.yalla.client.core.common.R.color.info_marker_desc)
+                descriptionColor = context.getColor(R.color.info_marker_desc)
             )?.let { img ->
                 val padded = centerPadToAnchor(img)
                 val scaled = scaleBitmapToDpWidth(padded, INFO_MARKER_WIDTH_DP)
-                iconFactory.fromBitmap(scaled)
+                destinationInfoBitmap = scaled
             }
-        } else null
+        }
+
+        // Inform the abstract properties are not used for MapLibre; keep them null
+        originInfoIcon = null
+        destinationInfoIcon = null
     }
 
-    override fun requireDriverIcon(): Any = driverIcon
-        ?: iconFactory.fromBitmap(scaleToDp(decode(driverResId), DRIVER_ICON_DP)).also { driverIcon = it }
+    override fun requireDriverIcon(): Any = requireDriverBitmap()
 
-    override fun requireOriginIcon(): Any = originIcon
-        ?: iconFactory.fromBitmap(scaleToDp(decode(originResId), PIN_ICON_DP)).also { originIcon = it }
+    override fun requireOriginIcon(): Any = requireOriginBitmap()
 
-    override fun requireMiddleIcon(): Any = middleIcon
-        ?: iconFactory.fromBitmap(scaleToDp(decode(middleResId), PIN_ICON_DP)).also { middleIcon = it }
+    override fun requireMiddleIcon(): Any = requireMiddleBitmap()
 
-    override fun requireDestinationIcon(): Any = destinationIcon
-        ?: iconFactory.fromBitmap(scaleToDp(decode(destinationResId), PIN_ICON_DP)).also { destinationIcon = it }
+    override fun requireDestinationIcon(): Any = requireDestinationBitmap()
 
     private fun decode(resId: Int): Bitmap {
         val bmp = BitmapFactory.decodeResource(context.resources, resId)
@@ -201,10 +215,41 @@ class LMapIconManager : MapIconManager {
         val newW = w + (2 * dx).toInt()
         val newH = h + (2 * dy).toInt()
 
-        val out = Bitmap.createBitmap(newW, newH, Bitmap.Config.ARGB_8888)
+        val out = createBitmap(newW, newH)
         out.density = Bitmap.DENSITY_NONE
         val canvas = Canvas(out)
         canvas.drawBitmap(src, padLeft.toFloat(), padTop.toFloat(), null)
+        return out
+    }
+
+
+    fun requireDriverBitmap(): Bitmap = driverBitmap ?: scaleToDp(decode(driverResId), DRIVER_ICON_DP).also { driverBitmap = it }
+
+    fun requireOriginBitmap(): Bitmap = originBitmap ?: scaleToDp(decode(originResId), PIN_ICON_DP).also { originBitmap = it }
+
+    fun requireMiddleBitmap(): Bitmap = middleBitmap ?: scaleToDp(decode(middleResId), PIN_ICON_DP).also { middleBitmap = it }
+
+    fun requireDestinationBitmap(): Bitmap = destinationBitmap
+        ?: scaleToDp(decode(destinationResId), PIN_ICON_DP).also { destinationBitmap = it }
+
+    fun currentOriginInfoBitmap(): Bitmap? = originInfoBitmap
+    fun currentDestinationInfoBitmap(): Bitmap? = destinationInfoBitmap
+
+    // Expose context for IconFactory usage in element manager
+    fun appContext(): android.content.Context = context
+
+    /** Returns a rotated driver bitmap for the given heading (degrees). Cached in 5° steps. */
+    fun driverBitmapRotated(heading: Float): Bitmap {
+        val base = requireDriverBitmap()
+        val normalized = ((heading % 360f) + 360f) % 360f
+        val quant = ((normalized / 5f).toInt()) * 5
+        driverRotationCache[quant]?.let { return it }
+        val m = Matrix().apply {
+            postRotate(normalized, base.width / 2f, base.height / 2f)
+        }
+        val out = Bitmap.createBitmap(base, 0, 0, base.width, base.height, m, true)
+        out.density = Bitmap.DENSITY_NONE
+        driverRotationCache[quant] = out
         return out
     }
 }
