@@ -14,17 +14,17 @@ import uz.yalla.client.service.auth.request.auth.ValidateAuthCodeRequest
 import uz.yalla.client.service.auth.response.auth.SendAuthCodeResponse
 
 class AuthApiService(
-    private val ktor: HttpClient
+    private val ktorApi1: HttpClient
 ) {
     suspend fun sendAuthCode(
         body: SendAuthCodeRequest
     ): Either<ApiResponseWrapper<SendAuthCodeResponse>, DataError.Network> = safeApiCall {
-        ktor.post(AuthUrl.SEND_SMS) { setBody(body) }
+        ktorApi1.post(AuthUrl.SEND_SMS) { setBody(body) }
     }
 
     suspend fun validateAuthCode(
         body: ValidateAuthCodeRequest
     ): Either<ApiResponseWrapper<ValidateAuthCodeResponse>, DataError.Network> = safeApiCall {
-        ktor.post(AuthUrl.VALIDATE_CODE) { setBody(body) }
+        ktorApi1.post(AuthUrl.VALIDATE_CODE) { setBody(body) }
     }
 }

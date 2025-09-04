@@ -102,7 +102,7 @@ class ClientWaitingViewModel(
                     lng = driverPoint.lng
                 ),
                 GetRoutingDtoItem(
-                    type = GetRoutingDtoItem.END,
+                    type = GetRoutingDtoItem.STOP,
                     lat = clientPoint.lat,
                     lng = clientPoint.lng
                 )

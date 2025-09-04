@@ -8,9 +8,9 @@ import uz.yalla.client.core.service.network.safeApiCall
 import uz.yalla.client.service.auth.url.LogoutUrl
 
 class LogoutService(
-    private val ktor: HttpClient
+    private val ktorApi1: HttpClient
 ) {
     suspend fun logout(): Either<Unit, DataError.Network> = safeApiCall {
-        ktor.post(LogoutUrl.LOGOUT)
+        ktorApi1.post(LogoutUrl.LOGOUT)
     }
 }

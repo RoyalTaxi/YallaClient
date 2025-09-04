@@ -40,6 +40,7 @@ fun MViewModel.observeActiveOrder() = viewModelScope.launch {
                     continue
                 }
                 getActiveOrder()
+                // Prevent overlapping getActiveOrder calls
                 delay(10.seconds)
             }
         }
@@ -88,7 +89,17 @@ fun MViewModel.observeLocations() = viewModelScope.launch {
     stateFlow
         .distinctUntilChangedBy { it.location to it.destinations }
         .collectLatest { state ->
-            getRouting()
+            // Always push locations so markers are visible immediately
+            val points = listOfNotNull(
+                state.location?.point,
+                *state.destinations.mapNotNull { it.point }.toTypedArray()
+            )
+            mapsViewModel.onIntent(MapsIntent.UpdateLocations(points))
+
+            // Avoid computing/drawing planned route while driver is coming.
+            if (state.order?.status != OrderStatus.Appointed) {
+                getRouting()
+            }
             state.location?.let { location -> MainSheetChannel.setLocation(location) }
             MainSheetChannel.setDestination(state.destinations)
         }
@@ -150,17 +161,26 @@ fun MViewModel.observeDriver() = viewModelScope.launch {
                 mapsViewModel.onIntent(MapsIntent.UpdateDriver(null))
             }
 
-            if (state.order?.status in OrderStatus.nonInteractive) return@collectLatest
-
-            state.order?.taxi?.routes?.firstOrNull()?.let { point ->
-                mapsViewModel.onIntent(
-                    MapsIntent.MoveTo(
-                        MapPoint(point.coords.lat, point.coords.lng)
+            // While searching for driver, focus on first location
+            if (state.order?.status in OrderStatus.nonInteractive) {
+                state.order?.taxi?.routes?.firstOrNull()?.let { p ->
+                    mapsViewModel.onIntent(
+                        MapsIntent.MoveTo(
+                            MapPoint(p.coords.lat, p.coords.lng)
+                        )
                     )
-                )
-            } ?: run {
-                state.location?.point?.let { point ->
-                    mapsViewModel.onIntent(MapsIntent.MoveTo(point))
+                }
+                return@collectLatest
+            }
+
+            // If driver reached the pickup address, switch back to planned route
+            if (state.order?.status == OrderStatus.AtAddress) {
+                // Ensure we have a planned route; if not, trigger calculation
+                if (state.route.isEmpty()) {
+                    getRouting()
+                } else {
+                    mapsViewModel.onIntent(MapsIntent.UpdateRoute(state.route))
+                    mapsViewModel.onIntent(MapsIntent.AnimateFitBounds)
                 }
             }
         }

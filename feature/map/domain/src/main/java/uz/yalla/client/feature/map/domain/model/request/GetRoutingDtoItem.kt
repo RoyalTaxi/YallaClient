@@ -8,6 +8,7 @@ data class GetRoutingDtoItem(
     companion object {
         const val START = "start"
         const val POINT = "point"
-        const val END = "end"
+        // Backend expects the last point labelled as "stop"
+        const val STOP = "stop"
     }
 }

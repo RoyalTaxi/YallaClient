@@ -16,18 +16,18 @@ import uz.yalla.client.core.service.model.ApiResponseWrapper
 import uz.yalla.client.core.service.network.safeApiCall
 
 class TariffApiService(
-    private val ktor: HttpClient
+    private val ktorApi2: HttpClient
 ) {
     suspend fun getTariffs(
         body: GetTariffsRequest
     ): Either<ApiResponseWrapper<GetTariffsResponse>, DataError.Network> = safeApiCall {
-        ktor.post(TariffUrl.GET_TARIFFS) { setBody(body) }
+        ktorApi2.post(TariffUrl.GET_TARIFFS) { setBody(body) }
     }
 
     suspend fun getTimeOut(
         body: GetTimeOutRequest
     ): Either<ApiResponseWrapper<GetTimeOutResponse>, DataError.Network> = safeApiCall(isIdempotent = true) {
-        ktor.get(TariffUrl.GET_TIMEOUT) {
+        ktorApi2.get(TariffUrl.GET_TIMEOUT) {
             parameter("lat", body.lat)
             parameter("lng", body.lng)
             parameter("tariff_id", body.tariff_id)

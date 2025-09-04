@@ -96,8 +96,23 @@ class GMapElementManager(
             drawRoute(route, mapPaddingPx, leftPaddingPx, topPaddingPx, rightPaddingPx, bottomPaddingPx, isDarkTheme, orderStatus, animate, locations)
         }
 
-        if (locations.isNotEmpty()) {
-            drawDashedConnections(locations, route)
+        // Draw dashed connectors only when order is not cancellable
+        if (locations.isNotEmpty() && orderStatus == OrderStatus.Appointed && route.isNotEmpty()) {
+            // Dashed polyline purpose: show the walk segment from the exact
+            // first location to the nearest point on the driver's current route.
+            val start = locations.first()
+            val target = findClosestPointOnRoute(start, route) ?: route.lastOrNull()
+            if (target != null && target != start) {
+                map?.let { googleMap ->
+                    val dashed = PolylineOptions()
+                        .add(LatLng(start.lat, start.lng))
+                        .add(LatLng(target.lat, target.lng))
+                        .color(iconManager.color(R.color.map_dashed_polyline_google))
+                        .width(GMapConstants.DASHED_POLYLINE_WIDTH)
+                        .pattern(listOf(Dash(16f), Gap(16f)))
+                    googleMap.addPolyline(dashed)?.let { dashedPolylines.add(it) }
+                }
+            }
         }
     }
 

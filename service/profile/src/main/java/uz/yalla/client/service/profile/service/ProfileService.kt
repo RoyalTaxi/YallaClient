@@ -22,14 +22,14 @@ import uz.yalla.client.core.service.model.ClientRemoteModel
 import uz.yalla.client.core.service.network.safeApiCall
 
 class ProfileService(
-    private val ktor: HttpClient
+    private val ktorApi1: HttpClient
 ) {
     suspend fun getMe(): Either<ApiResponseWrapper<GetMeResponse>, DataError.Network> =
-        safeApiCall { ktor.post(ProfileUrl.GET_ME) }
+        safeApiCall { ktorApi1.post(ProfileUrl.GET_ME) }
 
     suspend fun updateMe(body: UpdateMeRequest): Either<ApiResponseWrapper<ClientRemoteModel>, DataError.Network> =
         safeApiCall {
-            ktor.put(ProfileUrl.UPDATE_ME) { setBody(body) }
+            ktorApi1.put(ProfileUrl.UPDATE_ME) { setBody(body) }
         }
 
     suspend fun updateAvatar(image: ByteArray): Either<ApiResponseWrapper<UpdateAvatarResponse>, DataError.Network> =
@@ -51,7 +51,7 @@ class ProfileService(
                     )
                 }
             )
-            ktor.post(ProfileUrl.CHANGE_AVATAR) {
+            ktorApi1.post(ProfileUrl.CHANGE_AVATAR) {
                 contentType(ContentType.MultiPart.FormData)
                 setBody(formData)
             }

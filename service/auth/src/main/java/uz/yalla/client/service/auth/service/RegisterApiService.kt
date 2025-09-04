@@ -12,11 +12,11 @@ import uz.yalla.client.service.auth.request.register.RegisterUserRequest
 import uz.yalla.client.service.auth.response.register.RegisterResponse
 
 class RegisterApiService(
-    private val ktor: HttpClient
+    private val ktorApi1: HttpClient
 ) {
     suspend fun register(
         body: RegisterUserRequest
     ): Either<ApiResponseWrapper<RegisterResponse>, DataError.Network> = safeApiCall {
-        ktor.post(RegisterUrl.REGISTER) { setBody(body) }
+        ktorApi1.post(RegisterUrl.REGISTER) { setBody(body) }
     }
 }

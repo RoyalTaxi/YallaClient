@@ -121,7 +121,7 @@ fun MViewModel.getRouting() {
 
         addresses.add(
             GetRoutingDtoItem(
-                type = GetRoutingDtoItem.END,
+                type = GetRoutingDtoItem.STOP,
                 lat = points.last().lat,
                 lng = points.last().lng
             )
@@ -173,5 +173,9 @@ fun MViewModel.getActiveOrder() = viewModelScope.launch {
                 }
             )
         }
+
+        // Avoid extra camera animations here; the specific flows
+        // (client-waiting route update or AtAddress planned route)
+        // will handle camera fit/move.
     }
 }

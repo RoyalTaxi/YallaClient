@@ -206,20 +206,13 @@ class MapsViewModel(
                 val old = state.value.route
                 _state.update { it.copy(route = intent.route) }
 
-                if (old.isNotEmpty() && intent.route.isEmpty() && state.value.locations.isNotEmpty()) {
-                    val firstLoc = state.value.locations.first()
-                    coroutineScope.launch(Dispatchers.Main.immediate) {
-                        mapController.moveTo(
-                            firstLoc,
-                            null
-                        )
-                    }
-                    _state.update { it.copy(savedCameraPosition = firstLoc) }
-                }
-
-                if (intent.route.isEmpty()) {
-                    coroutineScope.launch(Dispatchers.Main.immediate) {
-                        elementManager.clearAllElements()
+                // If the route has been cleared, prefer focusing on driver rather than first location
+                if (old.isNotEmpty() && intent.route.isEmpty()) {
+                    val driver = state.value.driver
+                    if (driver != null) {
+                        val point = MapPoint(driver.lat, driver.lng)
+                        coroutineScope.launch(Dispatchers.Main.immediate) { mapController.moveTo(point, null) }
+                        _state.update { it.copy(savedCameraPosition = point) }
                     }
                 }
             }

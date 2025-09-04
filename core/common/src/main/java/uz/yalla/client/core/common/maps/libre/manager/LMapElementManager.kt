@@ -97,25 +97,26 @@ class LMapElementManager(
             ensureImages(style)
             ensureSourcesAndLayers(style)
 
-            // Ensure route color respects theme (white on dark, black on light)
             val routeColor = if (isDarkTheme) Color.WHITE else Color.BLACK
             (style.getLayer(LYR_ROUTE) as? LineLayer)?.setProperties(
                 lineColor(routeColor)
             )
 
             if (routeChanged) {
-                // Update main route geometry
                 val fc = if (route.size >= 2) lineStringFc(route) else EMPTY_FC
                 style.getSourceAs<GeoJsonSource>(SRC_ROUTE)?.setGeoJson(fc)
 
-                // Update dashed connections
-                style.getSourceAs<GeoJsonSource>(SRC_DASHED)?.setGeoJson(dashedLinesFc(locations, route))
+                val dashedFc = if (orderStatus == OrderStatus.Appointed && locations.isNotEmpty() && route.isNotEmpty()) {
+                    val start = locations.first()
+                    val target = findClosestPointOnRoute(start, route) ?: route.last()
+                    singleDashedFc(start, target)
+                } else EMPTY_FC
+                style.getSourceAs<GeoJsonSource>(SRC_DASHED)?.setGeoJson(dashedFc)
 
                 lastRouteSignature = currentSignature
             }
         }
 
-        // Adjust camera similar to old logic
         if (route.isNotEmpty()) {
             val boundsBuilder = LatLngBounds.Builder()
             route.forEach { boundsBuilder.include(LatLng(it.lat, it.lng)) }
@@ -360,7 +361,7 @@ class LMapElementManager(
 
     override fun setOnCameraMoveStarted(listener: (isByUser: Boolean) -> Unit) {
         map?.addOnCameraMoveStartedListener { reason ->
-            val isByUser = reason == MapLibreMap.OnCameraMoveStartedListener.REASON_API_GESTURE
+            val isByUser = reason == MapLibreMap.OnCameraMoveStartedListener.REASON_API_GESTURE || reason == MapLibreMap.OnCameraMoveStartedListener.REASON_DEVELOPER_ANIMATION
             listener(isByUser)
         }
     }
@@ -491,6 +492,9 @@ class LMapElementManager(
         }
         append("]}}")
     }
+
+    private fun singleDashedFc(from: MapPoint, to: MapPoint): String =
+        featureCollection(listOf(lineFeature(listOf(from.lng to from.lat, to.lng to to.lat))))
 
     private fun lineStringFc(route: List<MapPoint>): String = featureCollection(
         listOf(lineFeature(route.map { it.lng to it.lat }))

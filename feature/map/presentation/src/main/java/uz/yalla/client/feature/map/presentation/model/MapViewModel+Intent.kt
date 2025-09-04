@@ -70,6 +70,13 @@ fun MViewModel.onIntent(intent: MapIntent) {
 
         is MapIntent.SetShowingOrder -> {
             mapsViewModel.onIntent(MapsIntent.UpdateDriver(intent.order.executor.toCommonExecutor()))
+            // Clear any previously drawn route to avoid flashing planned route
+            mapsViewModel.onIntent(MapsIntent.UpdateRoute(emptyList()))
+
+            // Extract pickup + destinations from selected order to ensure markers
+            val first = intent.order.taxi.routes.firstOrNull()
+            val others = intent.order.taxi.routes.drop(1)
+
             updateState {
                 it.copy(
                     order = intent.order,
@@ -80,15 +87,9 @@ fun MViewModel.onIntent(intent: MapIntent) {
         }
 
         is MapIntent.MapOverlayIntent.RefocusLastState -> {
+            // Avoid extra animations on layout changes; just refresh order state
             if (stateFlow.value.serviceAvailable == false) return
             getActiveOrder()
-            stateFlow.value.order?.taxi?.routes?.firstOrNull()?.let { point ->
-                mapsViewModel.onIntent(
-                    MapsIntent.AnimateTo(
-                        MapPoint(point.coords.lat, point.coords.lng)
-                    )
-                )
-            }
         }
 
         is MapIntent.SetShowingOrderId -> {
@@ -206,7 +207,23 @@ fun MViewModel.onIntent(intent: ClientWaitingSheetIntent) {
         }
 
         is ClientWaitingSheetIntent.UpdateRoute -> {
-            // No-op
+            // Draw live route from driver -> client while waiting.
+            // Backend routing for this is triggered from ClientWaitingViewModel
+            // and delivered via this intent.
+            val orderStatus = stateFlow.value.order?.status
+
+            // When driver is not yet at address, render the driver->client route.
+            if (orderStatus != uz.yalla.client.core.domain.model.OrderStatus.AtAddress) {
+                mapsViewModel.onIntent(
+                    MapsIntent.UpdateRoute(intent.route)
+                )
+                // Fit bounds to the live driver route for better context
+                mapsViewModel.onIntent(MapsIntent.AnimateFitBounds)
+            } else {
+                // Once driver reached the pickup, prefer showing planned route
+                mapsViewModel.onIntent(MapsIntent.UpdateRoute(stateFlow.value.route))
+                mapsViewModel.onIntent(MapsIntent.AnimateFitBounds)
+            }
         }
 
         else -> {
