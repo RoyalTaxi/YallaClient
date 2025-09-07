@@ -36,14 +36,6 @@ android {
         }
     }
     buildTypes {
-        getByName("debug") {
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-        }
         getByName("release") {
             isMinifyEnabled = true
             isShrinkResources = true
@@ -174,9 +166,6 @@ dependencies {
 
     // Google pay
     implementation(libs.play.services.wallet)
-
-    // Google Maps
-    implementation(libs.play.services.maps)
 
     // Lottie compose
     implementation(libs.lottie.compose)

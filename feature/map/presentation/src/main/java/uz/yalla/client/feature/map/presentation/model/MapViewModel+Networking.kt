@@ -3,8 +3,8 @@ package uz.yalla.client.feature.map.presentation.model
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import uz.yalla.client.core.common.maps.core.model.MapsIntent
 import uz.yalla.client.core.common.marker.YallaMarkerState
+import uz.yalla.client.core.common.new_map.core.MyMapIntent
 import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.Location
 import uz.yalla.client.core.domain.model.MapPoint
@@ -63,7 +63,7 @@ fun MViewModel.getActiveOrders() {
             if (shouldInject) {
                 val order = activeOrders.list.first()
                 updateState { state -> state.copy(order = order, orderId = order.id) }
-                mapsViewModel.onIntent(MapsIntent.UpdateDriver(order.executor.toCommonExecutor()))
+                mapsViewModel.onIntent(MyMapIntent.SetDriver(order.executor.toCommonExecutor()))
                 prefs.setHasProcessedOrderOnEntry(true)
             } else if (activeOrders.list.size > 1 && !alreadyMarkedAsProcessed) {
                 updateState { state -> state.copy(ordersSheetVisible = true) }
@@ -91,7 +91,7 @@ fun MViewModel.getRouting() {
         *stateFlow.value.destinations.mapNotNull { it.point }.toTypedArray()
     )
 
-    mapsViewModel.onIntent(MapsIntent.UpdateLocations(points))
+    mapsViewModel.onIntent(MyMapIntent.SetLocations(points))
 
     if (points.size < 2) {
         updateState { state -> state.copy(route = emptyList()) }
@@ -147,12 +147,12 @@ fun MViewModel.getRouting() {
 
 fun MViewModel.getActiveOrder() = viewModelScope.launch {
     val orderId = stateFlow.value.orderId ?: run {
-        mapsViewModel.onIntent(MapsIntent.UpdateOrderStatus(null))
+        mapsViewModel.onIntent(MyMapIntent.SetOrderStatus(null))
         return@launch
     }
     getShowOrderUseCase(orderId).onSuccess { order ->
-        mapsViewModel.onIntent(MapsIntent.UpdateOrderStatus(order))
-        mapsViewModel.onIntent(MapsIntent.UpdateDriver(order.executor.toCommonExecutor()))
+        mapsViewModel.onIntent(MyMapIntent.SetOrderStatus(order.status))
+        mapsViewModel.onIntent(MyMapIntent.SetDriver(order.executor.toCommonExecutor()))
         updateState { state ->
             state.copy(
                 order = order,
@@ -173,9 +173,5 @@ fun MViewModel.getActiveOrder() = viewModelScope.launch {
                 }
             )
         }
-
-        // Avoid extra camera animations here; the specific flows
-        // (client-waiting route update or AtAddress planned route)
-        // will handle camera fit/move.
     }
 }

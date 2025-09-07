@@ -43,7 +43,4 @@ data class MapState(
 
     val ordersSheetVisible: Boolean = false,
     val permissionDialogVisible: Boolean = false,
-
-    // When true, stop polling active order status (e.g., during cancel reason flow)
-    val suppressOrderPolling: Boolean = false
 )

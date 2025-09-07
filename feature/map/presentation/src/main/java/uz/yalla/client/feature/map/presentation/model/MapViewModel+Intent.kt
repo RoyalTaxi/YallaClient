@@ -1,13 +1,13 @@
 package uz.yalla.client.feature.map.presentation.model
 
-import uz.yalla.client.core.common.maps.core.model.MapsIntent
 import uz.yalla.client.core.common.marker.YallaMarkerState
+import uz.yalla.client.core.common.new_map.core.MyMapIntent
 import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.Location
 import uz.yalla.client.core.domain.model.MapPoint
+import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.feature.map.presentation.intent.MapEffect
 import uz.yalla.client.feature.map.presentation.intent.MapIntent
-import uz.yalla.client.feature.order.domain.model.response.order.toCommonExecutor
 import uz.yalla.client.feature.order.presentation.cancel_reason.view.CancelReasonIntent
 import uz.yalla.client.feature.order.presentation.client_waiting.view.ClientWaitingSheetIntent
 import uz.yalla.client.feature.order.presentation.driver_waiting.view.DriverWaitingSheetIntent
@@ -21,12 +21,8 @@ import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheetInte
 
 fun MViewModel.onIntent(intent: MapIntent) {
     when (intent) {
-        is MapIntent.MapOverlayIntent.MoveToMyLocation -> {
-            mapsViewModel.onIntent(MapsIntent.MoveToMyLocation(intent.context))
-        }
-
         is MapIntent.MapOverlayIntent.AnimateToMyLocation -> {
-            mapsViewModel.onIntent(MapsIntent.AnimateToMyLocation(intent.context))
+            mapsViewModel.onIntent(MyMapIntent.AnimateToMyLocation)
         }
 
         MapIntent.MapOverlayIntent.AskForEnable -> {
@@ -41,14 +37,12 @@ fun MViewModel.onIntent(intent: MapIntent) {
             updateState { it.copy(ordersSheetVisible = true) }
         }
 
-        MapIntent.MapOverlayIntent.MoveToFirstLocation -> {
-            stateFlow.value.location?.point?.let { point ->
-                mapsViewModel.onIntent(MapsIntent.AnimateTo(point))
-            }
+        MapIntent.MapOverlayIntent.AnimateToFirstLocation -> {
+            mapsViewModel.onIntent(MyMapIntent.AnimateToFirstLocation)
         }
 
         MapIntent.MapOverlayIntent.MoveToMyRoute -> {
-            mapsViewModel.onIntent(MapsIntent.AnimateFitBounds)
+            mapsViewModel.onIntent(MyMapIntent.AnimateToMyRoute)
         }
 
         MapIntent.MapOverlayIntent.NavigateBack -> {
@@ -69,14 +63,6 @@ fun MViewModel.onIntent(intent: MapIntent) {
         }
 
         is MapIntent.SetShowingOrder -> {
-            mapsViewModel.onIntent(MapsIntent.UpdateDriver(intent.order.executor.toCommonExecutor()))
-            // Clear any previously drawn route to avoid flashing planned route
-            mapsViewModel.onIntent(MapsIntent.UpdateRoute(emptyList()))
-
-            // Extract pickup + destinations from selected order to ensure markers
-            val first = intent.order.taxi.routes.firstOrNull()
-            val others = intent.order.taxi.routes.drop(1)
-
             updateState {
                 it.copy(
                     order = intent.order,
@@ -87,17 +73,12 @@ fun MViewModel.onIntent(intent: MapIntent) {
         }
 
         is MapIntent.MapOverlayIntent.RefocusLastState -> {
-            // Avoid extra animations on layout changes; just refresh order state
             if (stateFlow.value.serviceAvailable == false) return
-            getActiveOrder()
+            mapsViewModel.onIntent(MyMapIntent.AnimateToFirstLocation)
         }
 
         is MapIntent.SetShowingOrderId -> {
             updateState { it.copy(orderId = intent.orderId) }
-        }
-
-        is MapIntent.SetPollingSuppressed -> {
-            updateState { it.copy(suppressOrderPolling = intent.suppressed) }
         }
     }
 }
@@ -106,7 +87,8 @@ fun MViewModel.onIntent(intent: NoServiceSheetIntent) {
     when (intent) {
         is NoServiceSheetIntent.SetSelectedLocation -> {
             intent.location.point?.let { point ->
-                mapsViewModel.onIntent(MapsIntent.AnimateTo(point))
+                mapsViewModel.onIntent(MyMapIntent.SetLocations(listOf(point)))
+                mapsViewModel.onIntent(MyMapIntent.AnimateToFirstLocation)
             }
         }
     }
@@ -115,12 +97,14 @@ fun MViewModel.onIntent(intent: NoServiceSheetIntent) {
 fun MViewModel.onIntent(intent: MainSheetIntent) {
     when (intent) {
         is MainSheetIntent.OrderTaxiSheetIntent.SetSelectedLocation -> {
-            if (stateFlow.value.destinations.isEmpty())
+            if (stateFlow.value.destinations.isEmpty()) {
                 intent.location.point?.let { point ->
-                    mapsViewModel.onIntent(MapsIntent.AnimateTo(point))
+                    mapsViewModel.onIntent(MyMapIntent.SetLocations(listOf(point)))
+                    mapsViewModel.onIntent(MyMapIntent.AnimateToFirstLocation)
                 }
-            else
+            } else {
                 updateState { it.copy(location = intent.location) }
+            }
         }
 
         is MainSheetIntent.OrderTaxiSheetIntent.SetDestinations -> {
@@ -185,7 +169,7 @@ fun MViewModel.onIntent(intent: MainSheetIntent) {
 fun MViewModel.onIntent(intent: SearchCarSheetIntent) {
     when (intent) {
         SearchCarSheetIntent.AddNewOrder -> clearState()
-        SearchCarSheetIntent.ZoomOut -> mapsViewModel.onIntent(MapsIntent.ZoomOut)
+        SearchCarSheetIntent.ZoomOut -> mapsViewModel.onIntent(MyMapIntent.ZoomOut)
         is SearchCarSheetIntent.OnCancelled -> {
             val orderId = intent.orderId ?: return
             launchEffect(MapEffect.NavigateToCancelled(orderId))
@@ -207,22 +191,14 @@ fun MViewModel.onIntent(intent: ClientWaitingSheetIntent) {
         }
 
         is ClientWaitingSheetIntent.UpdateRoute -> {
-            // Draw live route from driver -> client while waiting.
-            // Backend routing for this is triggered from ClientWaitingViewModel
-            // and delivered via this intent.
             val orderStatus = stateFlow.value.order?.status
 
-            // When driver is not yet at address, render the driver->client route.
-            if (orderStatus != uz.yalla.client.core.domain.model.OrderStatus.AtAddress) {
-                mapsViewModel.onIntent(
-                    MapsIntent.UpdateRoute(intent.route)
-                )
-                // Fit bounds to the live driver route for better context
-                mapsViewModel.onIntent(MapsIntent.AnimateFitBounds)
+            if (orderStatus != OrderStatus.AtAddress) {
+                mapsViewModel.onIntent(MyMapIntent.SetRoute(intent.route))
+                mapsViewModel.onIntent(MyMapIntent.AnimateToMyRoute)
             } else {
-                // Once driver reached the pickup, prefer showing planned route
-                mapsViewModel.onIntent(MapsIntent.UpdateRoute(stateFlow.value.route))
-                mapsViewModel.onIntent(MapsIntent.AnimateFitBounds)
+                mapsViewModel.onIntent(MyMapIntent.SetRoute(stateFlow.value.route))
+                mapsViewModel.onIntent(MyMapIntent.AnimateToMyRoute)
             }
         }
 
@@ -274,8 +250,5 @@ fun MViewModel.onIntent(intent: FeedbackSheetIntent) {
 fun MViewModel.onIntent(intent: CancelReasonIntent) {
     when (intent) {
         CancelReasonIntent.NavigateBack -> clearState()
-        else -> {
-            /* no-op */
-        }
     }
 }

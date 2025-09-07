@@ -10,8 +10,7 @@ fun MViewModel.clearState() {
             location = null,
             destinations = emptyList(),
             route = emptyList(),
-            markerState = YallaMarkerState.LOADING,
-            suppressOrderPolling = false
+            markerState = YallaMarkerState.LOADING
         )
     }
 }

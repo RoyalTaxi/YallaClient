@@ -8,7 +8,14 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.statusBars
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -23,28 +30,24 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import org.koin.compose.koinInject
-import org.koin.core.parameter.parametersOf
 import uz.yalla.client.core.common.dialog.BaseDialog
 import uz.yalla.client.core.common.lifecycle.MakeBridge
-import uz.yalla.client.core.common.maps.core.model.MapsIntent
-import uz.yalla.client.core.common.maps.core.viewmodel.MapsViewModel
-import uz.yalla.client.core.domain.local.StaticPreferences
+import uz.yalla.client.core.common.new_map.core.MyMapIntent
 import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.feature.map.presentation.R
+import uz.yalla.client.feature.map.presentation.intent.MapDrawerIntent
 import uz.yalla.client.feature.map.presentation.intent.MapEffect
+import uz.yalla.client.feature.map.presentation.intent.MapIntent
 import uz.yalla.client.feature.map.presentation.model.MViewModel
+import uz.yalla.client.feature.map.presentation.model.onIntent
 import uz.yalla.client.feature.map.presentation.model.removeLastDestination
 import uz.yalla.client.feature.map.presentation.model.setLocationEnabled
+import uz.yalla.client.feature.map.presentation.model.setLocationGranted
 import uz.yalla.client.feature.map.presentation.model.setPermissionDialog
 import uz.yalla.client.feature.map.presentation.navigation.FromMap
 import uz.yalla.client.feature.map.presentation.navigation.shouldNavigateToSheet
-import uz.yalla.client.feature.map.presentation.intent.MapDrawerIntent
-import uz.yalla.client.feature.map.presentation.intent.MapIntent
-import uz.yalla.client.feature.map.presentation.model.onIntent
-import uz.yalla.client.feature.map.presentation.model.setLocationGranted
-import uz.yalla.client.feature.map.presentation.utils.checkLocation
 import uz.yalla.client.feature.map.presentation.utils.LocationServiceReceiver
+import uz.yalla.client.feature.map.presentation.utils.checkLocation
 import uz.yalla.client.feature.map.presentation.utils.requestPermission
 import uz.yalla.client.feature.map.presentation.utils.showEnableLocationSettings
 import uz.yalla.client.feature.order.presentation.cancel_reason.CANCEL_REASON_ROUTE
@@ -80,9 +83,7 @@ import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheetChan
 fun MRoute(
     networkState: Boolean,
     onNavigate: (FromMap) -> Unit,
-    mapsViewModel: MapsViewModel,
-    viewModel: MViewModel = koinViewModel(parameters = { parametersOf(mapsViewModel) }),
-    staticPreferences: StaticPreferences = koinInject()
+    viewModel: MViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
@@ -125,19 +126,12 @@ fun MRoute(
                 MapEffect.NavigateToAddCard -> onNavigate(FromMap.ToAddNewCard)
                 MapEffect.NavigateToRegister -> onNavigate(FromMap.ToRegister)
                 is MapEffect.NavigateToCancelled -> {
-                    // Stop polling active order status while user is on cancel reason sheet
-                    viewModel.onIntent(uz.yalla.client.feature.map.presentation.intent.MapIntent.SetPollingSuppressed(true))
                     if (navController.shouldNavigateToSheet(CANCEL_REASON_ROUTE, effect.orderId)) {
                         navController.navigateToCancelReasonSheet(effect.orderId)
                     }
                     activeCollectorRef.value = scope.launch {
                         CancelReasonSheetChannel.intentFlow.collectLatest { intent ->
                             viewModel.onIntent(intent)
-                            // Any navigation back from cancel reason will call clearState()
-                            // which clears order/orderId. Ensure polling resumes afterwards.
-                            if (intent is uz.yalla.client.feature.order.presentation.cancel_reason.view.CancelReasonIntent.NavigateBack) {
-                                viewModel.onIntent(uz.yalla.client.feature.map.presentation.intent.MapIntent.SetPollingSuppressed(false))
-                            }
                         }
                     }
                 }
@@ -158,7 +152,6 @@ fun MRoute(
         lifecycleOwner.lifecycle.addObserver(observer)
         val receiver = locationServiceReceiver.value
         val filter = IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION)
-        // Use application context to avoid leaking the Activity if disposal is delayed
         val appContext = context.applicationContext
         appContext.registerReceiver(receiver, filter)
         onDispose {
@@ -169,7 +162,11 @@ fun MRoute(
     }
 
     LaunchedEffect(topPaddingDp) {
-        mapsViewModel.onIntent(MapsIntent.SetTopPadding(topPaddingDp))
+        viewModel.mapsViewModel.onIntent(
+            MyMapIntent.SetViewPadding(
+                padding = androidx.compose.foundation.layout.PaddingValues(top = topPaddingDp)
+            )
+        )
     }
 
     LaunchedEffect(state.serviceAvailable) {
@@ -243,7 +240,6 @@ fun MRoute(
             }
 
             OrderStatus.Canceled -> {
-                if (state.suppressOrderPolling) return@LaunchedEffect
                 state.order?.id?.let { orderId ->
                     if (navController.shouldNavigateToSheet(ORDER_CANCELED_ROUTE, orderId)) {
                         navController.navigateToCanceledOrder()
@@ -278,7 +274,7 @@ fun MRoute(
                         }
                     }
                     delay(300)
-                    mapsViewModel.onIntent(MapsIntent.AnimateToMyLocation(context))
+                    viewModel.mapsViewModel.onIntent(MyMapIntent.AnimateToMyLocation)
                 }
             }
 
@@ -292,7 +288,7 @@ fun MRoute(
                                     point = point,
                                     tariffId = tariffId
                                 )
-                                viewModel.onIntent(MapIntent.MapOverlayIntent.MoveToFirstLocation)
+                                viewModel.onIntent(MapIntent.MapOverlayIntent.AnimateToFirstLocation)
                             }
                             activeCollectorRef.value = scope.launch {
                                 SearchCarSheetChannel.intentFlow.collectLatest { intent ->

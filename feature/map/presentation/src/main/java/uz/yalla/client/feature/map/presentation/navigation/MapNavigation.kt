@@ -1,16 +1,12 @@
 package uz.yalla.client.feature.map.presentation.navigation
 
-import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.runtime.remember
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.navigation.navOptions
-import org.koin.androidx.scope.ScopeActivity
-import uz.yalla.client.core.common.maps.core.viewmodel.MapsViewModel
 import uz.yalla.client.core.presentation.navigation.safeNavigate
 import uz.yalla.client.feature.map.presentation.view.MRoute
 
@@ -43,12 +39,9 @@ fun NavGraphBuilder.mapScreen(
         popEnterTransition = { fadeIn() },
         popExitTransition = { fadeOut() }
     ) {
-        val activity = LocalActivity.current as ScopeActivity
-        val mapsViewModel: MapsViewModel = remember { activity.scope.get<MapsViewModel>() }
         MRoute(
             networkState = networkState,
-            onNavigate = navigate,
-            mapsViewModel = mapsViewModel
+            onNavigate = navigate
         )
     }
 }

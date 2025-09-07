@@ -67,7 +67,7 @@ fun BoxScope.MapOverlay(
                             )
 
                             CameraButtonState.MyRouteView -> onIntent(MapOverlayIntent.MoveToMyRoute)
-                            CameraButtonState.FirstLocation -> onIntent(MapOverlayIntent.MoveToFirstLocation)
+                            CameraButtonState.FirstLocation -> onIntent(MapOverlayIntent.AnimateToFirstLocation)
                         }
                     }
                 )

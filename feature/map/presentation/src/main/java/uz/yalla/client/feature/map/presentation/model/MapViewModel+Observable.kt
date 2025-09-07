@@ -6,14 +6,12 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import uz.yalla.client.core.common.maps.core.model.MapsIntent
 import uz.yalla.client.core.common.marker.YallaMarkerState
-import uz.yalla.client.core.common.state.CameraButtonState.FirstLocation
+import uz.yalla.client.core.common.new_map.core.MyMapIntent
+import uz.yalla.client.core.common.state.CameraButtonState
 import uz.yalla.client.core.common.state.CameraButtonState.MyLocationView
 import uz.yalla.client.core.common.state.CameraButtonState.MyRouteView
 import uz.yalla.client.core.common.state.NavigationButtonState
-import uz.yalla.client.core.domain.model.MapPoint
-import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.feature.order.domain.model.response.order.toCommonExecutor
 import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetChannel
@@ -24,8 +22,8 @@ fun MViewModel.observeInfoMarkers() = viewModelScope.launch {
     stateFlow
         .distinctUntilChangedBy { Pair(it.carArrivalInMinutes, it.orderEndsInMinutes) }
         .collectLatest { state ->
-            mapsViewModel.onIntent(MapsIntent.UpdateCarArrivesInMinutes(state.carArrivalInMinutes))
-            mapsViewModel.onIntent(MapsIntent.UpdateOrderEndsInMinutes(state.orderEndsInMinutes))
+            mapsViewModel.onIntent(MyMapIntent.SetCarArrivesInMinutes(state.carArrivalInMinutes))
+            mapsViewModel.onIntent(MyMapIntent.SetOrderEndsInMinutes(state.orderEndsInMinutes))
         }
 }
 
@@ -34,13 +32,7 @@ fun MViewModel.observeActiveOrder() = viewModelScope.launch {
         .distinctUntilChangedBy { it.orderId }
         .collectLatest {
             while (isActive) {
-                // Pause polling when suppressed (e.g., during cancel reason flow)
-                if (stateFlow.value.suppressOrderPolling) {
-                    delay(10.seconds)
-                    continue
-                }
                 getActiveOrder()
-                // Prevent overlapping getActiveOrder calls
                 delay(10.seconds)
             }
         }
@@ -58,13 +50,13 @@ fun MViewModel.observeActiveOrders() = viewModelScope.launch {
 }
 
 fun MViewModel.observeMarkerState() = viewModelScope.launch {
-    mapsViewModel.cameraState.collectLatest { markerState ->
+    mapsViewModel.markerState.collectLatest { markerState ->
         stateFlow.value.let { state ->
             if (state.order == null && state.destinations.isEmpty()) {
                 if (markerState.isMoving) {
                     updateState { it.copy(markerState = YallaMarkerState.LOADING) }
                 } else {
-                    getAddress(markerState.position)
+                    getAddress(markerState.point)
                 }
             }
 
@@ -74,10 +66,10 @@ fun MViewModel.observeMarkerState() = viewModelScope.launch {
                 }
 
                 state.cameraButtonState == MyRouteView && !markerState.isByUser -> {
-                    updateState { it.copy(cameraButtonState = FirstLocation) }
+                    updateState { it.copy(cameraButtonState = CameraButtonState.FirstLocation) }
                 }
 
-                state.cameraButtonState == FirstLocation -> {
+                state.cameraButtonState == CameraButtonState.FirstLocation -> {
                     updateState { it.copy(cameraButtonState = MyRouteView) }
                 }
             }
@@ -89,17 +81,13 @@ fun MViewModel.observeLocations() = viewModelScope.launch {
     stateFlow
         .distinctUntilChangedBy { it.location to it.destinations }
         .collectLatest { state ->
-            // Always push locations so markers are visible immediately
             val points = listOfNotNull(
                 state.location?.point,
                 *state.destinations.mapNotNull { it.point }.toTypedArray()
             )
-            mapsViewModel.onIntent(MapsIntent.UpdateLocations(points))
 
-            // Avoid computing/drawing planned route while driver is coming.
-            if (state.order?.status != OrderStatus.Appointed) {
-                getRouting()
-            }
+            mapsViewModel.onIntent(MyMapIntent.SetLocations(points))
+
             state.location?.let { location -> MainSheetChannel.setLocation(location) }
             MainSheetChannel.setDestination(state.destinations)
         }
@@ -109,7 +97,7 @@ fun MViewModel.observeRoute() = viewModelScope.launch {
     stateFlow
         .distinctUntilChangedBy { Pair(it.route, it.order?.status) }
         .collectLatest { state ->
-            mapsViewModel.onIntent(MapsIntent.UpdateRoute(state.route))
+            mapsViewModel.onIntent(MyMapIntent.SetRoute(state.route))
 
             updateState {
                 it.copy(
@@ -128,7 +116,7 @@ fun MViewModel.observeSheetCoordinator() = viewModelScope.launch {
             updateState { it.copy(overlayPadding = height) }
         } else sheetState?.height?.let { height ->
             updateState { it.copy(overlayPadding = height, sheetHeight = height) }
-            mapsViewModel.onIntent(MapsIntent.SetBottomPadding(height))
+            mapsViewModel.onIntent(MyMapIntent.SetMapPadding(height.value.toInt()))
         }
     }
 }
@@ -156,32 +144,9 @@ fun MViewModel.observeDriver() = viewModelScope.launch {
         .distinctUntilChangedBy { it.order }
         .collectLatest { state ->
             state.order?.let { order ->
-                mapsViewModel.onIntent(MapsIntent.UpdateDriver(order.executor.toCommonExecutor()))
+                mapsViewModel.onIntent(MyMapIntent.SetDriver(order.executor.toCommonExecutor()))
             } ?: run {
-                mapsViewModel.onIntent(MapsIntent.UpdateDriver(null))
-            }
-
-            // While searching for driver, focus on first location
-            if (state.order?.status in OrderStatus.nonInteractive) {
-                state.order?.taxi?.routes?.firstOrNull()?.let { p ->
-                    mapsViewModel.onIntent(
-                        MapsIntent.MoveTo(
-                            MapPoint(p.coords.lat, p.coords.lng)
-                        )
-                    )
-                }
-                return@collectLatest
-            }
-
-            // If driver reached the pickup address, switch back to planned route
-            if (state.order?.status == OrderStatus.AtAddress) {
-                // Ensure we have a planned route; if not, trigger calculation
-                if (state.route.isEmpty()) {
-                    getRouting()
-                } else {
-                    mapsViewModel.onIntent(MapsIntent.UpdateRoute(state.route))
-                    mapsViewModel.onIntent(MapsIntent.AnimateFitBounds)
-                }
+                mapsViewModel.onIntent(MyMapIntent.SetDriver(null))
             }
         }
 }
@@ -190,6 +155,6 @@ fun MViewModel.observeDrivers() = viewModelScope.launch {
     stateFlow
         .distinctUntilChangedBy { it.drivers }
         .collectLatest { state ->
-            mapsViewModel.onIntent(MapsIntent.UpdateDrivers(state.drivers))
+            mapsViewModel.onIntent(MyMapIntent.SetDrivers(state.drivers))
         }
 }
