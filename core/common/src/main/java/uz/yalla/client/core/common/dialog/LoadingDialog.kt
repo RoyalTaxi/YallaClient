@@ -16,6 +16,7 @@ import uz.yalla.client.core.presentation.design.theme.YallaTheme
 @Composable
 fun LoadingDialog(
     modifier: Modifier = Modifier,
+    progressModifier: Modifier = Modifier,
     alpha: Float = 1f
 ) {
     Box(
@@ -26,6 +27,7 @@ fun LoadingDialog(
             .pointerInput(Unit) { }
     ) {
         CircularProgressIndicator(
+            modifier = progressModifier,
             color = YallaTheme.color.primary,
             strokeWidth = 5.dp,
             trackColor = YallaTheme.color.background,

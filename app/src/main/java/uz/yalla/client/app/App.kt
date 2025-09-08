@@ -11,9 +11,7 @@ import org.koin.java.KoinJavaComponent
 import uz.yalla.client.BuildConfig
 import uz.yalla.client.core.data.di.Common
 import uz.yalla.client.core.domain.local.AppPreferences
-import uz.yalla.client.core.domain.model.MapType
 import uz.yalla.client.di.Navigation
-import org.maplibre.android.MapLibre
 
 class App : Application() {
     override fun onCreate() {
@@ -22,7 +20,6 @@ class App : Application() {
 
         AndroidThreeTen.init(this)
         MapsInitializer.initialize(this)
-        MapLibre.getInstance(this)
 
         FirebaseCrashlytics.getInstance().isCrashlyticsCollectionEnabled = !BuildConfig.DEBUG
         startKoin {

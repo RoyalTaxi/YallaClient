@@ -18,6 +18,7 @@ import uz.yalla.client.feature.order.presentation.no_service.view.NoServiceSheet
 import uz.yalla.client.feature.order.presentation.on_the_ride.view.OnTheRideSheetIntent
 import uz.yalla.client.feature.order.presentation.order_canceled.view.OrderCanceledSheetIntent
 import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheetIntent
+import kotlin.collections.contains
 
 fun MViewModel.onIntent(intent: MapIntent) {
     when (intent) {
@@ -73,12 +74,15 @@ fun MViewModel.onIntent(intent: MapIntent) {
         }
 
         is MapIntent.MapOverlayIntent.RefocusLastState -> {
-            if (stateFlow.value.serviceAvailable == false) return
-            mapsViewModel.onIntent(MyMapIntent.AnimateToFirstLocation)
+            refocus()
         }
 
         is MapIntent.SetShowingOrderId -> {
             updateState { it.copy(orderId = intent.orderId) }
+        }
+
+        is MapIntent.SetTopPadding -> {
+            updateState { it.copy(topPadding = intent.topPadding) }
         }
     }
 }
@@ -191,15 +195,7 @@ fun MViewModel.onIntent(intent: ClientWaitingSheetIntent) {
         }
 
         is ClientWaitingSheetIntent.UpdateRoute -> {
-            val orderStatus = stateFlow.value.order?.status
-
-            if (orderStatus != OrderStatus.AtAddress) {
-                mapsViewModel.onIntent(MyMapIntent.SetRoute(intent.route))
-                mapsViewModel.onIntent(MyMapIntent.AnimateToMyRoute)
-            } else {
-                mapsViewModel.onIntent(MyMapIntent.SetRoute(stateFlow.value.route))
-                mapsViewModel.onIntent(MyMapIntent.AnimateToMyRoute)
-            }
+            /* no-op */
         }
 
         else -> {

@@ -66,15 +66,16 @@ class MViewModel(
     override fun onStart() {
         super.onStart()
         scope = CoroutineScope(viewModelScope.coroutineContext + SupervisorJob())
-        scope?.launch { observeActiveOrders() }
+        scope?.launch { pollActiveOrders() }
         scope?.launch { observeMarkerState() }
         scope?.launch { observeLocations() }
-        scope?.launch { observeActiveOrder() }
+        scope?.launch { pollActiveOrder() }
         scope?.launch { observeSheetCoordinator() }
+        scope?.launch { observeMapPadding() }
         scope?.launch { observeRoute() }
         scope?.launch { observeInfoMarkers() }
         scope?.launch { observeNavigationButton() }
-        scope?.launch { observeDriver() }
+        scope?.launch { observeOrder() }
         scope?.launch { observeDrivers() }
     }
 }

@@ -1,14 +1,13 @@
 package uz.yalla.client.feature.order.presentation.client_waiting.model
 
 import androidx.compose.ui.unit.Dp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import uz.yalla.client.core.common.viewmodel.BaseViewModel
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.feature.map.domain.model.request.GetRoutingDtoItem
@@ -22,7 +21,7 @@ class ClientWaitingViewModel(
     private val cancelRideUseCase: CancelRideUseCase,
     private val getShowOrderUseCase: GetShowOrderUseCase,
     private val getRoutingUseCase: GetRoutingUseCase
-) : ViewModel() {
+) : BaseViewModel() {
 
     private val _uiState = MutableStateFlow(ClientWaitingState())
     val uiState = _uiState.asStateFlow()

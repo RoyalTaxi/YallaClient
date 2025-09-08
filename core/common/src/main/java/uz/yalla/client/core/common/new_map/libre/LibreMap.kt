@@ -37,7 +37,7 @@ import io.github.dellisd.spatialk.geojson.LineString
 import io.github.dellisd.spatialk.geojson.Point
 import io.github.dellisd.spatialk.geojson.Position
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 import org.orbitmvi.orbit.compose.collectSideEffect
 import uz.yalla.client.core.common.R
 import uz.yalla.client.core.common.marker.rememberLibreMarkerWithInfo
@@ -45,6 +45,7 @@ import uz.yalla.client.core.common.new_map.core.Map
 import uz.yalla.client.core.common.new_map.core.MapConstants
 import uz.yalla.client.core.common.new_map.core.MapEffect
 import uz.yalla.client.core.common.new_map.core.MapViewModel
+import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.Executor
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.OrderStatus
@@ -261,11 +262,16 @@ class LibreMap : Map {
 
     @Composable
     override fun View() {
-        val viewModel = koinViewModel<MapViewModel>()
+        val viewModel = koinInject<MapViewModel>()
+        val appPreferences = koinInject<AppPreferences>()
         val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
+        val initialLocation by appPreferences.entryLocation.collectAsStateWithLifecycle(0.0 to 0.0)
         val camera = rememberCameraState(
             firstPosition = CameraPosition(
-
+                target = Position(
+                    longitude = initialLocation.first,
+                    latitude = initialLocation.second
+                )
             )
         )
 
@@ -332,7 +338,7 @@ class LibreMap : Map {
                 }
 
                 MapEffect.ZoomOut -> {
-                    if (camera.position.zoom > MapConstants.MIN_ZOOM) {
+                    if (camera.position.zoom > MapConstants.SEARCH_MIN_ZOOM) {
                         camera.zoomOut()
                     }
                 }

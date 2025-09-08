@@ -1,6 +1,7 @@
 package uz.yalla.client.feature.map.presentation.intent
 
 import android.content.Context
+import androidx.compose.ui.unit.Dp
 import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
 
 sealed interface MapIntent {
@@ -20,4 +21,5 @@ sealed interface MapIntent {
     data object OnDismissActiveOrders : MapIntent
     data class SetShowingOrder(val order: ShowOrderModel) : MapIntent
     data class SetShowingOrderId(val orderId: Int) : MapIntent
+    data class SetTopPadding(val topPadding: Dp) : MapIntent
 }

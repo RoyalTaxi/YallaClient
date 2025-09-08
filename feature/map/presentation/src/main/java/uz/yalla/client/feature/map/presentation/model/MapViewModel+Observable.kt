@@ -1,11 +1,12 @@
 package uz.yalla.client.feature.map.presentation.model
 
-import androidx.lifecycle.viewModelScope
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.isSpecified
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
 import uz.yalla.client.core.common.marker.YallaMarkerState
 import uz.yalla.client.core.common.new_map.core.MyMapIntent
 import uz.yalla.client.core.common.state.CameraButtonState
@@ -16,40 +17,33 @@ import uz.yalla.client.feature.order.domain.model.response.order.toCommonExecuto
 import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetChannel
 import uz.yalla.client.feature.order.presentation.no_service.NO_SERVICE_ROUTE
+import kotlin.coroutines.coroutineContext
 import kotlin.time.Duration.Companion.seconds
 
-fun MViewModel.observeInfoMarkers() = viewModelScope.launch {
-    stateFlow
-        .distinctUntilChangedBy { Pair(it.carArrivalInMinutes, it.orderEndsInMinutes) }
-        .collectLatest { state ->
-            mapsViewModel.onIntent(MyMapIntent.SetCarArrivesInMinutes(state.carArrivalInMinutes))
-            mapsViewModel.onIntent(MyMapIntent.SetOrderEndsInMinutes(state.orderEndsInMinutes))
-        }
-}
 
-fun MViewModel.observeActiveOrder() = viewModelScope.launch {
+suspend fun MViewModel.pollActiveOrder() {
     stateFlow
         .distinctUntilChangedBy { it.orderId }
         .collectLatest {
-            while (isActive) {
+            while (coroutineContext.isActive) {
                 getActiveOrder()
                 delay(10.seconds)
             }
         }
 }
 
-fun MViewModel.observeActiveOrders() = viewModelScope.launch {
+suspend fun MViewModel.pollActiveOrders() {
     stateFlow
         .distinctUntilChangedBy { it.orderId }
         .collectLatest {
-            while (isActive) {
+            while (coroutineContext.isActive) {
                 getActiveOrders()
                 delay(10.seconds)
             }
         }
 }
 
-fun MViewModel.observeMarkerState() = viewModelScope.launch {
+suspend fun MViewModel.observeMarkerState() {
     mapsViewModel.markerState.collectLatest { markerState ->
         stateFlow.value.let { state ->
             if (state.order == null && state.destinations.isEmpty()) {
@@ -77,51 +71,17 @@ fun MViewModel.observeMarkerState() = viewModelScope.launch {
     }
 }
 
-fun MViewModel.observeLocations() = viewModelScope.launch {
-    stateFlow
-        .distinctUntilChangedBy { it.location to it.destinations }
-        .collectLatest { state ->
-            val points = listOfNotNull(
-                state.location?.point,
-                *state.destinations.mapNotNull { it.point }.toTypedArray()
-            )
-
-            mapsViewModel.onIntent(MyMapIntent.SetLocations(points))
-
-            state.location?.let { location -> MainSheetChannel.setLocation(location) }
-            MainSheetChannel.setDestination(state.destinations)
-        }
-}
-
-fun MViewModel.observeRoute() = viewModelScope.launch {
-    stateFlow
-        .distinctUntilChangedBy { Pair(it.route, it.order?.status) }
-        .collectLatest { state ->
-            mapsViewModel.onIntent(MyMapIntent.SetRoute(state.route))
-
-            updateState {
-                it.copy(
-                    cameraButtonState = when {
-                        state.route.isEmpty() -> MyLocationView
-                        else -> MyRouteView
-                    }
-                )
-            }
-        }
-}
-
-fun MViewModel.observeSheetCoordinator() = viewModelScope.launch {
+suspend fun MViewModel.observeSheetCoordinator() {
     SheetCoordinator.currentSheetState.collectLatest { sheetState ->
         if (sheetState?.route == NO_SERVICE_ROUTE) sheetState.height.let { height ->
             updateState { it.copy(overlayPadding = height) }
         } else sheetState?.height?.let { height ->
             updateState { it.copy(overlayPadding = height, sheetHeight = height) }
-            mapsViewModel.onIntent(MyMapIntent.SetMapPadding(height.value.toInt()))
         }
     }
 }
 
-fun MViewModel.observeNavigationButton() = viewModelScope.launch {
+suspend fun MViewModel.observeNavigationButton() {
     stateFlow
         .distinctUntilChangedBy {
             it.route to it.order
@@ -139,22 +99,85 @@ fun MViewModel.observeNavigationButton() = viewModelScope.launch {
         }
 }
 
-fun MViewModel.observeDriver() = viewModelScope.launch {
+
+suspend fun MViewModel.observeInfoMarkers() {
     stateFlow
-        .distinctUntilChangedBy { it.order }
+        .distinctUntilChangedBy { Pair(it.carArrivalInMinutes, it.orderEndsInMinutes) }
         .collectLatest { state ->
-            state.order?.let { order ->
-                mapsViewModel.onIntent(MyMapIntent.SetDriver(order.executor.toCommonExecutor()))
-            } ?: run {
-                mapsViewModel.onIntent(MyMapIntent.SetDriver(null))
+            mapsViewModel.onIntent(MyMapIntent.SetCarArrivesInMinutes(state.carArrivalInMinutes))
+            mapsViewModel.onIntent(MyMapIntent.SetOrderEndsInMinutes(state.orderEndsInMinutes))
+        }
+}
+
+suspend fun MViewModel.observeLocations() {
+    stateFlow
+        .distinctUntilChangedBy { it.location to it.destinations }
+        .collectLatest { state ->
+            val points = listOfNotNull(
+                state.location?.point,
+                *state.destinations.mapNotNull { it.point }.toTypedArray()
+            )
+
+            mapsViewModel.onIntent(MyMapIntent.SetLocations(points))
+
+            state.location?.let { location -> MainSheetChannel.setLocation(location) }
+            MainSheetChannel.setDestination(state.destinations)
+
+            getRouting()
+        }
+}
+
+suspend fun MViewModel.observeRoute() {
+    stateFlow
+        .distinctUntilChangedBy { Pair(it.route, it.order?.status) }
+        .collectLatest { state ->
+            mapsViewModel.onIntent(MyMapIntent.SetRoute(state.route))
+
+            refocus()
+
+            updateState {
+                it.copy(
+                    cameraButtonState = when {
+                        state.route.isEmpty() -> MyLocationView
+                        else -> MyRouteView
+                    }
+                )
             }
         }
 }
 
-fun MViewModel.observeDrivers() = viewModelScope.launch {
+suspend fun MViewModel.observeDrivers() {
     stateFlow
         .distinctUntilChangedBy { it.drivers }
         .collectLatest { state ->
             mapsViewModel.onIntent(MyMapIntent.SetDrivers(state.drivers))
+        }
+}
+
+suspend fun MViewModel.observeOrder() {
+    stateFlow
+        .distinctUntilChangedBy { it.order }
+        .collectLatest { state ->
+            mapsViewModel.onIntent(MyMapIntent.SetDriver(state.order?.executor?.toCommonExecutor()))
+            mapsViewModel.onIntent(MyMapIntent.SetOrderStatus(state.order?.status))
+
+            refocus()
+        }
+}
+
+suspend fun MViewModel.observeMapPadding() {
+    stateFlow
+        .distinctUntilChangedBy { it.sheetHeight to it.topPadding }
+        .collectLatest { state ->
+            mapsViewModel.onIntent(
+                MyMapIntent.SetViewPadding(
+                    PaddingValues(
+                        top = stateFlow.value.topPadding.takeIf { it.isSpecified } ?: 0.dp,
+                        bottom = stateFlow.value.sheetHeight.takeIf { it.isSpecified } ?: 0.dp
+                    )
+                )
+            )
+
+            refocus()
         }
 }

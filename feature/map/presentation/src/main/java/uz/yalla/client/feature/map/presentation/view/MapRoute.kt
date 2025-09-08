@@ -31,6 +31,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import uz.yalla.client.core.common.dialog.BaseDialog
+import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.core.common.lifecycle.MakeBridge
 import uz.yalla.client.core.common.new_map.core.MyMapIntent
 import uz.yalla.client.core.domain.model.OrderStatus
@@ -94,6 +95,7 @@ fun MRoute(
     val navController = rememberNavController()
     val statusBarHeight = WindowInsets.statusBars.getTop(density)
     val topPaddingDp = with(density) { statusBarHeight.toDp() }
+    val isMapReady by viewModel.mapsViewModel.isMapReady.collectAsStateWithLifecycle(false)
 
     val locationPermissionRequest = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission(),
@@ -162,11 +164,7 @@ fun MRoute(
     }
 
     LaunchedEffect(topPaddingDp) {
-        viewModel.mapsViewModel.onIntent(
-            MyMapIntent.SetViewPadding(
-                padding = androidx.compose.foundation.layout.PaddingValues(top = topPaddingDp)
-            )
-        )
+        viewModel.onIntent(MapIntent.SetTopPadding(topPaddingDp))
     }
 
     LaunchedEffect(state.serviceAvailable) {
@@ -288,7 +286,6 @@ fun MRoute(
                                     point = point,
                                     tariffId = tariffId
                                 )
-                                viewModel.onIntent(MapIntent.MapOverlayIntent.AnimateToFirstLocation)
                             }
                             activeCollectorRef.value = scope.launch {
                                 SearchCarSheetChannel.intentFlow.collectLatest { intent ->
@@ -345,4 +342,6 @@ fun MRoute(
             }
         }
     )
+
+    if (isMapReady.not()) LoadingDialog()
 }

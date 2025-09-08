@@ -1,5 +1,7 @@
 package uz.yalla.client.core.common.new_map.google
 
+import android.Manifest
+import android.content.pm.PackageManager
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -12,6 +14,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -20,6 +25,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.Dash
@@ -29,13 +35,19 @@ import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.compose.CameraMoveStartedReason
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapType
+import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerComposable
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 import org.orbitmvi.orbit.compose.collectSideEffect
 import uz.yalla.client.core.common.R
 import uz.yalla.client.core.common.marker.rememberGoogleMarkerWithInfo
@@ -47,7 +59,6 @@ import uz.yalla.client.core.common.new_map.core.MarkerState
 import uz.yalla.client.core.common.new_map.core.MyMapIntent
 import uz.yalla.client.core.common.utils.dpToPx
 import uz.yalla.client.core.common.utils.findClosestPointOnRoute
-import uz.yalla.client.core.common.utils.getCurrentLocation
 import uz.yalla.client.core.common.utils.vectorToBitmapDescriptor
 import uz.yalla.client.core.domain.model.Executor
 import uz.yalla.client.core.domain.model.MapPoint
@@ -104,7 +115,8 @@ private fun Markers(
         val isDarkTheme = isSystemInDarkTheme()
         Polyline(
             points = route.map { LatLng(it.lat, it.lng) },
-            color = if (isDarkTheme) Color.White else Color.Black
+            color = if (isDarkTheme) Color.White else Color.Black,
+            clickable = false
         )
     }
 
@@ -123,7 +135,8 @@ private fun Markers(
                         LatLng(target.lat, target.lng)
                     ),
                     color = YallaTheme.color.gray,
-                    pattern = listOf(Dash(16f), Gap(16f))
+                    pattern = listOf(Dash(16f), Gap(16f)),
+                    clickable = false
                 )
             }
         }
@@ -137,7 +150,8 @@ private fun Markers(
             Marker(
                 state = rememberMarkerState(position = LatLng(start.lat, start.lng)),
                 icon = originIcon,
-                zIndex = 2f
+                zIndex = 2f,
+                onClick = { true }
             )
         }
     }
@@ -148,7 +162,8 @@ private fun Markers(
                 Marker(
                     state = rememberMarkerState(position = LatLng(mid.lat, mid.lng)),
                     icon = middleIcon,
-                    zIndex = 2f
+                    zIndex = 2f,
+                    onClick = { true }
                 )
             }
         }
@@ -160,7 +175,8 @@ private fun Markers(
             Marker(
                 state = rememberMarkerState(position = LatLng(end.lat, end.lng)),
                 icon = endIcon,
-                zIndex = 2f
+                zIndex = 2f,
+                onClick = { true }
             )
         }
     }
@@ -176,7 +192,8 @@ private fun Driver(
             rotation = it.heading.toFloat(),
             state = rememberMarkerState(position = LatLng(it.lat, it.lng)),
             anchor = Offset(0.5f, 0.5f),
-            zIndex = 1f
+            zIndex = 1f,
+            onClick = { true }
         ) {
             Icon(
                 painter = painterResource(R.drawable.img_car_marker),
@@ -257,13 +274,14 @@ private fun DriversWithAnimation(
                 rotation = animatedHeading.value,
                 flat = true,
                 anchor = Offset(0.5f, 0.5f),
-                zIndex = 1f
+                zIndex = 1f,
+                onClick = { true }
             ) {
                 Icon(
                     painter = painterResource(R.drawable.img_car_marker),
                     contentDescription = "Driver",
                     tint = Color.Unspecified,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(36.dp)
                 )
             }
         }
@@ -298,44 +316,145 @@ private fun normalizeHeading(
 
 class GoogleMap : Map {
 
+    @OptIn(FlowPreview::class)
     @Composable
     override fun View() {
         val context = LocalContext.current
-        val viewModel = koinViewModel<MapViewModel>()
+        val viewModel = koinInject<MapViewModel>()
         val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
-        val camera = rememberCameraPositionState {
-            getCurrentLocation(
-                context = context,
-                onLocationFetched = { point ->
-                    moveTo(
-                        point = MapPoint(point.latitude, point.longitude),
-                        zoom = MapConstants.DEFAULT_ZOOM.toFloat()
-                    )
-                }
-            )
-        }
+        val camera = rememberCameraPositionState()
+        val hasLocationPermission =
+            ContextCompat.checkSelfPermission(
+                context, Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED ||
+                    ContextCompat.checkSelfPermission(
+                        context, Manifest.permission.ACCESS_COARSE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED
+
         val driversVisibility by remember(camera.position.zoom) {
             mutableStateOf(camera.position.zoom >= 8)
         }
+        val animationScope = rememberCoroutineScope()
+        var animationJob by remember { mutableStateOf<Job?>(null) }
 
-        LaunchedEffect(camera.isMoving) {
-            viewModel.onIntent(
-                MyMapIntent.SetMarkerState(
-                    markerState = MarkerState(
-                        point = camera.position.target.let { MapPoint(it.latitude, it.longitude) },
-                        isMoving = camera.isMoving,
-                        isByUser = camera.cameraMoveStartedReason in listOf(
-                            CameraMoveStartedReason.GESTURE,
-                            CameraMoveStartedReason.DEVELOPER_ANIMATION
+        LaunchedEffect(Unit) {
+            snapshotFlow { camera.isMoving }.collectLatest {
+                viewModel.onIntent(
+                    MyMapIntent.SetMarkerState(
+                        markerState = MarkerState(
+                            point = camera.position.target.let {
+                                MapPoint(
+                                    lat = it.latitude,
+                                    lng = it.longitude
+                                )
+                            },
+                            isMoving = camera.isMoving,
+                            isByUser = camera.cameraMoveStartedReason in listOf(
+                                CameraMoveStartedReason.GESTURE,
+                                CameraMoveStartedReason.API_ANIMATION
+                            )
                         )
                     )
                 )
-            )
+            }
+        }
+
+        viewModel.collectSideEffect { effect ->
+            fun cancelAndLaunch(block: suspend () -> Unit) {
+                animationJob?.cancel()
+                animationJob = animationScope.launch { block() }
+            }
+
+            when (effect) {
+                is MapEffect.MoveTo -> {
+                    animationJob?.cancel()
+                    camera.moveTo(point = effect.point)
+                }
+
+                is MapEffect.MoveToWithZoom -> {
+                    animationJob?.cancel()
+                    camera.moveTo(point = effect.point, zoom = effect.zoom.toFloat())
+                }
+
+                is MapEffect.AnimateTo -> {
+                    cancelAndLaunch { camera.animateTo(point = effect.point) }
+                }
+
+                is MapEffect.AnimateToWithZoom -> {
+                    cancelAndLaunch {
+                        camera.animateTo(
+                            point = effect.point,
+                            zoom = effect.zoom.toFloat()
+                        )
+                    }
+                }
+
+                is MapEffect.AnimateToWithZoomAndDuration -> {
+                    cancelAndLaunch {
+                        camera.animateTo(
+                            point = effect.point,
+                            zoom = effect.zoom.toFloat(),
+                            durationMs = effect.durationMs
+                        )
+                    }
+                }
+
+                is MapEffect.FitBounds -> {
+                    animationJob?.cancel()
+                    camera.fitBounds(
+                        points = effect.points,
+                        padding = dpToPx(context = context, dp = state.mapPadding)
+                    )
+                }
+
+                is MapEffect.AnimateFitBounds -> {
+                    cancelAndLaunch {
+                        camera.animateFitBounds(
+                            points = effect.points,
+                            padding = dpToPx(context, state.mapPadding),
+                            durationMs = effect.durationMs
+                        )
+                    }
+                }
+
+                MapEffect.ZoomOut -> {
+                    if (camera.position.zoom > MapConstants.SEARCH_MIN_ZOOM) {
+                        cancelAndLaunch { camera.zoomOut() }
+                    } else {
+                        animationJob?.cancel()
+                    }
+                }
+            }
         }
 
         GoogleMap(
             cameraPositionState = camera,
             contentPadding = state.viewPadding,
+            properties = MapProperties(
+                isBuildingEnabled = true,
+                isIndoorEnabled = true,
+                isMyLocationEnabled = hasLocationPermission,
+                isTrafficEnabled = false,
+                latLngBoundsForCameraTarget = LatLngBounds(
+                    LatLng(37.184, 55.997),
+                    LatLng(45.590, 73.139)
+                ),
+                mapStyleOptions = null,
+                mapType = MapType.NORMAL,
+                minZoomPreference = MapConstants.ZOOM_MIN_ZOOM
+            ),
+            uiSettings = MapUiSettings(
+                compassEnabled = false,
+                indoorLevelPickerEnabled = true,
+                mapToolbarEnabled = false,
+                myLocationButtonEnabled = false,
+                rotationGesturesEnabled = false,
+                scrollGesturesEnabled = state.orderStatus !in OrderStatus.nonInteractive,
+                scrollGesturesEnabledDuringRotateOrZoom = false,
+                tiltGesturesEnabled = false,
+                zoomControlsEnabled = false,
+                zoomGesturesEnabled = state.orderStatus !in OrderStatus.nonInteractive
+            ),
             onMapLoaded = { viewModel.onIntent(MyMapIntent.MapReady) }
         ) {
             Markers(
@@ -350,68 +469,6 @@ class GoogleMap : Map {
                 Driver(driver = state.driver)
 
                 DriversWithAnimation(drivers = state.drivers)
-            }
-        }
-
-        viewModel.collectSideEffect { effect ->
-            when (effect) {
-                is MapEffect.MoveTo -> {
-                    camera.moveTo(
-                        point = effect.point
-                    )
-                }
-
-                is MapEffect.MoveToWithZoom -> {
-                    camera.moveTo(
-                        point = effect.point,
-                        zoom = effect.zoom.toFloat()
-                    )
-                }
-
-                is MapEffect.AnimateTo -> {
-                    camera.animateTo(
-                        point = effect.point
-                    )
-                }
-
-                is MapEffect.AnimateToWithZoom -> {
-                    camera.animateTo(
-                        point = effect.point,
-                        zoom = effect.zoom.toFloat()
-                    )
-                }
-
-                is MapEffect.AnimateToWithZoomAndDuration -> {
-                    camera.animateTo(
-                        point = effect.point,
-                        zoom = effect.zoom.toFloat(),
-                        durationMs = effect.durationMs
-                    )
-                }
-
-                is MapEffect.FitBounds -> {
-                    camera.fitBounds(
-                        points = effect.points,
-                        padding = dpToPx(
-                            context = context,
-                            dp = state.mapPadding
-                        )
-                    )
-                }
-
-                is MapEffect.AnimateFitBounds -> {
-                    camera.animateFitBounds(
-                        points = effect.points,
-                        padding = dpToPx(context, state.mapPadding),
-                        durationMs = effect.durationMs
-                    )
-                }
-
-                MapEffect.ZoomOut -> {
-                    if (camera.position.zoom > MapConstants.MIN_ZOOM) {
-                        camera.zoomOut()
-                    }
-                }
             }
         }
     }

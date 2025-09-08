@@ -2,6 +2,7 @@ package uz.yalla.client.core.common.new_map.core
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import org.koin.androidx.compose.koinViewModel
 import uz.yalla.client.core.domain.model.Executor
@@ -32,7 +33,8 @@ data class MapState(
     val route: List<MapPoint>,
     val carArrivesInMinutes: Int?,
     val orderEndsInMinutes: Int?,
-    val orderStatus: OrderStatus?
+    val orderStatus: OrderStatus?,
+    val isMapReady: Boolean = false
 ) {
     companion object {
         val INITIAL = MapState(
@@ -116,4 +118,17 @@ interface Map {
 
     @Composable
     fun View()
+}
+
+infix operator fun PaddingValues.plus(other: PaddingValues): PaddingValues {
+    return PaddingValues(
+        top = calculateTopPadding()
+                + other.calculateTopPadding(),
+        bottom = calculateBottomPadding()
+                + other.calculateBottomPadding(),
+        start = calculateLeftPadding(LayoutDirection.Ltr)
+                + other.calculateLeftPadding(LayoutDirection.Ltr),
+        end = calculateRightPadding(LayoutDirection.Ltr)
+                + other.calculateRightPadding(LayoutDirection.Ltr)
+    )
 }

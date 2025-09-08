@@ -9,7 +9,6 @@ import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 import uz.yalla.client.core.common.new_map.core.MapEffect.AnimateFitBounds
-import uz.yalla.client.core.common.new_map.core.MapEffect.AnimateTo
 import uz.yalla.client.core.common.new_map.core.MapEffect.AnimateToWithZoom
 import uz.yalla.client.core.common.new_map.core.MapEffect.FitBounds
 import uz.yalla.client.core.common.new_map.core.MapEffect.MoveTo
@@ -29,10 +28,28 @@ class MapViewModel(
             .map { it.markerState }
             .distinctUntilChanged()
 
+    val isMapReady: Flow<Boolean> =
+        container.stateFlow
+            .map { it.isMapReady }
+            .distinctUntilChanged()
+
     fun onIntent(intent: MyMapIntent) = intent {
         when (intent) {
             MyMapIntent.MapReady -> {
-
+                reduce { state.copy(isMapReady = true) }
+                getCurrentLocation(
+                    context = appContext,
+                    onLocationFetched = { point ->
+                        viewModelScope.launch {
+                            postSideEffect(
+                                MoveToWithZoom(
+                                    point = MapPoint(point.latitude, point.longitude),
+                                    zoom = MapConstants.DEFAULT_ZOOM
+                                )
+                            )
+                        }
+                    }
+                )
             }
 
             is MyMapIntent.SetMarkerState -> {
@@ -47,7 +64,7 @@ class MapViewModel(
 
             MyMapIntent.AnimateToFirstLocation -> {
                 state.locations.firstOrNull()?.let { point ->
-                    postSideEffect(AnimateTo(point))
+                    postSideEffect(AnimateToWithZoom(point, MapConstants.DEFAULT_ZOOM))
                 }
             }
 

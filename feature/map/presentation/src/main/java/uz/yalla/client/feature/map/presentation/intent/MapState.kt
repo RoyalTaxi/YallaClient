@@ -19,6 +19,7 @@ data class MapState(
     val isMapEnabled: Boolean = true,
     val overlayPadding: Dp = Dp.Unspecified,
     val sheetHeight: Dp = Dp.Unspecified,
+    val topPadding: Dp = Dp.Unspecified,
 
     val serviceAvailable: Boolean? = null,
     val location: Location? = null,
