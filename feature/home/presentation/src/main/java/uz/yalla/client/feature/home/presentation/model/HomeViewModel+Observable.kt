@@ -138,21 +138,22 @@ fun HomeViewModel.observeLocations() = viewModelScope.launch {
 
             state.location?.let { location ->
                 MainSheetChannel.setLocation(location)
-                NoServiceSheetChannel.setLocation(location)
+                if (state.serviceAvailable == false) NoServiceSheetChannel.setLocation(location)
             }
+
             MainSheetChannel.setDestination(state.destinations)
 
             getRouting()
         }
 }
 
-fun HomeViewModel.observeRoute() = intent {
-    repeatOnSubscription {
-        container.stateFlow
-            .distinctUntilChangedBy { Pair(it.route, it.order?.status) }
-            .collectLatest {
-                mapsViewModel.onIntent(SetRoute(state.route))
-                refocus()
+fun HomeViewModel.observeRoute() = viewModelScope.launch {
+    container.stateFlow
+        .distinctUntilChangedBy { Pair(it.route, it.order?.status) }
+        .collectLatest { state ->
+            mapsViewModel.onIntent(SetRoute(state.route))
+            refocus()
+            intent {
                 reduce {
                     state.copy(
                         cameraButtonState = when {
@@ -162,7 +163,7 @@ fun HomeViewModel.observeRoute() = intent {
                     )
                 }
             }
-    }
+        }
 }
 
 fun HomeViewModel.observeDrivers() = viewModelScope.launch {
@@ -179,7 +180,6 @@ fun HomeViewModel.observeOrder() = viewModelScope.launch {
         .collectLatest { state ->
             mapsViewModel.onIntent(SetDriver(state.order?.executor?.toCommonExecutor()))
             mapsViewModel.onIntent(SetOrderStatus(state.order?.status))
-            refocus()
         }
 }
 
@@ -195,8 +195,6 @@ fun HomeViewModel.observeViewPadding() = viewModelScope.launch {
                     )
                 )
             )
-
-            refocus()
         }
 }
 

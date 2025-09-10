@@ -249,6 +249,7 @@ fun HomeRoute(
     OrderSheetHost(
         sheet = sheet,
         serviceAvailable = state.serviceAvailable == true,
+        hasActiveOrder = state.order != null || state.orderId != null,
         onIntent = viewModel::onIntent
     )
 

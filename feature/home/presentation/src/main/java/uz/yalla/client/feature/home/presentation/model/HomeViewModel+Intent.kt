@@ -87,7 +87,7 @@ fun HomeViewModel.onIntent(intent: HomeIntent) = intent {
     }
 }
 
-fun HomeViewModel.onIntent(intent: NoServiceSheetIntent)  {
+fun HomeViewModel.onIntent(intent: NoServiceSheetIntent) {
     when (intent) {
         is NoServiceSheetIntent.SetSelectedLocation -> {
             intent.location.point?.let { point ->

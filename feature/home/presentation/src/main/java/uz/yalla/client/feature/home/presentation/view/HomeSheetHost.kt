@@ -7,22 +7,22 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import uz.yalla.client.feature.home.presentation.intent.HomeIntent
-import uz.yalla.client.feature.home.presentation.intent.HomeState
 import uz.yalla.client.feature.home.presentation.navigation.OrderSheet
-import uz.yalla.client.feature.order.presentation.main.view.MainSheet
-import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheet
+import uz.yalla.client.feature.order.presentation.cancel_reason.view.CancelReasonSheet
 import uz.yalla.client.feature.order.presentation.client_waiting.view.ClientWaitingSheet
 import uz.yalla.client.feature.order.presentation.driver_waiting.view.DriverWaitingSheet
+import uz.yalla.client.feature.order.presentation.feedback.view.FeedbackSheet
+import uz.yalla.client.feature.order.presentation.main.view.MainSheet
+import uz.yalla.client.feature.order.presentation.no_service.view.NoServiceSheet
 import uz.yalla.client.feature.order.presentation.on_the_ride.view.OnTheRideSheet
 import uz.yalla.client.feature.order.presentation.order_canceled.view.OrderCanceledSheet
-import uz.yalla.client.feature.order.presentation.feedback.view.FeedbackSheet
-import uz.yalla.client.feature.order.presentation.no_service.view.NoServiceSheet
-import uz.yalla.client.feature.order.presentation.cancel_reason.view.CancelReasonSheet
+import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheet
 
 @Composable
 fun OrderSheetHost(
     sheet: OrderSheet?,
     serviceAvailable: Boolean,
+    hasActiveOrder: Boolean,
     onIntent: (HomeIntent) -> Unit,
 ) {
     val context = LocalContext.current
@@ -31,10 +31,12 @@ fun OrderSheetHost(
         label = "order_sheet",
         modifier = Modifier
             .onGloballyPositioned {
-                if (serviceAvailable) onIntent(HomeIntent.HomeOverlayIntent.RefocusLastState(context))
+                if (serviceAvailable || hasActiveOrder)
+                    onIntent(HomeIntent.HomeOverlayIntent.RefocusLastState(context))
             }
             .onSizeChanged {
-                if (serviceAvailable) onIntent(HomeIntent.HomeOverlayIntent.RefocusLastState(context))
+                if (serviceAvailable || hasActiveOrder)
+                    onIntent(HomeIntent.HomeOverlayIntent.RefocusLastState(context))
             }
     ) { current ->
         when (current) {
