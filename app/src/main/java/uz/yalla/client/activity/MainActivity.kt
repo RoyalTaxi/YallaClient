@@ -22,8 +22,8 @@ import org.koin.android.ext.android.inject
 import org.koin.androidx.scope.ScopeActivity
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import uz.yalla.client.BuildConfig
-import uz.yalla.client.core.common.new_map.google.GoogleMap
-import uz.yalla.client.core.common.new_map.libre.LibreMap
+import uz.yalla.client.core.common.map.extended.google.GoogleMap
+import uz.yalla.client.core.common.map.extended.libre.LibreMap
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.local.StaticPreferences
 import uz.yalla.client.core.domain.model.MapType

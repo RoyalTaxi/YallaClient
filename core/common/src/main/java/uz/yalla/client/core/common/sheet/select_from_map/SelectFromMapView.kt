@@ -29,9 +29,9 @@ import uz.yalla.client.core.common.button.MapButton
 import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.common.button.SelectCurrentLocationButton
 import uz.yalla.client.core.common.dialog.LoadingDialog
-import uz.yalla.client.core.common.map.ConcreteGoogleMap
-import uz.yalla.client.core.common.map.ConcreteLibreMap
-import uz.yalla.client.core.common.map.MapStrategy
+import uz.yalla.client.core.common.map.lite.ConcreteGoogleMap
+import uz.yalla.client.core.common.map.lite.ConcreteLibreMap
+import uz.yalla.client.core.common.map.lite.MapStrategy
 import uz.yalla.client.core.common.marker.YallaMarker
 import uz.yalla.client.core.common.marker.YallaMarkerState
 import uz.yalla.client.core.domain.local.AppPreferences

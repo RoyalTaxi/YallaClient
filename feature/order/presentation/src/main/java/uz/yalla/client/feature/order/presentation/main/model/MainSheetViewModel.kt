@@ -2,7 +2,16 @@ package uz.yalla.client.feature.order.presentation.main.model
 
 import androidx.compose.ui.unit.Dp
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import uz.yalla.client.core.common.sheet.search_address.SearchByNameSheetValue
@@ -11,7 +20,11 @@ import uz.yalla.client.core.common.viewmodel.BaseViewModel
 import uz.yalla.client.core.data.mapper.orFalse
 import uz.yalla.client.core.domain.error.DataError
 import uz.yalla.client.core.domain.local.AppPreferences
-import uz.yalla.client.core.domain.model.*
+import uz.yalla.client.core.domain.model.Destination
+import uz.yalla.client.core.domain.model.Location
+import uz.yalla.client.core.domain.model.MapPoint
+import uz.yalla.client.core.domain.model.PaymentType
+import uz.yalla.client.core.domain.model.ServiceModel
 import uz.yalla.client.feature.order.domain.model.response.tarrif.GetTariffsModel
 import uz.yalla.client.feature.order.domain.usecase.order.GetShowOrderUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.OrderTaxiUseCase
@@ -22,7 +35,11 @@ import uz.yalla.client.feature.order.presentation.main.MAIN_SHEET_ROUTE
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetAction
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetChannel
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent
-import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.*
+import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.FooterIntent
+import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.OrderCommentSheetIntent
+import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.OrderTaxiSheetIntent
+import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.PaymentMethodSheetIntent
+import uz.yalla.client.feature.order.presentation.main.view.MainSheetIntent.TariffInfoSheetIntent
 import uz.yalla.client.feature.payment.domain.usecase.GetCardListUseCase
 
 class MainSheetViewModel(
@@ -62,7 +79,7 @@ class MainSheetViewModel(
         }
     }
 
-    fun observeChannels() {
+    fun observeChannel() {
         viewModelScope.launch {
             MainSheetChannel.actionFlow.collectLatest { action ->
                 when (action) {
@@ -201,13 +218,6 @@ class MainSheetViewModel(
         }
     }
 
-    fun observeOrderIdForShowOrder() {
-        viewModelScope.launch {
-            uiState.distinctUntilChangedBy { it.orderId }
-                .collectLatest { it.orderId?.let(::getShowOrder) }
-        }
-    }
-
     private fun handleSelectTariff(intent: OrderTaxiSheetIntent.SelectTariff) {
         if (intent.wasSelected) _sheetVisibilityListener.trySend(Unit)
         else {
@@ -326,7 +336,6 @@ class MainSheetViewModel(
     private fun getShowOrder(id: Int) = viewModelScope.launch {
         getShowOrderUseCase(id).onSuccess {
             MainSheetChannel.sendIntent(OrderTaxiSheetIntent.OrderCreated(it))
-            _uiState.update { s -> s.copy(order = it) }
         }
     }
 
@@ -335,19 +344,14 @@ class MainSheetViewModel(
             uiState.value.mapToOrderTaxiDto()?.let {
                 orderTaxiUseCase(it)
                     .onSuccess { o ->
-                        _uiState.update { s ->
-                            s.copy(
-                                orderId = o.orderId,
-                                bonusAmount = 0,
-                                isBonusEnabled = false
-                            )
-                        }
+                        getShowOrder(o.orderId)
                     }
-                    .onFailure {throwable ->
+                    .onFailure { throwable ->
                         when (throwable) {
                             DataError.Network.NOT_SUFFICIENT_BALANCE -> {
                                 setNotSufficientBalanceDialogVisibility(true)
                             }
+
                             else -> {
                                 handleException(throwable)
                             }

@@ -4,4 +4,5 @@ import uz.yalla.client.core.domain.model.Location
 
 sealed interface NoServiceSheetIntent {
     data class SetSelectedLocation(val location: Location) : NoServiceSheetIntent
+    data class SetServiceState(val available: Boolean) : NoServiceSheetIntent
 }

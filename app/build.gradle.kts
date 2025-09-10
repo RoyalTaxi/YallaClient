@@ -98,7 +98,7 @@ dependencies {
     implementation(projects.feature.setting.presentation)
     implementation(projects.feature.web.presentation)
     implementation(projects.feature.contact.presentation)
-    implementation(projects.feature.map.presentation)
+    implementation(projects.feature.home.presentation)
     implementation(projects.feature.order.presentation)
     implementation(projects.feature.notification.presentation)
     implementation(projects.feature.bonus.presentation)

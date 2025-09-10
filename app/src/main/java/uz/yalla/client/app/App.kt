@@ -10,13 +10,13 @@ import org.koin.core.logger.Level
 import org.koin.java.KoinJavaComponent
 import uz.yalla.client.BuildConfig
 import uz.yalla.client.core.data.di.Common
-import uz.yalla.client.core.domain.local.AppPreferences
+import uz.yalla.client.core.domain.local.StaticPreferences
 import uz.yalla.client.di.Navigation
 
 class App : Application() {
     override fun onCreate() {
         super.onCreate()
-        val appPreferences: AppPreferences by lazy { KoinJavaComponent.getKoin().get() }
+        val staticPreferences: StaticPreferences by lazy { KoinJavaComponent.getKoin().get() }
 
         AndroidThreeTen.init(this)
         MapsInitializer.initialize(this)
@@ -31,6 +31,6 @@ class App : Application() {
             )
         }
 
-        appPreferences.setHasProcessedOrderOnEntry(false)
+        staticPreferences.hasInjectedOrderOnEntry = false
     }
 }

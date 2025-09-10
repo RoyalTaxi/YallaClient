@@ -10,8 +10,8 @@ import kotlinx.coroutines.launch
 import uz.yalla.client.core.common.viewmodel.BaseViewModel
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.OrderStatus
-import uz.yalla.client.feature.map.domain.model.request.GetRoutingDtoItem
-import uz.yalla.client.feature.map.domain.usecase.GetRoutingUseCase
+import uz.yalla.client.feature.home.domain.model.request.GetRoutingDtoItem
+import uz.yalla.client.feature.home.domain.usecase.GetRoutingUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.CancelRideUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.GetShowOrderUseCase
 import uz.yalla.client.feature.order.presentation.client_waiting.view.ClientWaitingSheetChannel

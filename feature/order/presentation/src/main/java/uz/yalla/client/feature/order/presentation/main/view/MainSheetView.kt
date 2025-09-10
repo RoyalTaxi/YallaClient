@@ -131,10 +131,6 @@ fun MainSheet(
         }
 
         launch {
-            viewModel.observeOrderIdForShowOrder()
-        }
-
-        launch {
             viewModel.observeTimeoutAndDrivers()
         }
 
@@ -143,7 +139,7 @@ fun MainSheet(
         }
 
         launch {
-            viewModel.observeChannels()
+            viewModel.observeChannel()
         }
     }
 

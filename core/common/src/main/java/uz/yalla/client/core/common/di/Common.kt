@@ -6,7 +6,7 @@ import org.koin.dsl.module
 import uz.yalla.client.core.common.sheet.search_address.DualAddressViewModel
 import uz.yalla.client.core.common.sheet.search_address.SingleAddressViewModel
 import uz.yalla.client.core.common.sheet.select_from_map.SelectFromMapViewModel
-import uz.yalla.client.core.common.new_map.core.MapViewModel
+import uz.yalla.client.core.common.map.core.model.MapViewModel
 
 object Common {
     val module = module {

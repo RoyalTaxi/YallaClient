@@ -37,8 +37,6 @@ data class MainSheetState(
 
     val selectedService: String = "road",
 
-    val order: ShowOrderModel? = null,
-    val orderId: Int? = null,
     val isSecondaryAddressMandatory: Boolean = false,
     val isShadowVisible: Boolean = false,
     val isPaymentMethodSheetVisible: Boolean = false,

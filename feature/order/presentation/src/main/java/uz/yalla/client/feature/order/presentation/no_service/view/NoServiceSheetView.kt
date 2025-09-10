@@ -49,7 +49,6 @@ fun NoServiceSheet(
     BackHandler { }
 
     LaunchedEffect(Unit) {
-        MainSheetChannel.register(lifecycleOwner)
         NoServiceSheetChannel.register(lifecycleOwner)
     }
 

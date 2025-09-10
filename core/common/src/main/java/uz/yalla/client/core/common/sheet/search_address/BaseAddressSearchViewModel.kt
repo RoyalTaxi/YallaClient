@@ -2,7 +2,6 @@ package uz.yalla.client.core.common.sheet.search_address
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,11 +14,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uz.yalla.client.core.domain.model.SearchableAddress
 import uz.yalla.client.core.domain.model.type.PlaceType
-import uz.yalla.client.feature.map.domain.model.response.PolygonRemoteItem
-import uz.yalla.client.feature.map.domain.model.response.SearchForAddressItemModel
-import uz.yalla.client.feature.map.domain.usecase.GetPolygonUseCase
-import uz.yalla.client.feature.map.domain.usecase.GetSecondaryAddressedUseCase
-import uz.yalla.client.feature.map.domain.usecase.SearchAddressUseCase
+import uz.yalla.client.feature.home.domain.model.response.PolygonRemoteItem
+import uz.yalla.client.feature.home.domain.model.response.SearchForAddressItemModel
+import uz.yalla.client.feature.home.domain.usecase.GetPolygonUseCase
+import uz.yalla.client.feature.home.domain.usecase.GetSecondaryAddressedUseCase
+import uz.yalla.client.feature.home.domain.usecase.SearchAddressUseCase
 import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(FlowPreview::class)

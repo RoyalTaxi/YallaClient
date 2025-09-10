@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import uz.yalla.client.feature.history.R
 import uz.yalla.client.feature.history.history_details.components.OrderDetailsBottomSheet
 import uz.yalla.client.feature.history.history_details.intent.HistoryDetailsState
-import uz.yalla.client.core.common.map.MapStrategy
+import uz.yalla.client.core.common.map.lite.MapStrategy
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.history.history_details.intent.HistoryDetailsIntent
 

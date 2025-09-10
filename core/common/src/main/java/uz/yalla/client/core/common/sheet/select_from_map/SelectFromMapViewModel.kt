@@ -14,9 +14,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import uz.yalla.client.core.domain.model.Location
 import uz.yalla.client.core.domain.model.MapPoint
-import uz.yalla.client.feature.map.domain.model.response.PolygonRemoteItem
-import uz.yalla.client.feature.map.domain.usecase.GetAddressNameUseCase
-import uz.yalla.client.feature.map.domain.usecase.GetPolygonUseCase
+import uz.yalla.client.feature.home.domain.model.response.PolygonRemoteItem
+import uz.yalla.client.feature.home.domain.usecase.GetAddressNameUseCase
+import uz.yalla.client.feature.home.domain.usecase.GetPolygonUseCase
 import kotlin.time.Duration.Companion.seconds
 
 class SelectFromMapViewModel(

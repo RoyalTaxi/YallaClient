@@ -11,7 +11,7 @@ dependencies {
 
     implementation(projects.core.common)
     implementation(projects.feature.order.data)
-    implementation(projects.feature.map.domain)
+    implementation(projects.feature.home.domain)
     implementation(projects.feature.order.domain)
     implementation(projects.feature.payment.domain)
 

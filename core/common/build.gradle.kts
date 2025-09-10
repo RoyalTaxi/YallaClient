@@ -13,7 +13,7 @@ dependencies {
     api(projects.core.presentation)
 
     implementation(projects.feature.places.domain)
-    implementation(projects.feature.map.domain)
+    implementation(projects.feature.home.domain)
     implementation(projects.feature.order.domain)
 
     implementation(libs.threetenabp)
