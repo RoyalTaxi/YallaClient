@@ -15,7 +15,6 @@ sealed interface HomeIntent {
         data object AskForPermission : HomeOverlayIntent
         data object AskForEnable : HomeOverlayIntent
         data object OnClickBonus : HomeOverlayIntent
-        data class RefocusLastState(val context: Context) : HomeOverlayIntent
     }
 
     data class SetShowingOrder(val order: ShowOrderModel) : HomeIntent

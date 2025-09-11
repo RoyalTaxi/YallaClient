@@ -8,19 +8,19 @@ fun HomeViewModel.refocus() {
     val state = container.stateFlow.value
     when {
         state.order?.status in OrderStatus.nonInteractive -> {
-            mapsViewModel.onIntent(AnimateToFirstLocation)
+            mapViewModel.onIntent(AnimateToFirstLocation)
         }
 
         state.route.isNotEmpty() -> {
-            mapsViewModel.onIntent(AnimateToRoute)
+            mapViewModel.onIntent(AnimateToRoute)
         }
 
         state.order != null -> {
-            mapsViewModel.onIntent(AnimateToFirstLocation)
+            mapViewModel.onIntent(AnimateToFirstLocation)
         }
 
         state.oldServiceAvailability != false && state.newServiceAvailability != false -> {
-            mapsViewModel.onIntent(AnimateToMyLocation)
+            mapViewModel.onIntent(AnimateToMyLocation)
         }
     }
 }

@@ -22,7 +22,7 @@ import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheetInte
 fun HomeViewModel.onIntent(intent: HomeIntent) = intent {
     when (intent) {
         is HomeOverlayIntent.AnimateToMyLocation -> {
-            mapsViewModel.onIntent(AnimateToMyLocation)
+            mapViewModel.onIntent(AnimateToMyLocation)
         }
 
         HomeOverlayIntent.AskForEnable -> {
@@ -39,11 +39,11 @@ fun HomeViewModel.onIntent(intent: HomeIntent) = intent {
         }
 
         HomeOverlayIntent.AnimateToFirstLocation -> {
-            mapsViewModel.onIntent(AnimateToFirstLocation)
+            mapViewModel.onIntent(AnimateToFirstLocation)
         }
 
         HomeOverlayIntent.AnimateToMyRoute -> {
-            mapsViewModel.onIntent(AnimateToRoute)
+            mapViewModel.onIntent(AnimateToRoute)
         }
 
         HomeOverlayIntent.NavigateBack -> {
@@ -69,10 +69,6 @@ fun HomeViewModel.onIntent(intent: HomeIntent) = intent {
             }
         }
 
-        is HomeOverlayIntent.RefocusLastState -> {
-            refocus()
-        }
-
         is SetShowingOrderId -> {
             reduce { state.copy(orderId = intent.orderId) }
         }
@@ -91,8 +87,8 @@ fun HomeViewModel.onIntent(intent: NoServiceSheetIntent) {
     when (intent) {
         is NoServiceSheetIntent.SetSelectedLocation -> {
             intent.location.point?.let { point ->
-                mapsViewModel.onIntent(SetLocations(listOf(point)))
-                mapsViewModel.onIntent(AnimateToFirstLocation)
+                mapViewModel.onIntent(SetLocations(listOf(point)))
+                mapViewModel.onIntent(AnimateToFirstLocation)
             }
         }
 
@@ -114,8 +110,8 @@ fun HomeViewModel.onIntent(intent: MainSheetIntent) = intent {
         is MainSheetIntent.OrderTaxiSheetIntent.SetSelectedLocation -> {
             if (state.destinations.isEmpty()) {
                 intent.location.point?.let { point ->
-                    mapsViewModel.onIntent(SetLocations(listOf(point)))
-                    mapsViewModel.onIntent(AnimateToFirstLocation)
+                    mapViewModel.onIntent(SetLocations(listOf(point)))
+                    mapViewModel.onIntent(AnimateToFirstLocation)
                 }
             } else {
                 reduce { state.copy(location = intent.location) }
@@ -189,7 +185,7 @@ fun HomeViewModel.onIntent(intent: MainSheetIntent) = intent {
 fun HomeViewModel.onIntent(intent: SearchCarSheetIntent) = intent {
     when (intent) {
         SearchCarSheetIntent.AddNewOrder -> clearState()
-        SearchCarSheetIntent.ZoomOut -> mapsViewModel.onIntent(ZoomOut)
+        SearchCarSheetIntent.ZoomOut -> mapViewModel.onIntent(ZoomOut)
         is SearchCarSheetIntent.OnCancelled -> {
             val orderId = intent.orderId ?: return@intent
             postSideEffect(NavigateToCancelled(orderId))

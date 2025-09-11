@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.isActive
+import uz.yalla.client.core.common.map.core.intent.MapIntent
 import uz.yalla.client.core.common.map.core.intent.MapIntent.SetCarArrivesInMinutes
 import uz.yalla.client.core.common.map.core.intent.MapIntent.SetDriver
 import uz.yalla.client.core.common.map.core.intent.MapIntent.SetDrivers
@@ -23,6 +24,7 @@ import uz.yalla.client.core.common.state.CameraButtonState.FirstLocation
 import uz.yalla.client.core.common.state.CameraButtonState.MyLocationView
 import uz.yalla.client.core.common.state.CameraButtonState.MyRouteView
 import uz.yalla.client.core.common.state.NavigationButtonState
+import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.feature.home.presentation.navigation.OrderSheet.CancelReason
 import uz.yalla.client.feature.order.domain.model.response.order.toCommonExecutor
 import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
@@ -57,7 +59,7 @@ suspend fun HomeViewModel.pollActiveOrders() {
 }
 
 suspend fun HomeViewModel.observeMarkerState() {
-    mapsViewModel.markerState.collectLatest { markerState ->
+    mapViewModel.markerState.collectLatest { markerState ->
         intent {
             if (!markerState.isMoving) {
                 when {
@@ -120,8 +122,8 @@ suspend fun HomeViewModel.observeInfoMarkers() {
     container.stateFlow
         .distinctUntilChangedBy { Pair(it.carArrivalInMinutes, it.orderEndsInMinutes) }
         .collectLatest { s ->
-            mapsViewModel.onIntent(SetCarArrivesInMinutes(s.carArrivalInMinutes))
-            mapsViewModel.onIntent(SetOrderEndsInMinutes(s.orderEndsInMinutes))
+            mapViewModel.onIntent(SetCarArrivesInMinutes(s.carArrivalInMinutes))
+            mapViewModel.onIntent(SetOrderEndsInMinutes(s.orderEndsInMinutes))
         }
 }
 
@@ -134,7 +136,7 @@ suspend fun HomeViewModel.observeLocations() {
                 s.destinations.mapNotNull { it.point }.forEach(::add)
             }
 
-            mapsViewModel.onIntent(SetLocations(points))
+            mapViewModel.onIntent(SetLocations(points))
 
             s.location?.let { location ->
                 MainSheetChannel.setLocation(location)
@@ -148,16 +150,15 @@ suspend fun HomeViewModel.observeLocations() {
 
 suspend fun HomeViewModel.observeRoute() {
     container.stateFlow
-        .map { s -> s to (s.route to s.order?.status) }
-        .distinctUntilChangedBy { it.second }
-        .collectLatest { (s, _) ->
-            mapsViewModel.onIntent(SetRoute(s.route))
+        .distinctUntilChangedBy { it.route }
+        .collectLatest { state ->
+            mapViewModel.onIntent(SetRoute(state.route))
             intent {
                 refocus()
                 reduce {
                     state.copy(
                         cameraButtonState =
-                            if (s.route.isEmpty()) MyLocationView else MyRouteView
+                            if (state.route.isEmpty()) MyLocationView else MyRouteView
                     )
                 }
             }
@@ -168,16 +169,21 @@ suspend fun HomeViewModel.observeDrivers() {
     container.stateFlow
         .distinctUntilChangedBy { it.drivers }
         .collectLatest { s ->
-            mapsViewModel.onIntent(SetDrivers(s.drivers))
+            mapViewModel.onIntent(SetDrivers(s.drivers))
         }
 }
 
 suspend fun HomeViewModel.observeOrder() {
     container.stateFlow
         .distinctUntilChangedBy { it.order }
-        .collectLatest { s ->
-            mapsViewModel.onIntent(SetDriver(s.order?.executor?.toCommonExecutor()))
-            mapsViewModel.onIntent(SetOrderStatus(s.order?.status))
+        .collectLatest { state ->
+            mapViewModel.onIntent(SetDriver(state.order?.executor?.toCommonExecutor()))
+            mapViewModel.onIntent(SetOrderStatus(state.order?.status))
+            if (state.order == null) {
+                mapViewModel.onIntent(MapIntent.MoveToMyLocation)
+            } else if (state.order.status in OrderStatus.nonInteractive) {
+                mapViewModel.onIntent(MapIntent.MoveToFirstLocation)
+            }
         }
 }
 
@@ -185,7 +191,7 @@ suspend fun HomeViewModel.observeViewPadding() {
     container.stateFlow
         .distinctUntilChangedBy { it.sheetHeight to it.topPadding }
         .collectLatest { s ->
-            mapsViewModel.onIntent(
+            mapViewModel.onIntent(
                 SetViewPadding(
                     PaddingValues(
                         top = s.topPadding.takeIf { it.isSpecified } ?: 0.dp,

@@ -1,12 +1,12 @@
 package uz.yalla.client.feature.home.presentation.view
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.onFirstVisible
 import androidx.compose.ui.platform.LocalContext
+import uz.yalla.client.core.common.map.core.intent.MapIntent
 import uz.yalla.client.feature.home.presentation.intent.HomeIntent
 import uz.yalla.client.feature.home.presentation.navigation.OrderSheet
 import uz.yalla.client.feature.order.presentation.cancel_reason.view.CancelReasonSheet
@@ -22,25 +22,15 @@ import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheet
 @Composable
 fun OrderSheetHost(
     sheet: OrderSheet?,
-    isServiceAvailable: Boolean,
-    wasServiceAvailable: Boolean,
-    hasActiveOrder: Boolean,
-    onIntent: (HomeIntent) -> Unit,
+    onIntent: (HomeIntent) -> Unit
 ) {
     val context = LocalContext.current
-    LaunchedEffect(Unit) { }
     AnimatedContent(
         targetState = sheet,
         label = "order_sheet",
-        modifier = Modifier
-            .onGloballyPositioned {
-                if ((isServiceAvailable && wasServiceAvailable) || hasActiveOrder)
-                    onIntent(HomeIntent.HomeOverlayIntent.RefocusLastState(context))
-            }
-            .onSizeChanged {
-                if ((isServiceAvailable && wasServiceAvailable) || hasActiveOrder)
-                    onIntent(HomeIntent.HomeOverlayIntent.RefocusLastState(context))
-            }
+        modifier = Modifier.onFirstVisible {
+            onIntent(HomeIntent.HomeOverlayIntent.AnimateToMyLocation(context))
+        }
     ) { current ->
         when (current) {
             null -> {}

@@ -36,6 +36,19 @@ class MapViewModel(
     fun onIntent(intent: MapIntent) = intent {
         when (intent) {
             MapIntent.MapReady -> {
+                getCurrentLocation(
+                    context = appContext,
+                    onLocationFetched = {
+                        viewModelScope.launch {
+                            postSideEffect(
+                                sideEffect = MoveToWithZoom(
+                                    point = MapPoint(it.latitude, it.longitude),
+                                    zoom = MapConstants.DEFAULT_ZOOM
+                                )
+                            )
+                        }
+                    }
+                )
                 reduce { state.copy(isMapReady = true) }
             }
 

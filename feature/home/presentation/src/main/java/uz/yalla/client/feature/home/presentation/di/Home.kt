@@ -9,7 +9,7 @@ object Home {
     private val viewModelModule = module {
         viewModel {
             HomeViewModel(
-                mapsViewModel = get(),
+                mapViewModel = get(),
                 prefs = get(),
                 staticPreferences = get(),
                 getMeUseCase = get(),

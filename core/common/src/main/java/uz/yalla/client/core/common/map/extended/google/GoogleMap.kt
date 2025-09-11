@@ -3,9 +3,12 @@ package uz.yalla.client.core.common.map.extended.google
 import android.Manifest
 import android.content.pm.PackageManager
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.compose.*
@@ -34,31 +37,38 @@ class GoogleMap : Map {
         val viewModel = koinInject<MapViewModel>()
         val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
         val camera = rememberCameraPositionState()
-        val hasLocationPermission = ContextCompat.checkSelfPermission(
-            context, Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(
-                    context, Manifest.permission.ACCESS_COARSE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED
 
-        val driversVisibility by remember(camera.position.zoom) {
-            mutableStateOf(camera.position.zoom >= 8)
+        val hasLocationPermission =
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED ||
+                    ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED
+
+        val driversVisibility by remember {
+            derivedStateOf { camera.position.zoom >= 8f }
         }
+
         val animationScope = rememberCoroutineScope()
         var animationJob by remember { mutableStateOf<Job?>(null) }
 
+        var logicalFocus by remember { mutableStateOf<LatLng?>(null) }
+
         LaunchedEffect(Unit) {
-            snapshotFlow { camera.isMoving }.collectLatest {
+            snapshotFlow { camera.isMoving }.collectLatest { isMoving ->
                 viewModel.onIntent(
                     MapIntent.SetMarkerState(
                         markerState = MarkerState(
                             point = camera.position.target.let {
                                 MapPoint(
-                                    lat = it.latitude,
-                                    lng = it.longitude
+                                    it.latitude,
+                                    it.longitude
                                 )
                             },
-                            isMoving = camera.isMoving,
+                            isMoving = isMoving,
                             isByUser = camera.cameraMoveStartedReason in listOf(
                                 CameraMoveStartedReason.GESTURE,
                                 CameraMoveStartedReason.API_ANIMATION
@@ -66,6 +76,9 @@ class GoogleMap : Map {
                         )
                     )
                 )
+                if (!isMoving) {
+                    logicalFocus = camera.position.target
+                }
             }
         }
 
@@ -79,15 +92,18 @@ class GoogleMap : Map {
                 is MapEffect.MoveTo -> {
                     animationJob?.cancel()
                     camera.moveTo(point = effect.point)
+                    logicalFocus = LatLng(effect.point.lat, effect.point.lng)
                 }
 
                 is MapEffect.MoveToWithZoom -> {
                     animationJob?.cancel()
                     camera.moveTo(point = effect.point, zoom = effect.zoom.toFloat())
+                    logicalFocus = LatLng(effect.point.lat, effect.point.lng)
                 }
 
                 is MapEffect.AnimateTo -> {
                     cancelAndLaunch { camera.animateTo(point = effect.point) }
+                    logicalFocus = LatLng(effect.point.lat, effect.point.lng)
                 }
 
                 is MapEffect.AnimateToWithZoom -> {
@@ -97,6 +113,7 @@ class GoogleMap : Map {
                             zoom = effect.zoom.toFloat()
                         )
                     }
+                    logicalFocus = LatLng(effect.point.lat, effect.point.lng)
                 }
 
                 is MapEffect.AnimateToWithZoomAndDuration -> {
@@ -107,6 +124,7 @@ class GoogleMap : Map {
                             durationMs = effect.durationMs
                         )
                     }
+                    logicalFocus = LatLng(effect.point.lat, effect.point.lng)
                 }
 
                 is MapEffect.FitBounds -> {
@@ -115,6 +133,9 @@ class GoogleMap : Map {
                         points = effect.points,
                         padding = dpToPx(context = context, dp = state.mapPadding)
                     )
+                    val builder = LatLngBounds.Builder()
+                    effect.points.forEach { builder.include(LatLng(it.lat, it.lng)) }
+                    logicalFocus = builder.build().center
                 }
 
                 is MapEffect.AnimateFitBounds -> {
@@ -125,6 +146,9 @@ class GoogleMap : Map {
                             durationMs = effect.durationMs
                         )
                     }
+                    val builder = LatLngBounds.Builder()
+                    effect.points.forEach { builder.include(LatLng(it.lat, it.lng)) }
+                    logicalFocus = builder.build().center
                 }
 
                 MapEffect.ZoomOut -> {
@@ -134,6 +158,12 @@ class GoogleMap : Map {
                         animationJob?.cancel()
                     }
                 }
+            }
+        }
+
+        LaunchedEffect(state.viewPadding) {
+            logicalFocus?.let { focus ->
+                camera.move(CameraUpdateFactory.newLatLngZoom(focus, camera.position.zoom))
             }
         }
 
@@ -165,7 +195,10 @@ class GoogleMap : Map {
                 zoomControlsEnabled = false,
                 zoomGesturesEnabled = state.orderStatus !in OrderStatus.nonInteractive
             ),
-            onMapLoaded = { viewModel.onIntent(MapIntent.MapReady) }
+            onMapLoaded = { viewModel.onIntent(MapIntent.MapReady) },
+            modifier = Modifier.onSizeChanged {
+                camera.move(CameraUpdateFactory.newCameraPosition(camera.position))
+            }
         ) {
             Markers(
                 route = state.route,

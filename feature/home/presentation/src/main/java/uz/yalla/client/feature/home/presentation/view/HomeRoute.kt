@@ -113,7 +113,7 @@ fun HomeRoute(
 
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
     val sheet by viewModel.sheetFlow.collectAsStateWithLifecycle()
-    val isMapReady by viewModel.mapsViewModel.isMapReady.collectAsStateWithLifecycle(true)
+    val isMapReady by viewModel.mapViewModel.isMapReady.collectAsStateWithLifecycle(true)
 
     val locationPermissionRequest = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission(),
@@ -178,10 +178,6 @@ fun HomeRoute(
             runCatching { appContext.unregisterReceiver(receiver) }
             activeCollectorRef?.cancel()
         }
-    }
-
-    LaunchedEffect(isMapReady) {
-        if(isMapReady) viewModel.onIntent(HomeIntent.HomeOverlayIntent.RefocusLastState(context))
     }
 
     LaunchedEffect(topPaddingDp) {
@@ -296,9 +292,6 @@ fun HomeRoute(
 
     OrderSheetHost(
         sheet = sheet,
-        isServiceAvailable = state.newServiceAvailability != false,
-        wasServiceAvailable = state.oldServiceAvailability != false,
-        hasActiveOrder = state.order != null || state.orderId != null,
         onIntent = viewModel::onIntent
     )
 
