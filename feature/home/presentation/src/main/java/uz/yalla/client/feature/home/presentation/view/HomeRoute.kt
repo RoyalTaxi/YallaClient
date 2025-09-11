@@ -10,7 +10,15 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -27,13 +35,49 @@ import uz.yalla.client.core.common.dialog.BaseDialog
 import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.core.common.lifecycle.MakeBridge
 import uz.yalla.client.feature.home.presentation.R
-import uz.yalla.client.feature.home.presentation.intent.HomeDrawerIntent.*
+import uz.yalla.client.feature.home.presentation.intent.HomeDrawerIntent.AboutTheApp
+import uz.yalla.client.feature.home.presentation.intent.HomeDrawerIntent.BecomeADriver
+import uz.yalla.client.feature.home.presentation.intent.HomeDrawerIntent.Bonus
+import uz.yalla.client.feature.home.presentation.intent.HomeDrawerIntent.ContactUs
+import uz.yalla.client.feature.home.presentation.intent.HomeDrawerIntent.InviteFriend
+import uz.yalla.client.feature.home.presentation.intent.HomeDrawerIntent.MyPlaces
+import uz.yalla.client.feature.home.presentation.intent.HomeDrawerIntent.Notifications
+import uz.yalla.client.feature.home.presentation.intent.HomeDrawerIntent.OrdersHistory
+import uz.yalla.client.feature.home.presentation.intent.HomeDrawerIntent.PaymentType
+import uz.yalla.client.feature.home.presentation.intent.HomeDrawerIntent.Profile
+import uz.yalla.client.feature.home.presentation.intent.HomeDrawerIntent.RegisterDevice
+import uz.yalla.client.feature.home.presentation.intent.HomeDrawerIntent.Settings
 import uz.yalla.client.feature.home.presentation.intent.HomeEffect
 import uz.yalla.client.feature.home.presentation.intent.HomeIntent
-import uz.yalla.client.feature.home.presentation.model.*
+import uz.yalla.client.feature.home.presentation.model.HomeViewModel
+import uz.yalla.client.feature.home.presentation.model.onIntent
+import uz.yalla.client.feature.home.presentation.model.removeLastDestination
+import uz.yalla.client.feature.home.presentation.model.setLocationEnabled
+import uz.yalla.client.feature.home.presentation.model.setLocationGranted
+import uz.yalla.client.feature.home.presentation.model.setPermissionDialog
 import uz.yalla.client.feature.home.presentation.navigation.FromMap
-import uz.yalla.client.feature.home.presentation.navigation.FromMap.*
-import uz.yalla.client.feature.home.presentation.navigation.OrderSheet.*
+import uz.yalla.client.feature.home.presentation.navigation.FromMap.ToAboutApp
+import uz.yalla.client.feature.home.presentation.navigation.FromMap.ToAddNewCard
+import uz.yalla.client.feature.home.presentation.navigation.FromMap.ToAddresses
+import uz.yalla.client.feature.home.presentation.navigation.FromMap.ToBecomeDriver
+import uz.yalla.client.feature.home.presentation.navigation.FromMap.ToBonuses
+import uz.yalla.client.feature.home.presentation.navigation.FromMap.ToContactUs
+import uz.yalla.client.feature.home.presentation.navigation.FromMap.ToInviteFriend
+import uz.yalla.client.feature.home.presentation.navigation.FromMap.ToNotifications
+import uz.yalla.client.feature.home.presentation.navigation.FromMap.ToOrderHistory
+import uz.yalla.client.feature.home.presentation.navigation.FromMap.ToPaymentType
+import uz.yalla.client.feature.home.presentation.navigation.FromMap.ToProfile
+import uz.yalla.client.feature.home.presentation.navigation.FromMap.ToRegister
+import uz.yalla.client.feature.home.presentation.navigation.FromMap.ToSettings
+import uz.yalla.client.feature.home.presentation.navigation.OrderSheet.CancelReason
+import uz.yalla.client.feature.home.presentation.navigation.OrderSheet.Canceled
+import uz.yalla.client.feature.home.presentation.navigation.OrderSheet.ClientWaiting
+import uz.yalla.client.feature.home.presentation.navigation.OrderSheet.DriverWaiting
+import uz.yalla.client.feature.home.presentation.navigation.OrderSheet.Feedback
+import uz.yalla.client.feature.home.presentation.navigation.OrderSheet.Main
+import uz.yalla.client.feature.home.presentation.navigation.OrderSheet.NoService
+import uz.yalla.client.feature.home.presentation.navigation.OrderSheet.OnTheRide
+import uz.yalla.client.feature.home.presentation.navigation.OrderSheet.Search
 import uz.yalla.client.feature.home.presentation.sheets.ActiveOrdersBottomSheet
 import uz.yalla.client.feature.home.presentation.utils.LocationServiceReceiver
 import uz.yalla.client.feature.home.presentation.utils.checkLocation
@@ -134,6 +178,10 @@ fun HomeRoute(
             runCatching { appContext.unregisterReceiver(receiver) }
             activeCollectorRef?.cancel()
         }
+    }
+
+    LaunchedEffect(isMapReady) {
+        if(isMapReady) viewModel.onIntent(HomeIntent.HomeOverlayIntent.RefocusLastState(context))
     }
 
     LaunchedEffect(topPaddingDp) {
@@ -248,7 +296,8 @@ fun HomeRoute(
 
     OrderSheetHost(
         sheet = sheet,
-        serviceAvailable = state.serviceAvailable == true,
+        isServiceAvailable = state.newServiceAvailability != false,
+        wasServiceAvailable = state.oldServiceAvailability != false,
         hasActiveOrder = state.order != null || state.orderId != null,
         onIntent = viewModel::onIntent
     )

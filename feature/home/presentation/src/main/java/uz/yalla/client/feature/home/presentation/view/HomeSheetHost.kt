@@ -2,6 +2,7 @@ package uz.yalla.client.feature.home.presentation.view
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
@@ -21,21 +22,23 @@ import uz.yalla.client.feature.order.presentation.search.view.SearchCarSheet
 @Composable
 fun OrderSheetHost(
     sheet: OrderSheet?,
-    serviceAvailable: Boolean,
+    isServiceAvailable: Boolean,
+    wasServiceAvailable: Boolean,
     hasActiveOrder: Boolean,
     onIntent: (HomeIntent) -> Unit,
 ) {
     val context = LocalContext.current
+    LaunchedEffect(Unit) { }
     AnimatedContent(
         targetState = sheet,
         label = "order_sheet",
         modifier = Modifier
             .onGloballyPositioned {
-                if (serviceAvailable || hasActiveOrder)
+                if ((isServiceAvailable && wasServiceAvailable) || hasActiveOrder)
                     onIntent(HomeIntent.HomeOverlayIntent.RefocusLastState(context))
             }
             .onSizeChanged {
-                if (serviceAvailable || hasActiveOrder)
+                if ((isServiceAvailable && wasServiceAvailable) || hasActiveOrder)
                     onIntent(HomeIntent.HomeOverlayIntent.RefocusLastState(context))
             }
     ) { current ->

@@ -3,15 +3,13 @@ package uz.yalla.client.feature.home.presentation.model
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isSpecified
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
 import uz.yalla.client.core.common.map.core.intent.MapIntent.SetCarArrivesInMinutes
 import uz.yalla.client.core.common.map.core.intent.MapIntent.SetDriver
 import uz.yalla.client.core.common.map.core.intent.MapIntent.SetDrivers
@@ -25,7 +23,7 @@ import uz.yalla.client.core.common.state.CameraButtonState.FirstLocation
 import uz.yalla.client.core.common.state.CameraButtonState.MyLocationView
 import uz.yalla.client.core.common.state.CameraButtonState.MyRouteView
 import uz.yalla.client.core.common.state.NavigationButtonState
-import uz.yalla.client.feature.home.presentation.navigation.OrderSheet
+import uz.yalla.client.feature.home.presentation.navigation.OrderSheet.CancelReason
 import uz.yalla.client.feature.order.domain.model.response.order.toCommonExecutor
 import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
 import uz.yalla.client.feature.order.presentation.main.view.MainSheetChannel
@@ -34,33 +32,34 @@ import uz.yalla.client.feature.order.presentation.no_service.view.NoServiceSheet
 import kotlin.time.Duration.Companion.seconds
 
 
-fun HomeViewModel.pollActiveOrder() = viewModelScope.launch {
+suspend fun HomeViewModel.pollActiveOrder() {
     container.stateFlow
         .distinctUntilChangedBy { it.orderId }
         .collectLatest {
-            while (coroutineContext.isActive) {
+            val ctx = currentCoroutineContext()
+            while (ctx.isActive) {
                 getActiveOrder()
                 delay(10.seconds)
             }
         }
 }
 
-fun HomeViewModel.pollActiveOrders() = viewModelScope.launch {
+suspend fun HomeViewModel.pollActiveOrders() {
     container.stateFlow
         .distinctUntilChangedBy { it.orderId }
         .collectLatest {
-            while (coroutineContext.isActive) {
+            val ctx = currentCoroutineContext()
+            while (ctx.isActive) {
                 getActiveOrders()
                 delay(10.seconds)
             }
         }
 }
 
-@OptIn(FlowPreview::class)
-fun HomeViewModel.observeMarkerState() = intent {
-    repeatOnSubscription {
-        mapsViewModel.markerState.collectLatest { markerState ->
-            if (markerState.isMoving.not()) {
+suspend fun HomeViewModel.observeMarkerState() {
+    mapsViewModel.markerState.collectLatest { markerState ->
+        intent {
+            if (!markerState.isMoving) {
                 when {
                     state.cameraButtonState == MyRouteView && markerState.isByUser -> {
                         reduce { state.copy(cameraButtonState = MyRouteView) }
@@ -87,124 +86,123 @@ fun HomeViewModel.observeMarkerState() = intent {
     }
 }
 
-fun HomeViewModel.observeSheetCoordinator() = viewModelScope.launch {
+suspend fun HomeViewModel.observeSheetCoordinator() {
     SheetCoordinator.currentSheetState.collectLatest { sheetState ->
-        if (sheetState?.route == NO_SERVICE_ROUTE) sheetState.height.let { height ->
-            intent { reduce { state.copy(overlayPadding = height) } }
-        } else sheetState?.height?.let { height ->
-            intent { reduce { state.copy(overlayPadding = height, sheetHeight = height) } }
+        intent {
+            if (sheetState?.route == NO_SERVICE_ROUTE) {
+                sheetState.height.let { h -> reduce { state.copy(overlayPadding = h) } }
+            } else sheetState?.height?.let { h ->
+                reduce { state.copy(overlayPadding = h, sheetHeight = h) }
+            }
         }
     }
 }
 
-fun HomeViewModel.observeNavigationButton() = viewModelScope.launch {
+suspend fun HomeViewModel.observeNavigationButton() {
     container.stateFlow
         .distinctUntilChangedBy { it.route to it.order }
-        .collectLatest { state ->
+        .collectLatest { s ->
             intent {
                 reduce {
                     state.copy(
-                        navigationButtonState = when {
-                            state.route.isNotEmpty() -> NavigationButtonState.NavigateBack
-                            state.order != null -> NavigationButtonState.NavigateBack
-                            else -> NavigationButtonState.OpenDrawer
-                        }
+                        navigationButtonState =
+                            if (s.route.isNotEmpty() || s.order != null)
+                                NavigationButtonState.NavigateBack
+                            else
+                                NavigationButtonState.OpenDrawer
                     )
                 }
             }
         }
 }
 
-
-fun HomeViewModel.observeInfoMarkers() = viewModelScope.launch {
+suspend fun HomeViewModel.observeInfoMarkers() {
     container.stateFlow
         .distinctUntilChangedBy { Pair(it.carArrivalInMinutes, it.orderEndsInMinutes) }
-        .collectLatest { state ->
-            mapsViewModel.onIntent(SetCarArrivesInMinutes(state.carArrivalInMinutes))
-            mapsViewModel.onIntent(SetOrderEndsInMinutes(state.orderEndsInMinutes))
+        .collectLatest { s ->
+            mapsViewModel.onIntent(SetCarArrivesInMinutes(s.carArrivalInMinutes))
+            mapsViewModel.onIntent(SetOrderEndsInMinutes(s.orderEndsInMinutes))
         }
 }
 
-fun HomeViewModel.observeLocations() = viewModelScope.launch {
+suspend fun HomeViewModel.observeLocations() {
     container.stateFlow
         .distinctUntilChangedBy { it.location to it.destinations }
-        .collectLatest { state ->
-            val points = listOfNotNull(
-                state.location?.point,
-                *state.destinations.mapNotNull { it.point }.toTypedArray()
-            )
+        .collectLatest { s ->
+            val points = buildList {
+                s.location?.point?.let(::add)
+                s.destinations.mapNotNull { it.point }.forEach(::add)
+            }
 
             mapsViewModel.onIntent(SetLocations(points))
 
-            state.location?.let { location ->
+            s.location?.let { location ->
                 MainSheetChannel.setLocation(location)
-                if (state.serviceAvailable == false) NoServiceSheetChannel.setLocation(location)
+                if (s.newServiceAvailability == false) NoServiceSheetChannel.setLocation(location)
             }
-
-            MainSheetChannel.setDestination(state.destinations)
+            MainSheetChannel.setDestination(s.destinations)
 
             getRouting()
         }
 }
 
-fun HomeViewModel.observeRoute() = viewModelScope.launch {
+suspend fun HomeViewModel.observeRoute() {
     container.stateFlow
-        .distinctUntilChangedBy { Pair(it.route, it.order?.status) }
-        .collectLatest { state ->
-            mapsViewModel.onIntent(SetRoute(state.route))
-            refocus()
+        .map { s -> s to (s.route to s.order?.status) }
+        .distinctUntilChangedBy { it.second }
+        .collectLatest { (s, _) ->
+            mapsViewModel.onIntent(SetRoute(s.route))
             intent {
+                refocus()
                 reduce {
                     state.copy(
-                        cameraButtonState = when {
-                            state.route.isEmpty() -> MyLocationView
-                            else -> MyRouteView
-                        }
+                        cameraButtonState =
+                            if (s.route.isEmpty()) MyLocationView else MyRouteView
                     )
                 }
             }
         }
 }
 
-fun HomeViewModel.observeDrivers() = viewModelScope.launch {
+suspend fun HomeViewModel.observeDrivers() {
     container.stateFlow
         .distinctUntilChangedBy { it.drivers }
-        .collectLatest { state ->
-            mapsViewModel.onIntent(SetDrivers(state.drivers))
+        .collectLatest { s ->
+            mapsViewModel.onIntent(SetDrivers(s.drivers))
         }
 }
 
-fun HomeViewModel.observeOrder() = viewModelScope.launch {
+suspend fun HomeViewModel.observeOrder() {
     container.stateFlow
         .distinctUntilChangedBy { it.order }
-        .collectLatest { state ->
-            mapsViewModel.onIntent(SetDriver(state.order?.executor?.toCommonExecutor()))
-            mapsViewModel.onIntent(SetOrderStatus(state.order?.status))
+        .collectLatest { s ->
+            mapsViewModel.onIntent(SetDriver(s.order?.executor?.toCommonExecutor()))
+            mapsViewModel.onIntent(SetOrderStatus(s.order?.status))
         }
 }
 
-fun HomeViewModel.observeViewPadding() = viewModelScope.launch {
+suspend fun HomeViewModel.observeViewPadding() {
     container.stateFlow
         .distinctUntilChangedBy { it.sheetHeight to it.topPadding }
-        .collectLatest { state ->
+        .collectLatest { s ->
             mapsViewModel.onIntent(
                 SetViewPadding(
                     PaddingValues(
-                        top = state.topPadding.takeIf { it.isSpecified } ?: 0.dp,
-                        bottom = state.sheetHeight.takeIf { it.isSpecified } ?: 0.dp
+                        top = s.topPadding.takeIf { it.isSpecified } ?: 0.dp,
+                        bottom = s.sheetHeight.takeIf { it.isSpecified } ?: 0.dp
                     )
                 )
             )
         }
 }
 
-fun HomeViewModel.observeSheetComputation() = viewModelScope.launch {
+suspend fun HomeViewModel.observeSheetComputation() {
     container.stateFlow
         .map(::computeSheet)
         .distinctUntilChanged()
         .collectLatest { computed ->
             val current = sheetFlow.value
-            if (current is OrderSheet.CancelReason) return@collectLatest
+            if (current is CancelReason) return@collectLatest
             setSheet(computed)
         }
 }

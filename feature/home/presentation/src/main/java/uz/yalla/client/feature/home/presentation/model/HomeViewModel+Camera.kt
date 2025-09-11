@@ -19,7 +19,7 @@ fun HomeViewModel.refocus() {
             mapsViewModel.onIntent(AnimateToFirstLocation)
         }
 
-        state.serviceAvailable != false -> {
+        state.oldServiceAvailability != false && state.newServiceAvailability != false -> {
             mapsViewModel.onIntent(AnimateToMyLocation)
         }
     }

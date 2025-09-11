@@ -1,7 +1,6 @@
 package uz.yalla.client.feature.home.presentation.model
 
 import uz.yalla.client.core.common.marker.YallaMarkerState
-import uz.yalla.client.core.common.state.CameraButtonState
 import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.feature.home.presentation.intent.HomeState
 import uz.yalla.client.feature.home.presentation.navigation.OrderSheet
@@ -46,7 +45,7 @@ fun HomeViewModel.setLocationGranted(granted: Boolean) = intent {
 }
 
 fun computeSheet(state: HomeState): OrderSheet? {
-    if (state.serviceAvailable == false) return OrderSheet.NoService
+    if (state.newServiceAvailability == false) return OrderSheet.NoService
 
     val order = state.order ?: return OrderSheet.Main
 

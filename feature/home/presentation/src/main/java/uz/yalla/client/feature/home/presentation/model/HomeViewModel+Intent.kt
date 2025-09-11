@@ -97,7 +97,14 @@ fun HomeViewModel.onIntent(intent: NoServiceSheetIntent) {
         }
 
         is NoServiceSheetIntent.SetServiceState -> {
-            intent { reduce { state.copy(serviceAvailable = intent.available) } }
+            intent {
+                reduce {
+                    state.copy(
+                        oldServiceAvailability = state.newServiceAvailability,
+                        newServiceAvailability = intent.available
+                    )
+                }
+            }
         }
     }
 }
@@ -157,7 +164,12 @@ fun HomeViewModel.onIntent(intent: MainSheetIntent) = intent {
         }
 
         is MainSheetIntent.OrderTaxiSheetIntent.SetServiceState -> {
-            reduce { state.copy(serviceAvailable = intent.available) }
+            reduce {
+                state.copy(
+                    oldServiceAvailability = state.newServiceAvailability,
+                    newServiceAvailability = intent.available
+                )
+            }
         }
 
         MainSheetIntent.PaymentMethodSheetIntent.OnAddNewCard -> {
