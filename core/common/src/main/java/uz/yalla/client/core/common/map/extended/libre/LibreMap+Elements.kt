@@ -4,9 +4,14 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -17,7 +22,12 @@ import dev.sargunv.maplibrecompose.expressions.dsl.const
 import dev.sargunv.maplibrecompose.expressions.dsl.image
 import dev.sargunv.maplibrecompose.expressions.value.LineCap
 import dev.sargunv.maplibrecompose.expressions.value.LineJoin
-import io.github.dellisd.spatialk.geojson.*
+import dev.sargunv.maplibrecompose.expressions.value.SymbolAnchor
+import io.github.dellisd.spatialk.geojson.Feature
+import io.github.dellisd.spatialk.geojson.FeatureCollection
+import io.github.dellisd.spatialk.geojson.LineString
+import io.github.dellisd.spatialk.geojson.Point
+import io.github.dellisd.spatialk.geojson.Position
 import kotlinx.coroutines.launch
 import uz.yalla.client.core.common.R
 import uz.yalla.client.core.common.map.core.haversine
@@ -28,7 +38,6 @@ import uz.yalla.client.core.domain.model.Executor
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
-
 
 @Composable
 fun Markers(
@@ -41,12 +50,14 @@ fun Markers(
     val isDark = isSystemInDarkTheme()
 
     if (route.isNotEmpty()) {
-        PolylineLayer(
-            id = "route",
-            coordinates = route,
-            color = if (isDark) Color.White else Color.Black,
-            widthDp = 4f
-        )
+        key("route") {
+            PolylineLayer(
+                id = "route",
+                coordinates = route,
+                color = if (isDark) Color.White else Color.Black,
+                widthDp = 4f
+            )
+        }
     }
 
     if (route.isNotEmpty() && orderStatus !in OrderStatus.cancellable) {
@@ -57,53 +68,86 @@ fun Markers(
                 else -> findClosestPointOnRoute(location, route)
             }
             if (target != null && target != location) {
-                PolylineLayer(
-                    id = "conn_$index",
-                    coordinates = listOf(location, target),
-                    color = YallaTheme.color.gray,
-                    widthDp = 2f
-                )
+                key("conn_$index") {
+                    PolylineLayer(
+                        id = "conn_$index",
+                        coordinates = listOf(location, target),
+                        color = YallaTheme.color.gray,
+                        widthDp = 2f,
+                        pattern = listOf(16f, 16f)
+                    )
+                }
             }
         }
     }
 
     if (locations.isEmpty()) return
 
-    val originIcon = rememberLibreMarkerWithInfo(
-        key = "origin_${locations.firstOrNull()?.hashCode()}",
-        title = carArrivesInMinutes?.let { stringResource(R.string.x_min, it.toString()) },
-        description = stringResource(R.string.coming),
-        infoColor = YallaTheme.color.primary,
-        pointColor = YallaTheme.color.gray,
-        pointBackgroundColor = YallaTheme.color.background
-    )
+    val originIcon = key(
+        locations.firstOrNull()?.hashCode()?.plus(carArrivesInMinutes.hashCode())
+    ) {
+        rememberLibreMarkerWithInfo(
+            key = "origin_${locations.firstOrNull()?.hashCode()}_${carArrivesInMinutes}",
+            title = carArrivesInMinutes?.let { stringResource(R.string.x_min, it.toString()) },
+            description = stringResource(R.string.coming),
+            infoColor = YallaTheme.color.primary,
+            pointColor = YallaTheme.color.gray,
+            pointBackgroundColor = YallaTheme.color.background
+        )
+    }
 
     val middleIcon = painterResource(R.drawable.ic_middle_marker)
 
-    val endIcon = rememberLibreMarkerWithInfo(
-        key = "destination_${locations.lastOrNull()?.hashCode()}",
-        title = orderEndsInMinutes?.let { stringResource(R.string.x_min, it.toString()) },
-        description = stringResource(R.string.on_the_way),
-        infoColor = YallaTheme.color.onBackground,
-        pointColor = YallaTheme.color.primary,
-        pointBackgroundColor = YallaTheme.color.background
-    )
+    val endIcon = key(
+        locations.lastOrNull()?.hashCode()?.plus(orderEndsInMinutes.hashCode())
+    ) {
+        rememberLibreMarkerWithInfo(
+            key = "destination_${locations.lastOrNull()?.hashCode()}_${orderEndsInMinutes}",
+            title = orderEndsInMinutes?.let { stringResource(R.string.x_min, it.toString()) },
+            description = stringResource(R.string.on_the_way),
+            infoColor = YallaTheme.color.onBackground,
+            pointColor = YallaTheme.color.primary,
+            pointBackgroundColor = YallaTheme.color.background
+        )
+    }
 
     if ((orderStatus != null && orderStatus in OrderStatus.nonInteractive) || route.isNotEmpty()) {
         locations.firstOrNull()?.let { start ->
-            originIcon?.let { MarkerLayer("start", start, it) }
+            originIcon?.let {
+                key("start-${start.hashCode()}") {
+                    MarkerLayer(
+                        id = "start",
+                        point = start,
+                        painter = it,
+                        anchor = SymbolAnchor.Bottom
+                    )
+                }
+            }
         }
     }
 
     if (locations.size > 2) {
         locations.subList(1, locations.lastIndex).forEachIndexed { idx, mid ->
-            MarkerLayer("middle_$idx", mid, middleIcon)
+            key("middle_${idx}-${mid.hashCode()}") {
+                MarkerLayer(
+                    id = "middle_$idx",
+                    point = mid,
+                    painter = middleIcon
+                )
+            }
         }
     }
 
     if (locations.size > 1) {
         locations.lastOrNull()?.let { end ->
-            endIcon?.let { MarkerLayer("end", end, it) }
+            endIcon?.let {
+                MarkerLayer(
+                    id = "end",
+                    point = end,
+                    painter = it,
+                    anchor = SymbolAnchor.Bottom
+                )
+            }
         }
     }
 }
@@ -113,7 +157,8 @@ fun PolylineLayer(
     id: String,
     coordinates: List<MapPoint>,
     color: Color,
-    widthDp: Float
+    widthDp: Float,
+    pattern: List<Float>? = null
 ) {
     val geo = FeatureCollection(
         Feature(LineString(coordinates.map {
@@ -121,26 +166,45 @@ fun PolylineLayer(
         }))
     )
     val src = rememberGeoJsonSource(id = "$id-src", data = geo)
-    LineLayer(
-        id = id,
-        source = src,
-        color = const(color),
-        width = const(widthDp.dp),
-        cap = const(LineCap.Round),
-        join = const(LineJoin.Round)
-    )
+    if (pattern == null) {
+        LineLayer(
+            id = id,
+            source = src,
+            color = const(color),
+            width = const(widthDp.dp),
+            cap = const(LineCap.Round),
+            join = const(LineJoin.Round)
+        )
+    } else {
+        val dashValues = with(LocalDensity.current) { pattern.map { it.dp.toPx().toDouble() } }
+        LineLayer(
+            id = id,
+            source = src,
+            color = const(color),
+            width = const(widthDp.dp),
+            cap = const(LineCap.Round),
+            join = const(LineJoin.Round),
+            dasharray = const(dashValues)
+        )
+    }
 }
 
 @Composable
-fun MarkerLayer(id: String, point: MapPoint, painter: Painter) {
+fun MarkerLayer(
+    id: String,
+    point: MapPoint,
+    painter: Painter,
+    anchor: SymbolAnchor = SymbolAnchor.Center
+) {
     val src = rememberGeoJsonSource(
-        id = id,
+        id = "$id-src",
         data = Feature(Point(Position(longitude = point.lng, latitude = point.lat)))
     )
     SymbolLayer(
         id = id,
         source = src,
         iconImage = image(painter),
+        iconAnchor = const(anchor),
         iconAllowOverlap = const(true),
         iconIgnorePlacement = const(true)
     )
@@ -162,7 +226,8 @@ fun DriverLibre(driver: Executor?) {
         iconImage = image(painter),
         iconAllowOverlap = const(true),
         iconIgnorePlacement = const(true),
-        iconRotate = const(driver.heading.toFloat())
+        iconRotate = const(driver.heading.toFloat()),
+        iconSize = const(.5f)
     )
 }
 
@@ -225,7 +290,8 @@ fun DriversWithAnimationLibre(drivers: List<Executor>) {
                 iconImage = image(painterResource(R.drawable.img_car_marker)),
                 iconAllowOverlap = const(true),
                 iconIgnorePlacement = const(true),
-                iconRotate = const(heading.value)
+                iconRotate = const(heading.value),
+                iconSize = const(.5f)
             )
         }
     }

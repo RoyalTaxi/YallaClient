@@ -69,10 +69,7 @@ class GoogleMap : Map {
                                 )
                             },
                             isMoving = isMoving,
-                            isByUser = camera.cameraMoveStartedReason in listOf(
-                                CameraMoveStartedReason.GESTURE,
-                                CameraMoveStartedReason.API_ANIMATION
-                            )
+                            isByUser = camera.cameraMoveStartedReason == CameraMoveStartedReason.GESTURE
                         )
                     )
                 )
@@ -135,7 +132,6 @@ class GoogleMap : Map {
                     )
                     val builder = LatLngBounds.Builder()
                     effect.points.forEach { builder.include(LatLng(it.lat, it.lng)) }
-                    logicalFocus = builder.build().center
                 }
 
                 is MapEffect.AnimateFitBounds -> {
@@ -148,7 +144,6 @@ class GoogleMap : Map {
                     }
                     val builder = LatLngBounds.Builder()
                     effect.points.forEach { builder.include(LatLng(it.lat, it.lng)) }
-                    logicalFocus = builder.build().center
                 }
 
                 MapEffect.ZoomOut -> {
@@ -181,7 +176,8 @@ class GoogleMap : Map {
                 ),
                 mapStyleOptions = null,
                 mapType = MapType.NORMAL,
-                minZoomPreference = MapConstants.ZOOM_MIN_ZOOM
+                minZoomPreference = MapConstants.ZOOM_MIN_ZOOM,
+                maxZoomPreference = MapConstants.ZOOM_MAX_ZOOM
             ),
             uiSettings = MapUiSettings(
                 compassEnabled = false,
