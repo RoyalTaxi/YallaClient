@@ -74,15 +74,18 @@ fun HomeViewModel.getSettingConfig() = viewModelScope.launch {
     }
 }
 
-fun HomeViewModel.getRouting() {
-    val points = listOfNotNull(
-        container.stateFlow.value.location?.point,
-        *container.stateFlow.value.destinations.mapNotNull { it.point }.toTypedArray()
+fun HomeViewModel.getRouting() = intent {
+    val points = if (state.order?.status == OrderStatus.Appointed) listOfNotNull(
+        state.order?.executor?.coords?.let { MapPoint(it.lat, it.lng) },
+        state.location?.point,
+    ) else listOfNotNull(
+        state.location?.point,
+        *state.destinations.mapNotNull { it.point }.toTypedArray()
     )
 
     if (points.size < 2) {
         intent { reduce { state.copy(route = emptyList()) } }
-        return
+        return@intent
     }
 
     val addresses = mutableListOf<GetRoutingDtoItem>()
@@ -115,12 +118,6 @@ fun HomeViewModel.getRouting() {
 
     viewModelScope.launch {
         getRoutingUseCase(addresses).onSuccess { route ->
-            val currentPoints = listOfNotNull(
-                container.stateFlow.value.location?.point,
-                *container.stateFlow.value.destinations.mapNotNull { it.point }.toTypedArray()
-            )
-            if (currentPoints != points) return@onSuccess
-
             val duration = route.duration
                 .takeIf { it != 0.0 }
                 ?.div(60)

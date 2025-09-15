@@ -35,7 +35,7 @@ import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 
 @Composable
-fun Markers(
+fun GoogleMarkers(
     route: List<MapPoint>,
     orderStatus: OrderStatus?,
     locations: List<MapPoint>,
@@ -149,7 +149,7 @@ fun Markers(
 }
 
 @Composable
-fun Driver(
+fun GoogleDriver(
     driver: Executor?
 ) {
     driver?.let {
@@ -172,7 +172,7 @@ fun Driver(
 }
 
 @Composable
-fun DriversWithAnimation(
+fun GoogleDriversWithAnimation(
     drivers: List<Executor>
 ) {
     drivers.take(20).forEach { driver ->

@@ -184,6 +184,7 @@ suspend fun HomeViewModel.observeOrder() {
             } else if (state.order.status in OrderStatus.nonInteractive) {
                 mapViewModel.onIntent(MapIntent.MoveToFirstLocation)
             }
+            getRouting()
         }
 }
 

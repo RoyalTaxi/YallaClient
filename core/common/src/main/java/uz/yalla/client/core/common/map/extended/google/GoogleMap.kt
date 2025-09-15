@@ -17,7 +17,6 @@ import com.google.maps.android.compose.*
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.orbitmvi.orbit.compose.collectSideEffect
@@ -207,7 +206,7 @@ class GoogleMap : Map {
                 camera.move(CameraUpdateFactory.newCameraPosition(camera.position))
             }
         ) {
-            Markers(
+            GoogleMarkers(
                 route = state.route,
                 locations = state.locations,
                 orderStatus = state.orderStatus,
@@ -215,9 +214,9 @@ class GoogleMap : Map {
                 orderEndsInMinutes = state.orderEndsInMinutes.takeIf { state.orderStatus == null }
             )
 
+            GoogleDriver(driver = state.driver)
             if (driversVisibility) {
-                Driver(driver = state.driver)
-                DriversWithAnimation(drivers = state.drivers)
+                GoogleDriversWithAnimation(drivers = state.drivers)
             }
         }
     }

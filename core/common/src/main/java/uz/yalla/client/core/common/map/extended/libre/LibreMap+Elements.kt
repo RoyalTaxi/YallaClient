@@ -40,7 +40,65 @@ import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 
 @Composable
-fun Markers(
+fun LibreMarkerLayer(
+    id: String,
+    point: MapPoint,
+    painter: Painter,
+    anchor: SymbolAnchor = SymbolAnchor.Center
+) {
+    val src = rememberGeoJsonSource(
+        id = "$id-src",
+        data = Feature(Point(Position(longitude = point.lng, latitude = point.lat)))
+    )
+    SymbolLayer(
+        id = id,
+        source = src,
+        iconImage = image(painter),
+        iconAnchor = const(anchor),
+        iconAllowOverlap = const(true),
+        iconIgnorePlacement = const(true)
+    )
+}
+
+@Composable
+fun LibrePolylineLayer(
+    id: String,
+    coordinates: List<MapPoint>,
+    color: Color,
+    widthDp: Float,
+    pattern: List<Float>? = null
+) {
+    val geo = FeatureCollection(
+        Feature(LineString(coordinates.map {
+            Position(longitude = it.lng, latitude = it.lat)
+        }))
+    )
+    val src = rememberGeoJsonSource(id = "$id-src", data = geo)
+    if (pattern == null) {
+        LineLayer(
+            id = id,
+            source = src,
+            color = const(color),
+            width = const(widthDp.dp),
+            cap = const(LineCap.Round),
+            join = const(LineJoin.Round)
+        )
+    } else {
+        val dashValues = with(LocalDensity.current) { pattern.map { it.dp.toPx().toDouble() } }
+        LineLayer(
+            id = id,
+            source = src,
+            color = const(color),
+            width = const(widthDp.dp),
+            cap = const(LineCap.Round),
+            join = const(LineJoin.Round),
+            dasharray = const(dashValues)
+        )
+    }
+}
+
+@Composable
+fun LibreMarkers(
     route: List<MapPoint>,
     orderStatus: OrderStatus?,
     locations: List<MapPoint>,
@@ -51,7 +109,7 @@ fun Markers(
 
     if (route.isNotEmpty()) {
         key("route") {
-            PolylineLayer(
+            LibrePolylineLayer(
                 id = "route",
                 coordinates = route,
                 color = if (isDark) Color.White else Color.Black,
@@ -69,7 +127,7 @@ fun Markers(
             }
             if (target != null && target != location) {
                 key("conn_$index") {
-                    PolylineLayer(
+                    LibrePolylineLayer(
                         id = "conn_$index",
                         coordinates = listOf(location, target),
                         color = YallaTheme.color.gray,
@@ -115,7 +173,7 @@ fun Markers(
         locations.firstOrNull()?.let { start ->
             originIcon?.let {
                 key("start-${start.hashCode()}") {
-                    MarkerLayer(
+                    LibreMarkerLayer(
                         id = "start",
                         point = start,
                         painter = it,
@@ -129,7 +187,7 @@ fun Markers(
     if (locations.size > 2) {
         locations.subList(1, locations.lastIndex).forEachIndexed { idx, mid ->
             key("middle_${idx}-${mid.hashCode()}") {
-                MarkerLayer(
+                LibreMarkerLayer(
                     id = "middle_$idx",
                     point = mid,
                     painter = middleIcon
@@ -141,7 +199,7 @@ fun Markers(
     if (locations.size > 1) {
         locations.lastOrNull()?.let { end ->
             endIcon?.let {
-                MarkerLayer(
+                LibreMarkerLayer(
                     id = "end",
                     point = end,
                     painter = it,
@@ -150,64 +208,6 @@ fun Markers(
             }
         }
     }
-}
-
-@Composable
-fun PolylineLayer(
-    id: String,
-    coordinates: List<MapPoint>,
-    color: Color,
-    widthDp: Float,
-    pattern: List<Float>? = null
-) {
-    val geo = FeatureCollection(
-        Feature(LineString(coordinates.map {
-            Position(longitude = it.lng, latitude = it.lat)
-        }))
-    )
-    val src = rememberGeoJsonSource(id = "$id-src", data = geo)
-    if (pattern == null) {
-        LineLayer(
-            id = id,
-            source = src,
-            color = const(color),
-            width = const(widthDp.dp),
-            cap = const(LineCap.Round),
-            join = const(LineJoin.Round)
-        )
-    } else {
-        val dashValues = with(LocalDensity.current) { pattern.map { it.dp.toPx().toDouble() } }
-        LineLayer(
-            id = id,
-            source = src,
-            color = const(color),
-            width = const(widthDp.dp),
-            cap = const(LineCap.Round),
-            join = const(LineJoin.Round),
-            dasharray = const(dashValues)
-        )
-    }
-}
-
-@Composable
-fun MarkerLayer(
-    id: String,
-    point: MapPoint,
-    painter: Painter,
-    anchor: SymbolAnchor = SymbolAnchor.Center
-) {
-    val src = rememberGeoJsonSource(
-        id = "$id-src",
-        data = Feature(Point(Position(longitude = point.lng, latitude = point.lat)))
-    )
-    SymbolLayer(
-        id = id,
-        source = src,
-        iconImage = image(painter),
-        iconAnchor = const(anchor),
-        iconAllowOverlap = const(true),
-        iconIgnorePlacement = const(true)
-    )
 }
 
 @Composable

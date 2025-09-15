@@ -25,9 +25,9 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import uz.yalla.client.core.common.R
 import uz.yalla.client.core.common.convertor.dpToPx
-import uz.yalla.client.core.common.map.extended.google.Driver
-import uz.yalla.client.core.common.map.extended.google.DriversWithAnimation
-import uz.yalla.client.core.common.map.extended.google.Markers
+import uz.yalla.client.core.common.map.extended.google.GoogleDriver
+import uz.yalla.client.core.common.map.extended.google.GoogleDriversWithAnimation
+import uz.yalla.client.core.common.map.extended.google.GoogleMarkers
 import uz.yalla.client.core.common.utils.getCurrentLocation
 import uz.yalla.client.core.common.utils.hasLocationPermission
 import uz.yalla.client.core.domain.local.AppPreferences
@@ -160,7 +160,7 @@ class ConcreteGoogleMap : MapStrategy, KoinComponent {
                     onMapReady()
                 }
             ) {
-                Markers(
+                GoogleMarkers(
                     route = route,
                     locations = locations,
                     orderStatus = orderStatus.value,
@@ -169,9 +169,9 @@ class ConcreteGoogleMap : MapStrategy, KoinComponent {
                 )
 
                 if (driversVisibility) {
-                    Driver(driver = driver.value)
+                    GoogleDriver(driver = driver.value)
 
-                    DriversWithAnimation(drivers = drivers)
+                    GoogleDriversWithAnimation(drivers = drivers)
                 }
             }
         }

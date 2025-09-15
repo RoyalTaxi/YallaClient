@@ -252,7 +252,7 @@ class LibreMap : Map {
                 }
             }
         ) {
-            Markers(
+            LibreMarkers(
                 route = state.route,
                 locations = state.locations,
                 orderStatus = state.orderStatus,
@@ -260,8 +260,8 @@ class LibreMap : Map {
                 orderEndsInMinutes = state.orderEndsInMinutes.takeIf { state.orderStatus == null }
             )
 
+            DriverLibre(state.driver)
             if (driversVisibility) {
-                DriverLibre(state.driver)
                 DriversWithAnimationLibre(state.drivers)
             }
         }
