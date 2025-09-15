@@ -1,5 +1,6 @@
 package uz.yalla.client.core.common.map.extended.libre
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -38,6 +39,7 @@ import uz.yalla.client.core.common.map.core.plus
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.OrderStatus
+import uz.yalla.client.core.domain.model.type.ThemeType
 import kotlin.time.Duration.Companion.milliseconds
 
 class LibreMap : Map {
@@ -48,6 +50,12 @@ class LibreMap : Map {
         val appPreferences = koinInject<AppPreferences>()
         val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
         val initialLocation by appPreferences.entryLocation.collectAsStateWithLifecycle(0.0 to 0.0)
+        val isSystemDark = isSystemInDarkTheme()
+        val prefTheme by appPreferences.themeType.collectAsStateWithLifecycle(initialValue = ThemeType.LIGHT)
+        val effectiveTheme = when (prefTheme) {
+            ThemeType.SYSTEM -> if (isSystemDark) ThemeType.DARK else ThemeType.LIGHT
+            else -> prefTheme
+        }
         val camera = rememberCameraState(
             firstPosition = CameraPosition(
                 target = Position(
@@ -56,13 +64,11 @@ class LibreMap : Map {
                 )
             )
         )
-
         val driversVisibility by remember { derivedStateOf { camera.position.zoom >= 8.0 } }
-
         val animationScope = rememberCoroutineScope()
         var animationJob by remember { mutableStateOf<Job?>(null) }
-
         var logicalFocus by remember { mutableStateOf<Position?>(null) }
+        var mapReadyEmitted by remember { mutableStateOf(false) }
 
         LaunchedEffect(Unit) {
             snapshotFlow { camera.isCameraMoving }.collectLatest { isMoving ->
@@ -86,13 +92,25 @@ class LibreMap : Map {
             }
         }
 
-        var mapReadyEmitted by remember { mutableStateOf(false) }
         LaunchedEffect(camera) {
             camera.awaitInitialized()
             delay(100)
             if (!mapReadyEmitted) {
                 mapReadyEmitted = true
                 viewModel.onIntent(MapIntent.MapReady)
+            }
+        }
+
+        LaunchedEffect(state.viewPadding) {
+            logicalFocus?.let { focus ->
+                camera.animateTo(
+                    finalPosition = CameraPosition(
+                        target = focus,
+                        zoom = camera.position.zoom,
+                        padding = state.viewPadding
+                    ),
+                    duration = 1.milliseconds
+                )
             }
         }
 
@@ -198,23 +216,14 @@ class LibreMap : Map {
             }
         }
 
-        LaunchedEffect(state.viewPadding) {
-            logicalFocus?.let { focus ->
-                camera.animateTo(
-                    finalPosition = CameraPosition(
-                        target = focus,
-                        zoom = camera.position.zoom,
-                        padding = state.viewPadding
-                    ),
-                    duration = 1.milliseconds
-                )
-            }
-        }
-
         MaplibreMap(
             cameraState = camera,
             zoomRange = MapConstants.ZOOM_MIN_ZOOM..MapConstants.ZOOM_MAX_ZOOM,
-            styleUri = "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json",
+            styleUri = if (effectiveTheme == ThemeType.DARK) {
+                "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
+            } else {
+                "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
+            },
             ornamentSettings = OrnamentSettings(
                 padding = state.viewPadding,
                 isLogoEnabled = true,

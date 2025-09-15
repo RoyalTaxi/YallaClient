@@ -105,7 +105,7 @@ fun Markers(
             key = "destination_${locations.lastOrNull()?.hashCode()}_${orderEndsInMinutes}",
             title = orderEndsInMinutes?.let { stringResource(R.string.x_min, it.toString()) },
             description = stringResource(R.string.on_the_way),
-            infoColor = YallaTheme.color.onBackground,
+            infoColor = YallaTheme.color.black,
             pointColor = YallaTheme.color.primary,
             pointBackgroundColor = YallaTheme.color.background
         )

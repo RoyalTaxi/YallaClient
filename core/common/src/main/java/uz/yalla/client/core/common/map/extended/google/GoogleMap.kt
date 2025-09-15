@@ -3,21 +3,25 @@ package uz.yalla.client.core.common.map.extended.google
 import android.Manifest
 import android.content.pm.PackageManager
 import androidx.compose.runtime.*
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.compose.*
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.orbitmvi.orbit.compose.collectSideEffect
+import uz.yalla.client.core.common.R
 import uz.yalla.client.core.common.map.core.Map
 import uz.yalla.client.core.common.map.core.MapConstants
 import uz.yalla.client.core.common.map.core.intent.MapEffect
@@ -25,8 +29,10 @@ import uz.yalla.client.core.common.map.core.intent.MapIntent
 import uz.yalla.client.core.common.map.core.intent.MarkerState
 import uz.yalla.client.core.common.map.core.model.MapViewModel
 import uz.yalla.client.core.common.utils.dpToPx
+import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.OrderStatus
+import uz.yalla.client.core.domain.model.type.ThemeType
 
 class GoogleMap : Map {
 
@@ -35,9 +41,15 @@ class GoogleMap : Map {
     override fun View() {
         val context = LocalContext.current
         val viewModel = koinInject<MapViewModel>()
+        val appPreferences = koinInject<AppPreferences>()
         val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
         val camera = rememberCameraPositionState()
-
+        val isSystemDark = isSystemInDarkTheme()
+        val prefTheme by appPreferences.themeType.collectAsStateWithLifecycle(initialValue = ThemeType.LIGHT)
+        val effectiveTheme = when (prefTheme) {
+            ThemeType.SYSTEM -> if (isSystemDark) ThemeType.DARK else ThemeType.LIGHT
+            else -> prefTheme
+        }
         val hasLocationPermission =
             ContextCompat.checkSelfPermission(
                 context,
@@ -47,14 +59,11 @@ class GoogleMap : Map {
                         context,
                         Manifest.permission.ACCESS_COARSE_LOCATION
                     ) == PackageManager.PERMISSION_GRANTED
-
         val driversVisibility by remember {
             derivedStateOf { camera.position.zoom >= 8f }
         }
-
         val animationScope = rememberCoroutineScope()
         var animationJob by remember { mutableStateOf<Job?>(null) }
-
         var logicalFocus by remember { mutableStateOf<LatLng?>(null) }
 
         LaunchedEffect(Unit) {
@@ -76,6 +85,12 @@ class GoogleMap : Map {
                 if (!isMoving) {
                     logicalFocus = camera.position.target
                 }
+            }
+        }
+
+        LaunchedEffect(state.viewPadding) {
+            logicalFocus?.let { focus ->
+                camera.move(CameraUpdateFactory.newLatLngZoom(focus, camera.position.zoom))
             }
         }
 
@@ -156,12 +171,6 @@ class GoogleMap : Map {
             }
         }
 
-        LaunchedEffect(state.viewPadding) {
-            logicalFocus?.let { focus ->
-                camera.move(CameraUpdateFactory.newLatLngZoom(focus, camera.position.zoom))
-            }
-        }
-
         GoogleMap(
             cameraPositionState = camera,
             contentPadding = state.viewPadding,
@@ -174,7 +183,9 @@ class GoogleMap : Map {
                     LatLng(37.184, 55.997),
                     LatLng(45.590, 73.139)
                 ),
-                mapStyleOptions = null,
+                mapStyleOptions = if (effectiveTheme == ThemeType.DARK) {
+                    MapStyleOptions.loadRawResourceStyle(context, R.raw.google_dark_map)
+                } else null,
                 mapType = MapType.NORMAL,
                 minZoomPreference = MapConstants.ZOOM_MIN_ZOOM,
                 maxZoomPreference = MapConstants.ZOOM_MAX_ZOOM
