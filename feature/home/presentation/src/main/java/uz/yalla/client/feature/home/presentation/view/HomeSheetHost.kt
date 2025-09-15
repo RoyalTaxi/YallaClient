@@ -1,12 +1,10 @@
 package uz.yalla.client.feature.home.presentation.view
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onFirstVisible
 import androidx.compose.ui.platform.LocalContext
-import uz.yalla.client.core.common.map.core.intent.MapIntent
 import uz.yalla.client.feature.home.presentation.intent.HomeIntent
 import uz.yalla.client.feature.home.presentation.navigation.OrderSheet
 import uz.yalla.client.feature.order.presentation.cancel_reason.view.CancelReasonSheet

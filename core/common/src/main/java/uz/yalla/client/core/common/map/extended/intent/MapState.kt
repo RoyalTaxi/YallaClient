@@ -1,4 +1,4 @@
-package uz.yalla.client.core.common.map.core.intent
+package uz.yalla.client.core.common.map.extended.intent
 
 import androidx.compose.foundation.layout.PaddingValues
 import uz.yalla.client.core.domain.model.Executor

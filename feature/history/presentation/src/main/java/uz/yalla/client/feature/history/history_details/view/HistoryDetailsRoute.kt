@@ -13,9 +13,8 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 import uz.yalla.client.core.common.dialog.BaseDialog
 import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.core.common.lifecycle.MakeBridge
-import uz.yalla.client.core.common.map.lite.ConcreteGoogleMap
-import uz.yalla.client.core.common.map.lite.ConcreteLibreMap
-import uz.yalla.client.core.common.map.lite.MapStrategy
+import uz.yalla.client.core.common.map.lite.google.ConcreteGoogleMap
+import uz.yalla.client.core.common.map.lite.libre.ConcreteLibreMap
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.MapType

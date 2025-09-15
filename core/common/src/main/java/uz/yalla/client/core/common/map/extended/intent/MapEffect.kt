@@ -1,4 +1,4 @@
-package uz.yalla.client.core.common.map.core.intent
+package uz.yalla.client.core.common.map.extended.intent
 
 import uz.yalla.client.core.domain.model.MapPoint
 

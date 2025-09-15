@@ -1,10 +1,9 @@
-package uz.yalla.client.core.common.map.extended.libre
+package uz.yalla.client.core.common.map.lite.libre
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,24 +28,24 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.orbitmvi.orbit.compose.collectSideEffect
-import uz.yalla.client.core.common.map.extended.Map
 import uz.yalla.client.core.common.map.core.MapConstants
-import uz.yalla.client.core.common.map.extended.intent.MapEffect
-import uz.yalla.client.core.common.map.extended.intent.MapIntent
-import uz.yalla.client.core.common.map.extended.intent.MarkerState
-import uz.yalla.client.core.common.map.extended.model.MapViewModel
 import uz.yalla.client.core.common.map.core.plus
+import uz.yalla.client.core.common.map.extended.intent.MarkerState
+import uz.yalla.client.core.common.map.extended.libre.animateTo
+import uz.yalla.client.core.common.map.extended.libre.moveTo
+import uz.yalla.client.core.common.map.lite.LiteMap
+import uz.yalla.client.core.common.map.lite.intent.LiteMapEffect
+import uz.yalla.client.core.common.map.lite.intent.LiteMapIntent
+import uz.yalla.client.core.common.map.lite.model.LiteMapViewModel
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.MapPoint
-import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.core.domain.model.type.ThemeType
 import kotlin.time.Duration.Companion.milliseconds
 
-class LibreMap : Map {
-
+class LiteLibreMap : LiteMap {
     @Composable
-    override fun View() {
-        val viewModel = koinInject<MapViewModel>()
+    override fun View(initialLocation: MapPoint) {
+        val viewModel = koinInject<LiteMapViewModel>()
         val appPreferences = koinInject<AppPreferences>()
         val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
         val initialLocation by appPreferences.entryLocation.collectAsStateWithLifecycle(0.0 to 0.0)
@@ -64,7 +63,6 @@ class LibreMap : Map {
                 )
             )
         )
-        val driversVisibility by remember { derivedStateOf { camera.position.zoom >= 8.0 } }
         val animationScope = rememberCoroutineScope()
         var animationJob by remember { mutableStateOf<Job?>(null) }
         var logicalFocus by remember { mutableStateOf<Position?>(null) }
@@ -73,7 +71,7 @@ class LibreMap : Map {
         LaunchedEffect(Unit) {
             snapshotFlow { camera.isCameraMoving }.collectLatest { isMoving ->
                 viewModel.onIntent(
-                    MapIntent.SetMarkerState(
+                    LiteMapIntent.SetMarkerState(
                         markerState = MarkerState(
                             point = camera.position.target.let {
                                 MapPoint(
@@ -97,7 +95,7 @@ class LibreMap : Map {
             delay(100)
             if (!mapReadyEmitted) {
                 mapReadyEmitted = true
-                viewModel.onIntent(MapIntent.MapReady)
+                viewModel.onIntent(LiteMapIntent.MapReady)
             }
         }
 
@@ -121,11 +119,12 @@ class LibreMap : Map {
             }
 
             when (effect) {
-                is MapEffect.MoveTo -> {
+                is LiteMapEffect.MoveTo -> {
                     cancelAndLaunch {
                         camera.moveTo(
                             point = effect.point,
-                            padding = state.viewPadding + PaddingValues(state.mapPadding.dp)
+                            padding = state.viewPadding + PaddingValues(state.mapPadding.dp),
+                            zoom = MapConstants.DEFAULT_ZOOM.toDouble()
                         )
                         logicalFocus = Position(
                             longitude = effect.point.lng,
@@ -134,84 +133,18 @@ class LibreMap : Map {
                     }
                 }
 
-                is MapEffect.MoveToWithZoom -> {
+                is LiteMapEffect.AnimateTo -> {
                     cancelAndLaunch {
                         camera.animateTo(
                             point = effect.point,
                             padding = state.viewPadding + PaddingValues(state.mapPadding.dp),
-                            zoom = effect.zoom.toDouble(),
-                            durationMs = 1
+                            zoom = MapConstants.DEFAULT_ZOOM.toDouble()
                         )
                     }
                     logicalFocus = Position(
                         longitude = effect.point.lng,
                         latitude = effect.point.lat
                     )
-                }
-
-                is MapEffect.AnimateTo -> {
-                    cancelAndLaunch {
-                        camera.animateTo(
-                            point = effect.point,
-                            padding = state.viewPadding + PaddingValues(state.mapPadding.dp)
-                        )
-                    }
-                    logicalFocus = Position(
-                        longitude = effect.point.lng,
-                        latitude = effect.point.lat
-                    )
-                }
-
-                is MapEffect.AnimateToWithZoom -> {
-                    cancelAndLaunch {
-                        camera.animateTo(
-                            point = effect.point,
-                            padding = state.viewPadding + PaddingValues(state.mapPadding.dp),
-                            zoom = effect.zoom.toDouble()
-                        )
-                    }
-                    logicalFocus = Position(
-                        longitude = effect.point.lng,
-                        latitude = effect.point.lat
-                    )
-                }
-
-                is MapEffect.AnimateToWithZoomAndDuration -> {
-                    cancelAndLaunch {
-                        camera.animateTo(
-                            point = effect.point,
-                            padding = state.viewPadding + PaddingValues(state.mapPadding.dp),
-                            zoom = effect.zoom.toDouble(),
-                            durationMs = effect.durationMs
-                        )
-                    }
-                    logicalFocus = Position(
-                        longitude = effect.point.lng,
-                        latitude = effect.point.lat
-                    )
-                }
-
-                is MapEffect.FitBounds -> cancelAndLaunch {
-                    camera.fitBounds(
-                        points = effect.points,
-                        padding = state.viewPadding + PaddingValues(state.mapPadding.dp)
-                    )
-                }
-
-                is MapEffect.AnimateFitBounds -> cancelAndLaunch {
-                    camera.animateFitBounds(
-                        points = effect.points,
-                        padding = state.viewPadding + PaddingValues(state.mapPadding.dp),
-                        durationMs = effect.durationMs
-                    )
-                }
-
-                MapEffect.ZoomOut -> {
-                    if (camera.position.zoom > MapConstants.SEARCH_MIN_ZOOM.toDouble()) {
-                        camera.zoomOut()
-                    } else {
-                        animationJob?.cancel()
-                    }
                 }
             }
         }
@@ -233,8 +166,8 @@ class LibreMap : Map {
                 isScaleBarEnabled = false
             ),
             gestureSettings = GestureSettings(
-                isScrollGesturesEnabled = state.orderStatus !in OrderStatus.nonInteractive,
-                isZoomGesturesEnabled = state.orderStatus !in OrderStatus.nonInteractive,
+                isScrollGesturesEnabled = true,
+                isZoomGesturesEnabled = true,
                 isRotateGesturesEnabled = false,
                 isTiltGesturesEnabled = false,
                 isKeyboardGesturesEnabled = false
@@ -251,19 +184,6 @@ class LibreMap : Map {
                     )
                 }
             }
-        ) {
-            LibreMarkers(
-                route = state.route,
-                locations = state.locations,
-                orderStatus = state.orderStatus,
-                carArrivesInMinutes = state.carArrivesInMinutes.takeIf { state.orderStatus == null },
-                orderEndsInMinutes = state.orderEndsInMinutes.takeIf { state.orderStatus == null }
-            )
-
-            DriverLibre(state.driver)
-            if (driversVisibility) {
-                DriversWithAnimationLibre(state.drivers)
-            }
-        }
+        )
     }
 }

@@ -1,54 +1,69 @@
-package uz.yalla.client.core.common.map.extended.google
+package uz.yalla.client.core.common.map.lite.google
 
 import android.Manifest
 import android.content.pm.PackageManager
-import androidx.compose.runtime.*
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
-import com.google.maps.android.compose.*
+import com.google.android.gms.maps.model.MapStyleOptions
+import com.google.maps.android.compose.CameraMoveStartedReason
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapType
+import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.rememberCameraPositionState
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
+import org.koin.core.parameter.parametersOf
 import org.orbitmvi.orbit.compose.collectSideEffect
 import uz.yalla.client.core.common.R
-import uz.yalla.client.core.common.map.extended.Map
 import uz.yalla.client.core.common.map.core.MapConstants
-import uz.yalla.client.core.common.map.extended.intent.MapEffect
-import uz.yalla.client.core.common.map.extended.intent.MapIntent
+import uz.yalla.client.core.common.map.extended.google.animateTo
+import uz.yalla.client.core.common.map.extended.google.moveTo
 import uz.yalla.client.core.common.map.extended.intent.MarkerState
-import uz.yalla.client.core.common.map.extended.model.MapViewModel
-import uz.yalla.client.core.common.utils.dpToPx
+import uz.yalla.client.core.common.map.lite.LiteMap
+import uz.yalla.client.core.common.map.lite.intent.LiteMapEffect
+import uz.yalla.client.core.common.map.lite.intent.LiteMapIntent
+import uz.yalla.client.core.common.map.lite.model.LiteMapViewModel
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.MapPoint
-import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.core.domain.model.type.ThemeType
 
-class GoogleMap : Map {
-
+class LiteGoogleMap : LiteMap {
     @OptIn(FlowPreview::class)
     @Composable
-    override fun View() {
+    override fun View(initialLocation: MapPoint) {
         val context = LocalContext.current
-        val viewModel = koinInject<MapViewModel>()
+        val viewModel = koinInject<LiteMapViewModel> { parametersOf(initialLocation) }
         val appPreferences = koinInject<AppPreferences>()
-        val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
         val camera = rememberCameraPositionState()
+        val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
         val isSystemDark = isSystemInDarkTheme()
         val prefTheme by appPreferences.themeType.collectAsStateWithLifecycle(initialValue = ThemeType.LIGHT)
         val effectiveTheme = when (prefTheme) {
             ThemeType.SYSTEM -> if (isSystemDark) ThemeType.DARK else ThemeType.LIGHT
             else -> prefTheme
         }
+        val animationScope = rememberCoroutineScope()
+        var animationJob by remember { mutableStateOf<Job?>(null) }
+        var logicalFocus by remember { mutableStateOf<LatLng?>(null) }
         val hasLocationPermission =
             ContextCompat.checkSelfPermission(
                 context,
@@ -58,17 +73,11 @@ class GoogleMap : Map {
                         context,
                         Manifest.permission.ACCESS_COARSE_LOCATION
                     ) == PackageManager.PERMISSION_GRANTED
-        val driversVisibility by remember {
-            derivedStateOf { camera.position.zoom >= 8f }
-        }
-        val animationScope = rememberCoroutineScope()
-        var animationJob by remember { mutableStateOf<Job?>(null) }
-        var logicalFocus by remember { mutableStateOf<LatLng?>(null) }
 
         LaunchedEffect(Unit) {
             snapshotFlow { camera.isMoving }.collectLatest { isMoving ->
                 viewModel.onIntent(
-                    MapIntent.SetMarkerState(
+                    LiteMapIntent.SetMarkerState(
                         markerState = MarkerState(
                             point = camera.position.target.let {
                                 MapPoint(
@@ -100,72 +109,23 @@ class GoogleMap : Map {
             }
 
             when (effect) {
-                is MapEffect.MoveTo -> {
-                    animationJob?.cancel()
-                    camera.moveTo(point = effect.point)
-                    logicalFocus = LatLng(effect.point.lat, effect.point.lng)
-                }
-
-                is MapEffect.MoveToWithZoom -> {
-                    animationJob?.cancel()
-                    camera.moveTo(point = effect.point, zoom = effect.zoom.toFloat())
-                    logicalFocus = LatLng(effect.point.lat, effect.point.lng)
-                }
-
-                is MapEffect.AnimateTo -> {
-                    cancelAndLaunch { camera.animateTo(point = effect.point) }
-                    logicalFocus = LatLng(effect.point.lat, effect.point.lng)
-                }
-
-                is MapEffect.AnimateToWithZoom -> {
+                is LiteMapEffect.AnimateTo -> {
                     cancelAndLaunch {
                         camera.animateTo(
                             point = effect.point,
-                            zoom = effect.zoom.toFloat()
+                            zoom = MapConstants.DEFAULT_ZOOM.toFloat()
                         )
                     }
                     logicalFocus = LatLng(effect.point.lat, effect.point.lng)
                 }
 
-                is MapEffect.AnimateToWithZoomAndDuration -> {
-                    cancelAndLaunch {
-                        camera.animateTo(
-                            point = effect.point,
-                            zoom = effect.zoom.toFloat(),
-                            durationMs = effect.durationMs
-                        )
-                    }
-                    logicalFocus = LatLng(effect.point.lat, effect.point.lng)
-                }
-
-                is MapEffect.FitBounds -> {
+                is LiteMapEffect.MoveTo -> {
                     animationJob?.cancel()
-                    camera.fitBounds(
-                        points = effect.points,
-                        padding = dpToPx(context = context, dp = state.mapPadding)
+                    camera.moveTo(
+                        point = effect.point,
+                        zoom = MapConstants.DEFAULT_ZOOM.toFloat()
                     )
-                    val builder = LatLngBounds.Builder()
-                    effect.points.forEach { builder.include(LatLng(it.lat, it.lng)) }
-                }
-
-                is MapEffect.AnimateFitBounds -> {
-                    cancelAndLaunch {
-                        camera.animateFitBounds(
-                            points = effect.points,
-                            padding = dpToPx(context, state.mapPadding),
-                            durationMs = effect.durationMs
-                        )
-                    }
-                    val builder = LatLngBounds.Builder()
-                    effect.points.forEach { builder.include(LatLng(it.lat, it.lng)) }
-                }
-
-                MapEffect.ZoomOut -> {
-                    if (camera.position.zoom > MapConstants.SEARCH_MIN_ZOOM) {
-                        cancelAndLaunch { camera.zoomOut() }
-                    } else {
-                        animationJob?.cancel()
-                    }
+                    logicalFocus = LatLng(effect.point.lat, effect.point.lng)
                 }
             }
         }
@@ -195,29 +155,16 @@ class GoogleMap : Map {
                 mapToolbarEnabled = false,
                 myLocationButtonEnabled = false,
                 rotationGesturesEnabled = false,
-                scrollGesturesEnabled = state.orderStatus !in OrderStatus.nonInteractive,
+                scrollGesturesEnabled = true,
                 scrollGesturesEnabledDuringRotateOrZoom = false,
                 tiltGesturesEnabled = false,
                 zoomControlsEnabled = false,
-                zoomGesturesEnabled = state.orderStatus !in OrderStatus.nonInteractive
+                zoomGesturesEnabled = true
             ),
-            onMapLoaded = { viewModel.onIntent(MapIntent.MapReady) },
+            onMapLoaded = { viewModel.onIntent(LiteMapIntent.MapReady) },
             modifier = Modifier.onSizeChanged {
                 camera.move(CameraUpdateFactory.newCameraPosition(camera.position))
             }
-        ) {
-            GoogleMarkers(
-                route = state.route,
-                locations = state.locations,
-                orderStatus = state.orderStatus,
-                carArrivesInMinutes = state.carArrivesInMinutes.takeIf { state.orderStatus == null },
-                orderEndsInMinutes = state.orderEndsInMinutes.takeIf { state.orderStatus == null }
-            )
-
-            GoogleDriver(driver = state.driver)
-            if (driversVisibility) {
-                GoogleDriversWithAnimation(drivers = state.drivers)
-            }
-        }
+        )
     }
 }

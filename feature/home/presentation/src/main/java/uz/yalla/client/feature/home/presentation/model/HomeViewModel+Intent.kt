@@ -1,6 +1,6 @@
 package uz.yalla.client.feature.home.presentation.model
 
-import uz.yalla.client.core.common.map.core.intent.MapIntent.*
+import uz.yalla.client.core.common.map.extended.intent.MapIntent.*
 import uz.yalla.client.core.common.marker.YallaMarkerState
 import uz.yalla.client.core.domain.model.Destination
 import uz.yalla.client.core.domain.model.Location
