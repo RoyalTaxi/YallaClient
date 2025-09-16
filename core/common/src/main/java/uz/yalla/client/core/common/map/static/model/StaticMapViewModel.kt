@@ -18,12 +18,4 @@ class StaticMapViewModel : BaseViewModel(), ContainerHost<StaticMapState, Static
         container.stateFlow
             .map { it.isMapReady }
             .distinctUntilChanged()
-
-    fun onIntent(intent: StaticMapIntent) = intent {
-        when (intent) {
-            StaticMapIntent.MapReady -> reduce { state.copy(isMapReady = true) }
-            is StaticMapIntent.SetLocations -> reduce { state.copy(locations = intent.points) }
-            is StaticMapIntent.SetRoute -> reduce { state.copy(route = intent.route) }
-        }
-    }
 }

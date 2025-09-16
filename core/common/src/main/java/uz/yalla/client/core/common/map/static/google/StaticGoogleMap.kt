@@ -9,17 +9,23 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MapStyleOptions
-import com.google.maps.android.compose.*
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapType
+import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.rememberCameraPositionState
 import kotlinx.coroutines.FlowPreview
 import org.koin.compose.koinInject
 import org.orbitmvi.orbit.compose.collectSideEffect
 import uz.yalla.client.core.common.R
 import uz.yalla.client.core.common.map.core.MapConstants
+import uz.yalla.client.core.common.map.extended.google.GoogleMarkers
 import uz.yalla.client.core.common.map.extended.google.fitBounds
 import uz.yalla.client.core.common.map.static.StaticMap
 import uz.yalla.client.core.common.map.static.intent.StaticMapEffect
 import uz.yalla.client.core.common.map.static.intent.StaticMapIntent
 import uz.yalla.client.core.common.map.static.model.StaticMapViewModel
+import uz.yalla.client.core.common.map.static.model.onIntent
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.type.ThemeType
 
@@ -44,7 +50,16 @@ class StaticGoogleMap : StaticMap {
 
         viewModel.collectSideEffect { effect ->
             when (effect) {
-                StaticMapEffect.MoveToFitBounds -> camera.fitBounds(state.route, state.mapPadding)
+                StaticMapEffect.MoveToFitBounds -> {
+                    if (state.route.isNotEmpty()) camera.fitBounds(
+                        points = state.route,
+                        padding = state.mapPadding
+                    )
+                    else if (state.locations.isNotEmpty()) camera.fitBounds(
+                        points = state.locations,
+                        padding = state.mapPadding
+                    )
+                }
             }
         }
 
@@ -79,7 +94,14 @@ class StaticGoogleMap : StaticMap {
                 zoomControlsEnabled = false,
                 zoomGesturesEnabled = false
             ),
-            onMapLoaded = { viewModel.onIntent(StaticMapIntent.MapReady) },
-        )
+            onMapLoaded = { viewModel.onIntent(StaticMapIntent.MapReady) }
+        ) {
+            GoogleMarkers(
+                isSystemInDark = effectiveTheme == ThemeType.DARK,
+                route = state.route,
+                locations = state.locations,
+                orderStatus = null
+            )
+        }
     }
 }

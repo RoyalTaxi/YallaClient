@@ -30,5 +30,7 @@ class HistoryDetailsViewModel(
         super.onStart()
         scope = CoroutineScope(viewModelScope.coroutineContext + SupervisorJob())
         scope?.launch { getOrderHistory(orderId) }
+        scope?.launch { observeRoute() }
+        scope?.launch { observeLocations() }
     }
 }

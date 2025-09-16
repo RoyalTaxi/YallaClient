@@ -2,7 +2,12 @@ package uz.yalla.client.core.common.map.static.libre
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -17,11 +22,13 @@ import kotlinx.coroutines.delay
 import org.koin.compose.koinInject
 import org.orbitmvi.orbit.compose.collectSideEffect
 import uz.yalla.client.core.common.map.core.MapConstants
+import uz.yalla.client.core.common.map.extended.libre.LibreMarkers
 import uz.yalla.client.core.common.map.extended.libre.fitBounds
 import uz.yalla.client.core.common.map.static.StaticMap
 import uz.yalla.client.core.common.map.static.intent.StaticMapEffect
 import uz.yalla.client.core.common.map.static.intent.StaticMapIntent
 import uz.yalla.client.core.common.map.static.model.StaticMapViewModel
+import uz.yalla.client.core.common.map.static.model.onIntent
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.type.ThemeType
 
@@ -61,7 +68,16 @@ class StaticLibreMap : StaticMap {
 
         viewModel.collectSideEffect { effect ->
             when (effect) {
-                StaticMapEffect.MoveToFitBounds -> camera.fitBounds(state.route, PaddingValues(state.mapPadding.dp))
+                StaticMapEffect.MoveToFitBounds -> {
+                    if (state.route.isNotEmpty()) camera.fitBounds(
+                        points = state.route,
+                        padding = PaddingValues(state.mapPadding.dp)
+                    )
+                    else if (state.locations.isNotEmpty()) camera.fitBounds(
+                        points = state.locations,
+                        padding = PaddingValues(state.mapPadding.dp)
+                    )
+                }
             }
         }
 
@@ -88,6 +104,13 @@ class StaticLibreMap : StaticMap {
                 isTiltGesturesEnabled = false,
                 isKeyboardGesturesEnabled = false
             )
-        )
+        ) {
+            LibreMarkers(
+                isSystemInDark = effectiveTheme == ThemeType.DARK,
+                route = state.route,
+                locations = state.locations,
+                orderStatus = null
+            )
+        }
     }
 }

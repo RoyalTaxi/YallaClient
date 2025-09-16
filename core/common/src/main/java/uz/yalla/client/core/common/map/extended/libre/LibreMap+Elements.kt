@@ -3,7 +3,6 @@ package uz.yalla.client.core.common.map.extended.libre
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
@@ -99,20 +98,19 @@ fun LibrePolylineLayer(
 
 @Composable
 fun LibreMarkers(
+    isSystemInDark: Boolean,
     route: List<MapPoint>,
     orderStatus: OrderStatus?,
     locations: List<MapPoint>,
     carArrivesInMinutes: Int? = null,
     orderEndsInMinutes: Int? = null
 ) {
-    val isDark = isSystemInDarkTheme()
-
     if (route.isNotEmpty()) {
         key("route") {
             LibrePolylineLayer(
                 id = "route",
                 coordinates = route,
-                color = if (isDark) Color.White else Color.Black,
+                color = if (isSystemInDark) Color.White else Color.Black,
                 widthDp = 4f
             )
         }

@@ -245,6 +245,7 @@ class LibreMap : Map {
             }
         ) {
             LibreMarkers(
+                isSystemInDark = effectiveTheme == ThemeType.DARK,
                 route = state.route,
                 locations = state.locations,
                 orderStatus = state.orderStatus,

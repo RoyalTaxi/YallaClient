@@ -3,10 +3,13 @@ package uz.yalla.client.core.common.map.extended.google
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -24,9 +27,9 @@ import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberMarkerState
 import kotlinx.coroutines.launch
 import uz.yalla.client.core.common.R
-import uz.yalla.client.core.common.marker.rememberGoogleMarkerWithInfo
 import uz.yalla.client.core.common.map.core.calculateDistance
 import uz.yalla.client.core.common.map.core.normalizeHeading
+import uz.yalla.client.core.common.marker.rememberGoogleMarkerWithInfo
 import uz.yalla.client.core.common.utils.findClosestPointOnRoute
 import uz.yalla.client.core.common.utils.vectorToBitmapDescriptor
 import uz.yalla.client.core.domain.model.Executor
@@ -36,6 +39,7 @@ import uz.yalla.client.core.presentation.design.theme.YallaTheme
 
 @Composable
 fun GoogleMarkers(
+    isSystemInDark: Boolean,
     route: List<MapPoint>,
     orderStatus: OrderStatus?,
     locations: List<MapPoint>,
@@ -76,10 +80,9 @@ fun GoogleMarkers(
     }
 
     if (route.isNotEmpty()) {
-        val isDarkTheme = isSystemInDarkTheme()
         Polyline(
             points = route.map { LatLng(it.lat, it.lng) },
-            color = if (isDarkTheme) Color.White else Color.Black,
+            color = if (isSystemInDark) Color.White else Color.Black,
             clickable = false,
             zIndex = 0f
         )

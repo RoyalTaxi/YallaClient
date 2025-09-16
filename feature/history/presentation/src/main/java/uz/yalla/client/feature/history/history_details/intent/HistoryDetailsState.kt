@@ -6,11 +6,13 @@ import uz.yalla.client.feature.domain.model.OrderHistoryModel
 data class HistoryDetailsState(
     val orderDetails: OrderHistoryModel?,
     val route: List<MapPoint>,
+    val locations: List<MapPoint>
 ) {
     companion object {
         val INITIAL = HistoryDetailsState(
             orderDetails = null,
-            route = emptyList()
+            route = emptyList(),
+            locations = emptyList()
         )
     }
 }
