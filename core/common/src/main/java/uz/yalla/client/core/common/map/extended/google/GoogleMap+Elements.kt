@@ -113,7 +113,7 @@ fun GoogleMarkers(
 
     if (locations.isEmpty()) return
 
-    if ((orderStatus != null && orderStatus in OrderStatus.nonInteractive) || route.isNotEmpty()) {
+    if ((orderStatus != null && orderStatus in OrderStatus.nonInteractive) || route.isNotEmpty() || orderStatus == OrderStatus.Completed) {
         val start = locations.first()
         key(start.hashCode()) {
             Marker(
