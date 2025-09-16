@@ -13,8 +13,8 @@ object SettingsData {
     private val serviceModule = module {
         single {
             ConfigService(
-                ktorPhp = get(named(NetworkConstants.API_1)),
-                ktorGo = get(named(NetworkConstants.API_2))
+                ktorApi1 = get(named(NetworkConstants.API_1)),
+                ktorApi2 = get(named(NetworkConstants.API_2))
             )
         }
     }

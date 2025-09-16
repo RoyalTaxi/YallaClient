@@ -1,18 +1,17 @@
 package uz.yalla.client.feature.order.presentation.client_waiting.model
 
 import androidx.compose.ui.unit.Dp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import uz.yalla.client.core.common.viewmodel.BaseViewModel
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.OrderStatus
-import uz.yalla.client.feature.map.domain.model.request.GetRoutingDtoItem
-import uz.yalla.client.feature.map.domain.usecase.GetRoutingUseCase
+import uz.yalla.client.feature.home.domain.model.request.GetRoutingDtoItem
+import uz.yalla.client.feature.home.domain.usecase.GetRoutingUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.CancelRideUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.GetShowOrderUseCase
 import uz.yalla.client.feature.order.presentation.client_waiting.view.ClientWaitingSheetChannel
@@ -22,7 +21,7 @@ class ClientWaitingViewModel(
     private val cancelRideUseCase: CancelRideUseCase,
     private val getShowOrderUseCase: GetShowOrderUseCase,
     private val getRoutingUseCase: GetRoutingUseCase
-) : ViewModel() {
+) : BaseViewModel() {
 
     private val _uiState = MutableStateFlow(ClientWaitingState())
     val uiState = _uiState.asStateFlow()
@@ -102,7 +101,7 @@ class ClientWaitingViewModel(
                     lng = driverPoint.lng
                 ),
                 GetRoutingDtoItem(
-                    type = GetRoutingDtoItem.END,
+                    type = GetRoutingDtoItem.STOP,
                     lat = clientPoint.lat,
                     lng = clientPoint.lng
                 )

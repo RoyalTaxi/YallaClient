@@ -13,8 +13,9 @@ object History {
         viewModel{parameters ->
             HistoryDetailsViewModel(
                 orderId = parameters.get<Int>(),
+                staticMapViewModel = get(),
                 getOrderHistoryUseCase = get(),
-                getTariffsUseCase = get()
+                getRoutingUseCase = get()
             )
         }
     }

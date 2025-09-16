@@ -40,7 +40,8 @@ include(
     ":core:service",
     ":core:presentation",
     ":core:common",
-    ":core:dgis"
+    ":core:dgis",
+    ":core:test"
 )
 
 include(
@@ -58,9 +59,9 @@ include(
 
     ":feature:intro:presentation",
 
-    ":feature:map:data",
-    ":feature:map:domain",
-    ":feature:map:presentation",
+    ":feature:home:data",
+    ":feature:home:domain",
+    ":feature:home:presentation",
 
     ":feature:order:data",
     ":feature:order:domain",
@@ -99,7 +100,7 @@ include(
 
 include(
     ":service:auth",
-    ":service:map",
+    ":service:home",
     ":service:places",
     ":service:history",
     ":service:order",
@@ -108,6 +109,5 @@ include(
     ":service:config",
     ":service:notification",
     ":service:promocode",
-    ":core:test",
     ":benchmark"
 )

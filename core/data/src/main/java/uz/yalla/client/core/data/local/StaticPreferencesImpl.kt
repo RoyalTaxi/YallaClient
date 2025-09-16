@@ -25,6 +25,10 @@ class StaticPreferencesImpl(val context: Context) : StaticPreferences {
         get() = preferences.getBoolean(::isDeviceRegistered.name, false)
         set(value) = preferences.edit { putBoolean(::isDeviceRegistered.name, value) }
 
+    override var hasInjectedOrderOnEntry: Boolean
+        get() = preferences.getBoolean(::hasInjectedOrderOnEntry.name, false)
+        set(value) = preferences.edit { putBoolean(::hasInjectedOrderOnEntry.name, value) }
+
     override fun performLogout() {
         preferences.edit { clear() }
         skipOnboarding = true

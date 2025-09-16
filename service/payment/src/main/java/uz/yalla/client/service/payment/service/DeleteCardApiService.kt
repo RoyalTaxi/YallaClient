@@ -9,10 +9,10 @@ import uz.yalla.client.core.service.network.safeApiCall
 import uz.yalla.client.service.payment.url.PaymentUrl
 
 class DeleteCardApiService(
-    private val ktor: HttpClient
+    private val ktorApi2: HttpClient
 ) {
     suspend fun deleteCard(cardId: String) : Either<Unit, DataError.Network> = safeApiCall {
-        ktor.put(PaymentUrl.DELETE_CARD) {
+        ktorApi2.put(PaymentUrl.DELETE_CARD) {
             url { appendPathSegments(cardId) }
         }
     }

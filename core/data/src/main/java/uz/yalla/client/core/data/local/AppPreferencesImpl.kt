@@ -18,17 +18,15 @@ import uz.yalla.client.core.domain.model.PaymentType
 import uz.yalla.client.core.domain.model.type.ThemeType
 
 
- class AppPreferencesImpl(
+class AppPreferencesImpl(
     private val store: DataStore<Preferences>
 ) : AppPreferences {
     private val scope = CoroutineScope(Dispatchers.IO)
 
     private object Prefs {
         val LOCALE = stringPreferencesKey("locale")
-        val TOKEN_TYPE = stringPreferencesKey("tokenType")
         val ACCESS_TOKEN = stringPreferencesKey("accessToken")
 
-        val HAS_PROCESSED = booleanPreferencesKey("hasProcessedOrderOnEntry")
         val FIREBASE_TOKEN = stringPreferencesKey("firebaseToken")
         val HAS_PERFORMED_LOGOUT = booleanPreferencesKey("hasPerformedLogout")
 
@@ -74,11 +72,6 @@ import uz.yalla.client.core.domain.model.type.ThemeType
     override val accessToken = get(Prefs.ACCESS_TOKEN, "")
     override fun setAccessToken(value: String) {
         scope.launch { set(Prefs.ACCESS_TOKEN, value) }
-    }
-
-    override val hasProcessedOrderOnEntry = get(Prefs.HAS_PROCESSED, false)
-    override fun setHasProcessedOrderOnEntry(value: Boolean) {
-        scope.launch { set(Prefs.HAS_PROCESSED, value) }
     }
 
     override val firebaseToken = get(Prefs.FIREBASE_TOKEN, "")

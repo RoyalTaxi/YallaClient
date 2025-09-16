@@ -13,14 +13,14 @@ import uz.yalla.client.core.service.model.ApiResponseWrapper
 import uz.yalla.client.core.service.network.safeApiCall
 
 class AddCardApiService(
-    private val ktor: HttpClient
+    private val ktorApi2: HttpClient
 ) {
     suspend fun addCard(body: AddCardRequest): Either<ApiResponseWrapper<AddCardResponse>, DataError.Network> =
         safeApiCall {
-            ktor.post(PaymentUrl.ADD_CARD) { setBody(body) }
+            ktorApi2.post(PaymentUrl.ADD_CARD) { setBody(body) }
         }
 
     suspend fun verifyCard(body: VerifyCardRequest): Either<Unit, DataError.Network> = safeApiCall {
-        ktor.post(PaymentUrl.VERIFY_CARD) { setBody(body) }
+        ktorApi2.post(PaymentUrl.VERIFY_CARD) { setBody(body) }
     }
 }

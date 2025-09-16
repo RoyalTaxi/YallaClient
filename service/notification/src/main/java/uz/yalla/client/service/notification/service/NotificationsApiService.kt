@@ -15,12 +15,12 @@ import uz.yalla.client.service.notification.url.NotificationsUrl
 private const val PARAMETER_PAGE = "page"
 private const val PARAMETER_PER_PAGE = "per_page"
 
-class NotificationsApiService(private val ktor: HttpClient) {
+class NotificationsApiService(private val ktorApi1: HttpClient) {
     suspend fun getNotifications(
         page: Int, limit: Int
     ): Either<ApiResponseWrapper<ApiPaginationWrapper<NotificationResponse>>, DataError.Network> =
         safeApiCall(isIdempotent = true) {
-            ktor.get(NotificationsUrl.FIND_ALL) {
+            ktorApi1.get(NotificationsUrl.FIND_ALL) {
                 parameter(PARAMETER_PAGE, page)
                 parameter(PARAMETER_PER_PAGE, limit)
             }
@@ -28,13 +28,13 @@ class NotificationsApiService(private val ktor: HttpClient) {
 
     suspend fun getNotification(id: Int): Either<ApiResponseWrapper<NotificationResponse>, DataError.Network> =
         safeApiCall(isIdempotent = true) {
-            ktor.get(NotificationsUrl.FIND_ONE) {
+            ktorApi1.get(NotificationsUrl.FIND_ONE) {
                 url { appendPathSegments(id.toString()) }
             }
         }
 
     suspend fun getNotificationCount(): Either<ApiResponseWrapper<Int>, DataError.Network> =
         safeApiCall(isIdempotent = true) {
-            ktor.get(NotificationsUrl.GET_COUNT)
+            ktorApi1.get(NotificationsUrl.GET_COUNT)
         }
 }

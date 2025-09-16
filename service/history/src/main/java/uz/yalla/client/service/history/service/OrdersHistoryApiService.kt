@@ -16,12 +16,12 @@ import uz.yalla.client.service.history.response.OrdersHistoryResponseItem
 private const val PARAMETER_PAGE = "page"
 private const val PARAMETER_PER_PAGE = "per_page"
 
-class OrdersHistoryApiService(private val ktor: HttpClient) {
+class OrdersHistoryApiService(private val ktorApi2: HttpClient) {
     suspend fun getOrders(
         page: Int, limit: Int
     ): Either<ApiResponseWrapper<ApiPaginationWrapper<OrdersHistoryResponseItem>>, DataError.Network> =
         safeApiCall(isIdempotent = true) {
-            ktor.get(OrdersHistoryUrl.ORDERS_ARCHIVE) {
+            ktorApi2.get(OrdersHistoryUrl.ORDERS_ARCHIVE) {
                 parameter(PARAMETER_PAGE, page)
                 parameter(PARAMETER_PER_PAGE, limit)
             }
@@ -29,7 +29,7 @@ class OrdersHistoryApiService(private val ktor: HttpClient) {
 
     suspend fun getOrder(orderId: Int): Either<ApiResponseWrapper<OrderHistoryResponse>, DataError.Network> =
         safeApiCall(isIdempotent = true) {
-            ktor.get(OrdersHistoryUrl.GET_ORDER) {
+            ktorApi2.get(OrdersHistoryUrl.GET_ORDER) {
                 url { appendPathSegments(orderId.toString()) }
             }
         }

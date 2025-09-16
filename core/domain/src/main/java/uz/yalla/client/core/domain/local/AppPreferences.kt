@@ -12,9 +12,6 @@ interface AppPreferences {
     val accessToken: Flow<String>
     fun setAccessToken(value: String)
 
-    val hasProcessedOrderOnEntry: Flow<Boolean>
-    fun setHasProcessedOrderOnEntry(value: Boolean)
-
     val firebaseToken: Flow<String>
     fun setFirebaseToken(value: String)
 

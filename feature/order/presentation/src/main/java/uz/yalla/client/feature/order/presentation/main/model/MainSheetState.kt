@@ -3,7 +3,7 @@ package uz.yalla.client.feature.order.presentation.main.model
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.common.sheet.search_address.SearchByNameSheetValue
-import uz.yalla.client.core.common.sheet.select_from_map.SelectFromMapViewValue
+import uz.yalla.client.core.common.sheet.select_from_map.intent.SelectFromMapViewValue
 import uz.yalla.client.core.domain.model.*
 import uz.yalla.client.feature.order.domain.model.request.OrderTaxiDto
 import uz.yalla.client.feature.order.domain.model.response.order.ShowOrderModel
@@ -37,8 +37,6 @@ data class MainSheetState(
 
     val selectedService: String = "road",
 
-    val order: ShowOrderModel? = null,
-    val orderId: Int? = null,
     val isSecondaryAddressMandatory: Boolean = false,
     val isShadowVisible: Boolean = false,
     val isPaymentMethodSheetVisible: Boolean = false,

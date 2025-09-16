@@ -10,8 +10,8 @@ import uz.yalla.client.core.service.model.ApiResponseWrapper
 import uz.yalla.client.core.service.network.safeApiCall
 
 class CardListApiService(
-    private val ktor: HttpClient
+    private val ktorApi2: HttpClient
 ) {
     suspend fun getCardList(): Either<ApiResponseWrapper<List<CardListItemRemoteModel>>, DataError.Network> =
-        safeApiCall(isIdempotent = true) { ktor.get(PaymentUrl.CARD_LIST) }
+        safeApiCall(isIdempotent = true) { ktorApi2.get(PaymentUrl.CARD_LIST) }
 }

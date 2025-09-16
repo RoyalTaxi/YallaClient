@@ -44,14 +44,16 @@ fun OrderSheetHeader(
                 color = YallaTheme.color.gray
             )
 
-            CarNumberItem(
-                code = driver.executor.driver.stateNumber.slice(0..<2),
-                number = "(\\d+|[A-Za-z]+)"
-                    .toRegex()
-                    .findAll(driver.executor.driver.stateNumber.substring(2))
-                    .map { it.value }
-                    .toList()
-            )
+            driver.executor.driver.stateNumber.takeIf { it.length >= 3 }?.let { stateNumber ->
+                CarNumberItem(
+                    code = stateNumber.slice(0..<2),
+                    number = "(\\d+|[A-Za-z]+)"
+                        .toRegex()
+                        .findAll(stateNumber.substring(2))
+                        .map { it.value }
+                        .toList()
+                )
+            }
         }
     }
 }

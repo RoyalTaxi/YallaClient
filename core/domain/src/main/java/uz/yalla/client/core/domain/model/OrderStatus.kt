@@ -5,9 +5,9 @@ sealed class OrderStatus(val value: String) {
     data object Sending : OrderStatus("sending")
     data object UserSending : OrderStatus("user_sending")
     data object NonStopSending : OrderStatus("nonstop_sending")
+    data object Appointed : OrderStatus("appointed")
     data object AtAddress : OrderStatus("at_address")
     data object InFetters : OrderStatus("in_fetters")
-    data object Appointed : OrderStatus("appointed")
     data object Completed : OrderStatus("completed")
     data object Canceled : OrderStatus("canceled")
 
@@ -29,6 +29,6 @@ sealed class OrderStatus(val value: String) {
 
         val nonInteractive = setOfNotNull(New, Sending, UserSending, NonStopSending)
 
-        val cancellable = nonInteractive + setOfNotNull(AtAddress, Appointed)
+        val cancellable = nonInteractive + setOfNotNull(Appointed, AtAddress)
     }
 }

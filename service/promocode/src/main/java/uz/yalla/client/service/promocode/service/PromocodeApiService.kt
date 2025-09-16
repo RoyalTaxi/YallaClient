@@ -12,11 +12,11 @@ import uz.yalla.client.service.promocode.response.PromocodeActivationResponse
 import uz.yalla.client.service.promocode.url.PromocodeUrl
 
 class PromocodeApiService(
-    private val ktor: HttpClient
+    private val ktorApi1: HttpClient
 ) {
     suspend fun activatePromocode(
         body: PromocodeRequest
     ): Either<ApiResponseWrapper<PromocodeActivationResponse>, DataError.Network> = safeApiCall {
-        ktor.post(PromocodeUrl.ACTIVATE_PROMOCODE) { setBody(body) }
+        ktorApi1.post(PromocodeUrl.ACTIVATE_PROMOCODE) { setBody(body) }
     }
 }

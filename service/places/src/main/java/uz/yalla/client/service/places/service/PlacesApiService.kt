@@ -16,27 +16,27 @@ import uz.yalla.client.service.places.request.PostOnePlaceRequest
 import uz.yalla.client.service.places.response.PlaceRemoteModel
 
 class PlacesApiService(
-    private val ktor: HttpClient
+    private val ktorApi1: HttpClient
 ) {
     suspend fun findAll(): Either<ApiResponseWrapper<List<PlaceRemoteModel>>, DataError.Network> =
-        safeApiCall(isIdempotent = true) { ktor.get(PlacesUrl.FIND_ALL) }
+        safeApiCall(isIdempotent = true) { ktorApi1.get(PlacesUrl.FIND_ALL) }
 
     suspend fun findOne(id: Int): Either<ApiResponseWrapper<PlaceRemoteModel>, DataError.Network> =
         safeApiCall(isIdempotent = true) {
-            ktor.get(PlacesUrl.FIND_ONE) { url { appendPathSegments(id.toString()) } }
+            ktorApi1.get(PlacesUrl.FIND_ONE) { url { appendPathSegments(id.toString()) } }
         }
 
     suspend fun postOne(body: PostOnePlaceRequest): Either<ApiResponseWrapper<List<String>>, DataError.Network> =
-        safeApiCall { ktor.post(PlacesUrl.POST_ONE) { setBody(body) } }
+        safeApiCall { ktorApi1.post(PlacesUrl.POST_ONE) { setBody(body) } }
 
     suspend fun deleteOne(id: Int): Either<Unit, DataError.Network> =
         safeApiCall {
-            ktor.delete(PlacesUrl.DELETE) { url { appendPathSegments(id.toString()) } }
+            ktorApi1.delete(PlacesUrl.DELETE) { url { appendPathSegments(id.toString()) } }
         }
 
     suspend fun updateOne(id: Int, body: PostOnePlaceRequest): Either<Unit, DataError.Network> =
         safeApiCall {
-            ktor.put(PlacesUrl.UPDATE) {
+            ktorApi1.put(PlacesUrl.UPDATE) {
                 url { appendPathSegments(id.toString()) }
                 setBody(body)
             }

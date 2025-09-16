@@ -19,18 +19,12 @@ import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.core.common.lifecycle.MakeBridge
 import uz.yalla.client.core.common.sheet.AddDestinationBottomSheet
 import uz.yalla.client.core.common.sheet.ConfirmationBottomSheet
-import uz.yalla.client.core.common.sheet.select_from_map.SelectFromMapView
-import uz.yalla.client.core.common.sheet.select_from_map.SelectFromMapViewValue
+import uz.yalla.client.core.common.sheet.select_from_map.intent.SelectFromMapViewValue
+import uz.yalla.client.core.common.sheet.select_from_map.view.SelectFromMapScreen
 import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.domain.model.type.PlaceType
 import uz.yalla.client.feature.places.place.intent.PlaceSideEffect
-import uz.yalla.client.feature.places.place.model.PlaceViewModel
-import uz.yalla.client.feature.places.place.model.deleteOneAddress
-import uz.yalla.client.feature.places.place.model.onIntent
-import uz.yalla.client.feature.places.place.model.setConfirmationVisibility
-import uz.yalla.client.feature.places.place.model.setMapVisibility
-import uz.yalla.client.feature.places.place.model.setSearchVisibility
-import uz.yalla.client.feature.places.place.model.updateSelectedAddress
+import uz.yalla.client.feature.places.place.model.*
 import uz.yalla.client.feature.places.place.navigation.FromPlace
 import uz.yalla.client.feature.places.presentation.R
 
@@ -96,7 +90,7 @@ internal fun AddressRoute(
     }
 
     if (state.isMapVisible) {
-        SelectFromMapView(
+        SelectFromMapScreen(
             startingPoint = null,
             viewValue = SelectFromMapViewValue.FOR_START,
             onSelectLocation = { location ->

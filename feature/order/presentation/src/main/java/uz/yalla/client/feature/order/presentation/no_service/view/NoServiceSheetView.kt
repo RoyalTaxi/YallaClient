@@ -2,13 +2,7 @@ package uz.yalla.client.feature.order.presentation.no_service.view
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
@@ -27,12 +21,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.androidx.compose.koinViewModel
 import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.common.sheet.AddDestinationBottomSheet
-import uz.yalla.client.core.common.sheet.select_from_map.SelectFromMapView
-import uz.yalla.client.core.common.sheet.select_from_map.SelectFromMapViewValue
+import uz.yalla.client.core.common.sheet.select_from_map.intent.SelectFromMapViewValue
+import uz.yalla.client.core.common.sheet.select_from_map.view.SelectFromMapScreen
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
 import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
-import uz.yalla.client.feature.order.presentation.main.view.MainSheetChannel
 import uz.yalla.client.feature.order.presentation.no_service.NO_SERVICE_ROUTE
 import uz.yalla.client.feature.order.presentation.no_service.model.NoServiceViewModel
 
@@ -49,7 +42,6 @@ fun NoServiceSheet(
     BackHandler { }
 
     LaunchedEffect(Unit) {
-        MainSheetChannel.register(lifecycleOwner)
         NoServiceSheetChannel.register(lifecycleOwner)
     }
 
@@ -125,7 +117,7 @@ fun NoServiceSheet(
     }
 
     if (state.selectFromMapVisibility != SelectFromMapViewValue.INVISIBLE) {
-        SelectFromMapView(
+        SelectFromMapScreen(
             viewValue = SelectFromMapViewValue.FOR_START,
             startingPoint = null,
             onSelectLocation = {

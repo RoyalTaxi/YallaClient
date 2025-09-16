@@ -13,16 +13,16 @@ import uz.yalla.client.service.setting.response.ConfigResponse
 import uz.yalla.client.service.setting.url.ConfigUrl
 
 class ConfigService(
-    private val ktorPhp: HttpClient,
-    private val ktorGo: HttpClient
+    private val ktorApi1: HttpClient,
+    private val ktorApi2: HttpClient
 ) {
     suspend fun getConfig(): Either<ApiResponseWrapper<ConfigResponse>, DataError.Network> =
         safeApiCall(isIdempotent = true) {
-            ktorGo.get(ConfigUrl.CONFIG)
+            ktorApi2.get(ConfigUrl.CONFIG)
         }
 
     suspend fun sendFCMToken(body: SendFCMTokenRequest): Either<Unit, DataError.Network> =
         safeApiCall {
-            ktorPhp.post(ConfigUrl.FCM_TOKEN) { setBody(body) }
+            ktorApi1.post(ConfigUrl.FCM_TOKEN) { setBody(body) }
         }
 }

@@ -22,9 +22,9 @@ import uz.yalla.client.feature.history.navigateToHistoryModule
 import uz.yalla.client.feature.info.about_app.navigation.FromAboutApp
 import uz.yalla.client.feature.info.about_app.navigation.aboutAppScreen
 import uz.yalla.client.feature.info.about_app.navigation.navigateToAboutAppScreen
-import uz.yalla.client.feature.map.presentation.navigation.FromMap
-import uz.yalla.client.feature.map.presentation.navigation.MAP_ROUTE
-import uz.yalla.client.feature.map.presentation.navigation.mapScreen
+import uz.yalla.client.feature.home.presentation.navigation.FromMap
+import uz.yalla.client.feature.home.presentation.navigation.MAP_ROUTE
+import uz.yalla.client.feature.home.presentation.navigation.homeScreen
 import uz.yalla.client.feature.notification.navigateToNotificationModule
 import uz.yalla.client.feature.notification.notificationModule
 import uz.yalla.client.feature.payment.navigateToPaymentModule
@@ -60,7 +60,7 @@ fun Navigation(
     NavHost(
         modifier = Modifier.fillMaxSize(),
         navController = navController,
-        startDestination = _root_ide_package_.uz.yalla.client.feature.map.presentation.navigation.MAP_ROUTE,
+        startDestination = MAP_ROUTE,
         enterTransition = {
             slideIntoContainer(
                 AnimatedContentTransitionScope.SlideDirection.Start,
@@ -86,21 +86,21 @@ fun Navigation(
             )
         }
     ) {
-        mapScreen(
+        homeScreen(
             networkState = isConnected,
             navigate = { fromMap ->
                 when (fromMap) {
-                    _root_ide_package_.uz.yalla.client.feature.map.presentation.navigation.FromMap.ToAboutApp -> navController.navigateToAboutAppScreen()
-                    _root_ide_package_.uz.yalla.client.feature.map.presentation.navigation.FromMap.ToAddNewCard -> navController.navigateToPaymentModule()
-                    _root_ide_package_.uz.yalla.client.feature.map.presentation.navigation.FromMap.ToAddresses -> navController.navigateToAddressModule()
-                    _root_ide_package_.uz.yalla.client.feature.map.presentation.navigation.FromMap.ToBonuses -> navController.navigateToBonusModule()
-                    _root_ide_package_.uz.yalla.client.feature.map.presentation.navigation.FromMap.ToContactUs -> navController.navigateToContactUsScreen()
-                    _root_ide_package_.uz.yalla.client.feature.map.presentation.navigation.FromMap.ToNotifications -> navController.navigateToNotificationModule()
-                    _root_ide_package_.uz.yalla.client.feature.map.presentation.navigation.FromMap.ToOrderHistory -> navController.navigateToHistoryModule()
-                    _root_ide_package_.uz.yalla.client.feature.map.presentation.navigation.FromMap.ToPaymentType -> navController.navigateToPaymentModule()
-                    _root_ide_package_.uz.yalla.client.feature.map.presentation.navigation.FromMap.ToProfile -> navController.navigateToEditProfileScreen()
-                    _root_ide_package_.uz.yalla.client.feature.map.presentation.navigation.FromMap.ToRegister -> navigateToLogin()
-                    _root_ide_package_.uz.yalla.client.feature.map.presentation.navigation.FromMap.ToSettings -> navController.navigateToSettings()
+                    FromMap.ToAboutApp -> navController.navigateToAboutAppScreen()
+                    FromMap.ToAddNewCard -> navController.navigateToPaymentModule()
+                    FromMap.ToAddresses -> navController.navigateToAddressModule()
+                    FromMap.ToBonuses -> navController.navigateToBonusModule()
+                    FromMap.ToContactUs -> navController.navigateToContactUsScreen()
+                    FromMap.ToNotifications -> navController.navigateToNotificationModule()
+                    FromMap.ToOrderHistory -> navController.navigateToHistoryModule()
+                    FromMap.ToPaymentType -> navController.navigateToPaymentModule()
+                    FromMap.ToProfile -> navController.navigateToEditProfileScreen()
+                    FromMap.ToRegister -> navigateToLogin()
+                    FromMap.ToSettings -> navController.navigateToSettings()
 
                     is FromMap.ToInviteFriend -> navController.navigateToWebScreen(
                         fromMap.title,

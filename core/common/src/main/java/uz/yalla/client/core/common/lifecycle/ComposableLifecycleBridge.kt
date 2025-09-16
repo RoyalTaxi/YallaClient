@@ -16,7 +16,7 @@ fun LifecycleOwner.MakeBridge(viewModel: LifeCycleAware) {
             }
 
             override fun onStart(owner: LifecycleOwner) {
-                super.onCreate(owner)
+                super.onStart(owner)
                 viewModel.onStart()
             }
 
@@ -31,7 +31,7 @@ fun LifecycleOwner.MakeBridge(viewModel: LifeCycleAware) {
             }
 
             override fun onStop(owner: LifecycleOwner) {
-                super.onDestroy(owner)
+                super.onStop(owner)
                 viewModel.onStop()
             }
 

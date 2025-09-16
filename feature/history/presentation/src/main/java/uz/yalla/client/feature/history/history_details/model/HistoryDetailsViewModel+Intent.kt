@@ -6,9 +6,5 @@ import uz.yalla.client.feature.history.history_details.intent.HistoryDetailsSide
 fun HistoryDetailsViewModel.onIntent(intent: HistoryDetailsIntent) = intent {
     when (intent) {
         HistoryDetailsIntent.NavigateBack -> postSideEffect(HistoryDetailsSideEffect.NavigateBack)
-        HistoryDetailsIntent.OnMapReady -> {
-            postSideEffect(HistoryDetailsSideEffect.UpdateRoute)
-            setIsMapReady(true)
-        }
     }
 }

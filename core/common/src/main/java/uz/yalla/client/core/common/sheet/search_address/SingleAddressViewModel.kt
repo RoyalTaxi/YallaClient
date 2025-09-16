@@ -1,8 +1,8 @@
 package uz.yalla.client.core.common.sheet.search_address
 
-import uz.yalla.client.feature.map.domain.usecase.GetPolygonUseCase
-import uz.yalla.client.feature.map.domain.usecase.GetSecondaryAddressedUseCase
-import uz.yalla.client.feature.map.domain.usecase.SearchAddressUseCase
+import uz.yalla.client.feature.home.domain.usecase.GetPolygonUseCase
+import uz.yalla.client.feature.home.domain.usecase.GetSecondaryAddressedUseCase
+import uz.yalla.client.feature.home.domain.usecase.SearchAddressUseCase
 
 class SingleAddressViewModel(
     searchAddressUseCase: SearchAddressUseCase,
