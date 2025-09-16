@@ -2,10 +2,10 @@ package uz.yalla.client.core.common.sheet.select_from_map.view
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
@@ -31,14 +31,20 @@ fun SelectFromMapScreen(
     onDismissRequest: () -> Unit,
     onSelectLocation: (Location) -> Unit,
     appPreferences: AppPreferences = koinInject(),
-    viewModel: SelectFromMapViewModel = koinViewModel(parameters = { parametersOf(startingPoint) })
+    viewModel: SelectFromMapViewModel = koinViewModel(
+        parameters = {
+            parametersOf(
+                viewValue,
+                startingPoint
+            )
+        }
+    )
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    val loading by viewModel.loading.collectAsStateWithLifecycle()
-    val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
-    val isMapReady by viewModel.liteMapViewModel.isMapReady.collectAsStateWithLifecycle(false)
-    val mapType by appPreferences.mapType.collectAsStateWithLifecycle(null)
+    val state by viewModel.container.stateFlow.collectAsState()
+    val isMapReady by viewModel.liteMapViewModel.isMapReady.collectAsState(false)
+    val mapType by appPreferences.mapType.collectAsState(null)
     val map = remember(mapType) {
         when (mapType) {
             MapType.Google -> LiteGoogleMap()
@@ -52,7 +58,10 @@ fun SelectFromMapScreen(
     viewModel.collectSideEffect { effect ->
         when (effect) {
             SelectFromMapEffect.NavigateBack -> onDismissRequest()
-            is SelectFromMapEffect.SelectLocation -> onSelectLocation(effect.location)
+            is SelectFromMapEffect.SelectLocation -> {
+                onSelectLocation(effect.location)
+                onDismissRequest()
+            }
         }
     }
 
@@ -63,11 +72,14 @@ fun SelectFromMapScreen(
     SelectFromMapView(
         state = state,
         onIntent = viewModel::onIntent
-    ) {
-        map?.View(viewModel.liteMapViewModel)
+    ) { modifier ->
+        map?.View(
+            modifier = modifier,
+            viewModel.liteMapViewModel
+        )
     }
 
-    if (loading || isMapReady) {
+    if (!isMapReady) {
         LoadingDialog()
     }
 }

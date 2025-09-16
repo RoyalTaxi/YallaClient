@@ -27,113 +27,108 @@ import uz.yalla.client.core.presentation.design.theme.YallaTheme
 fun SelectFromMapView(
     state: SelectFromMapState,
     onIntent: (SelectFromMapIntent) -> Unit,
-    map: @Composable () -> Unit
+    map: @Composable (modifier: Modifier) -> Unit
 ) {
     Box(
         modifier = Modifier.fillMaxSize(),
     ) {
-        map()
+        map(Modifier.padding(bottom = 100.dp))
+
+        YallaMarker(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .padding(bottom = 100.dp),
+            state = if (state.location == null) YallaMarkerState.LOADING else YallaMarkerState.IDLE(
+                title = state.location.name,
+                timeout = null
+            )
+        )
+
+        Overlay(
+            state = state,
+            onIntent = onIntent,
+        )
+    }
+}
+
+@Composable
+private fun Overlay(
+    state: SelectFromMapState,
+    onIntent: (SelectFromMapIntent) -> Unit
+) {
+    Column {
         Column(
             modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
                 .statusBarsPadding()
                 .padding(
                     horizontal = 16.dp,
                     vertical = 24.dp
                 )
         ) {
-            Overlay(
-                state = state,
-                onIntent = onIntent,
+            MapButton(
+                modifier = Modifier.align(Alignment.Start),
+                painter = painterResource(R.drawable.ic_arrow_back),
+                onClick = { onIntent(SelectFromMapIntent.NavigateBack) }
             )
 
-            Sheet(
-                state = state,
-                onIntent = onIntent,
+            Spacer(modifier = Modifier.weight(1f))
+
+            MapButton(
+                modifier = Modifier.align(Alignment.End),
+                painter = painterResource(R.drawable.ic_location),
+                onClick = { onIntent(SelectFromMapIntent.AnimateToMyLocation) }
             )
         }
-    }
-}
 
-@Composable
-private fun ColumnScope.Overlay(
-    state: SelectFromMapState,
-    onIntent: (SelectFromMapIntent) -> Unit
-) {
-    MapButton(
-        modifier = Modifier.align(Alignment.Start),
-        painter = painterResource(R.drawable.ic_arrow_back),
-        onClick = { onIntent(SelectFromMapIntent.NavigateBack) }
-    )
-
-    Spacer(modifier = Modifier.weight(1f))
-
-    YallaMarker(
-        modifier = Modifier.align(Alignment.CenterHorizontally),
-        state = if (state.location == null) YallaMarkerState.LOADING else YallaMarkerState.IDLE(
-            title = state.location.name,
-            timeout = null
-        )
-    )
-
-    Spacer(modifier = Modifier.weight(1f))
-
-    MapButton(
-        modifier = Modifier.align(Alignment.End),
-        painter = painterResource(R.drawable.ic_location),
-        onClick = { onIntent(SelectFromMapIntent.NavigateBack) }
-    )
-}
-
-@Composable
-private fun Sheet(
-    state: SelectFromMapState,
-    onIntent: (SelectFromMapIntent) -> Unit
-) {
-    Card(
-        shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
-        colors = CardDefaults.cardColors(YallaTheme.color.background)
-    ) {
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+        Card(
+            shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
+            colors = CardDefaults.cardColors(YallaTheme.color.surface)
         ) {
-            Card(
-                shape = RoundedCornerShape(30.dp),
-                colors = CardDefaults.cardColors(YallaTheme.color.onBackground)
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                SelectCurrentLocationButton(
-                    text = state.location?.name.orEmpty(),
-                    modifier = Modifier.padding(10.dp),
-                    onClick = {},
-                    leadingIcon = {
-                        Box(
-                            modifier = Modifier
-                                .size(8.dp)
-                                .background(
-                                    color = YallaTheme.color.primary,
-                                    shape = CircleShape
-                                )
-                        )
-                    }
-                )
-            }
+                Card(
+                    shape = RoundedCornerShape(30.dp),
+                    colors = CardDefaults.cardColors(YallaTheme.color.background)
+                ) {
+                    SelectCurrentLocationButton(
+                        text = state.location?.name ?: stringResource(R.string.loading),
+                        modifier = Modifier.padding(10.dp),
+                        onClick = {},
+                        leadingIcon = {
+                            Box(
+                                modifier = Modifier
+                                    .size(8.dp)
+                                    .background(
+                                        color = YallaTheme.color.primary,
+                                        shape = CircleShape
+                                    )
+                            )
+                        }
+                    )
+                }
 
-            Card(
-                shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
-                colors = CardDefaults.cardColors(YallaTheme.color.onBackground)
-            ) {
-                PrimaryButton(
-                    text = stringResource(R.string.choose),
-                    onClick = { onIntent(SelectFromMapIntent.NavigateBack) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp)
-                        .navigationBarsPadding(),
-                    enabled = when (state.viewValue) {
-                        SelectFromMapViewValue.FOR_START -> state.location?.point != null && state.isWorking
-                        else -> state.location?.point != null
-                    }
-                )
+                Card(
+                    shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(YallaTheme.color.background),
+                ) {
+                    PrimaryButton(
+                        text = stringResource(R.string.choose),
+                        onClick = { onIntent(SelectFromMapIntent.SelectLocation) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp)
+                            .navigationBarsPadding(),
+                        enabled = when (state.viewValue) {
+                            SelectFromMapViewValue.FOR_START -> state.location?.point != null && state.isWorking
+                            else -> state.location?.point != null
+                        }
+                    )
+                }
             }
         }
     }

@@ -5,7 +5,6 @@ import android.content.pm.PackageManager
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -36,7 +35,10 @@ import uz.yalla.client.core.domain.model.type.ThemeType
 class LiteGoogleMap : LiteMap {
     @OptIn(FlowPreview::class)
     @Composable
-    override fun View(viewModel: LiteMapViewModel) {
+    override fun View(
+        modifier: Modifier,
+        viewModel: LiteMapViewModel,
+    ) {
         val context = LocalContext.current
         val appPreferences = koinInject<AppPreferences>()
         val camera = rememberCameraPositionState()
@@ -117,6 +119,7 @@ class LiteGoogleMap : LiteMap {
         }
 
         GoogleMap(
+            modifier = modifier,
             cameraPositionState = camera,
             contentPadding = state.viewPadding,
             properties = MapProperties(
@@ -147,10 +150,7 @@ class LiteGoogleMap : LiteMap {
                 zoomControlsEnabled = false,
                 zoomGesturesEnabled = true
             ),
-            onMapLoaded = { viewModel.onIntent(LiteMapIntent.MapReady) },
-            modifier = Modifier.onSizeChanged {
-                camera.move(CameraUpdateFactory.newCameraPosition(camera.position))
-            }
+            onMapLoaded = { viewModel.onIntent(LiteMapIntent.MapReady) }
         )
     }
 }

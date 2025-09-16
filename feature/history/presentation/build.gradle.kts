@@ -13,6 +13,7 @@ dependencies {
     implementation(projects.core.common)
     implementation(projects.feature.history.data)
     implementation(projects.feature.history.domain)
+    implementation(projects.feature.home.domain)
     implementation(projects.feature.order.domain)
 
     implementation(libs.paging.common)

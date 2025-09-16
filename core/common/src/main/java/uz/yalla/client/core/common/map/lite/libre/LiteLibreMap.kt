@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.sargunv.maplibrecompose.compose.MaplibreMap
@@ -37,7 +36,10 @@ import kotlin.time.Duration.Companion.milliseconds
 
 class LiteLibreMap : LiteMap {
     @Composable
-    override fun View(viewModel: LiteMapViewModel) {
+    override fun View(
+        modifier: Modifier,
+        viewModel: LiteMapViewModel,
+    ) {
         val appPreferences = koinInject<AppPreferences>()
         val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
         val initialLocation by appPreferences.entryLocation.collectAsStateWithLifecycle(0.0 to 0.0)
@@ -142,6 +144,7 @@ class LiteLibreMap : LiteMap {
         }
 
         MaplibreMap(
+            modifier = modifier,
             cameraState = camera,
             zoomRange = MapConstants.ZOOM_MIN_ZOOM..MapConstants.ZOOM_MAX_ZOOM,
             styleUri = if (effectiveTheme == ThemeType.DARK) {
@@ -163,19 +166,7 @@ class LiteLibreMap : LiteMap {
                 isRotateGesturesEnabled = false,
                 isTiltGesturesEnabled = false,
                 isKeyboardGesturesEnabled = false
-            ),
-            modifier = Modifier.onSizeChanged {
-                animationScope.launch {
-                    camera.animateTo(
-                        finalPosition = CameraPosition(
-                            target = camera.position.target,
-                            zoom = camera.position.zoom,
-                            padding = state.viewPadding
-                        ),
-                        duration = 1.milliseconds
-                    )
-                }
-            }
+            )
         )
     }
 }

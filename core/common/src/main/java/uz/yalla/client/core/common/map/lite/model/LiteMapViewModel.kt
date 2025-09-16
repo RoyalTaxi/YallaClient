@@ -35,7 +35,17 @@ class LiteMapViewModel(
     fun onIntent(intent: LiteMapIntent) = intent {
         when (intent) {
             LiteMapIntent.MapReady -> {
-                initialLocation?.let { location -> postSideEffect(LiteMapEffect.MoveTo(location)) }
+                initialLocation?.let { location ->
+                    postSideEffect(LiteMapEffect.MoveTo(location))
+                } ?: run {
+                    getCurrentLocation(context = appContext) {
+                        viewModelScope.launch {
+                            postSideEffect(
+                                LiteMapEffect.MoveTo(MapPoint(it.latitude, it.longitude))
+                            )
+                        }
+                    }
+                }
                 reduce { state.copy(isMapReady = true) }
             }
 
@@ -72,7 +82,6 @@ class LiteMapViewModel(
             is LiteMapIntent.SetLocation -> reduce { state.copy(location = intent.location) }
             is LiteMapIntent.SetMapPadding -> reduce { state.copy(mapPadding = intent.padding) }
             is LiteMapIntent.SetMarkerState -> reduce { state.copy(markerState = intent.markerState) }
-            is LiteMapIntent.SetViewPadding -> reduce { state.copy(viewPadding = intent.padding) }
         }
     }
 }

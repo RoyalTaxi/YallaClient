@@ -1,34 +1,58 @@
 package uz.yalla.client.feature.history.history_details.model
 
 import androidx.lifecycle.viewModelScope
+import uz.yalla.client.core.domain.model.MapPoint
+import uz.yalla.client.feature.home.domain.model.request.GetRoutingDtoItem
 
 fun HistoryDetailsViewModel.getOrderHistory(orderId: Int) = intent {
     viewModelScope.launchWithLoading {
         getOrderHistoryUseCase(orderId)
             .onSuccess { result ->
-                reduce {
-                    state.copy(orderDetails = result)
-                }
-                getMapPoints()
+                reduce { state.copy(orderDetails = result) }
+                getRouting()
             }
             .onFailure(::handleException)
     }
 }
 
-fun HistoryDetailsViewModel.getMapPoints() = intent {
+fun HistoryDetailsViewModel.getRouting() = intent {
     viewModelScope.launchWithLoading {
-        getTariffsUseCase(
-            coords = state.orderDetails?.taxi?.routes?.map {
-                Pair(
-                    it.cords.lat,
-                    it.cords.lng
+        val addresses = buildList {
+            state.orderDetails?.taxi?.routes?.takeIf { it.isNotEmpty() }?.let { routes ->
+                add(
+                    GetRoutingDtoItem(
+                        type = GetRoutingDtoItem.START,
+                        lat = routes.first().cords.lat,
+                        lng = routes.first().cords.lng
+                    )
                 )
-            }.orEmpty(),
-            optionIds = emptyList()
-        ).onSuccess { result ->
-            reduce {
-                state.copy(routes = result.map.routing)
             }
-        }.onFailure(::handleException)
+
+            state.orderDetails?.taxi?.routes?.takeIf { it.size > 2 }?.let { routes ->
+                addAll(
+                    routes.drop(1).dropLast(1).map {
+                        GetRoutingDtoItem(
+                            type = GetRoutingDtoItem.POINT,
+                            lat = it.cords.lat,
+                            lng = it.cords.lng
+                        )
+                    }
+                )
+            }
+
+            state.orderDetails?.taxi?.routes?.takeIf { it.size > 1 }?.let { routes ->
+                add(
+                    GetRoutingDtoItem(
+                        type = GetRoutingDtoItem.STOP,
+                        lat = routes.last().cords.lat,
+                        lng = routes.last().cords.lng
+                    )
+                )
+            }
+        }
+
+        getRoutingUseCase(addresses).onSuccess { data ->
+            reduce { state.copy(route = data.routing.map { MapPoint(it.lat, it.lng) }) }
+        }
     }
 }

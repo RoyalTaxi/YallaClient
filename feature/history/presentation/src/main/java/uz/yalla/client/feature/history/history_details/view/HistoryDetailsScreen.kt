@@ -1,38 +1,25 @@
 package uz.yalla.client.feature.history.history_details.view
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
+import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.history.R
 import uz.yalla.client.feature.history.history_details.components.OrderDetailsBottomSheet
-import uz.yalla.client.feature.history.history_details.intent.HistoryDetailsState
-import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.history.history_details.intent.HistoryDetailsIntent
+import uz.yalla.client.feature.history.history_details.intent.HistoryDetailsState
 
 @Composable
- fun HistoryDetailsScreen(
-    uiState: HistoryDetailsState,
-    loading: Boolean,
-    map: MapStrategy,
-    onIntent: (HistoryDetailsIntent) -> Unit
+fun HistoryDetailsScreen(
+    state: HistoryDetailsState,
+    onIntent: (HistoryDetailsIntent) -> Unit,
+    map: @Composable (modifier: Modifier) -> Unit
 ) {
     Scaffold(
         containerColor = YallaTheme.color.background,
@@ -44,22 +31,13 @@ import uz.yalla.client.feature.history.history_details.intent.HistoryDetailsInte
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
             ) {
-                if (loading.not()) {
-                    map.Map(
-                        startingPoint = null,
-                        contentPadding = PaddingValues(0.dp),
-                        enabled = false,
-                        isMyLocationEnabled = false,
-                        onMapReady = {
-                            onIntent(HistoryDetailsIntent.OnMapReady)
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(1f)
-                    )
-                }
+                map(
+                    Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(1f)
+                )
 
-                uiState.orderDetails?.let {
+                state.orderDetails?.let {
                     OrderDetailsBottomSheet(order = it)
                 }
             }
