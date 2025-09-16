@@ -167,7 +167,7 @@ fun LibreMarkers(
         )
     }
 
-    if ((orderStatus != null && orderStatus in OrderStatus.nonInteractive) || route.isNotEmpty()) {
+    if ((orderStatus != null && orderStatus in OrderStatus.nonInteractive) || route.isNotEmpty() || orderStatus == OrderStatus.Completed) {
         locations.firstOrNull()?.let { start ->
             originIcon?.let {
                 key("start-${start.hashCode()}") {

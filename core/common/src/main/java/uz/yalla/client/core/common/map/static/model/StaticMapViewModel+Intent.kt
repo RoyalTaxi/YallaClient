@@ -8,12 +8,14 @@ fun StaticMapViewModel.onIntent(intent: StaticMapIntent) = intent {
         StaticMapIntent.MapReady -> reduce { state.copy(isMapReady = true) }
         is StaticMapIntent.SetLocations -> {
             reduce { state.copy(locations = intent.points) }
-            postSideEffect(StaticMapEffect.MoveToFitBounds)
+            if (intent.points.isEmpty()) postSideEffect(StaticMapEffect.MoveToFirstLocation)
+            else postSideEffect(StaticMapEffect.MoveToFitBounds)
         }
 
         is StaticMapIntent.SetRoute -> {
             reduce { state.copy(route = intent.route) }
-            postSideEffect(StaticMapEffect.MoveToFitBounds)
+            if (intent.route.isEmpty()) postSideEffect(StaticMapEffect.MoveToFirstLocation)
+            else postSideEffect(StaticMapEffect.MoveToFitBounds)
         }
     }
 }

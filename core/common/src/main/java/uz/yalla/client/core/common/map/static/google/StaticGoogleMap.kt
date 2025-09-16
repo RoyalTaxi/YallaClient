@@ -21,12 +21,15 @@ import uz.yalla.client.core.common.R
 import uz.yalla.client.core.common.map.core.MapConstants
 import uz.yalla.client.core.common.map.extended.google.GoogleMarkers
 import uz.yalla.client.core.common.map.extended.google.fitBounds
+import uz.yalla.client.core.common.map.extended.google.moveTo
 import uz.yalla.client.core.common.map.static.StaticMap
 import uz.yalla.client.core.common.map.static.intent.StaticMapEffect
 import uz.yalla.client.core.common.map.static.intent.StaticMapIntent
 import uz.yalla.client.core.common.map.static.model.StaticMapViewModel
 import uz.yalla.client.core.common.map.static.model.onIntent
 import uz.yalla.client.core.domain.local.AppPreferences
+import uz.yalla.client.core.domain.model.MapPoint
+import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.core.domain.model.type.ThemeType
 
 class StaticGoogleMap : StaticMap {
@@ -60,6 +63,18 @@ class StaticGoogleMap : StaticMap {
                         padding = state.mapPadding
                     )
                 }
+
+                StaticMapEffect.MoveToFirstLocation -> {
+                    state.locations.firstOrNull()?.let { location ->
+                        camera.moveTo(
+                            point = MapPoint(
+                                lat = location.lat,
+                                lng = location.lng
+                            ),
+                            zoom = MapConstants.DEFAULT_ZOOM.toFloat()
+                        )
+                    }
+                }
             }
         }
 
@@ -92,7 +107,7 @@ class StaticGoogleMap : StaticMap {
                 scrollGesturesEnabledDuringRotateOrZoom = false,
                 tiltGesturesEnabled = false,
                 zoomControlsEnabled = false,
-                zoomGesturesEnabled = false
+                zoomGesturesEnabled = true
             ),
             onMapLoaded = { viewModel.onIntent(StaticMapIntent.MapReady) }
         ) {
@@ -100,7 +115,7 @@ class StaticGoogleMap : StaticMap {
                 isSystemInDark = effectiveTheme == ThemeType.DARK,
                 route = state.route,
                 locations = state.locations,
-                orderStatus = null
+                orderStatus = OrderStatus.Completed
             )
         }
     }

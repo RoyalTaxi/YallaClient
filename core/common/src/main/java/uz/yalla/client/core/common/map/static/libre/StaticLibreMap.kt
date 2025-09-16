@@ -7,6 +7,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,17 +20,21 @@ import dev.sargunv.maplibrecompose.core.GestureSettings
 import dev.sargunv.maplibrecompose.core.OrnamentSettings
 import io.github.dellisd.spatialk.geojson.Position
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.orbitmvi.orbit.compose.collectSideEffect
 import uz.yalla.client.core.common.map.core.MapConstants
 import uz.yalla.client.core.common.map.extended.libre.LibreMarkers
 import uz.yalla.client.core.common.map.extended.libre.fitBounds
+import uz.yalla.client.core.common.map.extended.libre.moveTo
 import uz.yalla.client.core.common.map.static.StaticMap
 import uz.yalla.client.core.common.map.static.intent.StaticMapEffect
 import uz.yalla.client.core.common.map.static.intent.StaticMapIntent
 import uz.yalla.client.core.common.map.static.model.StaticMapViewModel
 import uz.yalla.client.core.common.map.static.model.onIntent
 import uz.yalla.client.core.domain.local.AppPreferences
+import uz.yalla.client.core.domain.model.MapPoint
+import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.core.domain.model.type.ThemeType
 
 class StaticLibreMap : StaticMap {
@@ -55,6 +60,7 @@ class StaticLibreMap : StaticMap {
                 )
             )
         )
+        val scope = rememberCoroutineScope()
         var mapReadyEmitted by remember { mutableStateOf(false) }
 
         LaunchedEffect(camera) {
@@ -78,6 +84,21 @@ class StaticLibreMap : StaticMap {
                         padding = PaddingValues(state.mapPadding.dp)
                     )
                 }
+
+                StaticMapEffect.MoveToFirstLocation -> {
+                    state.locations.firstOrNull()?.let { location ->
+                        scope.launch {
+                            camera.moveTo(
+                                point = MapPoint(
+                                    lat = location.lat,
+                                    lng = location.lng
+                                ),
+                                padding = PaddingValues(state.mapPadding.dp),
+                                zoom = MapConstants.DEFAULT_ZOOM.toDouble()
+                            )
+                        }
+                    }
+                }
             }
         }
 
@@ -99,7 +120,7 @@ class StaticLibreMap : StaticMap {
             ),
             gestureSettings = GestureSettings(
                 isScrollGesturesEnabled = false,
-                isZoomGesturesEnabled = false,
+                isZoomGesturesEnabled = true,
                 isRotateGesturesEnabled = false,
                 isTiltGesturesEnabled = false,
                 isKeyboardGesturesEnabled = false
@@ -109,7 +130,7 @@ class StaticLibreMap : StaticMap {
                 isSystemInDark = effectiveTheme == ThemeType.DARK,
                 route = state.route,
                 locations = state.locations,
-                orderStatus = null
+                orderStatus = OrderStatus.Completed
             )
         }
     }

@@ -72,13 +72,9 @@ fun HistoryDetailsViewModel.getRouting() = intent {
             )
         }
 
+        reduce { state.copy(locations = locations) }
         getRoutingUseCase(getRoutingPoints).onSuccess { data ->
-            reduce {
-                state.copy(
-                    locations = locations,
-                    route = data.routing.map { MapPoint(it.lat, it.lng) }
-                )
-            }
+            reduce { state.copy(route = data.routing.map { MapPoint(it.lat, it.lng) }) }
         }
     }
 }
