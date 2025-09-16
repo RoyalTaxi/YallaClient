@@ -8,7 +8,7 @@ import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
-import uz.yalla.client.core.common.map.extended.intent.MarkerState
+import uz.yalla.client.core.common.map.core.MarkerState
 import uz.yalla.client.core.common.map.lite.intent.LiteMapEffect
 import uz.yalla.client.core.common.map.lite.intent.LiteMapIntent
 import uz.yalla.client.core.common.map.lite.intent.LiteMapState
@@ -18,7 +18,7 @@ import uz.yalla.client.core.domain.model.MapPoint
 
 class LiteMapViewModel(
     private val appContext: Context,
-    private val initialLocation: MapPoint
+    private val initialLocation: MapPoint?
 ) : BaseViewModel(), ContainerHost<LiteMapState, LiteMapEffect> {
     override val container: Container<LiteMapState, LiteMapEffect> = container(LiteMapState.INITIAL)
 
@@ -35,7 +35,7 @@ class LiteMapViewModel(
     fun onIntent(intent: LiteMapIntent) = intent {
         when (intent) {
             LiteMapIntent.MapReady -> {
-                postSideEffect(LiteMapEffect.MoveTo(initialLocation))
+                initialLocation?.let { location -> postSideEffect(LiteMapEffect.MoveTo(location)) }
                 reduce { state.copy(isMapReady = true) }
             }
 

@@ -2,17 +2,17 @@ package uz.yalla.client.core.common.map.extended.google
 
 import android.Manifest
 import android.content.pm.PackageManager
-import androidx.compose.runtime.*
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.*
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
@@ -21,11 +21,11 @@ import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.orbitmvi.orbit.compose.collectSideEffect
 import uz.yalla.client.core.common.R
-import uz.yalla.client.core.common.map.extended.Map
 import uz.yalla.client.core.common.map.core.MapConstants
+import uz.yalla.client.core.common.map.core.MarkerState
+import uz.yalla.client.core.common.map.extended.Map
 import uz.yalla.client.core.common.map.extended.intent.MapEffect
 import uz.yalla.client.core.common.map.extended.intent.MapIntent
-import uz.yalla.client.core.common.map.extended.intent.MarkerState
 import uz.yalla.client.core.common.map.extended.model.MapViewModel
 import uz.yalla.client.core.common.utils.dpToPx
 import uz.yalla.client.core.domain.local.AppPreferences

@@ -3,14 +3,7 @@ package uz.yalla.client.core.common.map.lite.google
 import android.Manifest
 import android.content.pm.PackageManager
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
@@ -20,24 +13,18 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MapStyleOptions
-import com.google.maps.android.compose.CameraMoveStartedReason
-import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.MapProperties
-import com.google.maps.android.compose.MapType
-import com.google.maps.android.compose.MapUiSettings
-import com.google.maps.android.compose.rememberCameraPositionState
+import com.google.maps.android.compose.*
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
-import org.koin.core.parameter.parametersOf
 import org.orbitmvi.orbit.compose.collectSideEffect
 import uz.yalla.client.core.common.R
 import uz.yalla.client.core.common.map.core.MapConstants
+import uz.yalla.client.core.common.map.core.MarkerState
 import uz.yalla.client.core.common.map.extended.google.animateTo
 import uz.yalla.client.core.common.map.extended.google.moveTo
-import uz.yalla.client.core.common.map.extended.intent.MarkerState
 import uz.yalla.client.core.common.map.lite.LiteMap
 import uz.yalla.client.core.common.map.lite.intent.LiteMapEffect
 import uz.yalla.client.core.common.map.lite.intent.LiteMapIntent
@@ -49,9 +36,8 @@ import uz.yalla.client.core.domain.model.type.ThemeType
 class LiteGoogleMap : LiteMap {
     @OptIn(FlowPreview::class)
     @Composable
-    override fun View(initialLocation: MapPoint) {
+    override fun View(viewModel: LiteMapViewModel) {
         val context = LocalContext.current
-        val viewModel = koinInject<LiteMapViewModel> { parametersOf(initialLocation) }
         val appPreferences = koinInject<AppPreferences>()
         val camera = rememberCameraPositionState()
         val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()

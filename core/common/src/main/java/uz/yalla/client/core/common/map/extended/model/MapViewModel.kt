@@ -9,11 +9,11 @@ import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 import uz.yalla.client.core.common.map.core.MapConstants
+import uz.yalla.client.core.common.map.core.MarkerState
 import uz.yalla.client.core.common.map.extended.intent.MapEffect
 import uz.yalla.client.core.common.map.extended.intent.MapEffect.*
-import uz.yalla.client.core.common.map.extended.intent.MapState
-import uz.yalla.client.core.common.map.extended.intent.MarkerState
 import uz.yalla.client.core.common.map.extended.intent.MapIntent
+import uz.yalla.client.core.common.map.extended.intent.MapState
 import uz.yalla.client.core.common.utils.getCurrentLocation
 import uz.yalla.client.core.common.viewmodel.BaseViewModel
 import uz.yalla.client.core.domain.model.MapPoint

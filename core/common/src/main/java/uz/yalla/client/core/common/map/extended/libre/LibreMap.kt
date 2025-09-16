@@ -2,15 +2,7 @@ package uz.yalla.client.core.common.map.extended.libre
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
@@ -29,13 +21,13 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.orbitmvi.orbit.compose.collectSideEffect
-import uz.yalla.client.core.common.map.extended.Map
 import uz.yalla.client.core.common.map.core.MapConstants
+import uz.yalla.client.core.common.map.core.MarkerState
+import uz.yalla.client.core.common.map.core.plus
+import uz.yalla.client.core.common.map.extended.Map
 import uz.yalla.client.core.common.map.extended.intent.MapEffect
 import uz.yalla.client.core.common.map.extended.intent.MapIntent
-import uz.yalla.client.core.common.map.extended.intent.MarkerState
 import uz.yalla.client.core.common.map.extended.model.MapViewModel
-import uz.yalla.client.core.common.map.core.plus
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.OrderStatus

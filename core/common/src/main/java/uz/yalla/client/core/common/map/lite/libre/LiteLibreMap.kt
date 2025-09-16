@@ -2,14 +2,7 @@ package uz.yalla.client.core.common.map.lite.libre
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
@@ -29,8 +22,8 @@ import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.orbitmvi.orbit.compose.collectSideEffect
 import uz.yalla.client.core.common.map.core.MapConstants
+import uz.yalla.client.core.common.map.core.MarkerState
 import uz.yalla.client.core.common.map.core.plus
-import uz.yalla.client.core.common.map.extended.intent.MarkerState
 import uz.yalla.client.core.common.map.extended.libre.animateTo
 import uz.yalla.client.core.common.map.extended.libre.moveTo
 import uz.yalla.client.core.common.map.lite.LiteMap
@@ -44,8 +37,7 @@ import kotlin.time.Duration.Companion.milliseconds
 
 class LiteLibreMap : LiteMap {
     @Composable
-    override fun View(initialLocation: MapPoint) {
-        val viewModel = koinInject<LiteMapViewModel>()
+    override fun View(viewModel: LiteMapViewModel) {
         val appPreferences = koinInject<AppPreferences>()
         val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
         val initialLocation by appPreferences.entryLocation.collectAsStateWithLifecycle(0.0 to 0.0)

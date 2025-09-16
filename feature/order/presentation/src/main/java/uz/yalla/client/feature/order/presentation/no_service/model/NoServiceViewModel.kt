@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import uz.yalla.client.core.common.sheet.select_from_map.SelectFromMapViewValue
+import uz.yalla.client.core.common.sheet.select_from_map.intent.SelectFromMapViewValue
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.Location
 import uz.yalla.client.core.domain.model.MapPoint

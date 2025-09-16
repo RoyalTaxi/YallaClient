@@ -1,23 +1,10 @@
 package uz.yalla.client.core.common.map.extended.intent
 
 import androidx.compose.foundation.layout.PaddingValues
+import uz.yalla.client.core.common.map.core.MarkerState
 import uz.yalla.client.core.domain.model.Executor
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.OrderStatus
-
-data class MarkerState(
-    val point: MapPoint,
-    val isMoving: Boolean,
-    val isByUser: Boolean,
-) {
-    companion object {
-        val INITIAL = MarkerState(
-            point = MapPoint.Zero,
-            isMoving = false,
-            isByUser = false,
-        )
-    }
-}
 
 data class MapState(
     val markerState: MarkerState,

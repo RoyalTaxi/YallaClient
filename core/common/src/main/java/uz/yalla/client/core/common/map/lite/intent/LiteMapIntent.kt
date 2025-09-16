@@ -1,7 +1,7 @@
 package uz.yalla.client.core.common.map.lite.intent
 
 import androidx.compose.foundation.layout.PaddingValues
-import uz.yalla.client.core.common.map.extended.intent.MarkerState
+import uz.yalla.client.core.common.map.core.MarkerState
 import uz.yalla.client.core.domain.model.Location
 
 sealed interface LiteMapIntent {

@@ -10,7 +10,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.*
-import uz.yalla.client.feature.order.presentation.R
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
@@ -38,15 +37,16 @@ import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.core.common.sheet.AddDestinationBottomSheet
 import uz.yalla.client.core.common.sheet.search_address.SearchByNameBottomSheet
 import uz.yalla.client.core.common.sheet.search_address.SearchByNameSheetValue
-import uz.yalla.client.core.common.sheet.select_from_map.SelectFromMapView
-import uz.yalla.client.core.common.sheet.select_from_map.SelectFromMapViewValue
+import uz.yalla.client.core.common.sheet.select_from_map.intent.SelectFromMapViewValue
+import uz.yalla.client.core.common.sheet.select_from_map.view.SelectFromMapScreen
 import uz.yalla.client.core.common.state.SheetValue
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.model.Destination
+import uz.yalla.client.core.domain.model.Location
 import uz.yalla.client.core.domain.model.MapPoint
 import uz.yalla.client.core.domain.model.PaymentType
-import uz.yalla.client.core.domain.model.Location
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
+import uz.yalla.client.feature.order.presentation.R
 import uz.yalla.client.feature.order.presentation.coordinator.SheetCoordinator
 import uz.yalla.client.feature.order.presentation.main.MAIN_SHEET_ROUTE
 import uz.yalla.client.feature.order.presentation.main.model.MainSheetState
@@ -308,7 +308,7 @@ fun MainSheet(
     }
 
     if (state.selectFromMapViewVisibility != SelectFromMapViewValue.INVISIBLE) {
-        SelectFromMapView(
+        SelectFromMapScreen(
             viewValue = state.selectFromMapViewVisibility,
             startingPoint = when {
                 state.destinations.isEmpty() -> state.location?.point
