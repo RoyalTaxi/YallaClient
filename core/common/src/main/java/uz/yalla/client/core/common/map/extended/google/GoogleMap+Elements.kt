@@ -178,7 +178,7 @@ fun GoogleDriver(
 fun GoogleDriversWithAnimation(
     drivers: List<Executor>
 ) {
-    drivers.take(20).forEach { driver ->
+    drivers.take(10).forEach { driver ->
         key(driver.id) {
             val markerState = rememberMarkerState(key = driver.id.toString())
 
@@ -235,8 +235,7 @@ fun GoogleDriversWithAnimation(
                 }
             }
 
-            markerState.position =
-                LatLng(animatedLat.value.toDouble(), animatedLng.value.toDouble())
+            markerState.position = LatLng(animatedLat.value.toDouble(), animatedLng.value.toDouble())
 
             MarkerComposable(
                 state = markerState,

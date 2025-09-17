@@ -1,9 +1,9 @@
 package uz.yalla.client.core.common.map.extended.libre
 
 import androidx.compose.foundation.layout.PaddingValues
-import dev.sargunv.maplibrecompose.compose.CameraState
-import dev.sargunv.maplibrecompose.core.CameraPosition
 import io.github.dellisd.spatialk.geojson.Position
+import org.maplibre.compose.camera.CameraPosition
+import org.maplibre.compose.camera.CameraState
 import uz.yalla.client.core.common.map.core.MapConstants
 import uz.yalla.client.core.common.map.core.toBoundingBox
 import uz.yalla.client.core.domain.model.MapPoint

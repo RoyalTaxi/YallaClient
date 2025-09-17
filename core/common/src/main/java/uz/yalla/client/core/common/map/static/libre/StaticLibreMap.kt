@@ -2,26 +2,22 @@ package uz.yalla.client.core.common.map.static.libre
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import dev.sargunv.maplibrecompose.compose.MaplibreMap
-import dev.sargunv.maplibrecompose.compose.rememberCameraState
-import dev.sargunv.maplibrecompose.core.CameraPosition
-import dev.sargunv.maplibrecompose.core.GestureSettings
-import dev.sargunv.maplibrecompose.core.OrnamentSettings
 import io.github.dellisd.spatialk.geojson.Position
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
+import org.maplibre.compose.camera.CameraPosition
+import org.maplibre.compose.camera.rememberCameraState
+import org.maplibre.compose.map.GestureOptions
+import org.maplibre.compose.map.MapOptions
+import org.maplibre.compose.map.MaplibreMap
+import org.maplibre.compose.map.OrnamentOptions
+import org.maplibre.compose.style.BaseStyle
 import org.orbitmvi.orbit.compose.collectSideEffect
 import uz.yalla.client.core.common.map.core.MapConstants
 import uz.yalla.client.core.common.map.extended.libre.LibreMarkers
@@ -64,7 +60,7 @@ class StaticLibreMap : StaticMap {
         var mapReadyEmitted by remember { mutableStateOf(false) }
 
         LaunchedEffect(camera) {
-            camera.awaitInitialized()
+            camera.awaitProjection()
             delay(100)
             if (!mapReadyEmitted) {
                 mapReadyEmitted = true
@@ -106,24 +102,28 @@ class StaticLibreMap : StaticMap {
             modifier = modifier,
             cameraState = camera,
             zoomRange = MapConstants.ZOOM_MIN_ZOOM..MapConstants.ZOOM_MAX_ZOOM,
-            styleUri = if (effectiveTheme == ThemeType.DARK) {
-                "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
-            } else {
-                "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
-            },
-            ornamentSettings = OrnamentSettings(
-                isLogoEnabled = true,
-                logoAlignment = Alignment.BottomStart,
-                isAttributionEnabled = false,
-                isCompassEnabled = false,
-                isScaleBarEnabled = false
+            baseStyle = BaseStyle.Uri(
+                if (effectiveTheme == ThemeType.DARK) {
+                    "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
+                } else {
+                    "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
+                }
             ),
-            gestureSettings = GestureSettings(
-                isScrollGesturesEnabled = false,
-                isZoomGesturesEnabled = true,
-                isRotateGesturesEnabled = false,
-                isTiltGesturesEnabled = false,
-                isKeyboardGesturesEnabled = false
+            options = MapOptions(
+                ornamentOptions = OrnamentOptions(
+                    isLogoEnabled = true,
+                    logoAlignment = Alignment.BottomStart,
+                    isAttributionEnabled = false,
+                    isCompassEnabled = false,
+                    isScaleBarEnabled = false
+                ),
+                gestureOptions = GestureOptions(
+                    isScrollEnabled = false,
+                    isZoomEnabled = true,
+                    isQuickZoomEnabled = true,
+                    isRotateEnabled = false,
+                    isTiltEnabled = false
+                )
             )
         ) {
             LibreMarkers(
