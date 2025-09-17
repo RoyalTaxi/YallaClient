@@ -3,31 +3,26 @@ package uz.yalla.client.core.common.map.extended.libre
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import dev.sargunv.maplibrecompose.compose.layer.LineLayer
-import dev.sargunv.maplibrecompose.compose.layer.SymbolLayer
-import dev.sargunv.maplibrecompose.compose.source.rememberGeoJsonSource
-import dev.sargunv.maplibrecompose.expressions.dsl.const
-import dev.sargunv.maplibrecompose.expressions.dsl.image
-import dev.sargunv.maplibrecompose.expressions.value.LineCap
-import dev.sargunv.maplibrecompose.expressions.value.LineJoin
-import dev.sargunv.maplibrecompose.expressions.value.SymbolAnchor
-import io.github.dellisd.spatialk.geojson.Feature
-import io.github.dellisd.spatialk.geojson.FeatureCollection
-import io.github.dellisd.spatialk.geojson.LineString
-import io.github.dellisd.spatialk.geojson.Point
-import io.github.dellisd.spatialk.geojson.Position
+import io.github.dellisd.spatialk.geojson.dsl.featureCollection
+import io.github.dellisd.spatialk.geojson.dsl.lineString
+import io.github.dellisd.spatialk.geojson.dsl.point
 import kotlinx.coroutines.launch
+import org.maplibre.compose.expressions.dsl.const
+import org.maplibre.compose.expressions.dsl.image
+import org.maplibre.compose.expressions.value.LineCap
+import org.maplibre.compose.expressions.value.LineJoin
+import org.maplibre.compose.expressions.value.SymbolAnchor
+import org.maplibre.compose.layers.LineLayer
+import org.maplibre.compose.layers.SymbolLayer
+import org.maplibre.compose.sources.GeoJsonData
+import org.maplibre.compose.sources.rememberGeoJsonSource
 import uz.yalla.client.core.common.R
 import uz.yalla.client.core.common.map.core.haversine
 import uz.yalla.client.core.common.map.core.normalizeHeading
@@ -46,9 +41,13 @@ fun LibreMarkerLayer(
     anchor: SymbolAnchor = SymbolAnchor.Center
 ) {
     val src = rememberGeoJsonSource(
-        id = "$id-src",
-        data = Feature(Point(Position(longitude = point.lng, latitude = point.lat)))
+        data = GeoJsonData.Features(
+            featureCollection {
+                feature(geometry = point(longitude = point.lng, latitude = point.lat))
+            }
+        )
     )
+
     SymbolLayer(
         id = id,
         source = src,
@@ -67,12 +66,20 @@ fun LibrePolylineLayer(
     widthDp: Float,
     pattern: List<Float>? = null
 ) {
-    val geo = FeatureCollection(
-        Feature(LineString(coordinates.map {
-            Position(longitude = it.lng, latitude = it.lat)
-        }))
+    val src = rememberGeoJsonSource(
+        data = GeoJsonData.Features(
+            featureCollection {
+                feature(
+                    geometry = lineString {
+                        coordinates.forEach { mp ->
+                            point(longitude = mp.lng, latitude = mp.lat)
+                        }
+                    }
+                )
+            }
+        )
     )
-    val src = rememberGeoJsonSource(id = "$id-src", data = geo)
+
     if (pattern == null) {
         LineLayer(
             id = id,
@@ -214,8 +221,11 @@ fun DriverLibre(driver: Executor?) {
     val painter = painterResource(R.drawable.img_car_marker)
 
     val src = rememberGeoJsonSource(
-        id = "driver-src",
-        data = Feature(Point(Position(longitude = driver.lng, latitude = driver.lat)))
+        data = GeoJsonData.Features(
+            featureCollection {
+                feature(geometry = point(longitude = driver.lng, latitude = driver.lat))
+            }
+        )
     )
 
     SymbolLayer(
@@ -231,66 +241,66 @@ fun DriverLibre(driver: Executor?) {
 
 @Composable
 fun DriversWithAnimationLibre(drivers: List<Executor>) {
-    drivers.take(20).forEach { drv ->
-        key(drv.id) {
-            val lat = remember { Animatable(drv.lat.toFloat()) }
-            val lng = remember { Animatable(drv.lng.toFloat()) }
-            val heading = remember { Animatable(drv.heading.toFloat()) }
-            val busy = remember { mutableStateOf(false) }
+    val visibleDrivers = drivers.distinctBy { it.id }.take(10)
+    val carPainter = painterResource(R.drawable.img_car_marker)
 
-            LaunchedEffect(drv.lat, drv.lng, drv.heading) {
-                if (!busy.value) {
-                    busy.value = true
-                    val d = haversine(lat.value.toDouble(), lng.value.toDouble(), drv.lat, drv.lng)
-                    val duration = when {
-                        d < 0.0005 -> 300
-                        d < 0.002 -> 800
-                        d < 0.01 -> 1200
-                        else -> 1800
-                    }
-                    launch {
-                        lat.animateTo(
-                            drv.lat.toFloat(),
-                            tween(duration, easing = FastOutSlowInEasing)
-                        )
-                    }
-                    launch {
-                        lng.animateTo(
-                            drv.lng.toFloat(),
-                            tween(duration, easing = FastOutSlowInEasing)
-                        )
-                    }
-                    launch {
-                        val target = normalizeHeading(drv.heading.toFloat())
-                        heading.animateTo(
-                            target,
-                            tween((duration * 1.1).toInt(), easing = FastOutSlowInEasing)
-                        )
-                    }
-                    busy.value = false
-                }
+    visibleDrivers.forEach { drv ->
+        val animatedLat = remember(drv.id) { Animatable(drv.lat.toFloat()) }
+        val animatedLng = remember(drv.id) { Animatable(drv.lng.toFloat()) }
+        val animatedHeading = remember(drv.id) { Animatable(drv.heading.toFloat()) }
+
+        LaunchedEffect(drv.lat, drv.lng, drv.heading) {
+            val distance = haversine(
+                animatedLat.value.toDouble(),
+                animatedLng.value.toDouble(),
+                drv.lat,
+                drv.lng
+            )
+
+            val duration = when {
+                distance < 0.0005 -> 300
+                distance < 0.002 -> 800
+                distance < 0.01 -> 1200
+                else -> 1800
             }
 
-            val src = rememberGeoJsonSource(
-                id = "drv-${drv.id}-src",
-                data = Feature(
-                    Point(
-                        Position(
-                            longitude = lng.value.toDouble(),
-                            latitude = lat.value.toDouble()
-                        )
-                    )
+            launch {
+                animatedLat.animateTo(
+                    targetValue = drv.lat.toFloat(),
+                    animationSpec = tween(duration, easing = FastOutSlowInEasing)
                 )
-            )
-            SymbolLayer(
-                id = "drv-${drv.id}-lyr",
-                source = src,
-                iconImage = image(painterResource(R.drawable.img_car_marker)),
-                iconAllowOverlap = const(true),
-                iconIgnorePlacement = const(true),
-                iconRotate = const(heading.value),
-                iconSize = const(.5f)
-            )
+            }
+            launch {
+                animatedLng.animateTo(
+                    targetValue = drv.lng.toFloat(),
+                    animationSpec = tween(duration, easing = FastOutSlowInEasing)
+                )
+            }
+            launch {
+                val targetHeading = normalizeHeading(drv.heading.toFloat())
+                animatedHeading.animateTo(
+                    targetValue = targetHeading,
+                    animationSpec = tween((duration * 1.1).toInt(), easing = FastOutSlowInEasing)
+                )
+            }
         }
+
+        val src = rememberGeoJsonSource(
+            data = GeoJsonData.Features(
+                featureCollection {
+                    feature(geometry = point(longitude = animatedLng.value.toDouble(), latitude = animatedLat.value.toDouble()))
+                }
+            )
+        )
+
+        SymbolLayer(
+            id = "drv-${drv.id}-lyr",
+            source = src,
+            iconImage = image(carPainter),
+            iconAllowOverlap = const(true),
+            iconIgnorePlacement = const(true),
+            iconRotate = const(animatedHeading.value),
+            iconSize = const(.5f)
+        )
     }
 }

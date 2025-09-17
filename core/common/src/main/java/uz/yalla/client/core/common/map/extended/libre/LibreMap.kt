@@ -8,18 +8,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import dev.sargunv.maplibrecompose.compose.MaplibreMap
-import dev.sargunv.maplibrecompose.compose.rememberCameraState
-import dev.sargunv.maplibrecompose.core.CameraMoveReason
-import dev.sargunv.maplibrecompose.core.CameraPosition
-import dev.sargunv.maplibrecompose.core.GestureSettings
-import dev.sargunv.maplibrecompose.core.OrnamentSettings
 import io.github.dellisd.spatialk.geojson.Position
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
+import org.maplibre.compose.camera.CameraMoveReason
+import org.maplibre.compose.camera.CameraPosition
+import org.maplibre.compose.camera.rememberCameraState
+import org.maplibre.compose.map.GestureOptions
+import org.maplibre.compose.map.MapOptions
+import org.maplibre.compose.map.MaplibreMap
+import org.maplibre.compose.map.OrnamentOptions
+import org.maplibre.compose.style.BaseStyle
 import org.orbitmvi.orbit.compose.collectSideEffect
 import uz.yalla.client.core.common.map.core.MapConstants
 import uz.yalla.client.core.common.map.core.MarkerState
@@ -85,7 +87,7 @@ class LibreMap : Map {
         }
 
         LaunchedEffect(camera) {
-            camera.awaitInitialized()
+            camera.awaitProjection()
             delay(100)
             if (!mapReadyEmitted) {
                 mapReadyEmitted = true
@@ -211,25 +213,29 @@ class LibreMap : Map {
         MaplibreMap(
             cameraState = camera,
             zoomRange = MapConstants.ZOOM_MIN_ZOOM..MapConstants.ZOOM_MAX_ZOOM,
-            styleUri = if (effectiveTheme == ThemeType.DARK) {
-                "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
-            } else {
-                "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
-            },
-            ornamentSettings = OrnamentSettings(
-                padding = state.viewPadding,
-                isLogoEnabled = true,
-                logoAlignment = Alignment.BottomStart,
-                isAttributionEnabled = false,
-                isCompassEnabled = false,
-                isScaleBarEnabled = false
+            baseStyle = BaseStyle.Uri(
+                if (effectiveTheme == ThemeType.DARK) {
+                    "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
+                } else {
+                    "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
+                }
             ),
-            gestureSettings = GestureSettings(
-                isScrollGesturesEnabled = state.orderStatus !in OrderStatus.nonInteractive,
-                isZoomGesturesEnabled = state.orderStatus !in OrderStatus.nonInteractive,
-                isRotateGesturesEnabled = false,
-                isTiltGesturesEnabled = false,
-                isKeyboardGesturesEnabled = false
+            options = MapOptions(
+                gestureOptions = GestureOptions(
+                    isRotateEnabled = false,
+                    isScrollEnabled = state.orderStatus !in OrderStatus.nonInteractive,
+                    isZoomEnabled = state.orderStatus !in OrderStatus.nonInteractive,
+                    isQuickZoomEnabled = state.orderStatus !in OrderStatus.nonInteractive,
+                    isTiltEnabled = false
+                ),
+                ornamentOptions = OrnamentOptions(
+                    padding = state.viewPadding,
+                    isLogoEnabled = true,
+                    logoAlignment = Alignment.BottomStart,
+                    isAttributionEnabled = false,
+                    isCompassEnabled = false,
+                    isScaleBarEnabled = false
+                )
             ),
             modifier = Modifier.onSizeChanged {
                 animationScope.launch {
