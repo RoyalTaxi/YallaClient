@@ -14,7 +14,6 @@ object OrdersHistoryMapper {
             service = remote?.service.orEmpty(),
             status = OrderStatus.from(remote?.status),
             taxi = remote?.taxi.let(taxiMapper),
-
         )
     }
 
