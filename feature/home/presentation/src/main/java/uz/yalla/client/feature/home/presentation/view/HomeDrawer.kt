@@ -322,8 +322,8 @@ private fun DrawerContent(
                 painter = painterResource(R.drawable.ic_info),
                 onClick = { onIntent(HomeDrawerIntent.AboutTheApp) }
             )
-        }
 
-        Spacer(modifier = Modifier.navigationBarsPadding())
+            Spacer(modifier = Modifier.navigationBarsPadding())
+        }
     }
 }
