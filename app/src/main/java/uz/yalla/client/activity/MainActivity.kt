@@ -12,10 +12,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.firstOrNull
@@ -53,45 +51,42 @@ class MainActivity : ScopeActivity() {
         splashScreen.setKeepOnScreenCondition { keepSplashScreen || !isAppReady.value }
 
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                appPreferences.themeType.collectLatest { prefTheme ->
-                    val effectiveTheme = when (prefTheme) {
-                        ThemeType.SYSTEM -> if (isSystemDark()) ThemeType.DARK else ThemeType.LIGHT
-                        else -> prefTheme
+            setContent {
+                val isConnected by viewModel.isConnected.collectAsStateWithLifecycle()
+                val mapType by appPreferences.mapType.collectAsStateWithLifecycle(null)
+
+                YallaTheme {
+                    val map = mapType?.let { type ->
+                        when (type) {
+                            MapType.Google -> GoogleMap()
+                            MapType.Libre -> LibreMap()
+                        }
                     }
 
-                    val systemBarStyle = if (effectiveTheme == ThemeType.DARK) {
-                        SystemBarStyle.dark(Color.Black.toArgb())
-                    } else {
-                        SystemBarStyle.light(Color.White.toArgb(), Color.Black.toArgb())
-                    }
+                    map?.View()
 
-                    enableEdgeToEdge(
-                        statusBarStyle = systemBarStyle,
-                        navigationBarStyle = systemBarStyle
+                    Navigation(
+                        isConnected = isConnected,
+                        navigateToLogin = ::navigateToLoginActivity
                     )
                 }
             }
-        }
 
-
-        setContent {
-            val isConnected by viewModel.isConnected.collectAsStateWithLifecycle()
-            val mapType by appPreferences.mapType.collectAsStateWithLifecycle(null)
-
-            YallaTheme {
-                val map = mapType?.let { type ->
-                    when (type) {
-                        MapType.Google -> GoogleMap()
-                        MapType.Libre -> LibreMap()
-                    }
+            appPreferences.themeType.collectLatest { prefTheme ->
+                val effectiveTheme = when (prefTheme) {
+                    ThemeType.SYSTEM -> if (isSystemDark()) ThemeType.DARK else ThemeType.LIGHT
+                    else -> prefTheme
                 }
 
-                map?.View()
+                val systemBarStyle = if (effectiveTheme == ThemeType.DARK) {
+                    SystemBarStyle.dark(Color.Black.toArgb())
+                } else {
+                    SystemBarStyle.light(Color.Transparent.toArgb(), Color.Black.toArgb())
+                }
 
-                Navigation(
-                    isConnected = isConnected,
-                    navigateToLogin = ::navigateToLoginActivity
+                enableEdgeToEdge(
+                    statusBarStyle = systemBarStyle,
+                    navigationBarStyle = systemBarStyle
                 )
             }
         }
