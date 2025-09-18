@@ -12,8 +12,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.firstOrNull
@@ -27,6 +29,7 @@ import uz.yalla.client.core.common.map.extended.libre.LibreMap
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.local.StaticPreferences
 import uz.yalla.client.core.domain.model.MapType
+import uz.yalla.client.core.domain.model.type.ThemeType
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.navigation.Navigation
 import uz.yalla.client.update.AppUpdateHandler
@@ -49,16 +52,28 @@ class MainActivity : ScopeActivity() {
         val splashScreen = installSplashScreen()
         splashScreen.setKeepOnScreenCondition { keepSplashScreen || !isAppReady.value }
 
-        enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.light(
-                Color.Transparent.toArgb(),
-                Color.Black.toArgb()
-            ),
-            navigationBarStyle = SystemBarStyle.light(
-                Color.Transparent.toArgb(),
-                Color.Black.toArgb()
-            )
-        )
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                appPreferences.themeType.collectLatest { prefTheme ->
+                    val effectiveTheme = when (prefTheme) {
+                        ThemeType.SYSTEM -> if (isSystemDark()) ThemeType.DARK else ThemeType.LIGHT
+                        else -> prefTheme
+                    }
+
+                    val systemBarStyle = if (effectiveTheme == ThemeType.DARK) {
+                        SystemBarStyle.dark(Color.Black.toArgb())
+                    } else {
+                        SystemBarStyle.light(Color.White.toArgb(), Color.Black.toArgb())
+                    }
+
+                    enableEdgeToEdge(
+                        statusBarStyle = systemBarStyle,
+                        navigationBarStyle = systemBarStyle
+                    )
+                }
+            }
+        }
+
 
         setContent {
             val isConnected by viewModel.isConnected.collectAsStateWithLifecycle()
@@ -133,5 +148,11 @@ class MainActivity : ScopeActivity() {
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
         finish()
+    }
+
+    private fun isSystemDark(): Boolean {
+        val uiMode =
+            resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK
+        return uiMode == android.content.res.Configuration.UI_MODE_NIGHT_YES
     }
 }
