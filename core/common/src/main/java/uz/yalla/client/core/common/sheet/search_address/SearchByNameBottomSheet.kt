@@ -188,7 +188,7 @@ fun SearchByNameBottomSheet(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(.8f)
-                .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
+                .clip(RoundedCornerShape(30.dp))
                 .background(YallaTheme.color.background)
         ) {
             when {
