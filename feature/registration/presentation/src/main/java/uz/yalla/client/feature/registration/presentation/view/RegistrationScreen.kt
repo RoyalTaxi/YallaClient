@@ -23,6 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.threeten.bp.LocalDate
+import org.threeten.bp.Month
 import uz.yalla.client.core.common.button.GenderButton
 import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.common.field.PrimaryTextField
@@ -87,7 +88,7 @@ private fun RegistrationContent(
         if (uiState.isDatePickerVisible) {
             DatePickerModalBottomSheet(
                 sheetState = sheetState,
-                startDate = uiState.dateOfBirth ?: LocalDate.now(),
+                startDate = uiState.dateOfBirth ?: LocalDate.of(2000, Month.JANUARY, 1),
                 onSelectDate = { onIntent(RegistrationIntent.SetDateOfBirth(it)) },
                 onDismissRequest = { onIntent(RegistrationIntent.CloseDateBottomSheet) }
             )

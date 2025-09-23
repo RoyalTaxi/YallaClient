@@ -80,7 +80,7 @@ suspend fun HomeViewModel.observeMarkerState() {
             if (state.order == null && state.destinations.isEmpty()) {
                 if (markerState.isMoving) {
                     reduce { state.copy(markerState = YallaMarkerState.LOADING) }
-                } else {
+                } else if (markerState.point.lat != 0.0 && markerState.point.lng != 0.0) {
                     getAddress(markerState.point)
                 }
             }

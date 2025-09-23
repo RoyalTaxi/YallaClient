@@ -11,7 +11,7 @@
     <string name="cash">Naqd</string>
     <string name="card">Bank kartasi orqali</string>
     <string name="fixed_cost">%s so\'m</string>
-    <string name="tariff">Tariff</string>
+    <string name="tariff">Tarif</string>
     <string name="cashback">Keshbak</string>
     <string name="with_bonus">Bonusdan ishlatildi</string>
     <string name="to_bonus_balance">Bonus balansiga</string>
