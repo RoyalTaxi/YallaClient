@@ -59,6 +59,7 @@ import coil3.request.ImageRequest
 import coil3.request.allowHardware
 import coil3.request.crossfade
 import org.threeten.bp.LocalDate
+import org.threeten.bp.Month
 import uz.yalla.client.core.common.button.GenderButton
 import uz.yalla.client.core.common.button.PrimaryButton
 import uz.yalla.client.core.common.field.PrimaryTextField
@@ -123,7 +124,7 @@ internal fun EditProfileScreen(
         if (uiState.isDatePickerVisible) {
             DatePickerModalBottomSheet(
                 sheetState = datePickerSheetState,
-                startDate = uiState.birthday ?: LocalDate.now(),
+                startDate = uiState.birthday ?: LocalDate.of(2000, Month.JANUARY, 1),
                 onSelectDate = { onIntent(EditProfileIntent.ChangeBirthday(it)) },
                 onDismissRequest = { onIntent(EditProfileIntent.CloseDateBottomSheet) }
             )
