@@ -21,6 +21,7 @@ import uz.yalla.client.core.data.BuildConfig
 import uz.yalla.client.core.domain.local.AppPreferences
 import io.ktor.http.HttpStatusCode
 import io.ktor.client.plugins.ClientRequestException
+import uz.yalla.client.core.domain.local.StaticPreferences
 
 private val localeCache = MutableStateFlow("")
 private val accessTokenCache = MutableStateFlow("")
@@ -29,18 +30,19 @@ private val cacheScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
 fun provideNetworkClient(
     baseUrl: String,
-    preferences: AppPreferences
+    appPrefs: AppPreferences,
+    staticPrefs: StaticPreferences
 ): HttpClient {
     cacheScope.launch {
-        localeCache.value = preferences.locale.last()
-        accessTokenCache.value = preferences.accessToken.last()
+        localeCache.value = appPrefs.locale.last()
+        accessTokenCache.value = appPrefs.accessToken.last()
     }
 
     cacheScope.launch {
-        preferences.locale.collectLatest { localeCache.value = it }
+        appPrefs.locale.collectLatest { localeCache.value = it }
     }
     cacheScope.launch {
-        preferences.accessToken.collectLatest { accessTokenCache.value = it }
+        appPrefs.accessToken.collectLatest { accessTokenCache.value = it }
     }
 
     return HttpClient(Android) {
@@ -53,13 +55,13 @@ fun provideNetworkClient(
         install(HttpCallValidator) {
             validateResponse { response ->
                 if (response.status == HttpStatusCode.Unauthorized) {
-                    UnauthorizedEventBus.emit()
-                }
+                    appPrefs.performLogout()
+                    staticPrefs.performLogout()                }
             }
             handleResponseExceptionWithRequest { cause, _ ->
                 if (cause is ClientRequestException && cause.response.status == HttpStatusCode.Unauthorized) {
-                    UnauthorizedEventBus.emit()
-                }
+                    appPrefs.performLogout()
+                    staticPrefs.performLogout()                }
             }
         }
 

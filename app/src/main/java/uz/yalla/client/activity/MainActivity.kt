@@ -106,12 +106,6 @@ class MainActivity : ScopeActivity() {
             }
         }
 
-        lifecycleScope.launch {
-            viewModel.logoutEvent.collectLatest {
-                navigateToLoginActivity()
-            }
-        }
-
         registerUpdateFlowLauncher()
     }
 
