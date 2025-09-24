@@ -10,8 +10,8 @@ object Home {
         viewModel {
             HomeViewModel(
                 mapViewModel = get(),
-                prefs = get(),
-                staticPreferences = get(),
+                appPrefs = get(),
+                staticPrefs = get(),
                 getMeUseCase = get(),
                 getAddressNameUseCase = get(),
                 getShowOrderUseCase = get(),

@@ -2,11 +2,8 @@ package uz.yalla.client.activity
 
 import android.content.Context
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -38,7 +35,8 @@ class MainViewModel(
         private val DEFAULT_LOCATION_TIMEOUT = 2.seconds
     }
 
-    val isConnected = connectivityObserver.isConnected
+    val isConnected = connectivityObserver
+        .isConnected
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
@@ -47,9 +45,6 @@ class MainViewModel(
 
     private val _isReady = MutableStateFlow<ReadyState>(ReadyState.Loading)
     val isReady = _isReady.asStateFlow()
-
-    private val _logoutEvent = MutableSharedFlow<Unit>()
-    val logoutEvent: SharedFlow<Unit> = _logoutEvent.asSharedFlow()
 
     init {
         viewModelScope.launch {
@@ -109,9 +104,4 @@ class MainViewModel(
                 }
             )
         }
-
-    fun logout() = viewModelScope.launch {
-        appPreferences.performLogout()
-        _logoutEvent.emit(Unit)
-    }
 }

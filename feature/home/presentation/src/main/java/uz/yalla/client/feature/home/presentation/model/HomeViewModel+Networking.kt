@@ -15,7 +15,7 @@ import kotlin.math.ceil
 fun HomeViewModel.getMe() = viewModelScope.launch {
     getMeUseCase().onSuccess { user ->
         intent { reduce { state.copy(client = user.client, balance = user.client.balance) } }
-        prefs.setBalance(user.client.balance)
+        appPrefs.setBalance(user.client.balance)
     }.onFailure(::handleException)
 }
 
@@ -50,16 +50,16 @@ fun HomeViewModel.getAddress(point: MapPoint) = viewModelScope.launch {
 
 fun HomeViewModel.getActiveOrders() = viewModelScope.launch {
     getActiveOrdersUseCase().onSuccess { activeOrders ->
-        val shouldInject = activeOrders.list.size == 1 && !staticPreferences.hasInjectedOrderOnEntry
+        val shouldInject = activeOrders.list.size == 1 && !staticPrefs.hasInjectedOrderOnEntry
 
         if (shouldInject) intent {
             val order = activeOrders.list.first()
             reduce { state.copy(order = order, orderId = order.id) }
-            staticPreferences.hasInjectedOrderOnEntry = true
-        } else if (activeOrders.list.size > 1 && !staticPreferences.hasInjectedOrderOnEntry) intent {
+            staticPrefs.hasInjectedOrderOnEntry = true
+        } else if (activeOrders.list.size > 1 && !staticPrefs.hasInjectedOrderOnEntry) intent {
             postSideEffect(HomeEffect.ActiveOrderSheetState(visible = true))
             reduce { state.copy(ordersSheetVisible = true) }
-            staticPreferences.hasInjectedOrderOnEntry = true
+            staticPrefs.hasInjectedOrderOnEntry = true
         }
 
         intent { reduce { state.copy(orders = activeOrders.list) } }
@@ -68,9 +68,9 @@ fun HomeViewModel.getActiveOrders() = viewModelScope.launch {
 
 fun HomeViewModel.getSettingConfig() = viewModelScope.launch {
     getSettingUseCase().onSuccess { setting ->
-        prefs.setBonusEnabled(setting.isBonusEnabled)
-        prefs.setMinBonus(setting.minBonus)
-        prefs.setMaxBonus(setting.maxBonus)
+        appPrefs.setBonusEnabled(setting.isBonusEnabled)
+        appPrefs.setMinBonus(setting.minBonus)
+        appPrefs.setMaxBonus(setting.maxBonus)
     }
 }
 

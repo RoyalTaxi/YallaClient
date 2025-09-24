@@ -27,8 +27,8 @@ import uz.yalla.client.feature.profile.domain.usecase.GetMeUseCase
 
 class HomeViewModel(
     internal val mapViewModel: MapViewModel,
-    internal val prefs: AppPreferences,
-    internal val staticPreferences: StaticPreferences,
+    internal val appPrefs: AppPreferences,
+    internal val staticPrefs: StaticPreferences,
     internal val getMeUseCase: GetMeUseCase,
     internal val getAddressNameUseCase: GetAddressNameUseCase,
     internal val getShowOrderUseCase: GetShowOrderUseCase,
