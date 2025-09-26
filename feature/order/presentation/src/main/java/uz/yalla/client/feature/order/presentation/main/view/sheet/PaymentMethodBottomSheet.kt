@@ -143,7 +143,7 @@ private fun PaymentMethodContent(
                             PaymentType.CASH
                         )
                     )
-                },
+                }
             )
         }
 

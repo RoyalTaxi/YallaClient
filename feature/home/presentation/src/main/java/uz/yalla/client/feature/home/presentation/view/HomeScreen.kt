@@ -11,16 +11,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.onPlaced
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalContext
+import uz.yalla.client.feature.home.presentation.intent.HomeIntent.HomeOverlayIntent.*
 import androidx.compose.ui.unit.dp
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.home.presentation.components.card.NoInternetCard
 import uz.yalla.client.feature.home.presentation.intent.HomeDrawerIntent
 import uz.yalla.client.feature.home.presentation.intent.HomeIntent
-import uz.yalla.client.feature.home.presentation.intent.HomeIntent.HomeOverlayIntent.OpenDrawer
 import uz.yalla.client.feature.home.presentation.intent.HomeState
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -28,27 +24,27 @@ import uz.yalla.client.feature.home.presentation.intent.HomeState
 fun HomeScreen(
     state: HomeState,
     networkState: Boolean,
+    isDrawerOpen: Boolean,
     isOrderCanceledVisible: Boolean,
     onIntent: (HomeIntent) -> Unit,
     onDrawerIntent: (HomeDrawerIntent) -> Unit = {}
 ) {
     val snackBarHostState = remember { SnackbarHostState() }
-    var isDrawerOpen by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         if (networkState) snackBarHostState.currentSnackbarData?.dismiss()
         else snackBarHostState.showSnackbar(message = "")
     }
 
-    BackHandler(isDrawerOpen) { isDrawerOpen = false }
+    BackHandler(isDrawerOpen) { onIntent(CloseDrawer) }
 
     NavigationDrawer(
         isOpen = isDrawerOpen,
-        onDismiss = { isDrawerOpen = false },
+        onDismiss = { onIntent(CloseDrawer) },
         client = state.client,
         notificationsCount = state.notificationCount ?: 0,
         onIntent = { drawerIntent ->
-            isDrawerOpen = false
+            onIntent(CloseDrawer)
             onDrawerIntent(drawerIntent)
         }
     )
@@ -57,10 +53,7 @@ fun HomeScreen(
         if (!isOrderCanceledVisible) {
             HomeOverlay(
                 state = state,
-                onIntent = { mapIntent ->
-                    if (mapIntent is OpenDrawer) isDrawerOpen = true
-                    else onIntent(mapIntent)
-                },
+                onIntent = onIntent,
                 modifier = Modifier.padding(bottom = state.overlayPadding)
             )
         }

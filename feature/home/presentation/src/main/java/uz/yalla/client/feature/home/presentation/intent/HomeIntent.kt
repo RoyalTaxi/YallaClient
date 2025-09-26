@@ -11,6 +11,7 @@ sealed interface HomeIntent {
         data object AnimateToMyRoute : HomeOverlayIntent
         data object ClickShowOrders : HomeOverlayIntent
         data object OpenDrawer : HomeOverlayIntent
+        data object CloseDrawer : HomeOverlayIntent
         data object NavigateBack : HomeOverlayIntent
         data object AskForPermission : HomeOverlayIntent
         data object AskForEnable : HomeOverlayIntent

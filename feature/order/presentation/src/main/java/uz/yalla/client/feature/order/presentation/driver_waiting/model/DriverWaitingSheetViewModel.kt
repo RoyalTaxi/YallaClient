@@ -11,6 +11,8 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import uz.yalla.client.core.analytics.event.Event
+import uz.yalla.client.core.analytics.event.Logger
 import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.feature.order.domain.usecase.order.CancelRideUseCase
 import uz.yalla.client.feature.order.domain.usecase.order.GetShowOrderUseCase
@@ -61,7 +63,9 @@ class DriverWaitingSheetViewModel(
         val orderId = uiState.value.orderId
         viewModelScope.launch {
             if (orderId != null) {
-                cancelRideUseCase(orderId)
+                cancelRideUseCase(orderId).onSuccess {
+                    Logger.log(Event.OrderCancelled)
+                }
             }
         }.invokeOnCompletion {
             onIntent(DriverWaitingSheetIntent.OnCancelled(uiState.value.orderId))

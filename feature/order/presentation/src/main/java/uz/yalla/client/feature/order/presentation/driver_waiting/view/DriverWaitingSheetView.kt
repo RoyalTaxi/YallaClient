@@ -48,6 +48,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import uz.yalla.client.core.analytics.event.Event
+import uz.yalla.client.core.analytics.event.Logger
 import uz.yalla.client.core.common.button.CallButton
 import uz.yalla.client.core.common.sheet.ConfirmationBottomSheet
 import uz.yalla.client.core.common.state.SheetValue
@@ -229,6 +231,7 @@ fun DriverWaitingSheet(
                 }
             },
             onConfirm = {
+                Logger.log(Event.CancelOrderClick)
                 viewModel.cancelRide()
                 viewModel.setCancelBottomSheetVisibility(false)
                 scope.launch {

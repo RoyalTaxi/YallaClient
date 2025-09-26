@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import uz.yalla.client.core.analytics.event.Logger
 import uz.yalla.client.core.common.button.BonusOverlay
 import uz.yalla.client.core.common.button.EnableGPSButton
 import uz.yalla.client.core.common.button.MapButton
@@ -104,7 +105,9 @@ fun BoxScope.HomeOverlay(
                 state.client?.balance?.let {
                     BonusOverlay(
                         amount = it,
-                        onClick = { onIntent(HomeOverlayIntent.OnClickBonus) }
+                        onClick = {
+                            onIntent(HomeOverlayIntent.OnClickBonus)
+                        }
                     )
                 }
             }

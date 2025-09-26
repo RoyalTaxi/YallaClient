@@ -35,6 +35,7 @@ rootProject.name = "Yalla"
 include(":app")
 
 include(
+    ":core:analytics",
     ":core:data",
     ":core:domain",
     ":core:service",

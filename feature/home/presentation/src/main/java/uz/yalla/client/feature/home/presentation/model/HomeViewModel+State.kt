@@ -1,11 +1,14 @@
 package uz.yalla.client.feature.home.presentation.model
 
+import uz.yalla.client.core.analytics.event.Event
+import uz.yalla.client.core.analytics.event.Logger
 import uz.yalla.client.core.common.marker.YallaMarkerState
 import uz.yalla.client.core.domain.model.OrderStatus
 import uz.yalla.client.feature.home.presentation.intent.HomeState
 import uz.yalla.client.feature.home.presentation.navigation.OrderSheet
 
 fun HomeViewModel.clearState() = intent {
+    Logger.log(Event.AddNewOrderClick)
     reduce {
         state.copy(
             order = null,

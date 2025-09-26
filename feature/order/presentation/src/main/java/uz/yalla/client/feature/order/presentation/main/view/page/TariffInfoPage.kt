@@ -41,6 +41,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import uz.yalla.client.core.analytics.event.Event
+import uz.yalla.client.core.analytics.event.Logger
 import uz.yalla.client.core.domain.model.ServiceModel
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.domain.model.response.tarrif.GetTariffsModel
@@ -125,6 +127,9 @@ fun TariffInfoPage(
                                 },
                                 onChecked = { isSelected ->
                                     newSelectedOptions.toggle(service, isSelected)
+                                    if (isSelected) {
+                                        Logger.log(Event.ServiceOptionClick(service.name))
+                                    }
                                     onIntent(
                                         TariffInfoSheetIntent.OptionsChange(
                                             options = newSelectedOptions
