@@ -182,6 +182,7 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.crashlytics.ktx)
     implementation(libs.firebase.analytics.ktx)
+    implementation(libs.firebase.config.ktx)
     implementation(libs.firebase.messaging.ktx)
 
     debugImplementation(libs.leakcanary.android)

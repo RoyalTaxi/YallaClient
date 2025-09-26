@@ -11,14 +11,16 @@ object Network {
         single<HttpClient>(named(NetworkConstants.API_1)) {
             provideNetworkClient(
                 baseUrl = NetworkConstants.BASE_URL,
-                appPrefs = get()
+                appPrefs = get(),
+                staticPrefs = get()
             )
         }
 
         single<HttpClient>(named(NetworkConstants.API_2)) {
             provideNetworkClient(
                 baseUrl = NetworkConstants.BASE_URL_2,
-                appPrefs = get()
+                appPrefs = get(),
+                staticPrefs = get()
             )
         }
     }

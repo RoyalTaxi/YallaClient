@@ -243,6 +243,7 @@ fun HomeRoute(
     HomeScreen(
         state = state,
         networkState = networkState,
+        isDrawerOpen = state.isDrawerOpen,
         isOrderCanceledVisible = sheet is Canceled,
         onIntent = viewModel::onIntent,
         onDrawerIntent = { intent ->

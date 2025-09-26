@@ -17,6 +17,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.koinInject
+import uz.yalla.client.core.analytics.event.Event
+import uz.yalla.client.core.analytics.event.Logger
 import uz.yalla.client.core.common.button.EnableBonusButton
 import uz.yalla.client.core.common.item.BonusBalanceItem
 import uz.yalla.client.core.common.item.BonusInfoItem

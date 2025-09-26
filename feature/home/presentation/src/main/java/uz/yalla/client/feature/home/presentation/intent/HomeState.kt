@@ -39,6 +39,7 @@ data class HomeState(
 
     val navigationButtonState: NavigationButtonState,
     val cameraButtonState: CameraButtonState,
+    val isDrawerOpen: Boolean = false,
 
     val locationEnabled: Boolean,
     val locationGranted: Boolean,

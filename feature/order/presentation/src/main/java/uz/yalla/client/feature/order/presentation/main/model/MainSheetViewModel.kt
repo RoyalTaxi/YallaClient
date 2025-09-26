@@ -14,6 +14,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
+import uz.yalla.client.core.analytics.event.Event
+import uz.yalla.client.core.analytics.event.Logger
 import uz.yalla.client.core.common.sheet.search_address.SearchByNameSheetValue
 import uz.yalla.client.core.common.sheet.select_from_map.intent.SelectFromMapViewValue
 import uz.yalla.client.core.common.viewmodel.BaseViewModel
@@ -136,10 +138,9 @@ class MainSheetViewModel(
                     )
                 }
 
-                is TariffInfoSheetIntent.ClickComment -> _uiState.update {
-                    it.copy(
-                        isOrderCommentSheetVisible = true
-                    )
+                is TariffInfoSheetIntent.ClickComment -> {
+                    Logger.log(Event.CommentClick)
+                    _uiState.update { it.copy(isOrderCommentSheetVisible = true) }
                 }
 
                 is FooterIntent.CreateOrder -> orderTaxi()
@@ -158,6 +159,7 @@ class MainSheetViewModel(
 
                 is PaymentMethodSheetIntent.OnSelectPaymentType -> updatePaymentType(intent.paymentType)
                 is PaymentMethodSheetIntent.EnableBonus -> {
+                    Logger.log(Event.PaymentMethodBonusClick)
                     setBonusAmountSheetVisibility(true)
                 }
 
@@ -221,6 +223,7 @@ class MainSheetViewModel(
     private fun handleSelectTariff(intent: OrderTaxiSheetIntent.SelectTariff) {
         if (intent.wasSelected) _sheetVisibilityListener.trySend(Unit)
         else {
+            Logger.log(Event.TariffOptionClick(intent.tariff.name))
             setSelectedTariff(intent.tariff)
             uiState.value.selectedLocationId?.let {
                 viewModelScope.launch {
@@ -340,11 +343,13 @@ class MainSheetViewModel(
     }
 
     private fun orderTaxi() {
+        Logger.log(Event.CreateOrderClick)
         viewModelScope.launchWithLoading {
             uiState.value.mapToOrderTaxiDto()?.let {
                 orderTaxiUseCase(it)
                     .onSuccess { o ->
                         getShowOrder(o.orderId)
+                        Logger.log(Event.OrderCreated)
                     }
                     .onFailure { throwable ->
                         when (throwable) {

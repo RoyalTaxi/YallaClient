@@ -1,5 +1,7 @@
 package uz.yalla.client.feature.home.presentation.model
 
+import uz.yalla.client.core.analytics.event.Event
+import uz.yalla.client.core.analytics.event.Logger
 import uz.yalla.client.core.common.map.extended.intent.MapIntent.*
 import uz.yalla.client.core.common.marker.YallaMarkerState
 import uz.yalla.client.core.domain.model.Destination
@@ -52,11 +54,16 @@ fun HomeViewModel.onIntent(intent: HomeIntent) = intent {
         }
 
         HomeOverlayIntent.OnClickBonus -> {
+            Logger.log(Event.OverlayBonusClick)
             MainSheetChannel.setBonusVisibility(true)
         }
 
         HomeOverlayIntent.OpenDrawer -> {
-            // This is handled in HomeScreen.kt
+            reduce { state.copy(isDrawerOpen = true) }
+        }
+
+        HomeOverlayIntent.CloseDrawer -> {
+            reduce { state.copy(isDrawerOpen = false) }
         }
 
         is SetShowingOrder -> {

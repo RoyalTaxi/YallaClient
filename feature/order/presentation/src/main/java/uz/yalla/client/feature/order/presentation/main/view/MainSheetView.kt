@@ -32,6 +32,8 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
+import uz.yalla.client.core.analytics.event.Event
+import uz.yalla.client.core.analytics.event.Logger
 import uz.yalla.client.core.common.dialog.BaseDialog
 import uz.yalla.client.core.common.dialog.LoadingDialog
 import uz.yalla.client.core.common.sheet.AddDestinationBottomSheet
@@ -269,6 +271,7 @@ fun MainSheet(
                 }
             },
             onDestinationSelected = { name, lat, lng, _ ->
+                Logger.log(Event.SecondaryAddressOptionClick)
                 scope.launch(Dispatchers.IO) {
                     MainSheetChannel.sendIntent(
                         OrderTaxiSheetIntent.SetDestinations(
@@ -392,6 +395,8 @@ fun MainSheet(
     if (state.isSetBonusAmountBottomSheetVisible) {
         SetBonusAmountBottomSheet(
             amount = state.bonusAmount,
+            fromBonusInfo = state.isBonusInfoSheetVisibility,
+            fromPaymentMethod = state.isPaymentMethodSheetVisible,
             onDismissRequest = viewModel::setBonusAmount
         )
     }

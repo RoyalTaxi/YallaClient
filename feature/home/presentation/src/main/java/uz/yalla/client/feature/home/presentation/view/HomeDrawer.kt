@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -45,6 +44,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import org.koin.compose.koinInject
+import uz.yalla.client.core.analytics.event.Event
+import uz.yalla.client.core.analytics.event.Logger
 import uz.yalla.client.core.data.mapper.or0
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.domain.local.StaticPreferences
@@ -195,13 +196,19 @@ private fun DrawerContent(
             DrawerItem(
                 title = stringResource(R.string.orders_history),
                 painter = painterResource(R.drawable.ic_order_history),
-                onClick = { onIntent(HomeDrawerIntent.OrdersHistory) }
+                onClick = {
+                    Logger.log(Event.OrderHistoryClick)
+                    onIntent(HomeDrawerIntent.OrdersHistory)
+                }
             )
 
             DrawerItem(
                 title = stringResource(R.string.my_places),
                 painter = painterResource(R.drawable.ic_addresses),
-                onClick = { onIntent(HomeDrawerIntent.MyPlaces) }
+                onClick = {
+                    Logger.log(Event.MyPlacesClick)
+                    onIntent(HomeDrawerIntent.MyPlaces)
+                }
             )
 
             DrawerItem(
@@ -212,7 +219,10 @@ private fun DrawerContent(
                 ),
                 painter = painterResource(R.drawable.ic_coin),
                 tintColor = Color.Unspecified,
-                onClick = { onIntent(HomeDrawerIntent.Bonus) }
+                onClick = {
+                    Logger.log(Event.BonusAndDiscountsClick)
+                    onIntent(HomeDrawerIntent.Bonus)
+                }
             )
 
             DrawerItem(
@@ -241,7 +251,10 @@ private fun DrawerContent(
 
                     is PaymentType.CASH -> YallaTheme.color.onBackground
                 },
-                onClick = { onIntent(HomeDrawerIntent.PaymentType) }
+                onClick = {
+                    Logger.log(Event.PaymentTypeClick)
+                    onIntent(HomeDrawerIntent.PaymentType)
+                }
             )
         }
 
@@ -257,6 +270,7 @@ private fun DrawerContent(
                 title = stringResource(R.string.invite_friends),
                 painter = painterResource(R.drawable.ic_invite),
                 onClick = {
+                    Logger.log(Event.InviteFriendsClick)
                     onIntent(
                         HomeDrawerIntent.InviteFriend(
                             title = context.getString(R.string.invite_friends),
@@ -270,6 +284,7 @@ private fun DrawerContent(
                 title = stringResource(R.string.become_a_driver),
                 painter = painterResource(R.drawable.ic_driver),
                 onClick = {
+                    Logger.log(Event.BecomeDriverClick)
                     onIntent(
                         HomeDrawerIntent.BecomeADriver(
                             title = context.getString(R.string.become_a_driver),
@@ -282,13 +297,15 @@ private fun DrawerContent(
             DrawerItem(
                 title = stringResource(R.string.contuct_us),
                 painter = painterResource(R.drawable.ic_contact_us),
-                onClick = { onIntent(HomeDrawerIntent.ContactUs) }
+                onClick = {
+                    Logger.log(Event.ContactUsClick)
+                    onIntent(HomeDrawerIntent.ContactUs)
+                }
             )
 
             DrawerItem(
                 title = stringResource(R.string.notifications),
                 painter = painterResource(R.drawable.ic_bell),
-                onClick = { onIntent(HomeDrawerIntent.Notifications) },
                 trailingIcon = {
                     if (notificationsCount != 0) {
                         Box(
@@ -298,6 +315,10 @@ private fun DrawerContent(
                                 .size(14.dp)
                         )
                     }
+                },
+                onClick = {
+                    Logger.log(Event.NotificationsClick)
+                    onIntent(HomeDrawerIntent.Notifications)
                 }
             )
         }
@@ -314,13 +335,19 @@ private fun DrawerContent(
             DrawerItem(
                 title = stringResource(R.string.settings),
                 painter = painterResource(R.drawable.ic_setting_line),
-                onClick = { onIntent(HomeDrawerIntent.Settings) }
+                onClick = {
+                    Logger.log(Event.SettingsClick)
+                    onIntent(HomeDrawerIntent.Settings)
+                }
             )
 
             DrawerItem(
                 title = stringResource(R.string.about_app),
                 painter = painterResource(R.drawable.ic_info),
-                onClick = { onIntent(HomeDrawerIntent.AboutTheApp) }
+                onClick = {
+                    Logger.log(Event.AboutAppClick)
+                    onIntent(HomeDrawerIntent.AboutTheApp)
+                }
             )
 
             Spacer(modifier = Modifier.navigationBarsPadding())

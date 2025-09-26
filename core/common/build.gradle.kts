@@ -10,6 +10,7 @@ android {
 dependencies {
     api(projects.core.data)
     api(projects.core.domain)
+    api(projects.core.analytics)
     api(projects.core.presentation)
 
     implementation(projects.feature.places.domain)

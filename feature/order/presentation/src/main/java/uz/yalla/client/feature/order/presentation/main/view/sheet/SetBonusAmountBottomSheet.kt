@@ -34,6 +34,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
+import uz.yalla.client.core.analytics.event.Event
+import uz.yalla.client.core.analytics.event.Logger
 import uz.yalla.client.core.domain.local.AppPreferences
 import uz.yalla.client.core.presentation.design.theme.YallaTheme
 import uz.yalla.client.feature.order.presentation.R
@@ -45,6 +47,8 @@ private const val CHANGE_AMOUNT = 1000
 @Composable
 fun SetBonusAmountBottomSheet(
     amount: Long,
+    fromBonusInfo: Boolean,
+    fromPaymentMethod: Boolean,
     onDismissRequest: (amount: Long) -> Unit
 ) {
     val prefs = koinInject<AppPreferences>()
@@ -85,6 +89,16 @@ fun SetBonusAmountBottomSheet(
             )
 
             SetBonusAmountFooter {
+                when {
+                    fromBonusInfo -> {
+                        Logger.log(Event.ActivateBonusClick(Event.OverlayBonusClick))
+                    }
+
+                    fromPaymentMethod -> {
+                        Logger.log(Event.ActivateBonusClick(Event.PaymentMethodBonusClick))
+                    }
+                }
+
                 onDismissRequest(currentBonusAmount)
             }
         }
